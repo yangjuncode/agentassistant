@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package agentassistproto;
+
+option go_package = "github.com/yangjuncode/agentassistant/agentassistproto";
+
+// TextContent represents text provided to or from an LLM.
+// It must have Type set to "text".
+message TextContent {
+  string type = 1; // Must be "text"
+  string text = 2; // The text content
+}
+
+// ImageContent represents an image provided to or from an LLM.
+// It must have Type set to "image".
+message ImageContent {
+  string type = 1;      // Must be "image"
+  string data = 2;      // Base64-encoded image data
+  string mime_type = 3; // MIME type of the image
+}
+
+// AudioContent represents audio data provided to or from an LLM.
+// It must have Type set to "audio".
+message AudioContent {
+  string type = 1;      // Must be "audio"
+  string data = 2;      // Base64-encoded audio data
+  string mime_type = 3; // MIME type of the audio
+}
+
+// EmbeddedResource represents a resource embedded into a prompt or tool call
+// result. It must have Type set to "embedded_resource".
+message EmbeddedResource {
+  string type = 1;      // Must be "embedded_resource"
+  string uri = 2;       // URI of the embedded resource
+  string mime_type = 3; // MIME type of the resource
+  bytes data = 4;       // Optional: The actual resource data
+}
+
+message McpResultContent {
+   //content type
+   // 1: text
+   // 2: image
+   // 3: audio
+   // 4: embedded resource
+   int32 type = 1;
+  // text
+  TextContent text = 2;
+  // image
+  ImageContent image = 3;
+  // audio
+  AudioContent audio = 4;
+  // embedded resource
+  EmbeddedResource embedded_resource = 5;
+}
+
+message AskQuestionRequest {
+  // current project directory
+  string ProjectDirectory = 1;
+  // ai agent's question
+  string Question = 2;
+  // timeout in seconds, default is 600s
+  int32 Timeout = 3;
+}
+
+message AskQuestionResponse {
+  bool IsError = 1;
+  map<string, string> Meta = 2;
+  repeated McpResultContent contents = 3;
+}
+
+message TaskFinishRequest {
+  // current project directory
+  string ProjectDirectory = 1;
+  // ai agent's summary
+  string Summary = 2;
+  // timeout in seconds, default is 600s
+  int32 Timeout = 3;
+}
+
+message TaskFinishResponse {
+  bool IsError = 1;
+  map<string, string> Meta = 2;
+  repeated McpResultContent contents = 3;
+}
+
+service SrvAgentAssist {
+  rpc AskQuestion(AskQuestionRequest) returns (AskQuestionResponse);
+  rpc TaskFinish(TaskFinishRequest) returns (TaskFinishResponse);
+}
