@@ -1,20 +1,59 @@
-# agent assistant 需求文档
+# Agent Assistant 需求文档
 
-agent assistant是一个基于mcp的AI agent assistant，它通过引导 AI agent 与用户确认而非进行推测性操作，可将多次工具调用合并为单次反馈导向请求，大幅节省平台成本并提升开发效率。
+## 1. 项目概述
 
-**支持的AI agent平台：** [Cursor](https://www.cursor.com) | [Cline](https://cline.bot) | [Windsurf](https://windsurf.com) | [Augment](https://www.augmentcode.com) | [Trae](https://www.trae.ai)
+Agent Assistant 是一个基于 MCP (Model Context Protocol) 协议的 AI 助手中间件，它通过优化 AI agent 与用户之间的交互流程，提供更高效、可控的对话体验。
 
-## 工作流程
+### 1.1 核心价值
 
-1. AI agent 使用mcp协议调用cli `agentassistant-mcp`
-2. agentassistant-mcp 通过rpc 将请求转发给 agentassistant-srv
-3. agentassistant-srv 根据请求转发/广播给当前在线的web user
-4. web user 根据请求的内容，返回反馈信息给 agentassistant-srv
-5. agentassistant-srv 将反馈信息返回给 AI agent
+- **成本优化**：通过合并多次工具调用为单次反馈请求，显著降低平台资源消耗
+- **效率提升**：减少不必要的推测性操作，提高任务完成效率
+- **增强可控性**：通过明确的用户确认机制，确保 AI 行为符合预期
+- **平台兼容**：支持主流的 AI agent 平台
 
-## 设定提示工程
+### 1.2 支持平台
 
-为了获得最佳效果，请在 AI 助手中添加以下规则：
+- [Cursor](https://www.cursor.com)
+- [Cline](https://cline.bot)
+- [Windsurf](https://windsurf.com)
+- [Augment](https://www.augmentcode.com)
+- [Trae](https://www.trae.ai)
+
+## 2. 系统架构
+
+### 2.1 核心组件
+
+1. **agentassistant-mcp**：MCP 协议接口层，负责与 AI agent 通信，使用golang实现
+2. **agentassistant-srv**：核心服务层，处理请求路由和消息转发，使用golang实现
+3. **Web 界面**：用户交互界面，展示请求并收集反馈,
+4. **RPC 及其交互协议**：用于 agentassistant-mcp 与 agentassistant-srv与 Web 界面之间的通信，使用protobuf定义的[connectrpc](https://connectrpc.com)
+
+### 2.2 数据流
+
+```mermaid
+flowchart LR
+    A[AI Agent] -->|MCP 协议| B[agentassistant-mcp]
+    B -->|RPC 调用| C[agentassistant-srv]
+    C -->|RPC 调用| D[Web User Interface]
+    D -->|用户反馈| C
+    C -->|响应| B
+    B -->|返回结果| A
+```
+
+## 3. 工作流程
+
+1. **请求发起**：AI agent 通过 MCP 协议调用 `agentassistant-mcp` CLI 工具
+2. **请求转发**：`agentassistant-mcp` 通过 RPC 将请求转发至 `agentassistant-srv` 服务
+3. **消息广播**：`agentassistant-srv` 将请求广播给所有在线的 Web 用户
+4. **用户响应**：Web 用户界面展示请求内容，等待用户输入反馈
+5. **结果返回**：用户反馈通过 RPC 返回给 `agentassistant-srv`
+6. **响应处理**：`agentassistant-srv` 将用户反馈返回给 AI agent
+
+## 4. 集成指南
+
+### 4.1 提示工程
+
+为获得最佳效果，请在 AI agent 的提示词中添加以下规则：
 
 ```markdown
 # MCP agent assistant 规则
