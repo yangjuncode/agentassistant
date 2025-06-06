@@ -94,12 +94,22 @@ Returns:
 }
 
 func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	name, err := request.RequireString("name")
+	projectDirectory, err := request.RequireString("project_directory")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	return mcp.NewToolResultText(fmt.Sprintf("Hello, %s!", name)), nil
+	question, err := request.RequireString("question")
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	timeout, err := request.RequireInt("timeout")
+	if err != nil {
+		timeout = 600 // Default timeout
+	}
+
+	return mcp.NewToolResultText(fmt.Sprintf("Asked question in %s: %s (timeout: %.0fs)", projectDirectory, question, timeout)), nil
 }
 
 func taskFinishHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -107,13 +117,13 @@ func taskFinishHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	
+
 	summary, err := request.RequireString("summary")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
-	
-	timeout, err := request.RequireNumber("timeout")
+
+	timeout, err := request.RequireInt("timeout")
 	if err != nil {
 		timeout = 600 // Default timeout
 	}

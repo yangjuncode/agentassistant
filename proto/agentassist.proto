@@ -53,7 +53,7 @@ message McpResultContent {
   EmbeddedResource embedded_resource = 5;
 }
 
-message AskQuestionRequest {
+message McpAskQuestionRequest {
   // current project directory
   string ProjectDirectory = 1;
   // ai agent's question
@@ -62,13 +62,24 @@ message AskQuestionRequest {
   int32 Timeout = 3;
 }
 
-message AskQuestionResponse {
-  bool IsError = 1;
-  map<string, string> Meta = 2;
-  repeated McpResultContent contents = 3;
+message AskQuestionRequest {
+  // request id
+  string ID = 1;
+  // user token
+  string UserToken = 2;
+  // ai agent's question
+  McpAskQuestionRequest Request = 3;
 }
 
-message TaskFinishRequest {
+message AskQuestionResponse {
+  // request id
+  string ID = 1;
+  bool IsError = 2;
+  map<string, string> Meta = 3;
+  repeated McpResultContent contents = 4;
+}
+
+message McpTaskFinishRequest {
   // current project directory
   string ProjectDirectory = 1;
   // ai agent's summary
@@ -77,10 +88,21 @@ message TaskFinishRequest {
   int32 Timeout = 3;
 }
 
+message TaskFinishRequest {
+  // request id
+  string ID = 1;
+  // user token
+  string UserToken = 2;
+  // ai agent's summary
+  McpTaskFinishRequest Request = 3;
+}
+
 message TaskFinishResponse {
-  bool IsError = 1;
-  map<string, string> Meta = 2;
-  repeated McpResultContent contents = 3;
+  // request id
+  string ID = 1;
+  bool IsError = 2;
+  map<string, string> Meta = 3;
+  repeated McpResultContent contents = 4;
 }
 
 service SrvAgentAssist {

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Assistant Web Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .request {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .request h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .response-form {
+            margin-top: 15px;
+        }
+        .response-form textarea {
+            width: 100%;
+            height: 100px;
+            margin: 5px 0;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .response-form button {
+            background-color: #4caf50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .response-form button:hover {
+            background-color: #45a049;
+        }
+        .response-form button.error {
+            background-color: #f44336;
+        }
+        .response-form button.error:hover {
+            background-color: #da190b;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agent Assistant Web Client</h1>
+        
+        <div id="status" class="status disconnected">
+            Disconnected
+        </div>
+        
+        <div id="requests">
+            <!-- Requests will be displayed here -->
+        </div>
+        
+        <div class="log" id="log">
+            <!-- Connection logs will be displayed here -->
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let currentRequests = new Map();
+
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(connected) {
+            const statusElement = document.getElementById('status');
+            if (connected) {
+                statusElement.textContent = 'Connected';
+                statusElement.className = 'status connected';
+            } else {
+                statusElement.textContent = 'Disconnected';
+                statusElement.className = 'status disconnected';
+            }
+        }
+
+        function connect() {
+            const wsUrl = 'ws://localhost:8080/ws';
+            log(`Connecting to ${wsUrl}...`);
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                log('Connected to Agent Assistant server');
+                updateStatus(true);
+            };
+            
+            ws.onmessage = function(event) {
+                try {
+                    const message = JSON.parse(event.data);
+                    log(`Received message: ${message.type}`);
+                    
+                    if (message.type === 'request') {
+                        handleRequest(message.payload);
+                    } else if (message.type === 'pong') {
+                        log('Received pong');
+                    }
+                } catch (error) {
+                    log(`Error parsing message: ${error.message}`);
+                }
+            };
+            
+            ws.onclose = function() {
+                log('Connection closed');
+                updateStatus(false);
+                // Attempt to reconnect after 3 seconds
+                setTimeout(connect, 3000);
+            };
+            
+            ws.onerror = function(error) {
+                log(`WebSocket error: ${error}`);
+            };
+        }
+
+        function handleRequest(request) {
+            log(`Handling ${request.type} request: ${request.id}`);
+            currentRequests.set(request.id, request);
+            
+            const requestsContainer = document.getElementById('requests');
+            const requestElement = document.createElement('div');
+            requestElement.className = 'request';
+            requestElement.id = `request-${request.id}`;
+            
+            let content = `
+                <h3>${request.type === 'ask_question' ? 'Question' : 'Task Finished'}</h3>
+                <p><strong>Project:</strong> ${request.project_directory}</p>
+            `;
+            
+            if (request.type === 'ask_question') {
+                content += `<p><strong>Question:</strong> ${request.question}</p>`;
+            } else {
+                content += `<p><strong>Summary:</strong> ${request.summary}</p>`;
+            }
+            
+            content += `
+                <p><strong>Timeout:</strong> ${request.timeout} seconds</p>
+                <div class="response-form">
+                    <textarea id="response-${request.id}" placeholder="Enter your response here..."></textarea>
+                    <br>
+                    <button onclick="sendResponse('${request.id}', false)">Send Response</button>
+                    <button onclick="sendResponse('${request.id}', true)" class="error">Send Error</button>
+                </div>
+            `;
+            
+            requestElement.innerHTML = content;
+            requestsContainer.appendChild(requestElement);
+        }
+
+        function sendResponse(requestId, isError) {
+            const responseText = document.getElementById(`response-${requestId}`).value;
+            
+            if (!responseText.trim() && !isError) {
+                alert('Please enter a response');
+                return;
+            }
+            
+            const response = {
+                type: 'response',
+                payload: {
+                    id: requestId,
+                    is_error: isError,
+                    meta: isError ? { error: 'user_error', message: responseText || 'User reported an error' } : {},
+                    contents: isError ? null : [
+                        {
+                            type: 1, // Text content
+                            text: {
+                                type: 'text',
+                                text: responseText
+                            }
+                        }
+                    ]
+                }
+            };
+            
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(response));
+                log(`Sent response for request ${requestId}: ${isError ? 'ERROR' : 'SUCCESS'}`);
+                
+                // Remove the request from UI
+                const requestElement = document.getElementById(`request-${requestId}`);
+                if (requestElement) {
+                    requestElement.remove();
+                }
+                currentRequests.delete(requestId);
+            } else {
+                log('Cannot send response: WebSocket not connected');
+            }
+        }
+
+        // Start connection when page loads
+        window.onload = function() {
+            log('Starting Agent Assistant Web Client...');
+            connect();
+        };
+    </script>
+</body>
+</html>
