@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/yangjuncode/agentassistant/agentassistantconnect"
+	"github.com/yangjuncode/agentassistant/agentassistproto"
 	"github.com/yangjuncode/agentassistant/internal/service"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -23,8 +23,8 @@ func main() {
 	// Create HTTP mux
 	mux := http.NewServeMux()
 
-	// Register the Connect-Go handler
-	path, handler := agentassistantconnect.NewSrvAgentAssistHandler(svc)
+	// Register the Connect-Go handlers
+	path, handler := agentassistproto.NewSrvAgentAssistHandler(svc)
 	mux.Handle(path, handler)
 
 	// Register WebSocket handler for web interface
@@ -36,6 +36,44 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "OK")
 	})
+
+	// Serve static files from web/dist directory
+	webDir := "web/dist"
+	if _, err := os.Stat(webDir); err == nil {
+		fileServer := http.FileServer(http.Dir(webDir))
+		mux.Handle("/", fileServer)
+	} else {
+		// Fallback to examples/webclient if web/dist doesn't exist
+		exampleDir := "examples/webclient"
+		if _, err := os.Stat(exampleDir); err == nil {
+			fileServer := http.FileServer(http.Dir(exampleDir))
+			mux.Handle("/", fileServer)
+		} else {
+			// Serve a simple message if no web files are found
+			mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/html")
+				w.WriteHeader(http.StatusOK)
+				w.Write([]byte(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agent Assistant Server</title>
+</head>
+<body>
+    <h1>Agent Assistant Server</h1>
+    <p>Server is running on port 8080</p>
+    <p>WebSocket endpoint: /ws</p>
+    <p>RPC endpoints:</p>
+    <ul>
+        <li>/agentassistproto.SrvAgentAssist/AskQuestion</li>
+        <li>/agentassistproto.SrvAgentAssist/TaskFinish</li>
+    </ul>
+</body>
+</html>
+				`))
+			})
+		}
+	}
 
 	// Add CORS middleware for web interface
 	corsHandler := addCORS(mux)

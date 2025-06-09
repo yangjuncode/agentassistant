@@ -53,6 +53,7 @@ agentassistant_server_token = "test-token"
 - **React：** 作为核心的 JavaScript 库，用于构建动态且响应迅速的用户界面组件。
 - **Shadcn/ui：** 提供了一套设计精美、可重用且易于定制的 UI 组件，确保了界面的美观性和一致性。
 - **Vite：** 作为前端构建工具，提供了极速的冷启动、即时模块热更新 (HMR) 和优化的构建输出，提升了开发效率和应用性能。
+- **@connectrpc/connect-web** web界面使用的connectrpc库
 
 **核心功能：**
 
@@ -73,8 +74,8 @@ agentassistant_server_token = "test-token"
 3. `agentassistant-srv` 接收到 `WebsocketMessage.UserLogin` 消息后，将用户登录状态存储在内存中。
 
 4. 当 `agentassistant-mcp` 发起 `ask_question` 时，`agentassistant-srv` 会向 Web 界面发送 `WebsocketMessage.AskQuestion` 消息（包含 `AskQuestionRequest`）。
-5. Web 界面接收到 `WebsocketMessage.AskQuestion` 消息后，将问题展示给用户。用户回复时，Web 界面将使用 RPC 调用 `agentassistant-srv` 的 `SrvAgentAssistReply.AskQuestionReply` 方法，并附带用户的回复内容。
-6. `agentassistant-srv` 接收到来自 Web 界面的 `AskQuestionReply` 后，将此回复转发给相应的 `agentassistant-mcp`。
+5. Web 界面接收到 `WebsocketMessage.AskQuestion` 消息后，将问题展示给用户。用户回复时，Web 界面将使用 websocket 发送 `agentassistant-srv` 的 `WebsocketMessage.cmd=AskQuestionReply` 消息 ，并附带用户的回复内容。
+6. `agentassistant-srv` 接收到来自 Web 界面的 `WebsocketMessage.cmd=AskQuestionReply` 后，将此回复转发给相应的 `agentassistant-mcp`。
 7. 当 `agentassistant-mcp` 发起 `task_finish` 时，`agentassistant-srv` 会向 Web 界面发送 `WebsocketMessage.TaskFinish` 消息（包含 `TaskFinishRequest`）。
-8. Web 界面接收到 `WebsocketMessage.TaskFinish` 消息后，通常会向用户展示任务已完成的通知。如果 `TaskFinishRequest` 中表明需要用户确认或有进一步的简单交互，用户通过界面操作后，Web 界面将使用 RPC 调用 `agentassistant-srv` 的 `SrvAgentAssistReply.TaskFinishReply` 方法。
+8. Web 界面接收到 `WebsocketMessage.TaskFinish` 消息后，通常会向用户展示任务已完成的通知。如果 `TaskFinishRequest` 中表明需要用户确认或有进一步的简单交互，用户通过界面操作后，Web 界面将使用 websocket 发送 `agentassistant-srv`  `WebsocketMessage.cmd=TaskFinishReply` 消息。
 9. `agentassistant-srv` 接收到来自 Web 界面的 `TaskFinishReply` 后（如果发生），将此回复转发给相应的 `agentassistant-mcp`。

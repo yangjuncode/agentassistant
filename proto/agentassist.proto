@@ -53,6 +53,10 @@ message McpResultContent {
   EmbeddedResource embedded_resource = 5;
 }
 
+message MsgEmpty {
+  
+}
+
 message McpAskQuestionRequest {
   // current project directory
   string ProjectDirectory = 1;
@@ -120,6 +124,12 @@ message WebsocketMessage {
   //task finish
   TaskFinishRequest TaskFinishRequest = 3;
 
+  // ask question reply
+  AskQuestionResponse AskQuestionResponse = 4;
+
+  // task finish reply
+  TaskFinishResponse TaskFinishResponse = 5;
+
   //str param
   string StrParam = 12;
 }
@@ -129,7 +139,4 @@ service SrvAgentAssist {
   rpc TaskFinish(TaskFinishRequest) returns (TaskFinishResponse);
 }
 
-service SrvAgentAssistReply {
-  rpc AskQuestionReply(AskQuestionRequest) returns (AskQuestionResponse);
-  rpc TaskFinishReply(TaskFinishRequest) returns (TaskFinishResponse);
-}
+// WebsocketMessage defines the message structure for WebSocket communication

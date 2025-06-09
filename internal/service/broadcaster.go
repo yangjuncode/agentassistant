@@ -4,31 +4,28 @@ import (
 	"log"
 	"sync"
 
-	"github.com/yangjuncode/agentassistant"
+	agentassistproto "github.com/yangjuncode/agentassistant/agentassistproto"
 )
 
-// WebRequest represents a request to be sent to web users
-type WebRequest struct {
-	ID               string            `json:"id"`                 // Unique request ID
-	Type             string            `json:"type"`               // "ask_question" or "task_finish"
-	ProjectDirectory string            `json:"project_directory"`  // Current project directory
-	Question         string            `json:"question,omitempty"` // Question for ask_question type
-	Summary          string            `json:"summary,omitempty"`  // Summary for task_finish type
-	Timeout          int32             `json:"timeout"`            // Timeout in seconds
-	ResponseChan     chan *WebResponse `json:"-"`                  // Channel to receive response (not serialized)
+// WebsocketRequest represents a request with response channel for internal use
+type WebsocketRequest struct {
+	Message      *agentassistproto.WebsocketMessage
+	ResponseChan chan *WebResponse
+	UserToken    string // Token of the user who should receive this message
 }
 
 // WebResponse represents a response from web users
 type WebResponse struct {
-	IsError  bool                               `json:"is_error"`
-	Meta     map[string]string                  `json:"meta"`
-	Contents []*agentassistant.McpResultContent `json:"contents"`
+	IsError  bool                                 `json:"is_error"`
+	Meta     map[string]string                    `json:"meta"`
+	Contents []*agentassistproto.McpResultContent `json:"contents"`
 }
 
 // WebClient represents a connected web client
 type WebClient struct {
 	ID       string
-	SendChan chan *WebRequest
+	Token    string
+	SendChan chan *agentassistproto.WebsocketMessage
 	mu       sync.RWMutex
 	active   bool
 }
@@ -37,9 +34,23 @@ type WebClient struct {
 func NewWebClient(id string) *WebClient {
 	return &WebClient{
 		ID:       id,
-		SendChan: make(chan *WebRequest, 10), // Buffered channel
+		SendChan: make(chan *agentassistproto.WebsocketMessage, 10), // Buffered channel
 		active:   true,
 	}
+}
+
+// SetToken sets the authentication token for the client
+func (c *WebClient) SetToken(token string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.Token = token
+}
+
+// GetToken returns the client's authentication token
+func (c *WebClient) GetToken() string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Token
 }
 
 // IsActive returns whether the client is active
@@ -59,8 +70,8 @@ func (c *WebClient) Close() {
 	}
 }
 
-// Send sends a request to the client if it's active
-func (c *WebClient) Send(req *WebRequest) bool {
+// Send sends a websocket message to the client if it's active
+func (c *WebClient) Send(msg *agentassistproto.WebsocketMessage) bool {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
@@ -69,11 +80,11 @@ func (c *WebClient) Send(req *WebRequest) bool {
 	}
 
 	select {
-	case c.SendChan <- req:
+	case c.SendChan <- msg:
 		return true
 	default:
 		// Channel is full, client might be unresponsive
-		log.Printf("Failed to send request to client %s: channel full", c.ID)
+		log.Printf("Failed to send message to client %s: channel full", c.ID)
 		return false
 	}
 }
@@ -81,10 +92,10 @@ func (c *WebClient) Send(req *WebRequest) bool {
 // Broadcaster manages broadcasting requests to web clients
 type Broadcaster struct {
 	clients          map[string]*WebClient
-	pendingRequests  map[string]*WebRequest // Map request ID to WebRequest
+	pendingRequests  map[string]*WebsocketRequest // Map request ID to WebsocketRequest
 	register         chan *WebClient
 	unregister       chan *WebClient
-	broadcast        chan *WebRequest
+	broadcast        chan *WebsocketRequest
 	responseReceived chan *ResponseWithID
 	mu               sync.RWMutex
 }
@@ -99,10 +110,10 @@ type ResponseWithID struct {
 func NewBroadcaster() *Broadcaster {
 	b := &Broadcaster{
 		clients:          make(map[string]*WebClient),
-		pendingRequests:  make(map[string]*WebRequest),
+		pendingRequests:  make(map[string]*WebsocketRequest),
 		register:         make(chan *WebClient),
 		unregister:       make(chan *WebClient),
-		broadcast:        make(chan *WebRequest),
+		broadcast:        make(chan *WebsocketRequest),
 		responseReceived: make(chan *ResponseWithID),
 	}
 
@@ -132,12 +143,39 @@ func (b *Broadcaster) run() {
 			log.Printf("Web client %s unregistered. Total clients: %d", client.ID, len(b.clients))
 
 		case request := <-b.broadcast:
+			// Get request ID from the message
+			var requestID string
+			if request.Message.AskQuestionRequest != nil {
+				requestID = request.Message.AskQuestionRequest.ID
+			} else if request.Message.TaskFinishRequest != nil {
+				requestID = request.Message.TaskFinishRequest.ID
+			} else {
+				log.Printf("Invalid request: no ID found")
+				continue
+			}
+
+			// Filter clients by token if specified
+			var targetClients []*WebClient
 			b.mu.RLock()
-			clientCount := len(b.clients)
+			if request.UserToken != "" {
+				// Send only to clients with matching token
+				for _, client := range b.clients {
+					if client.IsActive() && client.GetToken() == request.UserToken {
+						targetClients = append(targetClients, client)
+					}
+				}
+			} else {
+				// Send to all active clients
+				for _, client := range b.clients {
+					if client.IsActive() {
+						targetClients = append(targetClients, client)
+					}
+				}
+			}
 			b.mu.RUnlock()
 
-			if clientCount == 0 {
-				log.Printf("No web clients available to handle request")
+			if len(targetClients) == 0 {
+				log.Printf("No web clients available to handle request %s", requestID)
 				// Send error response
 				go func() {
 					select {
@@ -155,26 +193,22 @@ func (b *Broadcaster) run() {
 				continue
 			}
 
-			log.Printf("Broadcasting request %s to %d web clients", request.ID, clientCount)
+			log.Printf("Broadcasting request %s to %d web clients", requestID, len(targetClients))
 
 			// Store the request for response matching
 			b.mu.Lock()
-			b.pendingRequests[request.ID] = request
+			b.pendingRequests[requestID] = request
 			b.mu.Unlock()
 
-			// Send to all active clients
-			b.mu.RLock()
-			for _, client := range b.clients {
-				if client.IsActive() {
-					go func(c *WebClient) {
-						if !c.Send(request) {
-							// Client failed to receive, unregister it
-							b.unregister <- c
-						}
-					}(client)
-				}
+			// Send to target clients
+			for _, client := range targetClients {
+				go func(c *WebClient) {
+					if !c.Send(request.Message) {
+						// Client failed to receive, unregister it
+						b.unregister <- c
+					}
+				}(client)
 			}
-			b.mu.RUnlock()
 
 		case responseWithID := <-b.responseReceived:
 			// Handle response from web client
@@ -209,8 +243,13 @@ func (b *Broadcaster) UnregisterClient(client *WebClient) {
 	b.unregister <- client
 }
 
-// Broadcast sends a request to all connected web clients
-func (b *Broadcaster) Broadcast(request *WebRequest) {
+// BroadcastToToken sends a request to web clients with a specific token
+func (b *Broadcaster) BroadcastToToken(message *agentassistproto.WebsocketMessage, userToken string, responseChan chan *WebResponse) {
+	request := &WebsocketRequest{
+		Message:      message,
+		ResponseChan: responseChan,
+		UserToken:    userToken,
+	}
 	b.broadcast <- request
 }
 

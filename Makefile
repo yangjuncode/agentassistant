@@ -7,7 +7,6 @@ help:
 	@echo "  test       - Run all tests"
 	@echo "  clean      - Clean build artifacts"
 	@echo "  run-srv    - Run the agent assistant server"
-	@echo "  run-client - Run the example client"
 	@echo "  generate   - Generate protobuf code"
 	@echo "  proto-gen  - Alias for generate"
 	@echo "  help       - Show this help message"
@@ -18,8 +17,6 @@ build:
 	go build -o bin/agentassistant-srv ./cmd/agentassistant-srv
 	@echo "Building agent assistant MCP..."
 	go build -o bin/agentassistant-mcp ./cmd/agentassistant-mcp
-	@echo "Building example client..."
-	go build -o bin/example-client ./examples/client
 	@echo "Build complete!"
 
 # Run tests
@@ -39,17 +36,13 @@ run-srv:
 	@echo "Starting Agent Assistant server..."
 	go run ./cmd/agentassistant-srv
 
-# Run the example client
-run-client:
-	@echo "Running example client..."
-	go run ./examples/client
 
 # Generate protobuf code
 generate: proto-gen
 
 proto-gen:
 	@echo "Generating protobuf code..."
-	buf generate
+	protoc  -Iproto --go_out=paths=source_relative:./agentassistproto --connect-go_out=paths=source_relative:./agentassistproto --connect-go_opt=package_suffix="" proto/agentassist.proto
 	@echo "Protobuf generation complete!"
 
 # Install dependencies

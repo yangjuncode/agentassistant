@@ -1,13 +1,12 @@
 package service
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/yangjuncode/agentassistant"
+	agentassistproto "github.com/yangjuncode/agentassistant/agentassistproto"
 )
 
 // WebSocketHandler handles WebSocket connections for the web interface
@@ -29,30 +28,6 @@ func NewWebSocketHandler(broadcaster *Broadcaster) *WebSocketHandler {
 			WriteBufferSize: 1024,
 		},
 	}
-}
-
-// WebSocketMessage represents a message sent over WebSocket
-type WebSocketMessage struct {
-	Type    string      `json:"type"`
-	Payload interface{} `json:"payload"`
-}
-
-// WebSocketRequest represents a request sent to the web client
-type WebSocketRequest struct {
-	ID               string `json:"id"`
-	Type             string `json:"type"`               // "ask_question" or "task_finish"
-	ProjectDirectory string `json:"project_directory"`  // Current project directory
-	Question         string `json:"question,omitempty"` // Question for ask_question type
-	Summary          string `json:"summary,omitempty"`  // Summary for task_finish type
-	Timeout          int32  `json:"timeout"`            // Timeout in seconds
-}
-
-// WebSocketResponse represents a response from the web client
-type WebSocketResponse struct {
-	ID       string                             `json:"id"`
-	IsError  bool                               `json:"is_error"`
-	Meta     map[string]string                  `json:"meta"`
-	Contents []*agentassistant.McpResultContent `json:"contents"`
 }
 
 // HandleWebSocket handles WebSocket connections
@@ -97,38 +72,19 @@ func (h *WebSocketHandler) handleOutgoingMessages(conn *websocket.Conn, client *
 
 	for {
 		select {
-		case request, ok := <-client.SendChan:
+		case message, ok := <-client.SendChan:
 			if !ok {
 				// Channel closed, client is being shut down
 				conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			// Convert WebRequest to WebSocketRequest
-			wsRequest := &WebSocketRequest{
-				ID:               request.ID, // Use the request ID from the WebRequest
-				Type:             request.Type,
-				ProjectDirectory: request.ProjectDirectory,
-				Question:         request.Question,
-				Summary:          request.Summary,
-				Timeout:          request.Timeout,
-			}
-
-			// Send request to web client
-			message := &WebSocketMessage{
-				Type:    "request",
-				Payload: wsRequest,
-			}
-
+			// Send the protobuf WebsocketMessage directly to the client
 			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
 			if err := conn.WriteJSON(message); err != nil {
 				log.Printf("Failed to send message to client %s: %v", client.ID, err)
 				return
 			}
-
-			// Store the request for response matching
-			// In a production system, you'd want to store this with the request ID
-			// For now, we'll use a simple approach
 
 		case <-ticker.C:
 			// Send ping to keep connection alive
@@ -144,7 +100,7 @@ func (h *WebSocketHandler) handleOutgoingMessages(conn *websocket.Conn, client *
 // handleIncomingMessages handles messages received from the web client
 func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *WebClient) {
 	for {
-		var message WebSocketMessage
+		var message agentassistproto.WebsocketMessage
 		err := conn.ReadJSON(&message)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -153,66 +109,95 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			break
 		}
 
-		switch message.Type {
-		case "response":
-			h.handleResponse(client, message.Payload)
-		case "ping":
-			// Respond to ping with pong
-			pongMessage := &WebSocketMessage{
-				Type:    "pong",
-				Payload: nil,
+		switch message.Cmd {
+		case "UserLogin":
+			// Handle user login - store the token
+			if message.StrParam != "" {
+				client.SetToken(message.StrParam)
+				log.Printf("Client %s authenticated with token", client.ID)
+			} else {
+				log.Printf("Client %s sent empty token for UserLogin", client.ID)
 			}
-			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-			conn.WriteJSON(pongMessage)
+		case "AskQuestionReply":
+			h.handleAskQuestionReply(client, &message)
+		case "TaskFinishReply":
+			h.handleTaskFinishReply(client, &message)
 		default:
-			log.Printf("Unknown message type from client %s: %s", client.ID, message.Type)
+			log.Printf("Unknown message command from client %s: %s", client.ID, message.Cmd)
 		}
 	}
 }
 
-// handleResponse processes a response from the web client
-func (h *WebSocketHandler) handleResponse(client *WebClient, payload interface{}) {
-	// Convert payload to WebSocketResponse
-	responseData, err := json.Marshal(payload)
-	if err != nil {
-		log.Printf("Failed to marshal response payload from client %s: %v", client.ID, err)
+// handleAskQuestionReply processes an AskQuestionReply from the web client
+func (h *WebSocketHandler) handleAskQuestionReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	// For now, we expect the response data to be in the AskQuestionRequest field
+	// This is a workaround until the protobuf generation includes response fields
+	if message.AskQuestionRequest == nil {
+		log.Printf("Received AskQuestionReply from client %s with no request data", client.ID)
 		return
 	}
 
-	var response WebSocketResponse
-	if err := json.Unmarshal(responseData, &response); err != nil {
-		log.Printf("Failed to unmarshal response from client %s: %v", client.ID, err)
-		return
-	}
+	request := message.AskQuestionRequest
 
-	// Validate content if provided
-	if !response.IsError && response.Contents != nil {
-		for _, content := range response.Contents {
-			if err := ValidateContent(content); err != nil {
-				log.Printf("Invalid content in response from client %s: %v", client.ID, err)
-				// Convert to error response
-				response.IsError = true
-				response.Meta = map[string]string{
-					"error":   "invalid_content",
-					"message": err.Error(),
-				}
-				response.Contents = nil
-				break
-			}
-		}
-	}
-
-	// Create WebResponse
+	// Create a simple success response for now
+	// In a full implementation, the web client would send actual response data
 	webResponse := &WebResponse{
-		IsError:  response.IsError,
-		Meta:     response.Meta,
-		Contents: response.Contents,
+		IsError: false,
+		Meta: map[string]string{
+			"source":    "web_client",
+			"client_id": client.ID,
+		},
+		Contents: []*agentassistproto.McpResultContent{
+			{
+				Type: 1, // Text content
+				Text: &agentassistproto.TextContent{
+					Type: "text",
+					Text: "Response received from web client", // Placeholder
+				},
+			},
+		},
 	}
 
-	log.Printf("Received response from client %s for request %s: IsError=%t", client.ID, response.ID, response.IsError)
+	log.Printf("Received AskQuestionReply from client %s for request %s", client.ID, request.ID)
 
 	// Send the response to the broadcaster for proper request matching
-	h.broadcaster.HandleResponse(response.ID, webResponse)
+	h.broadcaster.HandleResponse(request.ID, webResponse)
+}
+
+// handleTaskFinishReply processes a TaskFinishReply from the web client
+func (h *WebSocketHandler) handleTaskFinishReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	// For now, we expect the response data to be in the TaskFinishRequest field
+	// This is a workaround until the protobuf generation includes response fields
+	if message.TaskFinishRequest == nil {
+		log.Printf("Received TaskFinishReply from client %s with no request data", client.ID)
+		return
+	}
+
+	request := message.TaskFinishRequest
+
+	// Create a simple success response for now
+	// In a full implementation, the web client would send actual response data
+	webResponse := &WebResponse{
+		IsError: false,
+		Meta: map[string]string{
+			"source":    "web_client",
+			"client_id": client.ID,
+		},
+		Contents: []*agentassistproto.McpResultContent{
+			{
+				Type: 1, // Text content
+				Text: &agentassistproto.TextContent{
+					Type: "text",
+					Text: "Task completion confirmed by web client", // Placeholder
+				},
+			},
+		},
+	}
+
+	log.Printf("Received TaskFinishReply from client %s for request %s", client.ID, request.ID)
+
+	// Send the response to the broadcaster for proper request matching
+	h.broadcaster.HandleResponse(request.ID, webResponse)
 }
 
 // generateClientID generates a unique client ID

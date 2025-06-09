@@ -7,13 +7,12 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	"github.com/yangjuncode/agentassistant"
-	"github.com/yangjuncode/agentassistant/agentassistantconnect"
+	"github.com/yangjuncode/agentassistant/agentassistproto"
 )
 
 // AgentAssistService implements the SrvAgentAssist service
 type AgentAssistService struct {
-	agentassistantconnect.UnimplementedSrvAgentAssistHandler
+	agentassistproto.UnimplementedSrvAgentAssistHandler
 
 	// Broadcast manager for web users
 	broadcaster *Broadcaster
@@ -29,13 +28,13 @@ func NewAgentAssistService() *AgentAssistService {
 // AskQuestion implements the AskQuestion RPC method
 func (s *AgentAssistService) AskQuestion(
 	ctx context.Context,
-	req *connect.Request[agentassistant.AskQuestionRequest],
-) (*connect.Response[agentassistant.AskQuestionResponse], error) {
+	req *connect.Request[agentassistproto.AskQuestionRequest],
+) (*connect.Response[agentassistproto.AskQuestionResponse], error) {
 	// Check if the nested Request field is nil
 	if req.Msg.Request == nil {
 		log.Printf("Received AskQuestion request with nil Request field")
-		return &connect.Response[agentassistant.AskQuestionResponse]{
-			Msg: &agentassistant.AskQuestionResponse{
+		return &connect.Response[agentassistproto.AskQuestionResponse]{
+			Msg: &agentassistproto.AskQuestionResponse{
 				IsError: true,
 				Meta: map[string]string{
 					"error":   "invalid_request",
@@ -59,26 +58,26 @@ func (s *AgentAssistService) AskQuestion(
 	timeoutCtx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
 	defer cancel()
 
-	// Create request for web users
-	webRequest := &WebRequest{
-		ID:               generateRequestID(),
-		Type:             "ask_question",
-		ProjectDirectory: req.Msg.Request.ProjectDirectory,
-		Question:         req.Msg.Request.Question,
-		Summary:          "",
-		Timeout:          timeout,
-		ResponseChan:     make(chan *WebResponse, 1),
+	// Create WebsocketMessage for web users
+	requestID := req.Msg.ID
+	websocketMessage := &agentassistproto.WebsocketMessage{
+		Cmd:                "AskQuestion",
+		AskQuestionRequest: req.Msg,
 	}
 
-	// Broadcast to web users
-	s.broadcaster.Broadcast(webRequest)
+	// Create response channel
+	responseChan := make(chan *WebResponse, 1)
+
+	// Broadcast to web users with token filtering
+	s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
 
 	// Wait for response or timeout
 	select {
-	case response := <-webRequest.ResponseChan:
+	case response := <-responseChan:
 		if response.IsError {
-			return &connect.Response[agentassistant.AskQuestionResponse]{
-				Msg: &agentassistant.AskQuestionResponse{
+			return &connect.Response[agentassistproto.AskQuestionResponse]{
+				Msg: &agentassistproto.AskQuestionResponse{
+					ID:       requestID,
 					IsError:  true,
 					Meta:     response.Meta,
 					Contents: nil,
@@ -86,8 +85,9 @@ func (s *AgentAssistService) AskQuestion(
 			}, nil
 		}
 
-		return &connect.Response[agentassistant.AskQuestionResponse]{
-			Msg: &agentassistant.AskQuestionResponse{
+		return &connect.Response[agentassistproto.AskQuestionResponse]{
+			Msg: &agentassistproto.AskQuestionResponse{
+				ID:       requestID,
 				IsError:  false,
 				Meta:     response.Meta,
 				Contents: response.Contents,
@@ -96,8 +96,9 @@ func (s *AgentAssistService) AskQuestion(
 
 	case <-timeoutCtx.Done():
 		log.Printf("AskQuestion request timed out after %d seconds", timeout)
-		return &connect.Response[agentassistant.AskQuestionResponse]{
-			Msg: &agentassistant.AskQuestionResponse{
+		return &connect.Response[agentassistproto.AskQuestionResponse]{
+			Msg: &agentassistproto.AskQuestionResponse{
+				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{
 					"error":   "timeout",
@@ -112,13 +113,13 @@ func (s *AgentAssistService) AskQuestion(
 // TaskFinish implements the TaskFinish RPC method
 func (s *AgentAssistService) TaskFinish(
 	ctx context.Context,
-	req *connect.Request[agentassistant.TaskFinishRequest],
-) (*connect.Response[agentassistant.TaskFinishResponse], error) {
+	req *connect.Request[agentassistproto.TaskFinishRequest],
+) (*connect.Response[agentassistproto.TaskFinishResponse], error) {
 	// Check if the nested Request field is nil
 	if req.Msg.Request == nil {
 		log.Printf("Received TaskFinish request with nil Request field")
-		return &connect.Response[agentassistant.TaskFinishResponse]{
-			Msg: &agentassistant.TaskFinishResponse{
+		return &connect.Response[agentassistproto.TaskFinishResponse]{
+			Msg: &agentassistproto.TaskFinishResponse{
 				IsError: true,
 				Meta: map[string]string{
 					"error":   "invalid_request",
@@ -142,26 +143,26 @@ func (s *AgentAssistService) TaskFinish(
 	timeoutCtx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
 	defer cancel()
 
-	// Create request for web users
-	webRequest := &WebRequest{
-		ID:               generateRequestID(),
-		Type:             "task_finish",
-		ProjectDirectory: req.Msg.Request.ProjectDirectory,
-		Question:         "",
-		Summary:          req.Msg.Request.Summary,
-		Timeout:          timeout,
-		ResponseChan:     make(chan *WebResponse, 1),
+	// Create WebsocketMessage for web users
+	requestID := req.Msg.ID
+	websocketMessage := &agentassistproto.WebsocketMessage{
+		Cmd:               "TaskFinish",
+		TaskFinishRequest: req.Msg,
 	}
 
-	// Broadcast to web users
-	s.broadcaster.Broadcast(webRequest)
+	// Create response channel
+	responseChan := make(chan *WebResponse, 1)
+
+	// Broadcast to web users with token filtering
+	s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
 
 	// Wait for response or timeout
 	select {
-	case response := <-webRequest.ResponseChan:
+	case response := <-responseChan:
 		if response.IsError {
-			return &connect.Response[agentassistant.TaskFinishResponse]{
-				Msg: &agentassistant.TaskFinishResponse{
+			return &connect.Response[agentassistproto.TaskFinishResponse]{
+				Msg: &agentassistproto.TaskFinishResponse{
+					ID:       requestID,
 					IsError:  true,
 					Meta:     response.Meta,
 					Contents: nil,
@@ -169,8 +170,9 @@ func (s *AgentAssistService) TaskFinish(
 			}, nil
 		}
 
-		return &connect.Response[agentassistant.TaskFinishResponse]{
-			Msg: &agentassistant.TaskFinishResponse{
+		return &connect.Response[agentassistproto.TaskFinishResponse]{
+			Msg: &agentassistproto.TaskFinishResponse{
+				ID:       requestID,
 				IsError:  false,
 				Meta:     response.Meta,
 				Contents: response.Contents,
@@ -179,8 +181,9 @@ func (s *AgentAssistService) TaskFinish(
 
 	case <-timeoutCtx.Done():
 		log.Printf("TaskFinish request timed out after %d seconds", timeout)
-		return &connect.Response[agentassistant.TaskFinishResponse]{
-			Msg: &agentassistant.TaskFinishResponse{
+		return &connect.Response[agentassistproto.TaskFinishResponse]{
+			Msg: &agentassistproto.TaskFinishResponse{
+				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{
 					"error":   "timeout",

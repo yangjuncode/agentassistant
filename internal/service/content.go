@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/yangjuncode/agentassistant"
+	"github.com/yangjuncode/agentassistant/agentassistproto"
 )
 
 // Content type constants
@@ -17,10 +17,10 @@ const (
 )
 
 // CreateTextContent creates a McpResultContent with text content
-func CreateTextContent(text string) *agentassistant.McpResultContent {
-	return &agentassistant.McpResultContent{
+func CreateTextContent(text string) *agentassistproto.McpResultContent {
+	return &agentassistproto.McpResultContent{
 		Type: ContentTypeText,
-		Text: &agentassistant.TextContent{
+		Text: &agentassistproto.TextContent{
 			Type: "text",
 			Text: text,
 		},
@@ -28,7 +28,7 @@ func CreateTextContent(text string) *agentassistant.McpResultContent {
 }
 
 // CreateImageContent creates a McpResultContent with image content
-func CreateImageContent(data, mimeType string) (*agentassistant.McpResultContent, error) {
+func CreateImageContent(data, mimeType string) (*agentassistproto.McpResultContent, error) {
 	// Validate base64 data
 	if _, err := base64.StdEncoding.DecodeString(data); err != nil {
 		return nil, fmt.Errorf("invalid base64 image data: %w", err)
@@ -39,9 +39,9 @@ func CreateImageContent(data, mimeType string) (*agentassistant.McpResultContent
 		return nil, fmt.Errorf("invalid image MIME type: %s", mimeType)
 	}
 
-	return &agentassistant.McpResultContent{
+	return &agentassistproto.McpResultContent{
 		Type: ContentTypeImage,
-		Image: &agentassistant.ImageContent{
+		Image: &agentassistproto.ImageContent{
 			Type:     "image",
 			Data:     data,
 			MimeType: mimeType,
@@ -50,7 +50,7 @@ func CreateImageContent(data, mimeType string) (*agentassistant.McpResultContent
 }
 
 // CreateAudioContent creates a McpResultContent with audio content
-func CreateAudioContent(data, mimeType string) (*agentassistant.McpResultContent, error) {
+func CreateAudioContent(data, mimeType string) (*agentassistproto.McpResultContent, error) {
 	// Validate base64 data
 	if _, err := base64.StdEncoding.DecodeString(data); err != nil {
 		return nil, fmt.Errorf("invalid base64 audio data: %w", err)
@@ -61,9 +61,9 @@ func CreateAudioContent(data, mimeType string) (*agentassistant.McpResultContent
 		return nil, fmt.Errorf("invalid audio MIME type: %s", mimeType)
 	}
 
-	return &agentassistant.McpResultContent{
+	return &agentassistproto.McpResultContent{
 		Type: ContentTypeAudio,
-		Audio: &agentassistant.AudioContent{
+		Audio: &agentassistproto.AudioContent{
 			Type:     "audio",
 			Data:     data,
 			MimeType: mimeType,
@@ -72,14 +72,14 @@ func CreateAudioContent(data, mimeType string) (*agentassistant.McpResultContent
 }
 
 // CreateEmbeddedResourceContent creates a McpResultContent with embedded resource content
-func CreateEmbeddedResourceContent(uri, mimeType string, data []byte) (*agentassistant.McpResultContent, error) {
+func CreateEmbeddedResourceContent(uri, mimeType string, data []byte) (*agentassistproto.McpResultContent, error) {
 	if uri == "" {
 		return nil, fmt.Errorf("URI cannot be empty for embedded resource")
 	}
 
-	return &agentassistant.McpResultContent{
+	return &agentassistproto.McpResultContent{
 		Type: ContentTypeEmbeddedResource,
-		EmbeddedResource: &agentassistant.EmbeddedResource{
+		EmbeddedResource: &agentassistproto.EmbeddedResource{
 			Type:     "embedded_resource",
 			Uri:      uri,
 			MimeType: mimeType,
@@ -89,7 +89,7 @@ func CreateEmbeddedResourceContent(uri, mimeType string, data []byte) (*agentass
 }
 
 // ValidateContent validates a McpResultContent
-func ValidateContent(content *agentassistant.McpResultContent) error {
+func ValidateContent(content *agentassistproto.McpResultContent) error {
 	if content == nil {
 		return fmt.Errorf("content cannot be nil")
 	}
