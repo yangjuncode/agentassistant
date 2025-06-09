@@ -1,9 +1,12 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"google.golang.org/protobuf/proto"
 
 	"github.com/gorilla/websocket"
 	agentassistproto "github.com/yangjuncode/agentassistant/agentassistproto"
@@ -81,7 +84,12 @@ func (h *WebSocketHandler) handleOutgoingMessages(conn *websocket.Conn, client *
 
 			// Send the protobuf WebsocketMessage directly to the client
 			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-			if err := conn.WriteJSON(message); err != nil {
+			mb, merr := proto.Marshal(message)
+			if merr != nil {
+				log.Printf("Failed to marshal message to client %s: %v", client.ID, merr)
+				return
+			}
+			if err := conn.WriteMessage(websocket.BinaryMessage, mb); err != nil {
 				log.Printf("Failed to send message to client %s: %v", client.ID, err)
 				return
 			}
@@ -101,7 +109,18 @@ func (h *WebSocketHandler) handleOutgoingMessages(conn *websocket.Conn, client *
 func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *WebClient) {
 	for {
 		var message agentassistproto.WebsocketMessage
-		err := conn.ReadJSON(&message)
+		mtype, mb, merr := conn.ReadMessage()
+		if merr != nil {
+			if websocket.IsUnexpectedCloseError(merr, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Printf("WebSocket error for client %s: %v", client.ID, merr)
+			}
+			break
+		}
+		if mtype != websocket.BinaryMessage {
+			continue
+		}
+		err := proto.Unmarshal(mb, &message)
+		log.Printf("Received message from client %s: %s", client.ID, mb)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("WebSocket error for client %s: %v", client.ID, err)
@@ -120,8 +139,10 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			}
 		case "AskQuestionReply":
 			h.handleAskQuestionReply(client, &message)
+			h.broadcastAskQuestionReply(client, &message)
 		case "TaskFinishReply":
 			h.handleTaskFinishReply(client, &message)
+			h.broadcastTaskFinishReply(client, &message)
 		default:
 			log.Printf("Unknown message command from client %s: %s", client.ID, message.Cmd)
 		}
@@ -142,20 +163,9 @@ func (h *WebSocketHandler) handleAskQuestionReply(client *WebClient, message *ag
 	// Create a simple success response for now
 	// In a full implementation, the web client would send actual response data
 	webResponse := &WebResponse{
-		IsError: false,
-		Meta: map[string]string{
-			"source":    "web_client",
-			"client_id": client.ID,
-		},
-		Contents: []*agentassistproto.McpResultContent{
-			{
-				Type: 1, // Text content
-				Text: &agentassistproto.TextContent{
-					Type: "text",
-					Text: "Response received from web client", // Placeholder
-				},
-			},
-		},
+		IsError:  message.AskQuestionResponse.IsError,
+		Meta:     message.AskQuestionResponse.Meta,
+		Contents: message.AskQuestionResponse.Contents,
 	}
 
 	log.Printf("Received AskQuestionReply from client %s for request %s", client.ID, request.ID)
@@ -178,26 +188,69 @@ func (h *WebSocketHandler) handleTaskFinishReply(client *WebClient, message *age
 	// Create a simple success response for now
 	// In a full implementation, the web client would send actual response data
 	webResponse := &WebResponse{
-		IsError: false,
-		Meta: map[string]string{
-			"source":    "web_client",
-			"client_id": client.ID,
-		},
-		Contents: []*agentassistproto.McpResultContent{
-			{
-				Type: 1, // Text content
-				Text: &agentassistproto.TextContent{
-					Type: "text",
-					Text: "Task completion confirmed by web client", // Placeholder
-				},
-			},
-		},
+		IsError:  message.AskQuestionResponse.IsError,
+		Meta:     message.TaskFinishResponse.Meta,
+		Contents: message.TaskFinishResponse.Contents,
 	}
 
 	log.Printf("Received TaskFinishReply from client %s for request %s", client.ID, request.ID)
 
 	// Send the response to the broadcaster for proper request matching
 	h.broadcaster.HandleResponse(request.ID, webResponse)
+}
+
+// broadcastAskQuestionReply broadcasts an AskQuestionReply to all connected clients except the sender
+func (h *WebSocketHandler) broadcastAskQuestionReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.AskQuestionRequest == nil {
+		log.Printf("Cannot broadcast AskQuestionReply: missing AskQuestionRequest data")
+		return
+	}
+
+	// Create a notification message for other clients
+	notificationMessage := &agentassistproto.WebsocketMessage{
+		Cmd: "AskQuestionReplyNotification",
+		AskQuestionRequest: &agentassistproto.AskQuestionRequest{
+			ID:        message.AskQuestionRequest.ID,
+			UserToken: message.AskQuestionRequest.UserToken,
+			Request:   message.AskQuestionRequest.Request,
+		},
+		// Include response data if available
+		AskQuestionResponse: message.AskQuestionResponse,
+		StrParam:            fmt.Sprintf("Response received from client %s", client.ID),
+	}
+
+	log.Printf("Broadcasting AskQuestionReply notification for request %s from client %s",
+		message.AskQuestionRequest.ID, client.ID)
+
+	// Broadcast to all clients except the sender
+	h.broadcaster.BroadcastToAllExcept(notificationMessage, client.ID)
+}
+
+// broadcastTaskFinishReply broadcasts a TaskFinishReply to all connected clients except the sender
+func (h *WebSocketHandler) broadcastTaskFinishReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.TaskFinishRequest == nil {
+		log.Printf("Cannot broadcast TaskFinishReply: missing TaskFinishRequest data")
+		return
+	}
+
+	// Create a notification message for other clients
+	notificationMessage := &agentassistproto.WebsocketMessage{
+		Cmd: "TaskFinishReplyNotification",
+		TaskFinishRequest: &agentassistproto.TaskFinishRequest{
+			ID:        message.TaskFinishRequest.ID,
+			UserToken: message.TaskFinishRequest.UserToken,
+			Request:   message.TaskFinishRequest.Request,
+		},
+		// Include response data if available
+		TaskFinishResponse: message.TaskFinishResponse,
+		StrParam:           fmt.Sprintf("Task completion confirmed by client %s", client.ID),
+	}
+
+	log.Printf("Broadcasting TaskFinishReply notification for request %s from client %s",
+		message.TaskFinishRequest.ID, client.ID)
+
+	// Broadcast to all clients except the sender
+	h.broadcaster.BroadcastToAllExcept(notificationMessage, client.ID)
 }
 
 // generateClientID generates a unique client ID

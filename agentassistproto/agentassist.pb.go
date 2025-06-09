@@ -788,6 +788,8 @@ type WebsocketMessage struct {
 	// AskQuestionReply: user ask_question reply
 	// TaskFinishReply: user task_finish reply
 	// UserLogin: user login, str param is user token
+	// AskQuestionReplyNotification: notification of an AskQuestionReply
+	// TaskFinishReplyNotification: notification of a TaskFinishReply
 	Cmd string `protobuf:"bytes,1,opt,name=Cmd,proto3" json:"Cmd,omitempty"`
 	// ask question
 	AskQuestionRequest *AskQuestionRequest `protobuf:"bytes,2,opt,name=AskQuestionRequest,proto3" json:"AskQuestionRequest,omitempty"`

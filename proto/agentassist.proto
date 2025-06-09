@@ -116,6 +116,8 @@ message WebsocketMessage {
   // AskQuestionReply: user ask_question reply
   // TaskFinishReply: user task_finish reply
   // UserLogin: user login, str param is user token
+  // AskQuestionReplyNotification: notification of an AskQuestionReply
+  // TaskFinishReplyNotification: notification of a TaskFinishReply
   string Cmd = 1;
 
   //ask question

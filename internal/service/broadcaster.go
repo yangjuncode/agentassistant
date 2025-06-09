@@ -253,6 +253,29 @@ func (b *Broadcaster) BroadcastToToken(message *agentassistproto.WebsocketMessag
 	b.broadcast <- request
 }
 
+// BroadcastToAllExcept sends a message to all connected clients except the specified client
+func (b *Broadcaster) BroadcastToAllExcept(message *agentassistproto.WebsocketMessage, excludeClientID string) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	log.Printf("Broadcasting message to all clients except %s", excludeClientID)
+
+	sentCount := 0
+	for _, client := range b.clients {
+		if client.IsActive() && client.ID != excludeClientID {
+			go func(c *WebClient) {
+				if !c.Send(message) {
+					// Client failed to receive, unregister it
+					b.unregister <- c
+				}
+			}(client)
+			sentCount++
+		}
+	}
+
+	log.Printf("Broadcasted message to %d clients (excluding %s)", sentCount, excludeClientID)
+}
+
 // GetClientCount returns the number of connected clients
 func (b *Broadcaster) GetClientCount() int {
 	b.mu.RLock()
