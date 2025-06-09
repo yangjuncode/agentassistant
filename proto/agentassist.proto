@@ -105,7 +105,31 @@ message TaskFinishResponse {
   repeated McpResultContent contents = 4;
 }
 
+message WebsocketMessage {
+  // WebsocketMessage cmd
+  // AskQuestion: mcp ask_question
+  // TaskFinish: mcp task_finish
+  // AskQuestionReply: user ask_question reply
+  // TaskFinishReply: user task_finish reply
+  // UserLogin: user login, str param is user token
+  string Cmd = 1;
+
+  //ask question
+  AskQuestionRequest AskQuestionRequest = 2;
+
+  //task finish
+  TaskFinishRequest TaskFinishRequest = 3;
+
+  //str param
+  string StrParam = 12;
+}
+
 service SrvAgentAssist {
   rpc AskQuestion(AskQuestionRequest) returns (AskQuestionResponse);
   rpc TaskFinish(TaskFinishRequest) returns (TaskFinishResponse);
+}
+
+service SrvAgentAssistReply {
+  rpc AskQuestionReply(AskQuestionRequest) returns (AskQuestionResponse);
+  rpc TaskFinishReply(TaskFinishRequest) returns (TaskFinishResponse);
 }
