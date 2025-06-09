@@ -12,7 +12,8 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev",
     "build": "quasar build",
-    "postinstall": "quasar prepare"
+    "postinstall": "quasar prepare",
+    "proto:gen": "protoc --es_out=src/proto --es_opt=target=ts --proto_path=../proto ../proto/agentassist.proto"
   },
   "dependencies": {
     "vue-i18n": "^11.0.0",
@@ -20,7 +21,8 @@
     "@quasar/extras": "^1.16.4",
     "quasar": "^2.16.0",
     "vue": "^3.4.18",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "@bufbuild/protobuf": "^2.5.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",
@@ -36,7 +38,8 @@
     "@intlify/unplugin-vue-i18n": "^4.0.0",
     "@quasar/app-vite": "^2.1.0",
     "autoprefixer": "^10.4.2",
-    "typescript": "~5.5.3"
+    "typescript": "~5.5.3",
+    "@bufbuild/protoc-gen-es": "^2.5.2"
   },
   "engines": {
     "node": "^28 || ^26 || ^24 || ^22 || ^20 || ^18",
