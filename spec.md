@@ -50,10 +50,10 @@ agentassistant_server_token = "test-token"
 
 **技术栈：**
 
-- **React：** 作为核心的 JavaScript 库，用于构建动态且响应迅速的用户界面组件。
-- **Shadcn/ui：** 提供了一套设计精美、可重用且易于定制的 UI 组件，确保了界面的美观性和一致性。
+- **Vuejs 3：** 作为核心的 JavaScript 库，用于构建动态且响应迅速的用户界面组件。
+- **quasar：** 提供了一套设计精美、可重用且易于定制的 UI 组件，确保了界面的美观性和一致性。
 - **Vite：** 作为前端构建工具，提供了极速的冷启动、即时模块热更新 (HMR) 和优化的构建输出，提升了开发效率和应用性能。
-- **@connectrpc/connect-web** web界面使用的connectrpc库
+- **protobuf-es** 作为protobuf的JavaScript实现，用于在前端和后端之间进行数据序列化。
 
 **核心功能：**
 
