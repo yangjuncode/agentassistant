@@ -1,6 +1,6 @@
 import type { WebsocketMessage, AskQuestionRequest, TaskFinishRequest, AskQuestionResponse, TaskFinishResponse } from '../proto/agentassist_pb';
 import { WebsocketMessageSchema } from '../proto/agentassist_pb';
-import { create } from '@bufbuild/protobuf';
+import { create,fromBinary, toBinary } from '@bufbuild/protobuf';
 import { WebSocketCommands } from '../types/websocket';
 import { APP_CONFIG } from '../config/app';
 
@@ -68,13 +68,15 @@ export class WebSocketService {
               if (this.config.onMessage) {
                 this.config.onMessage(message);
               }
+
               return;
             } else {
               console.error('Unexpected message data type:', typeof event.data);
               return;
             }
 
-            const message = WebsocketMessage.fromBinary(data);
+
+            const message = fromBinary(WebsocketMessageSchema, data);
             if (this.config.onMessage) {
               this.config.onMessage(message);
             }
@@ -105,12 +107,12 @@ export class WebSocketService {
           if (this.config.onError) {
             this.config.onError(error);
           }
-          reject(new Error(`WebSocket error: ${error}`));
+          reject(new Error(`WebSocket error: ${JSON.stringify(error)}`));
         };
 
       } catch (error) {
         this.isConnecting = false;
-        reject(error instanceof Error ? error : new Error(String(error)));
+        reject(error instanceof Error ? error : new Error(JSON.stringify(error)));
       }
     });
   }
@@ -145,7 +147,7 @@ export class WebSocketService {
     }
 
     try {
-      const data = WebsocketMessageSchema.toBinary(message);
+      const data = toBinary(WebsocketMessageSchema,message);
       this.ws.send(data);
     } catch (error) {
       console.error('Error sending WebSocket message:', error);

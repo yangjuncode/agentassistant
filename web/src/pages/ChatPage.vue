@@ -177,7 +177,7 @@ function scrollToBottom() {
     if (messagesContainer.value) {
       messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
     }
-  });
+  }).catch(err => console.error('scrollToBottom nextTick error:', err));
 }
 
 // Watch for new messages and scroll to bottom
