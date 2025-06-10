@@ -188,7 +188,7 @@ func (h *WebSocketHandler) handleTaskFinishReply(client *WebClient, message *age
 	// Create a simple success response for now
 	// In a full implementation, the web client would send actual response data
 	webResponse := &WebResponse{
-		IsError:  message.AskQuestionResponse.IsError,
+		IsError:  message.TaskFinishResponse.IsError,
 		Meta:     message.TaskFinishResponse.Meta,
 		Contents: message.TaskFinishResponse.Contents,
 	}
