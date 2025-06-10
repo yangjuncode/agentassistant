@@ -38,7 +38,7 @@ func main() {
 	})
 
 	// Serve static files from web/dist directory
-	webDir := "web/dist"
+	webDir := "www/dist"
 	if _, err := os.Stat(webDir); err == nil {
 		fileServer := http.FileServer(http.Dir(webDir))
 		mux.Handle("/", fileServer)

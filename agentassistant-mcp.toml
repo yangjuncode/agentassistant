@@ -1,8 +1,8 @@
 # Agent Assistant MCP Configuration
 
 # 服务器信息
-agentassistant_server_host = "127.0.0.1"
+agentassistant_server_host = "192.168.1.51"
 agentassistant_server_port = 8080
 
 # 令牌
-agentassistant_server_token = "test-token"
+agentassistant_server_token = "test"

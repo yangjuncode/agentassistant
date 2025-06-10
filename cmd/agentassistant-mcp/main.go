@@ -226,7 +226,7 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	}
 
 	// Convert response to MCP result
-	return convertToMCPResult(resp), nil
+	return convertToMCPResult(resp.Msg), nil
 }
 
 // taskFinishHandler handles the task_finish tool
@@ -264,7 +264,7 @@ func taskFinishHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	}
 
 	// Convert response to MCP result
-	return convertToMCPResult(resp), nil
+	return convertToMCPResult(resp.Msg), nil
 }
 
 // generateRequestID generates a unique request ID using UUID V7

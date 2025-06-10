@@ -42,6 +42,9 @@ importers:
       '@quasar/app-vite':
         specifier: ^2.1.0
         version: 2.2.0(@types/node@20.19.0)(eslint@9.28.0)(pinia@3.0.3(typescript@5.5.4)(vue@3.5.16(typescript@5.5.4)))(quasar@2.18.1)(rollup@4.42.0)(terser@5.41.0)(typescript@5.5.4)(vue-router@4.5.1(vue@3.5.16(typescript@5.5.4)))(vue@3.5.16(typescript@5.5.4))(yaml@2.8.0)
+      '@stagewise/toolbar':
+        specifier: ^0.4.5
+        version: 0.4.5
       '@types/node':
         specifier: ^20.5.9
         version: 20.19.0
@@ -586,6 +589,9 @@ packages:
     resolution: {integrity: sha512-LpHiJRwkaVz/LqjHjK8LCi8osq7elmpwujwbXKNW88bM8eeGxavJIKKjkjpMHAh/2xfnrt1ZSnhTv41WYUHYmA==}
     cpu: [x64]
     os: [win32]
+
+  '@stagewise/toolbar@0.4.5':
+    resolution: {integrity: sha512-FFOuuBnfcSKwSBnfuclgFygd8mvHnJZXgr2KCJofyww5CZxr7sYl0IuSKLngufK+880o5mR0C8IV9lQV9JY6bg==}
 
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
@@ -3023,6 +3029,8 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.42.0':
     optional: true
+
+  '@stagewise/toolbar@0.4.5': {}
 
   '@types/body-parser@1.19.6':
     dependencies:
