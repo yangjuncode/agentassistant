@@ -5,6 +5,7 @@ import { defineConfig } from '#q-app/wrappers';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig((ctx) => {
+  console.log('quasar context:', ctx)
   return {
     // https://v2.quasar.dev/quasar-cli-vite/prefetch-feature
     // preFetch: true,
@@ -57,7 +58,12 @@ export default defineConfig((ctx) => {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      // env: {
+      //   agentServerUrl: process.env.SERVER_URL
+      // },
+      // envFiles: [
+      //   ".env.local",
+      // ],
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
