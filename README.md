@@ -145,6 +145,17 @@ Notify the user that a task has been completed.
 - `AskQuestion(AskQuestionRequest) returns (AskQuestionResponse)`
 - `TaskFinish(TaskFinishRequest) returns (TaskFinishResponse)`
 
+## MCP Agent Assistant Interaction Rules
+
+1. During any process, task, or dialogue, whether it's for inquiries, responses, or completing phased tasks, the corresponding MCP tools must be called:
+    - Use the `ask_question` tool when user feedback is needed.
+    - Use the `task_finish` tool when a task is completed.
+2. Whenever user feedback is received, if the feedback content is not empty, behavior must be adjusted according to the feedback, and the corresponding tools should be called again if necessary.
+3. Only when the user explicitly states "end" or "no further interaction needed" can the calling of MCP tools be stopped, and the process is considered complete.
+4. Unless an end instruction is received, all key steps must be confirmed with the user through MCP tools.
+5. Before completing a task, the `task_finish` tool must be used to report the task completion status to the user and request confirmation.
+6. When calling tools, ensure the correct `project_directory` parameter is provided to maintain contextual accuracy.
+
 ## License
 
 This project is licensed under the MIT License.
