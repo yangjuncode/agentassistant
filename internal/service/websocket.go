@@ -145,6 +145,8 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			h.broadcastTaskFinishReply(client, &message)
 		case "CheckMessageValidity":
 			h.handleCheckMessageValidity(client, &message)
+		case "GetPendingMessages":
+			h.handleGetPendingMessages(client, &message)
 		default:
 			log.Printf("Unknown message command from client %s: %s", client.ID, message.Cmd)
 		}
@@ -280,6 +282,48 @@ func (h *WebSocketHandler) handleCheckMessageValidity(client *WebClient, message
 		log.Printf("Failed to send CheckMessageValidity response to client %s", client.ID)
 	} else {
 		log.Printf("Sent CheckMessageValidity response to client %s", client.ID)
+	}
+}
+
+// handleGetPendingMessages handles get pending messages requests
+func (h *WebSocketHandler) handleGetPendingMessages(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	log.Printf("Client %s requesting pending messages", client.ID)
+
+	// Get client token for filtering
+	userToken := client.GetToken()
+	if userToken == "" {
+		log.Printf("Client %s has no token, cannot get pending messages", client.ID)
+		// Send empty response
+		response := &agentassistproto.WebsocketMessage{
+			Cmd: "GetPendingMessages",
+			GetPendingMessagesResponse: &agentassistproto.GetPendingMessagesResponse{
+				PendingMessages: []*agentassistproto.PendingMessage{},
+				TotalCount:      0,
+			},
+		}
+		client.Send(response)
+		return
+	}
+
+	// Get pending messages from broadcaster
+	pendingMessages := h.broadcaster.GetPendingMessages(userToken)
+
+	log.Printf("Found %d pending messages for client %s", len(pendingMessages), client.ID)
+
+	// Create response message
+	response := &agentassistproto.WebsocketMessage{
+		Cmd: "GetPendingMessages",
+		GetPendingMessagesResponse: &agentassistproto.GetPendingMessagesResponse{
+			PendingMessages: pendingMessages,
+			TotalCount:      int32(len(pendingMessages)),
+		},
+	}
+
+	// Send response back to the requesting client
+	if !client.Send(response) {
+		log.Printf("Failed to send GetPendingMessages response to client %s", client.ID)
+	} else {
+		log.Printf("Sent GetPendingMessages response to client %s with %d messages", client.ID, len(pendingMessages))
 	}
 }
 

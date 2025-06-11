@@ -119,6 +119,34 @@ message CheckMessageValidityResponse {
   map<string, bool> validity = 1;
 }
 
+// GetPendingMessagesRequest represents a request to get all pending messages for a user
+message GetPendingMessagesRequest {
+  // user token to filter messages
+  string user_token = 1;
+}
+
+// PendingMessage represents a single pending message
+message PendingMessage {
+  // message type: "AskQuestion" or "TaskFinish"
+  string message_type = 1;
+  // ask question request (if message_type is "AskQuestion")
+  AskQuestionRequest ask_question_request = 2;
+  // task finish request (if message_type is "TaskFinish")
+  TaskFinishRequest task_finish_request = 3;
+  // timestamp when the message was created
+  int64 created_at = 4;
+  // timeout in seconds
+  int32 timeout = 5;
+}
+
+// GetPendingMessagesResponse represents the response containing all pending messages
+message GetPendingMessagesResponse {
+  // list of pending messages
+  repeated PendingMessage pending_messages = 1;
+  // total count of pending messages
+  int32 total_count = 2;
+}
+
 message WebsocketMessage {
   // WebsocketMessage cmd
   // AskQuestion: mcp ask_question
@@ -129,6 +157,7 @@ message WebsocketMessage {
   // AskQuestionReplyNotification: notification of an AskQuestionReply
   // TaskFinishReplyNotification: notification of a TaskFinishReply
   // CheckMessageValidity: check if messages are still valid
+  // GetPendingMessages: get all pending messages for a user
   string Cmd = 1;
 
   //ask question
@@ -148,6 +177,12 @@ message WebsocketMessage {
 
   // check message validity response
   CheckMessageValidityResponse CheckMessageValidityResponse = 14;
+
+  // get pending messages request
+  GetPendingMessagesRequest GetPendingMessagesRequest = 15;
+
+  // get pending messages response
+  GetPendingMessagesResponse GetPendingMessagesResponse = 16;
 
   //str param
   string StrParam = 12;

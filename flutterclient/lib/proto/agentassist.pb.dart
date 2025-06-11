@@ -13,6 +13,7 @@
 import 'dart:async' as $async;
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
@@ -966,6 +967,213 @@ class CheckMessageValidityResponse extends $pb.GeneratedMessage {
   $pb.PbMap<$core.String, $core.bool> get validity => $_getMap(0);
 }
 
+/// GetPendingMessagesRequest represents a request to get all pending messages for a user
+class GetPendingMessagesRequest extends $pb.GeneratedMessage {
+  factory GetPendingMessagesRequest({
+    $core.String? userToken,
+  }) {
+    final result = create();
+    if (userToken != null) result.userToken = userToken;
+    return result;
+  }
+
+  GetPendingMessagesRequest._();
+
+  factory GetPendingMessagesRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory GetPendingMessagesRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetPendingMessagesRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userToken')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetPendingMessagesRequest clone() => GetPendingMessagesRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetPendingMessagesRequest copyWith(void Function(GetPendingMessagesRequest) updates) => super.copyWith((message) => updates(message as GetPendingMessagesRequest)) as GetPendingMessagesRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetPendingMessagesRequest create() => GetPendingMessagesRequest._();
+  @$core.override
+  GetPendingMessagesRequest createEmptyInstance() => create();
+  static $pb.PbList<GetPendingMessagesRequest> createRepeated() => $pb.PbList<GetPendingMessagesRequest>();
+  @$core.pragma('dart2js:noInline')
+  static GetPendingMessagesRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetPendingMessagesRequest>(create);
+  static GetPendingMessagesRequest? _defaultInstance;
+
+  /// user token to filter messages
+  @$pb.TagNumber(1)
+  $core.String get userToken => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userToken($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasUserToken() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserToken() => $_clearField(1);
+}
+
+/// PendingMessage represents a single pending message
+class PendingMessage extends $pb.GeneratedMessage {
+  factory PendingMessage({
+    $core.String? messageType,
+    AskQuestionRequest? askQuestionRequest,
+    TaskFinishRequest? taskFinishRequest,
+    $fixnum.Int64? createdAt,
+    $core.int? timeout,
+  }) {
+    final result = create();
+    if (messageType != null) result.messageType = messageType;
+    if (askQuestionRequest != null) result.askQuestionRequest = askQuestionRequest;
+    if (taskFinishRequest != null) result.taskFinishRequest = taskFinishRequest;
+    if (createdAt != null) result.createdAt = createdAt;
+    if (timeout != null) result.timeout = timeout;
+    return result;
+  }
+
+  PendingMessage._();
+
+  factory PendingMessage.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory PendingMessage.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PendingMessage', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'messageType')
+    ..aOM<AskQuestionRequest>(2, _omitFieldNames ? '' : 'askQuestionRequest', subBuilder: AskQuestionRequest.create)
+    ..aOM<TaskFinishRequest>(3, _omitFieldNames ? '' : 'taskFinishRequest', subBuilder: TaskFinishRequest.create)
+    ..aInt64(4, _omitFieldNames ? '' : 'createdAt')
+    ..a<$core.int>(5, _omitFieldNames ? '' : 'timeout', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PendingMessage clone() => PendingMessage()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  PendingMessage copyWith(void Function(PendingMessage) updates) => super.copyWith((message) => updates(message as PendingMessage)) as PendingMessage;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static PendingMessage create() => PendingMessage._();
+  @$core.override
+  PendingMessage createEmptyInstance() => create();
+  static $pb.PbList<PendingMessage> createRepeated() => $pb.PbList<PendingMessage>();
+  @$core.pragma('dart2js:noInline')
+  static PendingMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PendingMessage>(create);
+  static PendingMessage? _defaultInstance;
+
+  /// message type: "AskQuestion" or "TaskFinish"
+  @$pb.TagNumber(1)
+  $core.String get messageType => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set messageType($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessageType() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessageType() => $_clearField(1);
+
+  /// ask question request (if message_type is "AskQuestion")
+  @$pb.TagNumber(2)
+  AskQuestionRequest get askQuestionRequest => $_getN(1);
+  @$pb.TagNumber(2)
+  set askQuestionRequest(AskQuestionRequest value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasAskQuestionRequest() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearAskQuestionRequest() => $_clearField(2);
+  @$pb.TagNumber(2)
+  AskQuestionRequest ensureAskQuestionRequest() => $_ensure(1);
+
+  /// task finish request (if message_type is "TaskFinish")
+  @$pb.TagNumber(3)
+  TaskFinishRequest get taskFinishRequest => $_getN(2);
+  @$pb.TagNumber(3)
+  set taskFinishRequest(TaskFinishRequest value) => $_setField(3, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTaskFinishRequest() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTaskFinishRequest() => $_clearField(3);
+  @$pb.TagNumber(3)
+  TaskFinishRequest ensureTaskFinishRequest() => $_ensure(2);
+
+  /// timestamp when the message was created
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get createdAt => $_getI64(3);
+  @$pb.TagNumber(4)
+  set createdAt($fixnum.Int64 value) => $_setInt64(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasCreatedAt() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearCreatedAt() => $_clearField(4);
+
+  /// timeout in seconds
+  @$pb.TagNumber(5)
+  $core.int get timeout => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set timeout($core.int value) => $_setSignedInt32(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasTimeout() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTimeout() => $_clearField(5);
+}
+
+/// GetPendingMessagesResponse represents the response containing all pending messages
+class GetPendingMessagesResponse extends $pb.GeneratedMessage {
+  factory GetPendingMessagesResponse({
+    $core.Iterable<PendingMessage>? pendingMessages,
+    $core.int? totalCount,
+  }) {
+    final result = create();
+    if (pendingMessages != null) result.pendingMessages.addAll(pendingMessages);
+    if (totalCount != null) result.totalCount = totalCount;
+    return result;
+  }
+
+  GetPendingMessagesResponse._();
+
+  factory GetPendingMessagesResponse.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory GetPendingMessagesResponse.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetPendingMessagesResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..pc<PendingMessage>(1, _omitFieldNames ? '' : 'pendingMessages', $pb.PbFieldType.PM, subBuilder: PendingMessage.create)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'totalCount', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetPendingMessagesResponse clone() => GetPendingMessagesResponse()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetPendingMessagesResponse copyWith(void Function(GetPendingMessagesResponse) updates) => super.copyWith((message) => updates(message as GetPendingMessagesResponse)) as GetPendingMessagesResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetPendingMessagesResponse create() => GetPendingMessagesResponse._();
+  @$core.override
+  GetPendingMessagesResponse createEmptyInstance() => create();
+  static $pb.PbList<GetPendingMessagesResponse> createRepeated() => $pb.PbList<GetPendingMessagesResponse>();
+  @$core.pragma('dart2js:noInline')
+  static GetPendingMessagesResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetPendingMessagesResponse>(create);
+  static GetPendingMessagesResponse? _defaultInstance;
+
+  /// list of pending messages
+  @$pb.TagNumber(1)
+  $pb.PbList<PendingMessage> get pendingMessages => $_getList(0);
+
+  /// total count of pending messages
+  @$pb.TagNumber(2)
+  $core.int get totalCount => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set totalCount($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTotalCount() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTotalCount() => $_clearField(2);
+}
+
 class WebsocketMessage extends $pb.GeneratedMessage {
   factory WebsocketMessage({
     $core.String? cmd,
@@ -976,6 +1184,8 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     $core.String? strParam,
     CheckMessageValidityRequest? checkMessageValidityRequest,
     CheckMessageValidityResponse? checkMessageValidityResponse,
+    GetPendingMessagesRequest? getPendingMessagesRequest,
+    GetPendingMessagesResponse? getPendingMessagesResponse,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -986,6 +1196,8 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (strParam != null) result.strParam = strParam;
     if (checkMessageValidityRequest != null) result.checkMessageValidityRequest = checkMessageValidityRequest;
     if (checkMessageValidityResponse != null) result.checkMessageValidityResponse = checkMessageValidityResponse;
+    if (getPendingMessagesRequest != null) result.getPendingMessagesRequest = getPendingMessagesRequest;
+    if (getPendingMessagesResponse != null) result.getPendingMessagesResponse = getPendingMessagesResponse;
     return result;
   }
 
@@ -1003,6 +1215,8 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOS(12, _omitFieldNames ? '' : 'StrParam', protoName: 'StrParam')
     ..aOM<CheckMessageValidityRequest>(13, _omitFieldNames ? '' : 'CheckMessageValidityRequest', protoName: 'CheckMessageValidityRequest', subBuilder: CheckMessageValidityRequest.create)
     ..aOM<CheckMessageValidityResponse>(14, _omitFieldNames ? '' : 'CheckMessageValidityResponse', protoName: 'CheckMessageValidityResponse', subBuilder: CheckMessageValidityResponse.create)
+    ..aOM<GetPendingMessagesRequest>(15, _omitFieldNames ? '' : 'GetPendingMessagesRequest', protoName: 'GetPendingMessagesRequest', subBuilder: GetPendingMessagesRequest.create)
+    ..aOM<GetPendingMessagesResponse>(16, _omitFieldNames ? '' : 'GetPendingMessagesResponse', protoName: 'GetPendingMessagesResponse', subBuilder: GetPendingMessagesResponse.create)
     ..hasRequiredFields = false
   ;
 
@@ -1032,6 +1246,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// AskQuestionReplyNotification: notification of an AskQuestionReply
   /// TaskFinishReplyNotification: notification of a TaskFinishReply
   /// CheckMessageValidity: check if messages are still valid
+  /// GetPendingMessages: get all pending messages for a user
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -1122,6 +1337,30 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearCheckMessageValidityResponse() => $_clearField(14);
   @$pb.TagNumber(14)
   CheckMessageValidityResponse ensureCheckMessageValidityResponse() => $_ensure(7);
+
+  /// get pending messages request
+  @$pb.TagNumber(15)
+  GetPendingMessagesRequest get getPendingMessagesRequest => $_getN(8);
+  @$pb.TagNumber(15)
+  set getPendingMessagesRequest(GetPendingMessagesRequest value) => $_setField(15, value);
+  @$pb.TagNumber(15)
+  $core.bool hasGetPendingMessagesRequest() => $_has(8);
+  @$pb.TagNumber(15)
+  void clearGetPendingMessagesRequest() => $_clearField(15);
+  @$pb.TagNumber(15)
+  GetPendingMessagesRequest ensureGetPendingMessagesRequest() => $_ensure(8);
+
+  /// get pending messages response
+  @$pb.TagNumber(16)
+  GetPendingMessagesResponse get getPendingMessagesResponse => $_getN(9);
+  @$pb.TagNumber(16)
+  set getPendingMessagesResponse(GetPendingMessagesResponse value) => $_setField(16, value);
+  @$pb.TagNumber(16)
+  $core.bool hasGetPendingMessagesResponse() => $_has(9);
+  @$pb.TagNumber(16)
+  void clearGetPendingMessagesResponse() => $_clearField(16);
+  @$pb.TagNumber(16)
+  GetPendingMessagesResponse ensureGetPendingMessagesResponse() => $_ensure(9);
 }
 
 class SrvAgentAssistApi {

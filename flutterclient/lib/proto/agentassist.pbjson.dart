@@ -266,6 +266,55 @@ final $typed_data.Uint8List checkMessageValidityResponseDescriptor = $convert.ba
     'CHZhbGlkaXR5GjsKDVZhbGlkaXR5RW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAi'
     'ABKAhSBXZhbHVlOgI4AQ==');
 
+@$core.Deprecated('Use getPendingMessagesRequestDescriptor instead')
+const GetPendingMessagesRequest$json = {
+  '1': 'GetPendingMessagesRequest',
+  '2': [
+    {'1': 'user_token', '3': 1, '4': 1, '5': 9, '10': 'userToken'},
+  ],
+};
+
+/// Descriptor for `GetPendingMessagesRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getPendingMessagesRequestDescriptor = $convert.base64Decode(
+    'ChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0Eh0KCnVzZXJfdG9rZW4YASABKAlSCXVzZXJUb2'
+    'tlbg==');
+
+@$core.Deprecated('Use pendingMessageDescriptor instead')
+const PendingMessage$json = {
+  '1': 'PendingMessage',
+  '2': [
+    {'1': 'message_type', '3': 1, '4': 1, '5': 9, '10': 'messageType'},
+    {'1': 'ask_question_request', '3': 2, '4': 1, '5': 11, '6': '.agentassistproto.AskQuestionRequest', '10': 'askQuestionRequest'},
+    {'1': 'task_finish_request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.TaskFinishRequest', '10': 'taskFinishRequest'},
+    {'1': 'created_at', '3': 4, '4': 1, '5': 3, '10': 'createdAt'},
+    {'1': 'timeout', '3': 5, '4': 1, '5': 5, '10': 'timeout'},
+  ],
+};
+
+/// Descriptor for `PendingMessage`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pendingMessageDescriptor = $convert.base64Decode(
+    'Cg5QZW5kaW5nTWVzc2FnZRIhCgxtZXNzYWdlX3R5cGUYASABKAlSC21lc3NhZ2VUeXBlElYKFG'
+    'Fza19xdWVzdGlvbl9yZXF1ZXN0GAIgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlv'
+    'blJlcXVlc3RSEmFza1F1ZXN0aW9uUmVxdWVzdBJTChN0YXNrX2ZpbmlzaF9yZXF1ZXN0GAMgAS'
+    'gLMiMuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVxdWVzdFIRdGFza0ZpbmlzaFJlcXVl'
+    'c3QSHQoKY3JlYXRlZF9hdBgEIAEoA1IJY3JlYXRlZEF0EhgKB3RpbWVvdXQYBSABKAVSB3RpbW'
+    'VvdXQ=');
+
+@$core.Deprecated('Use getPendingMessagesResponseDescriptor instead')
+const GetPendingMessagesResponse$json = {
+  '1': 'GetPendingMessagesResponse',
+  '2': [
+    {'1': 'pending_messages', '3': 1, '4': 3, '5': 11, '6': '.agentassistproto.PendingMessage', '10': 'pendingMessages'},
+    {'1': 'total_count', '3': 2, '4': 1, '5': 5, '10': 'totalCount'},
+  ],
+};
+
+/// Descriptor for `GetPendingMessagesResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getPendingMessagesResponseDescriptor = $convert.base64Decode(
+    'ChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJLChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMi'
+    'AuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZVIPcGVuZGluZ01lc3NhZ2VzEh8KC3Rv'
+    'dGFsX2NvdW50GAIgASgFUgp0b3RhbENvdW50');
+
 @$core.Deprecated('Use websocketMessageDescriptor instead')
 const WebsocketMessage$json = {
   '1': 'WebsocketMessage',
@@ -277,6 +326,8 @@ const WebsocketMessage$json = {
     {'1': 'TaskFinishResponse', '3': 5, '4': 1, '5': 11, '6': '.agentassistproto.TaskFinishResponse', '10': 'TaskFinishResponse'},
     {'1': 'CheckMessageValidityRequest', '3': 13, '4': 1, '5': 11, '6': '.agentassistproto.CheckMessageValidityRequest', '10': 'CheckMessageValidityRequest'},
     {'1': 'CheckMessageValidityResponse', '3': 14, '4': 1, '5': 11, '6': '.agentassistproto.CheckMessageValidityResponse', '10': 'CheckMessageValidityResponse'},
+    {'1': 'GetPendingMessagesRequest', '3': 15, '4': 1, '5': 11, '6': '.agentassistproto.GetPendingMessagesRequest', '10': 'GetPendingMessagesRequest'},
+    {'1': 'GetPendingMessagesResponse', '3': 16, '4': 1, '5': 11, '6': '.agentassistproto.GetPendingMessagesResponse', '10': 'GetPendingMessagesResponse'},
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
   ],
 };
@@ -293,8 +344,12 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0GA0gASgLMi0uYWdlbnRhc3Npc3Rwcm90by5DaGVja01l'
     'c3NhZ2VWYWxpZGl0eVJlcXVlc3RSG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBJyChxDaG'
     'Vja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlGA4gASgLMi4uYWdlbnRhc3Npc3Rwcm90by5DaGVj'
-    'a01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlUhxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEh'
-    'oKCFN0clBhcmFtGAwgASgJUghTdHJQYXJhbQ==');
+    'a01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlUhxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEm'
+    'kKGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QYDyABKAsyKy5hZ2VudGFzc2lzdHByb3RvLkdl'
+    'dFBlbmRpbmdNZXNzYWdlc1JlcXVlc3RSGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSbAoaR2'
+    'V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2UYECABKAsyLC5hZ2VudGFzc2lzdHByb3RvLkdldFBl'
+    'bmRpbmdNZXNzYWdlc1Jlc3BvbnNlUhpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRIaCghTdH'
+    'JQYXJhbRgMIAEoCVIIU3RyUGFyYW0=');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',

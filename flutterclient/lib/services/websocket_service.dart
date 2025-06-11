@@ -136,6 +136,15 @@ class WebSocketService {
     _logger.d('Task finish reply sent: ${response.iD}');
   }
 
+  /// Send get pending messages request
+  Future<void> sendGetPendingMessages() async {
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.getPendingMessages;
+
+    await _sendMessage(message);
+    _logger.d('Get pending messages request sent');
+  }
+
   /// Check message validity
   Future<Map<String, bool>> checkMessageValidity(
       List<String> requestIds) async {

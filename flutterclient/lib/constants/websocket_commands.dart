@@ -10,6 +10,7 @@ class WebSocketCommands {
   static const String taskFinishReplyNotification =
       'TaskFinishReplyNotification';
   static const String checkMessageValidity = 'CheckMessageValidity';
+  static const String getPendingMessages = 'GetPendingMessages';
 }
 
 /// Content type constants for McpResultContent

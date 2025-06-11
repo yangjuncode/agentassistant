@@ -315,3 +315,47 @@ func (b *Broadcaster) CheckMessageValidity(requestIDs []string) map[string]bool 
 	log.Printf("Checked validity for %d request IDs", len(requestIDs))
 	return validity
 }
+
+// GetPendingMessages returns all pending messages for a specific user token
+func (b *Broadcaster) GetPendingMessages(userToken string) []*agentassistproto.PendingMessage {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	var pendingMessages []*agentassistproto.PendingMessage
+
+	for requestID, request := range b.pendingRequests {
+		// Filter by user token if specified
+		if userToken != "" && request.UserToken != userToken {
+			continue
+		}
+
+		// Convert WebsocketRequest to PendingMessage
+		pendingMessage := &agentassistproto.PendingMessage{
+			CreatedAt: 0,   // We don't have timestamp info in current structure
+			Timeout:   600, // Default timeout
+		}
+
+		if request.Message.AskQuestionRequest != nil {
+			pendingMessage.MessageType = "AskQuestion"
+			pendingMessage.AskQuestionRequest = request.Message.AskQuestionRequest
+			if request.Message.AskQuestionRequest.Request != nil {
+				pendingMessage.Timeout = request.Message.AskQuestionRequest.Request.Timeout
+			}
+		} else if request.Message.TaskFinishRequest != nil {
+			pendingMessage.MessageType = "TaskFinish"
+			pendingMessage.TaskFinishRequest = request.Message.TaskFinishRequest
+			if request.Message.TaskFinishRequest.Request != nil {
+				pendingMessage.Timeout = request.Message.TaskFinishRequest.Request.Timeout
+			}
+		} else {
+			// Skip unknown message types
+			log.Printf("Skipping unknown message type for request ID: %s", requestID)
+			continue
+		}
+
+		pendingMessages = append(pendingMessages, pendingMessage)
+	}
+
+	log.Printf("Found %d pending messages for user token: %s", len(pendingMessages), userToken)
+	return pendingMessages
+}

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
@@ -42,7 +41,6 @@ class ChatProvider extends ChangeNotifier {
 
   ChatProvider() {
     _initializeWebSocketListeners();
-    _loadStoredData();
   }
 
   /// Initialize WebSocket event listeners
@@ -58,8 +56,8 @@ class ChatProvider extends ChangeNotifier {
         _isConnecting = false;
         if (connected) {
           _connectionError = null;
-          // Check message validity when connected
-          _checkMessageValidityOnConnect();
+          // Fetch pending messages when connected
+          fetchPendingMessages();
         }
         notifyListeners();
       },
@@ -111,6 +109,8 @@ class ChatProvider extends ChangeNotifier {
 
         if (_isConnected) {
           _logger.i('Auto-connection successful');
+          // Fetch pending messages after successful connection
+          await fetchPendingMessages();
           return true;
         } else {
           _logger.w('Auto-connection failed: not connected after timeout');
@@ -123,6 +123,30 @@ class ChatProvider extends ChangeNotifier {
     } catch (error) {
       _logger.e('Auto-connection error: $error');
       return false;
+    }
+  }
+
+  /// Fetch pending messages from server
+  Future<void> fetchPendingMessages() async {
+    if (!_isConnected) {
+      _logger.w('Cannot fetch pending messages: not connected');
+      return;
+    }
+
+    try {
+      _logger.i('Fetching pending messages from server...');
+
+      // Clear existing messages since we're getting fresh data from server
+      _messages.clear();
+
+      // Send request to get pending messages
+      await _webSocketService.sendGetPendingMessages();
+
+      _logger.i('Pending messages request sent');
+    } catch (error) {
+      _logger.e('Failed to fetch pending messages: $error');
+      _connectionError = '获取消息失败: $error';
+      notifyListeners();
     }
   }
 
@@ -151,6 +175,9 @@ class ChatProvider extends ChangeNotifier {
         break;
       case WebSocketCommands.taskFinishReplyNotification:
         _handleTaskFinishReplyNotification(message);
+        break;
+      case WebSocketCommands.getPendingMessages:
+        _handleGetPendingMessagesResponse(message);
         break;
       default:
         _logger.w('Unknown message command: ${message.cmd}');
@@ -181,6 +208,49 @@ class ChatProvider extends ChangeNotifier {
   void _handleTaskFinishReplyNotification(WebsocketMessage message) {
     // Update message status if needed
     _logger.d('Task finish reply notification received');
+  }
+
+  /// Handle get pending messages response
+  void _handleGetPendingMessagesResponse(WebsocketMessage message) {
+    if (!message.hasGetPendingMessagesResponse()) {
+      _logger.w('GetPendingMessages response missing response data');
+      return;
+    }
+
+    final response = message.getPendingMessagesResponse;
+    _logger.i('Received ${response.totalCount} pending messages from server');
+
+    // Clear existing messages
+    _messages.clear();
+
+    // Convert pending messages to ChatMessage objects
+    for (final pendingMessage in response.pendingMessages) {
+      ChatMessage? chatMessage;
+
+      if (pendingMessage.messageType == 'AskQuestion' &&
+          pendingMessage.hasAskQuestionRequest()) {
+        chatMessage = ChatMessage.fromAskQuestionRequest(
+          pendingMessage.askQuestionRequest,
+        );
+      } else if (pendingMessage.messageType == 'TaskFinish' &&
+          pendingMessage.hasTaskFinishRequest()) {
+        chatMessage = ChatMessage.fromTaskFinishRequest(
+          pendingMessage.taskFinishRequest,
+        );
+      }
+
+      if (chatMessage != null) {
+        _messages.add(chatMessage);
+        _logger.d(
+            'Added pending message: ${chatMessage.id} (${chatMessage.type})');
+      } else {
+        _logger.w(
+            'Failed to convert pending message: ${pendingMessage.messageType}');
+      }
+    }
+
+    _logger.i('Successfully loaded ${_messages.length} pending messages');
+    notifyListeners();
   }
 
   /// Reply to a question
@@ -279,7 +349,6 @@ class ChatProvider extends ChangeNotifier {
   /// Add new message
   void _addMessage(ChatMessage message) {
     _messages.add(message);
-    _saveMessages();
     notifyListeners();
   }
 
@@ -288,7 +357,6 @@ class ChatProvider extends ChangeNotifier {
     final index = _messages.indexWhere((m) => m.id == updatedMessage.id);
     if (index != -1) {
       _messages[index] = updatedMessage;
-      _saveMessages();
       notifyListeners();
     }
   }
@@ -296,45 +364,7 @@ class ChatProvider extends ChangeNotifier {
   /// Clear all messages
   void clearMessages() {
     _messages.clear();
-    _saveMessages();
     notifyListeners();
-  }
-
-  /// Check message validity when connected
-  Future<void> _checkMessageValidityOnConnect() async {
-    try {
-      // Get all pending messages
-      final pendingMessages =
-          _messages.where((m) => m.status == MessageStatus.pending).toList();
-
-      if (pendingMessages.isEmpty) {
-        _logger.d('No pending messages to check validity');
-        return;
-      }
-
-      final requestIds = pendingMessages.map((m) => m.requestId).toList();
-      _logger.i('Checking validity for ${requestIds.length} pending messages');
-
-      // Check validity with server
-      final validityMap =
-          await _webSocketService.checkMessageValidity(requestIds);
-
-      // Update expired messages
-      for (final message in pendingMessages) {
-        final isValid = validityMap[message.requestId] ?? false;
-        if (!isValid) {
-          _logger.i('Message ${message.id} is expired, marking as expired');
-          final expiredMessage =
-              message.copyWith(status: MessageStatus.expired);
-          _updateMessage(expiredMessage);
-        }
-      }
-
-      _logger.i('Message validity check completed');
-    } catch (error) {
-      _logger.e('Failed to check message validity: $error');
-      // Don't show error to user as this is a background operation
-    }
   }
 
   /// Find the earliest replyable message
@@ -354,42 +384,6 @@ class ChatProvider extends ChangeNotifier {
 
     _logger.i('Found earliest replyable message: ${earliest.id}');
     return earliest;
-  }
-
-  /// Load stored data
-  Future<void> _loadStoredData() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-
-      // Load messages
-      final messagesJson = prefs.getString(AppConfig.messageHistoryStorageKey);
-      if (messagesJson != null) {
-        final messagesList = jsonDecode(messagesJson) as List;
-        _messages.addAll(
-          messagesList.map((json) => ChatMessage.fromJson(json)),
-        );
-      }
-
-      // Load connection info
-      _currentToken = prefs.getString(AppConfig.tokenStorageKey);
-
-      notifyListeners();
-    } catch (error) {
-      _logger.e('Failed to load stored data: $error');
-    }
-  }
-
-  /// Save messages to storage
-  Future<void> _saveMessages() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final messagesJson = jsonEncode(
-        _messages.map((m) => m.toJson()).toList(),
-      );
-      await prefs.setString(AppConfig.messageHistoryStorageKey, messagesJson);
-    } catch (error) {
-      _logger.e('Failed to save messages: $error');
-    }
   }
 
   /// Save connection info
