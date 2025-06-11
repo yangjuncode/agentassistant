@@ -109,6 +109,16 @@ message TaskFinishResponse {
   repeated McpResultContent contents = 4;
 }
 
+message CheckMessageValidityRequest {
+  // list of request IDs to check
+  repeated string request_ids = 1;
+}
+
+message CheckMessageValidityResponse {
+  // map of request ID to validity status
+  map<string, bool> validity = 1;
+}
+
 message WebsocketMessage {
   // WebsocketMessage cmd
   // AskQuestion: mcp ask_question
@@ -118,6 +128,7 @@ message WebsocketMessage {
   // UserLogin: user login, str param is user token
   // AskQuestionReplyNotification: notification of an AskQuestionReply
   // TaskFinishReplyNotification: notification of a TaskFinishReply
+  // CheckMessageValidity: check if messages are still valid
   string Cmd = 1;
 
   //ask question
@@ -131,6 +142,12 @@ message WebsocketMessage {
 
   // task finish reply
   TaskFinishResponse TaskFinishResponse = 5;
+
+  // check message validity
+  CheckMessageValidityRequest CheckMessageValidityRequest = 13;
+
+  // check message validity response
+  CheckMessageValidityResponse CheckMessageValidityResponse = 14;
 
   //str param
   string StrParam = 12;

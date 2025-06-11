@@ -31,8 +31,9 @@ class MessageBubble extends StatelessWidget {
             // Message content
             _buildContent(context),
 
-            // Inline reply widget (if needs user action)
-            if (message.needsUserAction) ...[
+            // Inline reply widget (if needs user action and not expired)
+            if (message.needsUserAction &&
+                message.status != MessageStatus.expired) ...[
               const SizedBox(height: 16),
               InlineReplyWidget(message: message),
             ],
@@ -228,6 +229,10 @@ class MessageBubble extends StatelessWidget {
       case MessageStatus.error:
         chipColor = Theme.of(context).colorScheme.error;
         statusText = '错误';
+        break;
+      case MessageStatus.expired:
+        chipColor = Colors.grey;
+        statusText = '已过期';
         break;
     }
 

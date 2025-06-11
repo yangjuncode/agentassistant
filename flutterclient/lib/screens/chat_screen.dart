@@ -18,6 +18,17 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
+  final Map<String, GlobalKey> _messageKeys = {};
+  bool _hasInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Schedule post-frame callback to handle initial setup
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeScreen();
+    });
+  }
 
   @override
   void dispose() {
@@ -25,13 +36,48 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  /// Scroll to bottom of message list
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
+  /// Initialize screen after first frame
+  Future<void> _initializeScreen() async {
+    if (_hasInitialized) return;
+    _hasInitialized = true;
+
+    final chatProvider = context.read<ChatProvider>();
+
+    // Wait for message validity check to complete
+    await _waitForValidityCheck(chatProvider);
+
+    // Find and scroll to earliest replyable message
+    await _scrollToEarliestReplyableMessage(chatProvider);
+  }
+
+  /// Wait for message validity check to complete
+  Future<void> _waitForValidityCheck(ChatProvider chatProvider) async {
+    // Give some time for the validity check to complete
+    // In a real implementation, you might want to listen to a specific state
+    await Future.delayed(const Duration(milliseconds: 1500));
+  }
+
+  /// Scroll to the earliest replyable message and focus its input
+  Future<void> _scrollToEarliestReplyableMessage(
+      ChatProvider chatProvider) async {
+    final earliestMessage = chatProvider.findEarliestReplyableMessage();
+
+    if (earliestMessage != null) {
+      await _scrollToMessage(earliestMessage.id);
+      // Additional delay to ensure scroll completes before focusing
+      await Future.delayed(const Duration(milliseconds: 300));
+    }
+  }
+
+  /// Scroll to a specific message
+  Future<void> _scrollToMessage(String messageId) async {
+    final messageKey = _messageKeys[messageId];
+    if (messageKey?.currentContext != null) {
+      await Scrollable.ensureVisible(
+        messageKey!.currentContext!,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+        alignment: 0.2, // Position message at 20% from top
       );
     }
   }
@@ -160,7 +206,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     // Show messages list
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
     return ListView.builder(
       controller: _scrollController,
@@ -168,7 +213,12 @@ class _ChatScreenState extends State<ChatScreen> {
       itemCount: chatProvider.messages.length,
       itemBuilder: (context, index) {
         final message = chatProvider.messages[index];
+
+        // Create or get GlobalKey for this message
+        _messageKeys[message.id] ??= GlobalKey();
+
         return Padding(
+          key: _messageKeys[message.id],
           padding: const EdgeInsets.only(bottom: 16),
           child: MessageBubble(
             message: message,

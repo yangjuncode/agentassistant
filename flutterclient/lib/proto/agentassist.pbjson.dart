@@ -227,6 +227,45 @@ final $typed_data.Uint8List taskFinishResponseDescriptor = $convert.base64Decode
     '8uTWNwUmVzdWx0Q29udGVudFIIY29udGVudHMaNwoJTWV0YUVudHJ5EhAKA2tleRgBIAEoCVID'
     'a2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAE=');
 
+@$core.Deprecated('Use checkMessageValidityRequestDescriptor instead')
+const CheckMessageValidityRequest$json = {
+  '1': 'CheckMessageValidityRequest',
+  '2': [
+    {'1': 'request_ids', '3': 1, '4': 3, '5': 9, '10': 'requestIds'},
+  ],
+};
+
+/// Descriptor for `CheckMessageValidityRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List checkMessageValidityRequestDescriptor = $convert.base64Decode(
+    'ChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSHwoLcmVxdWVzdF9pZHMYASADKAlSCnJlcX'
+    'Vlc3RJZHM=');
+
+@$core.Deprecated('Use checkMessageValidityResponseDescriptor instead')
+const CheckMessageValidityResponse$json = {
+  '1': 'CheckMessageValidityResponse',
+  '2': [
+    {'1': 'validity', '3': 1, '4': 3, '5': 11, '6': '.agentassistproto.CheckMessageValidityResponse.ValidityEntry', '10': 'validity'},
+  ],
+  '3': [CheckMessageValidityResponse_ValidityEntry$json],
+};
+
+@$core.Deprecated('Use checkMessageValidityResponseDescriptor instead')
+const CheckMessageValidityResponse_ValidityEntry$json = {
+  '1': 'ValidityEntry',
+  '2': [
+    {'1': 'key', '3': 1, '4': 1, '5': 9, '10': 'key'},
+    {'1': 'value', '3': 2, '4': 1, '5': 8, '10': 'value'},
+  ],
+  '7': {'7': true},
+};
+
+/// Descriptor for `CheckMessageValidityResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List checkMessageValidityResponseDescriptor = $convert.base64Decode(
+    'ChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlElgKCHZhbGlkaXR5GAEgAygLMjwuYWdlbn'
+    'Rhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlLlZhbGlkaXR5RW50cnlS'
+    'CHZhbGlkaXR5GjsKDVZhbGlkaXR5RW50cnkSEAoDa2V5GAEgASgJUgNrZXkSFAoFdmFsdWUYAi'
+    'ABKAhSBXZhbHVlOgI4AQ==');
+
 @$core.Deprecated('Use websocketMessageDescriptor instead')
 const WebsocketMessage$json = {
   '1': 'WebsocketMessage',
@@ -236,6 +275,8 @@ const WebsocketMessage$json = {
     {'1': 'TaskFinishRequest', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.TaskFinishRequest', '10': 'TaskFinishRequest'},
     {'1': 'AskQuestionResponse', '3': 4, '4': 1, '5': 11, '6': '.agentassistproto.AskQuestionResponse', '10': 'AskQuestionResponse'},
     {'1': 'TaskFinishResponse', '3': 5, '4': 1, '5': 11, '6': '.agentassistproto.TaskFinishResponse', '10': 'TaskFinishResponse'},
+    {'1': 'CheckMessageValidityRequest', '3': 13, '4': 1, '5': 11, '6': '.agentassistproto.CheckMessageValidityRequest', '10': 'CheckMessageValidityRequest'},
+    {'1': 'CheckMessageValidityResponse', '3': 14, '4': 1, '5': 11, '6': '.agentassistproto.CheckMessageValidityResponse', '10': 'CheckMessageValidityResponse'},
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
   ],
 };
@@ -248,8 +289,12 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'RvLlRhc2tGaW5pc2hSZXF1ZXN0UhFUYXNrRmluaXNoUmVxdWVzdBJXChNBc2tRdWVzdGlvblJl'
     'c3BvbnNlGAQgASgLMiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlUhNBc2'
     'tRdWVzdGlvblJlc3BvbnNlElQKElRhc2tGaW5pc2hSZXNwb25zZRgFIAEoCzIkLmFnZW50YXNz'
-    'aXN0cHJvdG8uVGFza0ZpbmlzaFJlc3BvbnNlUhJUYXNrRmluaXNoUmVzcG9uc2USGgoIU3RyUG'
-    'FyYW0YDCABKAlSCFN0clBhcmFt');
+    'aXN0cHJvdG8uVGFza0ZpbmlzaFJlc3BvbnNlUhJUYXNrRmluaXNoUmVzcG9uc2USbwobQ2hlY2'
+    'tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0GA0gASgLMi0uYWdlbnRhc3Npc3Rwcm90by5DaGVja01l'
+    'c3NhZ2VWYWxpZGl0eVJlcXVlc3RSG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBJyChxDaG'
+    'Vja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlGA4gASgLMi4uYWdlbnRhc3Npc3Rwcm90by5DaGVj'
+    'a01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlUhxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEh'
+    'oKCFN0clBhcmFtGAwgASgJUghTdHJQYXJhbQ==');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',

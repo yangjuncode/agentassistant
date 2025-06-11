@@ -5,8 +5,11 @@ class WebSocketCommands {
   static const String askQuestionReply = 'AskQuestionReply';
   static const String taskFinishReply = 'TaskFinishReply';
   static const String userLogin = 'UserLogin';
-  static const String askQuestionReplyNotification = 'AskQuestionReplyNotification';
-  static const String taskFinishReplyNotification = 'TaskFinishReplyNotification';
+  static const String askQuestionReplyNotification =
+      'AskQuestionReplyNotification';
+  static const String taskFinishReplyNotification =
+      'TaskFinishReplyNotification';
+  static const String checkMessageValidity = 'CheckMessageValidity';
 }
 
 /// Content type constants for McpResultContent
@@ -23,6 +26,7 @@ enum MessageStatus {
   replied,
   confirmed,
   error,
+  expired,
 }
 
 /// Message type constants

@@ -6,7 +6,8 @@ export const WebSocketCommands = {
   ASK_QUESTION_REPLY: 'AskQuestionReply',
   TASK_FINISH_REPLY: 'TaskFinishReply',
   ASK_QUESTION_REPLY_NOTIFICATION: 'AskQuestionReplyNotification',
-  TASK_FINISH_REPLY_NOTIFICATION: 'TaskFinishReplyNotification'
+  TASK_FINISH_REPLY_NOTIFICATION: 'TaskFinishReplyNotification',
+  CHECK_MESSAGE_VALIDITY: 'CheckMessageValidity'
 } as const;
 
 export type WebSocketCommand = typeof WebSocketCommands[keyof typeof WebSocketCommands];

@@ -30,6 +30,9 @@ class WebSocketService {
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
+  // Pending validity check requests
+  final Map<String, Completer<Map<String, bool>>> _pendingValidityChecks = {};
+
   // Public streams
   Stream<WebsocketMessage> get messageStream => _messageController.stream;
   Stream<bool> get connectionStream => _connectionController.stream;
@@ -133,6 +136,46 @@ class WebSocketService {
     _logger.d('Task finish reply sent: ${response.iD}');
   }
 
+  /// Check message validity
+  Future<Map<String, bool>> checkMessageValidity(
+      List<String> requestIds) async {
+    if (_channel == null) {
+      throw Exception('WebSocket not connected');
+    }
+
+    final completer = Completer<Map<String, bool>>();
+
+    // Store the completer for this request
+    final requestKey =
+        'validity_check_${DateTime.now().millisecondsSinceEpoch}';
+    _pendingValidityChecks[requestKey] = completer;
+
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.checkMessageValidity
+      ..checkMessageValidityRequest =
+          (CheckMessageValidityRequest()..requestIds.addAll(requestIds));
+
+    try {
+      await _sendMessage(message);
+      _logger.d(
+          'Message validity check sent for ${requestIds.length} request IDs');
+
+      // Set a timeout for the request
+      Timer(const Duration(seconds: 10), () {
+        if (!completer.isCompleted) {
+          _pendingValidityChecks.remove(requestKey);
+          completer.completeError(TimeoutException(
+              'Message validity check timeout', const Duration(seconds: 10)));
+        }
+      });
+
+      return completer.future;
+    } catch (error) {
+      _pendingValidityChecks.remove(requestKey);
+      rethrow;
+    }
+  }
+
   /// Send protobuf message
   Future<void> _sendMessage(WebsocketMessage message) async {
     if (_channel == null) {
@@ -165,12 +208,36 @@ class WebSocketService {
       }
 
       final message = WebsocketMessage.fromBuffer(bytes);
-      _messageController.add(message);
+
+      // Handle validity check responses
+      if (message.cmd == WebSocketCommands.checkMessageValidity &&
+          message.hasCheckMessageValidityResponse()) {
+        _handleValidityCheckResponse(message.checkMessageValidityResponse);
+      } else {
+        _messageController.add(message);
+      }
 
       _logger.d('Received message: ${message.cmd}');
     } catch (error) {
       _logger.e('Failed to parse message: $error');
       _errorController.add('消息解析失败: $error');
+    }
+  }
+
+  /// Handle validity check response
+  void _handleValidityCheckResponse(CheckMessageValidityResponse response) {
+    _logger.d(
+        'Received validity check response for ${response.validity.length} request IDs');
+
+    // Complete all pending validity check requests
+    // Since we don't have a specific request ID for validity checks,
+    // we complete the first pending request (FIFO)
+    if (_pendingValidityChecks.isNotEmpty) {
+      final firstKey = _pendingValidityChecks.keys.first;
+      final completer = _pendingValidityChecks.remove(firstKey);
+      if (completer != null && !completer.isCompleted) {
+        completer.complete(response.validity);
+      }
     }
   }
 

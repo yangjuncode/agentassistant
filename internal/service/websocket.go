@@ -143,6 +143,8 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 		case "TaskFinishReply":
 			h.handleTaskFinishReply(client, &message)
 			h.broadcastTaskFinishReply(client, &message)
+		case "CheckMessageValidity":
+			h.handleCheckMessageValidity(client, &message)
 		default:
 			log.Printf("Unknown message command from client %s: %s", client.ID, message.Cmd)
 		}
@@ -251,6 +253,34 @@ func (h *WebSocketHandler) broadcastTaskFinishReply(client *WebClient, message *
 
 	// Broadcast to all clients except the sender
 	h.broadcaster.BroadcastToAllExcept(notificationMessage, client.ID)
+}
+
+// handleCheckMessageValidity handles message validity check requests
+func (h *WebSocketHandler) handleCheckMessageValidity(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.CheckMessageValidityRequest == nil {
+		log.Printf("Invalid CheckMessageValidity message from client %s: missing request", client.ID)
+		return
+	}
+
+	log.Printf("Client %s checking validity for %d request IDs", client.ID, len(message.CheckMessageValidityRequest.RequestIds))
+
+	// Check validity using broadcaster
+	validity := h.broadcaster.CheckMessageValidity(message.CheckMessageValidityRequest.RequestIds)
+
+	// Create response message
+	response := &agentassistproto.WebsocketMessage{
+		Cmd: "CheckMessageValidity",
+		CheckMessageValidityResponse: &agentassistproto.CheckMessageValidityResponse{
+			Validity: validity,
+		},
+	}
+
+	// Send response back to the requesting client
+	if !client.Send(response) {
+		log.Printf("Failed to send CheckMessageValidity response to client %s", client.ID)
+	} else {
+		log.Printf("Sent CheckMessageValidity response to client %s", client.ID)
+	}
 }
 
 // generateClientID generates a unique client ID

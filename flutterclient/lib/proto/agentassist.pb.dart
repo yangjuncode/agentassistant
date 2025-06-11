@@ -884,6 +884,88 @@ class TaskFinishResponse extends $pb.GeneratedMessage {
   $pb.PbList<McpResultContent> get contents => $_getList(3);
 }
 
+class CheckMessageValidityRequest extends $pb.GeneratedMessage {
+  factory CheckMessageValidityRequest({
+    $core.Iterable<$core.String>? requestIds,
+  }) {
+    final result = create();
+    if (requestIds != null) result.requestIds.addAll(requestIds);
+    return result;
+  }
+
+  CheckMessageValidityRequest._();
+
+  factory CheckMessageValidityRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory CheckMessageValidityRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CheckMessageValidityRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..pPS(1, _omitFieldNames ? '' : 'requestIds')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CheckMessageValidityRequest clone() => CheckMessageValidityRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CheckMessageValidityRequest copyWith(void Function(CheckMessageValidityRequest) updates) => super.copyWith((message) => updates(message as CheckMessageValidityRequest)) as CheckMessageValidityRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CheckMessageValidityRequest create() => CheckMessageValidityRequest._();
+  @$core.override
+  CheckMessageValidityRequest createEmptyInstance() => create();
+  static $pb.PbList<CheckMessageValidityRequest> createRepeated() => $pb.PbList<CheckMessageValidityRequest>();
+  @$core.pragma('dart2js:noInline')
+  static CheckMessageValidityRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CheckMessageValidityRequest>(create);
+  static CheckMessageValidityRequest? _defaultInstance;
+
+  /// list of request IDs to check
+  @$pb.TagNumber(1)
+  $pb.PbList<$core.String> get requestIds => $_getList(0);
+}
+
+class CheckMessageValidityResponse extends $pb.GeneratedMessage {
+  factory CheckMessageValidityResponse({
+    $core.Iterable<$core.MapEntry<$core.String, $core.bool>>? validity,
+  }) {
+    final result = create();
+    if (validity != null) result.validity.addEntries(validity);
+    return result;
+  }
+
+  CheckMessageValidityResponse._();
+
+  factory CheckMessageValidityResponse.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory CheckMessageValidityResponse.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'CheckMessageValidityResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..m<$core.String, $core.bool>(1, _omitFieldNames ? '' : 'validity', entryClassName: 'CheckMessageValidityResponse.ValidityEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OB, packageName: const $pb.PackageName('agentassistproto'))
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CheckMessageValidityResponse clone() => CheckMessageValidityResponse()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  CheckMessageValidityResponse copyWith(void Function(CheckMessageValidityResponse) updates) => super.copyWith((message) => updates(message as CheckMessageValidityResponse)) as CheckMessageValidityResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static CheckMessageValidityResponse create() => CheckMessageValidityResponse._();
+  @$core.override
+  CheckMessageValidityResponse createEmptyInstance() => create();
+  static $pb.PbList<CheckMessageValidityResponse> createRepeated() => $pb.PbList<CheckMessageValidityResponse>();
+  @$core.pragma('dart2js:noInline')
+  static CheckMessageValidityResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<CheckMessageValidityResponse>(create);
+  static CheckMessageValidityResponse? _defaultInstance;
+
+  /// map of request ID to validity status
+  @$pb.TagNumber(1)
+  $pb.PbMap<$core.String, $core.bool> get validity => $_getMap(0);
+}
+
 class WebsocketMessage extends $pb.GeneratedMessage {
   factory WebsocketMessage({
     $core.String? cmd,
@@ -892,6 +974,8 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     AskQuestionResponse? askQuestionResponse,
     TaskFinishResponse? taskFinishResponse,
     $core.String? strParam,
+    CheckMessageValidityRequest? checkMessageValidityRequest,
+    CheckMessageValidityResponse? checkMessageValidityResponse,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -900,6 +984,8 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (askQuestionResponse != null) result.askQuestionResponse = askQuestionResponse;
     if (taskFinishResponse != null) result.taskFinishResponse = taskFinishResponse;
     if (strParam != null) result.strParam = strParam;
+    if (checkMessageValidityRequest != null) result.checkMessageValidityRequest = checkMessageValidityRequest;
+    if (checkMessageValidityResponse != null) result.checkMessageValidityResponse = checkMessageValidityResponse;
     return result;
   }
 
@@ -915,6 +1001,8 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<AskQuestionResponse>(4, _omitFieldNames ? '' : 'AskQuestionResponse', protoName: 'AskQuestionResponse', subBuilder: AskQuestionResponse.create)
     ..aOM<TaskFinishResponse>(5, _omitFieldNames ? '' : 'TaskFinishResponse', protoName: 'TaskFinishResponse', subBuilder: TaskFinishResponse.create)
     ..aOS(12, _omitFieldNames ? '' : 'StrParam', protoName: 'StrParam')
+    ..aOM<CheckMessageValidityRequest>(13, _omitFieldNames ? '' : 'CheckMessageValidityRequest', protoName: 'CheckMessageValidityRequest', subBuilder: CheckMessageValidityRequest.create)
+    ..aOM<CheckMessageValidityResponse>(14, _omitFieldNames ? '' : 'CheckMessageValidityResponse', protoName: 'CheckMessageValidityResponse', subBuilder: CheckMessageValidityResponse.create)
     ..hasRequiredFields = false
   ;
 
@@ -943,6 +1031,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// UserLogin: user login, str param is user token
   /// AskQuestionReplyNotification: notification of an AskQuestionReply
   /// TaskFinishReplyNotification: notification of a TaskFinishReply
+  /// CheckMessageValidity: check if messages are still valid
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -1009,6 +1098,30 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   $core.bool hasStrParam() => $_has(5);
   @$pb.TagNumber(12)
   void clearStrParam() => $_clearField(12);
+
+  /// check message validity
+  @$pb.TagNumber(13)
+  CheckMessageValidityRequest get checkMessageValidityRequest => $_getN(6);
+  @$pb.TagNumber(13)
+  set checkMessageValidityRequest(CheckMessageValidityRequest value) => $_setField(13, value);
+  @$pb.TagNumber(13)
+  $core.bool hasCheckMessageValidityRequest() => $_has(6);
+  @$pb.TagNumber(13)
+  void clearCheckMessageValidityRequest() => $_clearField(13);
+  @$pb.TagNumber(13)
+  CheckMessageValidityRequest ensureCheckMessageValidityRequest() => $_ensure(6);
+
+  /// check message validity response
+  @$pb.TagNumber(14)
+  CheckMessageValidityResponse get checkMessageValidityResponse => $_getN(7);
+  @$pb.TagNumber(14)
+  set checkMessageValidityResponse(CheckMessageValidityResponse value) => $_setField(14, value);
+  @$pb.TagNumber(14)
+  $core.bool hasCheckMessageValidityResponse() => $_has(7);
+  @$pb.TagNumber(14)
+  void clearCheckMessageValidityResponse() => $_clearField(14);
+  @$pb.TagNumber(14)
+  CheckMessageValidityResponse ensureCheckMessageValidityResponse() => $_ensure(7);
 }
 
 class SrvAgentAssistApi {

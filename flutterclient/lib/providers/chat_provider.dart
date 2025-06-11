@@ -58,6 +58,8 @@ class ChatProvider extends ChangeNotifier {
         _isConnecting = false;
         if (connected) {
           _connectionError = null;
+          // Check message validity when connected
+          _checkMessageValidityOnConnect();
         }
         notifyListeners();
       },
@@ -90,6 +92,37 @@ class ChatProvider extends ChangeNotifier {
       _connectionError = '连接失败: $error';
       _isConnecting = false;
       notifyListeners();
+    }
+  }
+
+  /// Try to auto-connect using saved connection info
+  Future<bool> tryAutoConnect() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final serverUrl = prefs.getString(AppConfig.serverUrlStorageKey);
+      final token = prefs.getString(AppConfig.tokenStorageKey);
+
+      if (serverUrl != null && token != null) {
+        _logger.i('Attempting auto-connection to: $serverUrl');
+        await connect(serverUrl, token);
+
+        // Wait a bit to see if connection succeeds
+        await Future.delayed(const Duration(seconds: 2));
+
+        if (_isConnected) {
+          _logger.i('Auto-connection successful');
+          return true;
+        } else {
+          _logger.w('Auto-connection failed: not connected after timeout');
+          return false;
+        }
+      } else {
+        _logger.d('No saved connection info found');
+        return false;
+      }
+    } catch (error) {
+      _logger.e('Auto-connection error: $error');
+      return false;
     }
   }
 
@@ -265,6 +298,62 @@ class ChatProvider extends ChangeNotifier {
     _messages.clear();
     _saveMessages();
     notifyListeners();
+  }
+
+  /// Check message validity when connected
+  Future<void> _checkMessageValidityOnConnect() async {
+    try {
+      // Get all pending messages
+      final pendingMessages =
+          _messages.where((m) => m.status == MessageStatus.pending).toList();
+
+      if (pendingMessages.isEmpty) {
+        _logger.d('No pending messages to check validity');
+        return;
+      }
+
+      final requestIds = pendingMessages.map((m) => m.requestId).toList();
+      _logger.i('Checking validity for ${requestIds.length} pending messages');
+
+      // Check validity with server
+      final validityMap =
+          await _webSocketService.checkMessageValidity(requestIds);
+
+      // Update expired messages
+      for (final message in pendingMessages) {
+        final isValid = validityMap[message.requestId] ?? false;
+        if (!isValid) {
+          _logger.i('Message ${message.id} is expired, marking as expired');
+          final expiredMessage =
+              message.copyWith(status: MessageStatus.expired);
+          _updateMessage(expiredMessage);
+        }
+      }
+
+      _logger.i('Message validity check completed');
+    } catch (error) {
+      _logger.e('Failed to check message validity: $error');
+      // Don't show error to user as this is a background operation
+    }
+  }
+
+  /// Find the earliest replyable message
+  ChatMessage? findEarliestReplyableMessage() {
+    final replyableMessages = _messages
+        .where((m) => m.needsUserAction && m.status != MessageStatus.expired)
+        .toList();
+
+    if (replyableMessages.isEmpty) {
+      _logger.d('No replyable messages found');
+      return null;
+    }
+
+    // Sort by timestamp to find the earliest
+    replyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final earliest = replyableMessages.first;
+
+    _logger.i('Found earliest replyable message: ${earliest.id}');
+    return earliest;
   }
 
   /// Load stored data

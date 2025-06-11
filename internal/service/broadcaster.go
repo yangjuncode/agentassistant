@@ -300,3 +300,18 @@ func (b *Broadcaster) HandleResponse(requestID string, response *WebResponse) {
 		log.Printf("Failed to queue response for request %s: channel full", requestID)
 	}
 }
+
+// CheckMessageValidity checks if the given request IDs are still valid (pending)
+func (b *Broadcaster) CheckMessageValidity(requestIDs []string) map[string]bool {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	validity := make(map[string]bool)
+	for _, requestID := range requestIDs {
+		_, exists := b.pendingRequests[requestID]
+		validity[requestID] = exists
+	}
+
+	log.Printf("Checked validity for %d request IDs", len(requestIDs))
+	return validity
+}

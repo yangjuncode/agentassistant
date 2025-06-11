@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'providers/chat_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/chat_screen.dart';
+import 'screens/splash_screen.dart';
 import 'config/app_config.dart';
 
 void main() {
@@ -65,8 +66,9 @@ class AgentAssistantApp extends StatelessWidget {
             filled: true,
           ),
         ),
-        home: const LoginScreen(),
+        home: const SplashScreen(),
         routes: {
+          '/splash': (context) => const SplashScreen(),
           '/login': (context) => const LoginScreen(),
           '/chat': (context) => const ChatScreen(),
         },

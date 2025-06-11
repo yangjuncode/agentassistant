@@ -780,6 +780,96 @@ func (x *TaskFinishResponse) GetContents() []*McpResultContent {
 	return nil
 }
 
+type CheckMessageValidityRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// list of request IDs to check
+	RequestIds    []string `protobuf:"bytes,1,rep,name=request_ids,json=requestIds,proto3" json:"request_ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckMessageValidityRequest) Reset() {
+	*x = CheckMessageValidityRequest{}
+	mi := &file_agentassist_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckMessageValidityRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckMessageValidityRequest) ProtoMessage() {}
+
+func (x *CheckMessageValidityRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckMessageValidityRequest.ProtoReflect.Descriptor instead.
+func (*CheckMessageValidityRequest) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *CheckMessageValidityRequest) GetRequestIds() []string {
+	if x != nil {
+		return x.RequestIds
+	}
+	return nil
+}
+
+type CheckMessageValidityResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// map of request ID to validity status
+	Validity      map[string]bool `protobuf:"bytes,1,rep,name=validity,proto3" json:"validity,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"varint,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CheckMessageValidityResponse) Reset() {
+	*x = CheckMessageValidityResponse{}
+	mi := &file_agentassist_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CheckMessageValidityResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CheckMessageValidityResponse) ProtoMessage() {}
+
+func (x *CheckMessageValidityResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CheckMessageValidityResponse.ProtoReflect.Descriptor instead.
+func (*CheckMessageValidityResponse) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *CheckMessageValidityResponse) GetValidity() map[string]bool {
+	if x != nil {
+		return x.Validity
+	}
+	return nil
+}
+
 type WebsocketMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// WebsocketMessage cmd
@@ -790,6 +880,7 @@ type WebsocketMessage struct {
 	// UserLogin: user login, str param is user token
 	// AskQuestionReplyNotification: notification of an AskQuestionReply
 	// TaskFinishReplyNotification: notification of a TaskFinishReply
+	// CheckMessageValidity: check if messages are still valid
 	Cmd string `protobuf:"bytes,1,opt,name=Cmd,proto3" json:"Cmd,omitempty"`
 	// ask question
 	AskQuestionRequest *AskQuestionRequest `protobuf:"bytes,2,opt,name=AskQuestionRequest,proto3" json:"AskQuestionRequest,omitempty"`
@@ -799,6 +890,10 @@ type WebsocketMessage struct {
 	AskQuestionResponse *AskQuestionResponse `protobuf:"bytes,4,opt,name=AskQuestionResponse,proto3" json:"AskQuestionResponse,omitempty"`
 	// task finish reply
 	TaskFinishResponse *TaskFinishResponse `protobuf:"bytes,5,opt,name=TaskFinishResponse,proto3" json:"TaskFinishResponse,omitempty"`
+	// check message validity
+	CheckMessageValidityRequest *CheckMessageValidityRequest `protobuf:"bytes,13,opt,name=CheckMessageValidityRequest,proto3" json:"CheckMessageValidityRequest,omitempty"`
+	// check message validity response
+	CheckMessageValidityResponse *CheckMessageValidityResponse `protobuf:"bytes,14,opt,name=CheckMessageValidityResponse,proto3" json:"CheckMessageValidityResponse,omitempty"`
 	// str param
 	StrParam      string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -807,7 +902,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_agentassist_proto_msgTypes[12]
+	mi := &file_agentassist_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -819,7 +914,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[12]
+	mi := &file_agentassist_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -832,7 +927,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{12}
+	return file_agentassist_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *WebsocketMessage) GetCmd() string {
@@ -866,6 +961,20 @@ func (x *WebsocketMessage) GetAskQuestionResponse() *AskQuestionResponse {
 func (x *WebsocketMessage) GetTaskFinishResponse() *TaskFinishResponse {
 	if x != nil {
 		return x.TaskFinishResponse
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetCheckMessageValidityRequest() *CheckMessageValidityRequest {
+	if x != nil {
+		return x.CheckMessageValidityRequest
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetCheckMessageValidityResponse() *CheckMessageValidityResponse {
+	if x != nil {
+		return x.CheckMessageValidityResponse
 	}
 	return nil
 }
@@ -937,13 +1046,23 @@ const file_agentassist_proto_rawDesc = "" +
 	"\bcontents\x18\x04 \x03(\v2\".agentassistproto.McpResultContentR\bcontents\x1a7\n" +
 	"\tMetaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x98\x03\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\">\n" +
+	"\x1bCheckMessageValidityRequest\x12\x1f\n" +
+	"\vrequest_ids\x18\x01 \x03(\tR\n" +
+	"requestIds\"\xb5\x01\n" +
+	"\x1cCheckMessageValidityResponse\x12X\n" +
+	"\bvalidity\x18\x01 \x03(\v2<.agentassistproto.CheckMessageValidityResponse.ValidityEntryR\bvalidity\x1a;\n" +
+	"\rValidityEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\bR\x05value:\x028\x01\"\xfd\x04\n" +
 	"\x10WebsocketMessage\x12\x10\n" +
 	"\x03Cmd\x18\x01 \x01(\tR\x03Cmd\x12T\n" +
 	"\x12AskQuestionRequest\x18\x02 \x01(\v2$.agentassistproto.AskQuestionRequestR\x12AskQuestionRequest\x12Q\n" +
 	"\x11TaskFinishRequest\x18\x03 \x01(\v2#.agentassistproto.TaskFinishRequestR\x11TaskFinishRequest\x12W\n" +
 	"\x13AskQuestionResponse\x18\x04 \x01(\v2%.agentassistproto.AskQuestionResponseR\x13AskQuestionResponse\x12T\n" +
-	"\x12TaskFinishResponse\x18\x05 \x01(\v2$.agentassistproto.TaskFinishResponseR\x12TaskFinishResponse\x12\x1a\n" +
+	"\x12TaskFinishResponse\x18\x05 \x01(\v2$.agentassistproto.TaskFinishResponseR\x12TaskFinishResponse\x12o\n" +
+	"\x1bCheckMessageValidityRequest\x18\r \x01(\v2-.agentassistproto.CheckMessageValidityRequestR\x1bCheckMessageValidityRequest\x12r\n" +
+	"\x1cCheckMessageValidityResponse\x18\x0e \x01(\v2..agentassistproto.CheckMessageValidityResponseR\x1cCheckMessageValidityResponse\x12\x1a\n" +
 	"\bStrParam\x18\f \x01(\tR\bStrParam2\xc5\x01\n" +
 	"\x0eSrvAgentAssist\x12Z\n" +
 	"\vAskQuestion\x12$.agentassistproto.AskQuestionRequest\x1a%.agentassistproto.AskQuestionResponse\x12W\n" +
@@ -962,23 +1081,26 @@ func file_agentassist_proto_rawDescGZIP() []byte {
 	return file_agentassist_proto_rawDescData
 }
 
-var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_agentassist_proto_goTypes = []any{
-	(*TextContent)(nil),           // 0: agentassistproto.TextContent
-	(*ImageContent)(nil),          // 1: agentassistproto.ImageContent
-	(*AudioContent)(nil),          // 2: agentassistproto.AudioContent
-	(*EmbeddedResource)(nil),      // 3: agentassistproto.EmbeddedResource
-	(*McpResultContent)(nil),      // 4: agentassistproto.McpResultContent
-	(*MsgEmpty)(nil),              // 5: agentassistproto.MsgEmpty
-	(*McpAskQuestionRequest)(nil), // 6: agentassistproto.McpAskQuestionRequest
-	(*AskQuestionRequest)(nil),    // 7: agentassistproto.AskQuestionRequest
-	(*AskQuestionResponse)(nil),   // 8: agentassistproto.AskQuestionResponse
-	(*McpTaskFinishRequest)(nil),  // 9: agentassistproto.McpTaskFinishRequest
-	(*TaskFinishRequest)(nil),     // 10: agentassistproto.TaskFinishRequest
-	(*TaskFinishResponse)(nil),    // 11: agentassistproto.TaskFinishResponse
-	(*WebsocketMessage)(nil),      // 12: agentassistproto.WebsocketMessage
-	nil,                           // 13: agentassistproto.AskQuestionResponse.MetaEntry
-	nil,                           // 14: agentassistproto.TaskFinishResponse.MetaEntry
+	(*TextContent)(nil),                  // 0: agentassistproto.TextContent
+	(*ImageContent)(nil),                 // 1: agentassistproto.ImageContent
+	(*AudioContent)(nil),                 // 2: agentassistproto.AudioContent
+	(*EmbeddedResource)(nil),             // 3: agentassistproto.EmbeddedResource
+	(*McpResultContent)(nil),             // 4: agentassistproto.McpResultContent
+	(*MsgEmpty)(nil),                     // 5: agentassistproto.MsgEmpty
+	(*McpAskQuestionRequest)(nil),        // 6: agentassistproto.McpAskQuestionRequest
+	(*AskQuestionRequest)(nil),           // 7: agentassistproto.AskQuestionRequest
+	(*AskQuestionResponse)(nil),          // 8: agentassistproto.AskQuestionResponse
+	(*McpTaskFinishRequest)(nil),         // 9: agentassistproto.McpTaskFinishRequest
+	(*TaskFinishRequest)(nil),            // 10: agentassistproto.TaskFinishRequest
+	(*TaskFinishResponse)(nil),           // 11: agentassistproto.TaskFinishResponse
+	(*CheckMessageValidityRequest)(nil),  // 12: agentassistproto.CheckMessageValidityRequest
+	(*CheckMessageValidityResponse)(nil), // 13: agentassistproto.CheckMessageValidityResponse
+	(*WebsocketMessage)(nil),             // 14: agentassistproto.WebsocketMessage
+	nil,                                  // 15: agentassistproto.AskQuestionResponse.MetaEntry
+	nil,                                  // 16: agentassistproto.TaskFinishResponse.MetaEntry
+	nil,                                  // 17: agentassistproto.CheckMessageValidityResponse.ValidityEntry
 }
 var file_agentassist_proto_depIdxs = []int32{
 	0,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
@@ -986,24 +1108,27 @@ var file_agentassist_proto_depIdxs = []int32{
 	2,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
 	3,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
 	6,  // 4: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
-	13, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
+	15, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
 	4,  // 6: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
 	9,  // 7: agentassistproto.TaskFinishRequest.Request:type_name -> agentassistproto.McpTaskFinishRequest
-	14, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
+	16, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
 	4,  // 9: agentassistproto.TaskFinishResponse.contents:type_name -> agentassistproto.McpResultContent
-	7,  // 10: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
-	10, // 11: agentassistproto.WebsocketMessage.TaskFinishRequest:type_name -> agentassistproto.TaskFinishRequest
-	8,  // 12: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
-	11, // 13: agentassistproto.WebsocketMessage.TaskFinishResponse:type_name -> agentassistproto.TaskFinishResponse
-	7,  // 14: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
-	10, // 15: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
-	8,  // 16: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
-	11, // 17: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
-	16, // [16:18] is the sub-list for method output_type
-	14, // [14:16] is the sub-list for method input_type
-	14, // [14:14] is the sub-list for extension type_name
-	14, // [14:14] is the sub-list for extension extendee
-	0,  // [0:14] is the sub-list for field type_name
+	17, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	7,  // 11: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
+	10, // 12: agentassistproto.WebsocketMessage.TaskFinishRequest:type_name -> agentassistproto.TaskFinishRequest
+	8,  // 13: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
+	11, // 14: agentassistproto.WebsocketMessage.TaskFinishResponse:type_name -> agentassistproto.TaskFinishResponse
+	12, // 15: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
+	13, // 16: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
+	7,  // 17: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
+	10, // 18: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
+	8,  // 19: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
+	11, // 20: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
+	19, // [19:21] is the sub-list for method output_type
+	17, // [17:19] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_agentassist_proto_init() }
@@ -1017,7 +1142,7 @@ func file_agentassist_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agentassist_proto_rawDesc), len(file_agentassist_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
