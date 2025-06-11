@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../models/chat_message.dart';
@@ -20,17 +21,20 @@ class InlineReplyWidget extends StatefulWidget {
 
 class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   late TextEditingController _controller;
+  late FocusNode _focusNode;
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
+    _focusNode = FocusNode();
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -88,21 +92,40 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
           _buildHeader(context),
           const SizedBox(height: 12),
 
-          // Text input field
-          TextField(
-            controller: _controller,
-            decoration: InputDecoration(
-              labelText: _getInputLabel(),
-              hintText: _getInputHint(),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+          // Text input field with keyboard shortcut
+          Focus(
+            onKeyEvent: (FocusNode node, KeyEvent event) {
+              // Check for Ctrl+Enter key combination
+              if (event is KeyDownEvent &&
+                  event.logicalKey == LogicalKeyboardKey.enter &&
+                  (HardwareKeyboard.instance.isControlPressed || 
+                   HardwareKeyboard.instance.isMetaPressed)) {
+                _handleSubmit();
+                return KeyEventResult.handled;
+              }
+              return KeyEventResult.ignored;
+            },
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              decoration: InputDecoration(
+                labelText: _getInputLabel(),
+                hintText: _getInputHint(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.all(12),
+                helperText: '按 Ctrl+Enter 快速发送',
+                helperStyle: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
-              contentPadding: const EdgeInsets.all(12),
+              maxLines: 3,
+              minLines: 2,
+              autofocus: true,
+              enabled: !_isSubmitting,
             ),
-            maxLines: 3,
-            minLines: 2,
-            autofocus: true,
-            enabled: !_isSubmitting,
           ),
           const SizedBox(height: 12),
 
