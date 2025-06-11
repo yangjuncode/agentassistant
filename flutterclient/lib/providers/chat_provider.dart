@@ -221,6 +221,27 @@ class ChatProvider extends ChangeNotifier {
     _logger
         .i('Ask question reply notification received for request: $requestId');
 
+    // Extract reply content from the response
+    String? replyText;
+    List<ContentItem> replyContents = [];
+
+    if (message.hasAskQuestionResponse()) {
+      final response = message.askQuestionResponse;
+
+      // Extract text content from response
+      for (final content in response.contents) {
+        final contentItem = ContentItem.fromMcpResultContent(content);
+        replyContents.add(contentItem);
+
+        // Get the first text content as reply text
+        if (replyText == null &&
+            contentItem.isText &&
+            contentItem.text != null) {
+          replyText = contentItem.text!;
+        }
+      }
+    }
+
     // Find and update the existing message
     final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
     if (messageIndex != -1) {
@@ -230,15 +251,19 @@ class ChatProvider extends ChangeNotifier {
       if (existingMessage.status == MessageStatus.pending) {
         final updatedMessage = existingMessage.copyWith(
           status: MessageStatus.replied,
+          replyText: replyText ?? '已回复',
+          contents: replyContents,
           repliedAt: DateTime.now(),
+          repliedByCurrentUser: false,
         );
         _messages[messageIndex] = updatedMessage;
         notifyListeners();
         _logger.i(
-            'Updated message $requestId status to replied (by another user)');
+            'Updated message $requestId status to replied (by another user) with content: $replyText');
 
         // Show notification to user
-        _showReplyNotification('问题已被其他用户回复', existingMessage.question ?? '');
+        _showReplyNotification(
+            '问题已被其他用户回复', replyText ?? existingMessage.question ?? '');
       }
     } else {
       _logger.w(
@@ -259,6 +284,27 @@ class ChatProvider extends ChangeNotifier {
     _logger
         .i('Task finish reply notification received for request: $requestId');
 
+    // Extract reply content from the response
+    String? replyText;
+    List<ContentItem> replyContents = [];
+
+    if (message.hasTaskFinishResponse()) {
+      final response = message.taskFinishResponse;
+
+      // Extract text content from response
+      for (final content in response.contents) {
+        final contentItem = ContentItem.fromMcpResultContent(content);
+        replyContents.add(contentItem);
+
+        // Get the first text content as reply text
+        if (replyText == null &&
+            contentItem.isText &&
+            contentItem.text != null) {
+          replyText = contentItem.text!;
+        }
+      }
+    }
+
     // Find and update the existing message
     final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
     if (messageIndex != -1) {
@@ -268,15 +314,19 @@ class ChatProvider extends ChangeNotifier {
       if (existingMessage.status == MessageStatus.pending) {
         final updatedMessage = existingMessage.copyWith(
           status: MessageStatus.confirmed,
+          replyText: replyText ?? '已确认',
+          contents: replyContents,
           repliedAt: DateTime.now(),
+          repliedByCurrentUser: false,
         );
         _messages[messageIndex] = updatedMessage;
         notifyListeners();
         _logger.i(
-            'Updated message $requestId status to confirmed (by another user)');
+            'Updated message $requestId status to confirmed (by another user) with content: $replyText');
 
         // Show notification to user
-        _showReplyNotification('任务已被其他用户确认', existingMessage.summary ?? '');
+        _showReplyNotification(
+            '任务已被其他用户确认', replyText ?? existingMessage.summary ?? '');
       }
     } else {
       _logger.w(
@@ -391,6 +441,7 @@ class ChatProvider extends ChangeNotifier {
         status: MessageStatus.replied,
         replyText: replyText,
         repliedAt: DateTime.now(),
+        repliedByCurrentUser: true,
       );
       _updateMessage(updatedMessage);
 
@@ -439,6 +490,7 @@ class ChatProvider extends ChangeNotifier {
         status: MessageStatus.confirmed,
         replyText: confirmText,
         repliedAt: DateTime.now(),
+        repliedByCurrentUser: true,
       );
       _updateMessage(updatedMessage);
 

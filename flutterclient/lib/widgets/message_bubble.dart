@@ -182,7 +182,7 @@ class MessageBubble extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                '您的回复',
+                _getReplyTitle(),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
@@ -278,6 +278,15 @@ class MessageBubble extends StatelessWidget {
         return Colors.orange;
       case MessageType.reply:
         return Colors.green;
+    }
+  }
+
+  /// Get reply title based on who replied
+  String _getReplyTitle() {
+    if (message.repliedByCurrentUser) {
+      return '您的回复';
+    } else {
+      return '其他用户的回复';
     }
   }
 }

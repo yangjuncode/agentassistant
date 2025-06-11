@@ -17,6 +17,7 @@ class ChatMessage {
   final bool isError;
   final String? replyText;
   final DateTime? repliedAt;
+  final bool repliedByCurrentUser;
 
   ChatMessage({
     String? id,
@@ -32,6 +33,7 @@ class ChatMessage {
     this.isError = false,
     this.replyText,
     this.repliedAt,
+    this.repliedByCurrentUser = false,
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
@@ -74,6 +76,7 @@ class ChatMessage {
     DateTime? repliedAt,
     List<ContentItem>? contents,
     bool? isError,
+    bool? repliedByCurrentUser,
   }) {
     return ChatMessage(
       id: id,
@@ -89,6 +92,7 @@ class ChatMessage {
       isError: isError ?? this.isError,
       replyText: replyText ?? this.replyText,
       repliedAt: repliedAt ?? this.repliedAt,
+      repliedByCurrentUser: repliedByCurrentUser ?? this.repliedByCurrentUser,
     );
   }
 
@@ -108,6 +112,7 @@ class ChatMessage {
       'isError': isError,
       'replyText': replyText,
       'repliedAt': repliedAt?.toIso8601String(),
+      'repliedByCurrentUser': repliedByCurrentUser,
     };
   }
 
@@ -131,6 +136,7 @@ class ChatMessage {
       replyText: json['replyText'],
       repliedAt:
           json['repliedAt'] != null ? DateTime.parse(json['repliedAt']) : null,
+      repliedByCurrentUser: json['repliedByCurrentUser'] ?? false,
     );
   }
 
