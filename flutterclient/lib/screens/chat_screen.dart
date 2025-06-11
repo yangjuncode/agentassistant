@@ -6,7 +6,7 @@ import '../models/chat_message.dart';
 import '../constants/websocket_commands.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/connection_status_bar.dart';
-import '../widgets/pending_actions_bar.dart';
+import '../widgets/pending_actions_indicator.dart';
 import '../config/app_config.dart';
 import 'settings_screen.dart';
 
@@ -241,6 +241,7 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: const Text(AppConfig.appName),
         actions: [
+          const PendingActionsIndicator(),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: _showSettings,
@@ -254,9 +255,6 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               // Connection status bar
               const ConnectionStatusBar(),
-
-              // Pending actions bar
-              const PendingActionsBar(),
 
               // Messages list
               Expanded(
