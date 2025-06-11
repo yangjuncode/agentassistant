@@ -6,8 +6,14 @@ import 'screens/login_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/splash_screen.dart';
 import 'config/app_config.dart';
+import 'services/window_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize window service for desktop platforms
+  await WindowService().initialize();
+
   runApp(const AgentAssistantApp());
 }
 

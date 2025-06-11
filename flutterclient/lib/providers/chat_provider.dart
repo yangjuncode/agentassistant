@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 
 import '../models/chat_message.dart';
 import '../services/websocket_service.dart';
+import '../services/window_service.dart';
 import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
 import '../proto/agentassist.pb.dart';
@@ -192,6 +193,9 @@ class ChatProvider extends ChangeNotifier {
     final chatMessage = ChatMessage.fromAskQuestionRequest(request);
     _addMessage(chatMessage);
     _logger.i('Received question: ${request.request.question}');
+
+    // Bring window to front when new message is received
+    _bringWindowToFrontIfNeeded();
   }
 
   /// Handle task finish message
@@ -199,6 +203,9 @@ class ChatProvider extends ChangeNotifier {
     final chatMessage = ChatMessage.fromTaskFinishRequest(request);
     _addMessage(chatMessage);
     _logger.i('Received task finish: ${request.request.summary}');
+
+    // Bring window to front when new message is received
+    _bringWindowToFrontIfNeeded();
   }
 
   /// Handle ask question reply notification
@@ -225,7 +232,7 @@ class ChatProvider extends ChangeNotifier {
     final reason = notification.reason;
     final messageType = notification.messageType;
 
-    _logger.i('Request $requestId was cancelled: $reason');
+    _logger.i('Request $requestId ($messageType) was cancelled: $reason');
 
     // Find and update the existing message
     final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
@@ -427,6 +434,32 @@ class ChatProvider extends ChangeNotifier {
       await prefs.setString(AppConfig.tokenStorageKey, token);
     } catch (error) {
       _logger.e('Failed to save connection info: $error');
+    }
+  }
+
+  /// Bring window to front if needed (desktop only)
+  Future<void> _bringWindowToFrontIfNeeded() async {
+    final windowService = WindowService();
+
+    // Only proceed if running on desktop
+    if (!windowService.isDesktop) {
+      return;
+    }
+
+    try {
+      // Check if window is currently focused
+      final isFocused = await windowService.isFocused();
+      final isVisible = await windowService.isVisible();
+
+      if (!isFocused || !isVisible) {
+        _logger.i('Window not focused or visible, bringing to front');
+        // Use the more aggressive method for Linux, standard for others
+        await windowService.bringToFrontAndStay();
+      } else {
+        _logger.d('Window already focused and visible');
+      }
+    } catch (error) {
+      _logger.e('Failed to bring window to front: $error');
     }
   }
 
