@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file agentassist.proto.
  */
 export const file_agentassist: GenFile = /*@__PURE__*/
-  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSJUChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIQCghRdWVzdGlvbhgCIAEoCRIPCgdUaW1lb3V0GAMgASgFIm0KEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0ItQBChNBc2tRdWVzdGlvblJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPQoETWV0YRgDIAMoCzIvLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiUgoUTWNwVGFza0ZpbmlzaFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUiawoRVGFza0ZpbmlzaFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFRhc2tGaW5pc2hSZXF1ZXN0ItIBChJUYXNrRmluaXNoUmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI8CgRNZXRhGAMgAygLMi4uYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIrkCChBXZWJzb2NrZXRNZXNzYWdlEgsKA0NtZBgBIAEoCRJAChJBc2tRdWVzdGlvblJlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBI+ChFUYXNrRmluaXNoUmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uVGFza0ZpbmlzaFJlcXVlc3QSQgoTQXNrUXVlc3Rpb25SZXNwb25zZRgEIAEoCzIlLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJAChJUYXNrRmluaXNoUmVzcG9uc2UYBSABKAsyJC5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXNwb25zZRIQCghTdHJQYXJhbRgMIAEoCTLFAQoOU3J2QWdlbnRBc3Npc3QSWgoLQXNrUXVlc3Rpb24SJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBolLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJXCgpUYXNrRmluaXNoEiMuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVxdWVzdBokLmFnZW50YXNzaXN0cHJvdG8uVGFza0ZpbmlzaFJlc3BvbnNlQjhaNmdpdGh1Yi5jb20veWFuZ2p1bmNvZGUvYWdlbnRhc3Npc3RhbnQvYWdlbnRhc3Npc3Rwcm90b2IGcHJvdG8z");
+  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSJUChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIQCghRdWVzdGlvbhgCIAEoCRIPCgdUaW1lb3V0GAMgASgFIm0KEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0ItQBChNBc2tRdWVzdGlvblJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPQoETWV0YRgDIAMoCzIvLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiUgoUTWNwVGFza0ZpbmlzaFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUiawoRVGFza0ZpbmlzaFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFRhc2tGaW5pc2hSZXF1ZXN0ItIBChJUYXNrRmluaXNoUmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI8CgRNZXRhGAMgAygLMi4uYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIjIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBITCgtyZXF1ZXN0X2lkcxgBIAMoCSKfAQocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOCgh2YWxpZGl0eRgBIAMoCzI8LmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZS5WYWxpZGl0eUVudHJ5Gi8KDVZhbGlkaXR5RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgIOgI4ASIvChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAki0QEKDlBlbmRpbmdNZXNzYWdlEhQKDG1lc3NhZ2VfdHlwZRgBIAEoCRJCChRhc2tfcXVlc3Rpb25fcmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0EkAKE3Rhc2tfZmluaXNoX3JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0EhIKCmNyZWF0ZWRfYXQYBCABKAMSDwoHdGltZW91dBgFIAEoBSJtChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRI6ChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMiAuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZRITCgt0b3RhbF9jb3VudBgCIAEoBSJYChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEhIKCnJlcXVlc3RfaWQYASABKAkSDgoGcmVhc29uGAIgASgJEhQKDG1lc3NhZ2VfdHlwZRgDIAEoCSLbBQoQV2Vic29ja2V0TWVzc2FnZRILCgNDbWQYASABKAkSQAoSQXNrUXVlc3Rpb25SZXF1ZXN0GAIgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlcXVlc3QSPgoRVGFza0ZpbmlzaFJlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0EkIKE0Fza1F1ZXN0aW9uUmVzcG9uc2UYBCABKAsyJS5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2USQAoSVGFza0ZpbmlzaFJlc3BvbnNlGAUgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2USUgobQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0GA0gASgLMi0uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSVAocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRgOIAEoCzIuLmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0GA8gASgLMisuYWdlbnRhc3Npc3Rwcm90by5HZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0ElAKGkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlGBAgASgLMiwuYWdlbnRhc3Npc3Rwcm90by5HZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJUChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uGBEgASgLMi4uYWdlbnRhc3Npc3Rwcm90by5SZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEhAKCFN0clBhcmFtGAwgASgJMsUBCg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcKClRhc2tGaW5pc2gSIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0GiQuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2VCOFo2Z2l0aHViLmNvbS95YW5nanVuY29kZS9hZ2VudGFzc2lzdGFudC9hZ2VudGFzc2lzdHByb3RvYgZwcm90bzM");
 
 /**
  * TextContent represents text provided to or from an LLM.
@@ -421,6 +421,177 @@ export const TaskFinishResponseSchema: GenMessage<TaskFinishResponse> = /*@__PUR
   messageDesc(file_agentassist, 11);
 
 /**
+ * @generated from message agentassistproto.CheckMessageValidityRequest
+ */
+export type CheckMessageValidityRequest = Message<"agentassistproto.CheckMessageValidityRequest"> & {
+  /**
+   * list of request IDs to check
+   *
+   * @generated from field: repeated string request_ids = 1;
+   */
+  requestIds: string[];
+};
+
+/**
+ * Describes the message agentassistproto.CheckMessageValidityRequest.
+ * Use `create(CheckMessageValidityRequestSchema)` to create a new message.
+ */
+export const CheckMessageValidityRequestSchema: GenMessage<CheckMessageValidityRequest> = /*@__PURE__*/
+  messageDesc(file_agentassist, 12);
+
+/**
+ * @generated from message agentassistproto.CheckMessageValidityResponse
+ */
+export type CheckMessageValidityResponse = Message<"agentassistproto.CheckMessageValidityResponse"> & {
+  /**
+   * map of request ID to validity status
+   *
+   * @generated from field: map<string, bool> validity = 1;
+   */
+  validity: { [key: string]: boolean };
+};
+
+/**
+ * Describes the message agentassistproto.CheckMessageValidityResponse.
+ * Use `create(CheckMessageValidityResponseSchema)` to create a new message.
+ */
+export const CheckMessageValidityResponseSchema: GenMessage<CheckMessageValidityResponse> = /*@__PURE__*/
+  messageDesc(file_agentassist, 13);
+
+/**
+ * GetPendingMessagesRequest represents a request to get all pending messages for a user
+ *
+ * @generated from message agentassistproto.GetPendingMessagesRequest
+ */
+export type GetPendingMessagesRequest = Message<"agentassistproto.GetPendingMessagesRequest"> & {
+  /**
+   * user token to filter messages
+   *
+   * @generated from field: string user_token = 1;
+   */
+  userToken: string;
+};
+
+/**
+ * Describes the message agentassistproto.GetPendingMessagesRequest.
+ * Use `create(GetPendingMessagesRequestSchema)` to create a new message.
+ */
+export const GetPendingMessagesRequestSchema: GenMessage<GetPendingMessagesRequest> = /*@__PURE__*/
+  messageDesc(file_agentassist, 14);
+
+/**
+ * PendingMessage represents a single pending message
+ *
+ * @generated from message agentassistproto.PendingMessage
+ */
+export type PendingMessage = Message<"agentassistproto.PendingMessage"> & {
+  /**
+   * message type: "AskQuestion" or "TaskFinish"
+   *
+   * @generated from field: string message_type = 1;
+   */
+  messageType: string;
+
+  /**
+   * ask question request (if message_type is "AskQuestion")
+   *
+   * @generated from field: agentassistproto.AskQuestionRequest ask_question_request = 2;
+   */
+  askQuestionRequest?: AskQuestionRequest;
+
+  /**
+   * task finish request (if message_type is "TaskFinish")
+   *
+   * @generated from field: agentassistproto.TaskFinishRequest task_finish_request = 3;
+   */
+  taskFinishRequest?: TaskFinishRequest;
+
+  /**
+   * timestamp when the message was created
+   *
+   * @generated from field: int64 created_at = 4;
+   */
+  createdAt: bigint;
+
+  /**
+   * timeout in seconds
+   *
+   * @generated from field: int32 timeout = 5;
+   */
+  timeout: number;
+};
+
+/**
+ * Describes the message agentassistproto.PendingMessage.
+ * Use `create(PendingMessageSchema)` to create a new message.
+ */
+export const PendingMessageSchema: GenMessage<PendingMessage> = /*@__PURE__*/
+  messageDesc(file_agentassist, 15);
+
+/**
+ * GetPendingMessagesResponse represents the response containing all pending messages
+ *
+ * @generated from message agentassistproto.GetPendingMessagesResponse
+ */
+export type GetPendingMessagesResponse = Message<"agentassistproto.GetPendingMessagesResponse"> & {
+  /**
+   * list of pending messages
+   *
+   * @generated from field: repeated agentassistproto.PendingMessage pending_messages = 1;
+   */
+  pendingMessages: PendingMessage[];
+
+  /**
+   * total count of pending messages
+   *
+   * @generated from field: int32 total_count = 2;
+   */
+  totalCount: number;
+};
+
+/**
+ * Describes the message agentassistproto.GetPendingMessagesResponse.
+ * Use `create(GetPendingMessagesResponseSchema)` to create a new message.
+ */
+export const GetPendingMessagesResponseSchema: GenMessage<GetPendingMessagesResponse> = /*@__PURE__*/
+  messageDesc(file_agentassist, 16);
+
+/**
+ * RequestCancelledNotification represents a notification that a request has been cancelled
+ *
+ * @generated from message agentassistproto.RequestCancelledNotification
+ */
+export type RequestCancelledNotification = Message<"agentassistproto.RequestCancelledNotification"> & {
+  /**
+   * request id that was cancelled
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+
+  /**
+   * reason for cancellation
+   *
+   * @generated from field: string reason = 2;
+   */
+  reason: string;
+
+  /**
+   * message type: "AskQuestion" or "TaskFinish"
+   *
+   * @generated from field: string message_type = 3;
+   */
+  messageType: string;
+};
+
+/**
+ * Describes the message agentassistproto.RequestCancelledNotification.
+ * Use `create(RequestCancelledNotificationSchema)` to create a new message.
+ */
+export const RequestCancelledNotificationSchema: GenMessage<RequestCancelledNotification> = /*@__PURE__*/
+  messageDesc(file_agentassist, 17);
+
+/**
  * @generated from message agentassistproto.WebsocketMessage
  */
 export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
@@ -433,6 +604,9 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
    * UserLogin: user login, str param is user token
    * AskQuestionReplyNotification: notification of an AskQuestionReply
    * TaskFinishReplyNotification: notification of a TaskFinishReply
+   * CheckMessageValidity: check if messages are still valid
+   * GetPendingMessages: get all pending messages for a user
+   * RequestCancelled: notification that a request has been cancelled
    *
    * @generated from field: string Cmd = 1;
    */
@@ -467,6 +641,41 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
   TaskFinishResponse?: TaskFinishResponse;
 
   /**
+   * check message validity
+   *
+   * @generated from field: agentassistproto.CheckMessageValidityRequest CheckMessageValidityRequest = 13;
+   */
+  CheckMessageValidityRequest?: CheckMessageValidityRequest;
+
+  /**
+   * check message validity response
+   *
+   * @generated from field: agentassistproto.CheckMessageValidityResponse CheckMessageValidityResponse = 14;
+   */
+  CheckMessageValidityResponse?: CheckMessageValidityResponse;
+
+  /**
+   * get pending messages request
+   *
+   * @generated from field: agentassistproto.GetPendingMessagesRequest GetPendingMessagesRequest = 15;
+   */
+  GetPendingMessagesRequest?: GetPendingMessagesRequest;
+
+  /**
+   * get pending messages response
+   *
+   * @generated from field: agentassistproto.GetPendingMessagesResponse GetPendingMessagesResponse = 16;
+   */
+  GetPendingMessagesResponse?: GetPendingMessagesResponse;
+
+  /**
+   * request cancelled notification
+   *
+   * @generated from field: agentassistproto.RequestCancelledNotification RequestCancelledNotification = 17;
+   */
+  RequestCancelledNotification?: RequestCancelledNotification;
+
+  /**
    * str param
    *
    * @generated from field: string StrParam = 12;
@@ -479,7 +688,7 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
  * Use `create(WebsocketMessageSchema)` to create a new message.
  */
 export const WebsocketMessageSchema: GenMessage<WebsocketMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 12);
+  messageDesc(file_agentassist, 18);
 
 /**
  * @generated from service agentassistproto.SrvAgentAssist

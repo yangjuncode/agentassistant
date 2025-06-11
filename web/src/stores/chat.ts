@@ -27,6 +27,7 @@ export interface ChatMessage {
   projectDirectory: string | undefined;
   isFromAgent: boolean;
   isAnswered?: boolean;
+  isCancelled?: boolean;
   originalRequest?: AskQuestionRequest | TaskFinishRequest;
   response?: AskQuestionResponse | TaskFinishResponse;
   timeout: number | undefined;
@@ -126,6 +127,9 @@ export const useChatStore = defineStore('chat', () => {
       case WebSocketCommands.TASK_FINISH_REPLY_NOTIFICATION:
         handleTaskFinishReplyNotification(message);
         break;
+      case WebSocketCommands.REQUEST_CANCELLED:
+        handleRequestCancelled(message);
+        break;
       default:
         console.log('Unknown message command:', message.Cmd);
     }
@@ -206,6 +210,41 @@ export const useChatStore = defineStore('chat', () => {
       isFromAgent: false,
       projectDirectory: undefined,
       timeout: undefined
+    };
+
+    messages.value.push(notificationMessage);
+  }
+
+  function handleRequestCancelled(message: WebsocketMessage) {
+    const cancelNotification = message.RequestCancelledNotification;
+    if (!cancelNotification) {
+      console.error('Received RequestCancelled message without notification data');
+      return;
+    }
+
+    const requestId = cancelNotification.requestId;
+    const reason = cancelNotification.reason;
+    const messageType = cancelNotification.messageType;
+
+    console.log(`Request ${requestId} was cancelled: ${reason}`);
+
+    // Find and update the existing message
+    const existingMessage = messages.value.find(msg => msg.id === requestId);
+    if (existingMessage) {
+      existingMessage.isAnswered = true;
+      existingMessage.isCancelled = true;
+    }
+
+    // Add cancellation notification message
+    const notificationMessage: ChatMessage = {
+      id: `cancellation-${Date.now()}`,
+      type: 'notification',
+      timestamp: new Date(),
+      content: `${messageType} request was cancelled: ${reason}`,
+      isFromAgent: false,
+      projectDirectory: undefined,
+      timeout: undefined,
+      isCancelled: true
     };
 
     messages.value.push(notificationMessage);

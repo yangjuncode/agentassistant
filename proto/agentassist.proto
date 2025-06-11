@@ -147,6 +147,16 @@ message GetPendingMessagesResponse {
   int32 total_count = 2;
 }
 
+// RequestCancelledNotification represents a notification that a request has been cancelled
+message RequestCancelledNotification {
+  // request id that was cancelled
+  string request_id = 1;
+  // reason for cancellation
+  string reason = 2;
+  // message type: "AskQuestion" or "TaskFinish"
+  string message_type = 3;
+}
+
 message WebsocketMessage {
   // WebsocketMessage cmd
   // AskQuestion: mcp ask_question
@@ -158,6 +168,7 @@ message WebsocketMessage {
   // TaskFinishReplyNotification: notification of a TaskFinishReply
   // CheckMessageValidity: check if messages are still valid
   // GetPendingMessages: get all pending messages for a user
+  // RequestCancelled: notification that a request has been cancelled
   string Cmd = 1;
 
   //ask question
@@ -183,6 +194,9 @@ message WebsocketMessage {
 
   // get pending messages response
   GetPendingMessagesResponse GetPendingMessagesResponse = 16;
+
+  // request cancelled notification
+  RequestCancelledNotification RequestCancelledNotification = 17;
 
   //str param
   string StrParam = 12;

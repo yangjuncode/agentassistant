@@ -1053,6 +1053,70 @@ func (x *GetPendingMessagesResponse) GetTotalCount() int32 {
 	return 0
 }
 
+// RequestCancelledNotification represents a notification that a request has been cancelled
+type RequestCancelledNotification struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// request id that was cancelled
+	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// reason for cancellation
+	Reason string `protobuf:"bytes,2,opt,name=reason,proto3" json:"reason,omitempty"`
+	// message type: "AskQuestion" or "TaskFinish"
+	MessageType   string `protobuf:"bytes,3,opt,name=message_type,json=messageType,proto3" json:"message_type,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RequestCancelledNotification) Reset() {
+	*x = RequestCancelledNotification{}
+	mi := &file_agentassist_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestCancelledNotification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestCancelledNotification) ProtoMessage() {}
+
+func (x *RequestCancelledNotification) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestCancelledNotification.ProtoReflect.Descriptor instead.
+func (*RequestCancelledNotification) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *RequestCancelledNotification) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *RequestCancelledNotification) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
+}
+
+func (x *RequestCancelledNotification) GetMessageType() string {
+	if x != nil {
+		return x.MessageType
+	}
+	return ""
+}
+
 type WebsocketMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// WebsocketMessage cmd
@@ -1065,6 +1129,7 @@ type WebsocketMessage struct {
 	// TaskFinishReplyNotification: notification of a TaskFinishReply
 	// CheckMessageValidity: check if messages are still valid
 	// GetPendingMessages: get all pending messages for a user
+	// RequestCancelled: notification that a request has been cancelled
 	Cmd string `protobuf:"bytes,1,opt,name=Cmd,proto3" json:"Cmd,omitempty"`
 	// ask question
 	AskQuestionRequest *AskQuestionRequest `protobuf:"bytes,2,opt,name=AskQuestionRequest,proto3" json:"AskQuestionRequest,omitempty"`
@@ -1082,6 +1147,8 @@ type WebsocketMessage struct {
 	GetPendingMessagesRequest *GetPendingMessagesRequest `protobuf:"bytes,15,opt,name=GetPendingMessagesRequest,proto3" json:"GetPendingMessagesRequest,omitempty"`
 	// get pending messages response
 	GetPendingMessagesResponse *GetPendingMessagesResponse `protobuf:"bytes,16,opt,name=GetPendingMessagesResponse,proto3" json:"GetPendingMessagesResponse,omitempty"`
+	// request cancelled notification
+	RequestCancelledNotification *RequestCancelledNotification `protobuf:"bytes,17,opt,name=RequestCancelledNotification,proto3" json:"RequestCancelledNotification,omitempty"`
 	// str param
 	StrParam      string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -1090,7 +1157,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_agentassist_proto_msgTypes[17]
+	mi := &file_agentassist_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1102,7 +1169,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[17]
+	mi := &file_agentassist_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1115,7 +1182,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{17}
+	return file_agentassist_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *WebsocketMessage) GetCmd() string {
@@ -1177,6 +1244,13 @@ func (x *WebsocketMessage) GetGetPendingMessagesRequest() *GetPendingMessagesReq
 func (x *WebsocketMessage) GetGetPendingMessagesResponse() *GetPendingMessagesResponse {
 	if x != nil {
 		return x.GetPendingMessagesResponse
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetRequestCancelledNotification() *RequestCancelledNotification {
+	if x != nil {
+		return x.RequestCancelledNotification
 	}
 	return nil
 }
@@ -1270,7 +1344,12 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x1aGetPendingMessagesResponse\x12K\n" +
 	"\x10pending_messages\x18\x01 \x03(\v2 .agentassistproto.PendingMessageR\x0fpendingMessages\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
-	"totalCount\"\xd6\x06\n" +
+	"totalCount\"x\n" +
+	"\x1cRequestCancelledNotification\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x16\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\x12!\n" +
+	"\fmessage_type\x18\x03 \x01(\tR\vmessageType\"\xca\a\n" +
 	"\x10WebsocketMessage\x12\x10\n" +
 	"\x03Cmd\x18\x01 \x01(\tR\x03Cmd\x12T\n" +
 	"\x12AskQuestionRequest\x18\x02 \x01(\v2$.agentassistproto.AskQuestionRequestR\x12AskQuestionRequest\x12Q\n" +
@@ -1280,7 +1359,8 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x1bCheckMessageValidityRequest\x18\r \x01(\v2-.agentassistproto.CheckMessageValidityRequestR\x1bCheckMessageValidityRequest\x12r\n" +
 	"\x1cCheckMessageValidityResponse\x18\x0e \x01(\v2..agentassistproto.CheckMessageValidityResponseR\x1cCheckMessageValidityResponse\x12i\n" +
 	"\x19GetPendingMessagesRequest\x18\x0f \x01(\v2+.agentassistproto.GetPendingMessagesRequestR\x19GetPendingMessagesRequest\x12l\n" +
-	"\x1aGetPendingMessagesResponse\x18\x10 \x01(\v2,.agentassistproto.GetPendingMessagesResponseR\x1aGetPendingMessagesResponse\x12\x1a\n" +
+	"\x1aGetPendingMessagesResponse\x18\x10 \x01(\v2,.agentassistproto.GetPendingMessagesResponseR\x1aGetPendingMessagesResponse\x12r\n" +
+	"\x1cRequestCancelledNotification\x18\x11 \x01(\v2..agentassistproto.RequestCancelledNotificationR\x1cRequestCancelledNotification\x12\x1a\n" +
 	"\bStrParam\x18\f \x01(\tR\bStrParam2\xc5\x01\n" +
 	"\x0eSrvAgentAssist\x12Z\n" +
 	"\vAskQuestion\x12$.agentassistproto.AskQuestionRequest\x1a%.agentassistproto.AskQuestionResponse\x12W\n" +
@@ -1299,7 +1379,7 @@ func file_agentassist_proto_rawDescGZIP() []byte {
 	return file_agentassist_proto_rawDescData
 }
 
-var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_agentassist_proto_goTypes = []any{
 	(*TextContent)(nil),                  // 0: agentassistproto.TextContent
 	(*ImageContent)(nil),                 // 1: agentassistproto.ImageContent
@@ -1318,10 +1398,11 @@ var file_agentassist_proto_goTypes = []any{
 	(*GetPendingMessagesRequest)(nil),    // 14: agentassistproto.GetPendingMessagesRequest
 	(*PendingMessage)(nil),               // 15: agentassistproto.PendingMessage
 	(*GetPendingMessagesResponse)(nil),   // 16: agentassistproto.GetPendingMessagesResponse
-	(*WebsocketMessage)(nil),             // 17: agentassistproto.WebsocketMessage
-	nil,                                  // 18: agentassistproto.AskQuestionResponse.MetaEntry
-	nil,                                  // 19: agentassistproto.TaskFinishResponse.MetaEntry
-	nil,                                  // 20: agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	(*RequestCancelledNotification)(nil), // 17: agentassistproto.RequestCancelledNotification
+	(*WebsocketMessage)(nil),             // 18: agentassistproto.WebsocketMessage
+	nil,                                  // 19: agentassistproto.AskQuestionResponse.MetaEntry
+	nil,                                  // 20: agentassistproto.TaskFinishResponse.MetaEntry
+	nil,                                  // 21: agentassistproto.CheckMessageValidityResponse.ValidityEntry
 }
 var file_agentassist_proto_depIdxs = []int32{
 	0,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
@@ -1329,12 +1410,12 @@ var file_agentassist_proto_depIdxs = []int32{
 	2,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
 	3,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
 	6,  // 4: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
-	18, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
+	19, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
 	4,  // 6: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
 	9,  // 7: agentassistproto.TaskFinishRequest.Request:type_name -> agentassistproto.McpTaskFinishRequest
-	19, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
+	20, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
 	4,  // 9: agentassistproto.TaskFinishResponse.contents:type_name -> agentassistproto.McpResultContent
-	20, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	21, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
 	7,  // 11: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
 	10, // 12: agentassistproto.PendingMessage.task_finish_request:type_name -> agentassistproto.TaskFinishRequest
 	15, // 13: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
@@ -1346,15 +1427,16 @@ var file_agentassist_proto_depIdxs = []int32{
 	13, // 19: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
 	14, // 20: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
 	16, // 21: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
-	7,  // 22: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
-	10, // 23: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
-	8,  // 24: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
-	11, // 25: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
-	24, // [24:26] is the sub-list for method output_type
-	22, // [22:24] is the sub-list for method input_type
-	22, // [22:22] is the sub-list for extension type_name
-	22, // [22:22] is the sub-list for extension extendee
-	0,  // [0:22] is the sub-list for field type_name
+	17, // 22: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
+	7,  // 23: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
+	10, // 24: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
+	8,  // 25: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
+	11, // 26: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
+	25, // [25:27] is the sub-list for method output_type
+	23, // [23:25] is the sub-list for method input_type
+	23, // [23:23] is the sub-list for extension type_name
+	23, // [23:23] is the sub-list for extension extendee
+	0,  // [0:23] is the sub-list for field type_name
 }
 
 func init() { file_agentassist_proto_init() }
@@ -1368,7 +1450,7 @@ func file_agentassist_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agentassist_proto_rawDesc), len(file_agentassist_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

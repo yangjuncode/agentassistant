@@ -11,6 +11,7 @@ class WebSocketCommands {
       'TaskFinishReplyNotification';
   static const String checkMessageValidity = 'CheckMessageValidity';
   static const String getPendingMessages = 'GetPendingMessages';
+  static const String requestCancelled = 'RequestCancelled';
 }
 
 /// Content type constants for McpResultContent
@@ -28,6 +29,7 @@ enum MessageStatus {
   confirmed,
   error,
   expired,
+  cancelled,
 }
 
 /// Message type constants

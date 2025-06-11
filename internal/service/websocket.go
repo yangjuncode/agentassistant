@@ -147,6 +147,9 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			h.handleCheckMessageValidity(client, &message)
 		case "GetPendingMessages":
 			h.handleGetPendingMessages(client, &message)
+		case "RequestCancelled":
+			// This is a notification message, clients don't send this to server
+			log.Printf("Client %s sent RequestCancelled message (unexpected)", client.ID)
 		default:
 			log.Printf("Unknown message command from client %s: %s", client.ID, message.Cmd)
 		}

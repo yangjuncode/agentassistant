@@ -1174,6 +1174,80 @@ class GetPendingMessagesResponse extends $pb.GeneratedMessage {
   void clearTotalCount() => $_clearField(2);
 }
 
+/// RequestCancelledNotification represents a notification that a request has been cancelled
+class RequestCancelledNotification extends $pb.GeneratedMessage {
+  factory RequestCancelledNotification({
+    $core.String? requestId,
+    $core.String? reason,
+    $core.String? messageType,
+  }) {
+    final result = create();
+    if (requestId != null) result.requestId = requestId;
+    if (reason != null) result.reason = reason;
+    if (messageType != null) result.messageType = messageType;
+    return result;
+  }
+
+  RequestCancelledNotification._();
+
+  factory RequestCancelledNotification.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory RequestCancelledNotification.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'RequestCancelledNotification', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'requestId')
+    ..aOS(2, _omitFieldNames ? '' : 'reason')
+    ..aOS(3, _omitFieldNames ? '' : 'messageType')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RequestCancelledNotification clone() => RequestCancelledNotification()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RequestCancelledNotification copyWith(void Function(RequestCancelledNotification) updates) => super.copyWith((message) => updates(message as RequestCancelledNotification)) as RequestCancelledNotification;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RequestCancelledNotification create() => RequestCancelledNotification._();
+  @$core.override
+  RequestCancelledNotification createEmptyInstance() => create();
+  static $pb.PbList<RequestCancelledNotification> createRepeated() => $pb.PbList<RequestCancelledNotification>();
+  @$core.pragma('dart2js:noInline')
+  static RequestCancelledNotification getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<RequestCancelledNotification>(create);
+  static RequestCancelledNotification? _defaultInstance;
+
+  /// request id that was cancelled
+  @$pb.TagNumber(1)
+  $core.String get requestId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set requestId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasRequestId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRequestId() => $_clearField(1);
+
+  /// reason for cancellation
+  @$pb.TagNumber(2)
+  $core.String get reason => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set reason($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasReason() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearReason() => $_clearField(2);
+
+  /// message type: "AskQuestion" or "TaskFinish"
+  @$pb.TagNumber(3)
+  $core.String get messageType => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set messageType($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasMessageType() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearMessageType() => $_clearField(3);
+}
+
 class WebsocketMessage extends $pb.GeneratedMessage {
   factory WebsocketMessage({
     $core.String? cmd,
@@ -1186,6 +1260,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     CheckMessageValidityResponse? checkMessageValidityResponse,
     GetPendingMessagesRequest? getPendingMessagesRequest,
     GetPendingMessagesResponse? getPendingMessagesResponse,
+    RequestCancelledNotification? requestCancelledNotification,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -1198,6 +1273,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (checkMessageValidityResponse != null) result.checkMessageValidityResponse = checkMessageValidityResponse;
     if (getPendingMessagesRequest != null) result.getPendingMessagesRequest = getPendingMessagesRequest;
     if (getPendingMessagesResponse != null) result.getPendingMessagesResponse = getPendingMessagesResponse;
+    if (requestCancelledNotification != null) result.requestCancelledNotification = requestCancelledNotification;
     return result;
   }
 
@@ -1217,6 +1293,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<CheckMessageValidityResponse>(14, _omitFieldNames ? '' : 'CheckMessageValidityResponse', protoName: 'CheckMessageValidityResponse', subBuilder: CheckMessageValidityResponse.create)
     ..aOM<GetPendingMessagesRequest>(15, _omitFieldNames ? '' : 'GetPendingMessagesRequest', protoName: 'GetPendingMessagesRequest', subBuilder: GetPendingMessagesRequest.create)
     ..aOM<GetPendingMessagesResponse>(16, _omitFieldNames ? '' : 'GetPendingMessagesResponse', protoName: 'GetPendingMessagesResponse', subBuilder: GetPendingMessagesResponse.create)
+    ..aOM<RequestCancelledNotification>(17, _omitFieldNames ? '' : 'RequestCancelledNotification', protoName: 'RequestCancelledNotification', subBuilder: RequestCancelledNotification.create)
     ..hasRequiredFields = false
   ;
 
@@ -1247,6 +1324,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// TaskFinishReplyNotification: notification of a TaskFinishReply
   /// CheckMessageValidity: check if messages are still valid
   /// GetPendingMessages: get all pending messages for a user
+  /// RequestCancelled: notification that a request has been cancelled
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -1361,6 +1439,18 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearGetPendingMessagesResponse() => $_clearField(16);
   @$pb.TagNumber(16)
   GetPendingMessagesResponse ensureGetPendingMessagesResponse() => $_ensure(9);
+
+  /// request cancelled notification
+  @$pb.TagNumber(17)
+  RequestCancelledNotification get requestCancelledNotification => $_getN(10);
+  @$pb.TagNumber(17)
+  set requestCancelledNotification(RequestCancelledNotification value) => $_setField(17, value);
+  @$pb.TagNumber(17)
+  $core.bool hasRequestCancelledNotification() => $_has(10);
+  @$pb.TagNumber(17)
+  void clearRequestCancelledNotification() => $_clearField(17);
+  @$pb.TagNumber(17)
+  RequestCancelledNotification ensureRequestCancelledNotification() => $_ensure(10);
 }
 
 class SrvAgentAssistApi {

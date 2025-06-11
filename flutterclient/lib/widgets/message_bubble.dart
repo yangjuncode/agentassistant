@@ -234,6 +234,10 @@ class MessageBubble extends StatelessWidget {
         chipColor = Colors.grey;
         statusText = '已过期';
         break;
+      case MessageStatus.cancelled:
+        chipColor = Colors.orange;
+        statusText = '已取消';
+        break;
     }
 
     return Container(

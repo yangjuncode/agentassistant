@@ -276,6 +276,54 @@ func (b *Broadcaster) BroadcastToAllExcept(message *agentassistproto.WebsocketMe
 	log.Printf("Broadcasted message to %d clients (excluding %s)", sentCount, excludeClientID)
 }
 
+// CancelRequest cancels a pending request and notifies all clients
+func (b *Broadcaster) CancelRequest(requestID string, reason string, messageType string) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	// Check if the request exists
+	request, exists := b.pendingRequests[requestID]
+	if !exists {
+		log.Printf("Request %s not found for cancellation", requestID)
+		return
+	}
+
+	log.Printf("Cancelling request %s with reason: %s", requestID, reason)
+
+	// Remove the request from pending requests
+	delete(b.pendingRequests, requestID)
+
+	// Send error response to the original requester
+	go func() {
+		select {
+		case request.ResponseChan <- &WebResponse{
+			IsError: true,
+			Meta: map[string]string{
+				"error":   "cancelled",
+				"message": reason,
+			},
+			Contents: nil,
+		}:
+		default:
+		}
+	}()
+
+	// Create cancellation notification message
+	cancelMessage := &agentassistproto.WebsocketMessage{
+		Cmd: "RequestCancelled",
+		RequestCancelledNotification: &agentassistproto.RequestCancelledNotification{
+			RequestId:   requestID,
+			Reason:      reason,
+			MessageType: messageType,
+		},
+	}
+
+	// Broadcast cancellation to all clients
+	b.mu.Unlock() // Unlock before broadcasting to avoid deadlock
+	b.BroadcastToAllExcept(cancelMessage, "")
+	b.mu.Lock() // Re-lock for defer unlock
+}
+
 // GetClientCount returns the number of connected clients
 func (b *Broadcaster) GetClientCount() int {
 	b.mu.RLock()

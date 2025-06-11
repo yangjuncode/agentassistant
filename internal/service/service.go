@@ -71,7 +71,7 @@ func (s *AgentAssistService) AskQuestion(
 	// Broadcast to web users with token filtering
 	s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
 
-	// Wait for response or timeout
+	// Wait for response, timeout, or cancellation
 	select {
 	case response := <-responseChan:
 		if response.IsError {
@@ -95,14 +95,50 @@ func (s *AgentAssistService) AskQuestion(
 		}, nil
 
 	case <-timeoutCtx.Done():
-		log.Printf("AskQuestion request timed out after %d seconds", timeout)
+		if timeoutCtx.Err() == context.DeadlineExceeded {
+			log.Printf("AskQuestion request timed out after %d seconds", timeout)
+			// Cancel the request in broadcaster and notify clients
+			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "AskQuestion")
+			return &connect.Response[agentassistproto.AskQuestionResponse]{
+				Msg: &agentassistproto.AskQuestionResponse{
+					ID:      requestID,
+					IsError: true,
+					Meta: map[string]string{
+						"error":   "timeout",
+						"message": fmt.Sprintf("Request timed out after %d seconds", timeout),
+					},
+					Contents: nil,
+				},
+			}, nil
+		}
+		// Context was cancelled (not timeout)
+		log.Printf("AskQuestion request was cancelled: %s", requestID)
+		// Cancel the request in broadcaster and notify clients
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "AskQuestion")
 		return &connect.Response[agentassistproto.AskQuestionResponse]{
 			Msg: &agentassistproto.AskQuestionResponse{
 				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{
-					"error":   "timeout",
-					"message": fmt.Sprintf("Request timed out after %d seconds", timeout),
+					"error":   "cancelled",
+					"message": "Request was cancelled by client",
+				},
+				Contents: nil,
+			},
+		}, nil
+
+	case <-ctx.Done():
+		// Original context was cancelled
+		log.Printf("AskQuestion request was cancelled by original context: %s", requestID)
+		// Cancel the request in broadcaster and notify clients
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "AskQuestion")
+		return &connect.Response[agentassistproto.AskQuestionResponse]{
+			Msg: &agentassistproto.AskQuestionResponse{
+				ID:      requestID,
+				IsError: true,
+				Meta: map[string]string{
+					"error":   "cancelled",
+					"message": "Request was cancelled",
 				},
 				Contents: nil,
 			},
@@ -156,7 +192,7 @@ func (s *AgentAssistService) TaskFinish(
 	// Broadcast to web users with token filtering
 	s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
 
-	// Wait for response or timeout
+	// Wait for response, timeout, or cancellation
 	select {
 	case response := <-responseChan:
 		if response.IsError {
@@ -180,14 +216,50 @@ func (s *AgentAssistService) TaskFinish(
 		}, nil
 
 	case <-timeoutCtx.Done():
-		log.Printf("TaskFinish request timed out after %d seconds", timeout)
+		if timeoutCtx.Err() == context.DeadlineExceeded {
+			log.Printf("TaskFinish request timed out after %d seconds", timeout)
+			// Cancel the request in broadcaster and notify clients
+			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "TaskFinish")
+			return &connect.Response[agentassistproto.TaskFinishResponse]{
+				Msg: &agentassistproto.TaskFinishResponse{
+					ID:      requestID,
+					IsError: true,
+					Meta: map[string]string{
+						"error":   "timeout",
+						"message": fmt.Sprintf("Request timed out after %d seconds", timeout),
+					},
+					Contents: nil,
+				},
+			}, nil
+		}
+		// Context was cancelled (not timeout)
+		log.Printf("TaskFinish request was cancelled: %s", requestID)
+		// Cancel the request in broadcaster and notify clients
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "TaskFinish")
 		return &connect.Response[agentassistproto.TaskFinishResponse]{
 			Msg: &agentassistproto.TaskFinishResponse{
 				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{
-					"error":   "timeout",
-					"message": fmt.Sprintf("Request timed out after %d seconds", timeout),
+					"error":   "cancelled",
+					"message": "Request was cancelled by client",
+				},
+				Contents: nil,
+			},
+		}, nil
+
+	case <-ctx.Done():
+		// Original context was cancelled
+		log.Printf("TaskFinish request was cancelled by original context: %s", requestID)
+		// Cancel the request in broadcaster and notify clients
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "TaskFinish")
+		return &connect.Response[agentassistproto.TaskFinishResponse]{
+			Msg: &agentassistproto.TaskFinishResponse{
+				ID:      requestID,
+				IsError: true,
+				Meta: map[string]string{
+					"error":   "cancelled",
+					"message": "Request was cancelled",
 				},
 				Contents: nil,
 			},

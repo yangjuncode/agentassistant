@@ -179,6 +179,9 @@ class ChatProvider extends ChangeNotifier {
       case WebSocketCommands.getPendingMessages:
         _handleGetPendingMessagesResponse(message);
         break;
+      case WebSocketCommands.requestCancelled:
+        _handleRequestCancelledNotification(message);
+        break;
       default:
         _logger.w('Unknown message command: ${message.cmd}');
     }
@@ -208,6 +211,36 @@ class ChatProvider extends ChangeNotifier {
   void _handleTaskFinishReplyNotification(WebsocketMessage message) {
     // Update message status if needed
     _logger.d('Task finish reply notification received');
+  }
+
+  /// Handle request cancelled notification
+  void _handleRequestCancelledNotification(WebsocketMessage message) {
+    if (!message.hasRequestCancelledNotification()) {
+      _logger.w('RequestCancelled message missing notification data');
+      return;
+    }
+
+    final notification = message.requestCancelledNotification;
+    final requestId = notification.requestId;
+    final reason = notification.reason;
+    final messageType = notification.messageType;
+
+    _logger.i('Request $requestId was cancelled: $reason');
+
+    // Find and update the existing message
+    final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
+    if (messageIndex != -1) {
+      final existingMessage = _messages[messageIndex];
+      final updatedMessage = existingMessage.copyWith(
+        status: MessageStatus.cancelled,
+      );
+      _messages[messageIndex] = updatedMessage;
+      notifyListeners();
+      _logger.d('Updated message $requestId status to cancelled');
+    } else {
+      _logger
+          .w('Message with request ID $requestId not found for cancellation');
+    }
   }
 
   /// Handle get pending messages response
