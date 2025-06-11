@@ -10,24 +10,24 @@ import '../config/app_config.dart';
 /// WebSocket service for Agent Assistant communication
 class WebSocketService {
   static final Logger _logger = Logger();
-  
+
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   Timer? _reconnectTimer;
   Timer? _heartbeatTimer;
-  
+
   String? _url;
   String? _token;
   int _reconnectAttempts = 0;
   bool _isManuallyDisconnected = false;
   bool _isConnecting = false;
-  
+
   // Stream controllers
-  final StreamController<WebsocketMessage> _messageController = 
+  final StreamController<WebsocketMessage> _messageController =
       StreamController<WebsocketMessage>.broadcast();
-  final StreamController<bool> _connectionController = 
+  final StreamController<bool> _connectionController =
       StreamController<bool>.broadcast();
-  final StreamController<String> _errorController = 
+  final StreamController<String> _errorController =
       StreamController<String>.broadcast();
 
   // Public streams
@@ -36,12 +36,15 @@ class WebSocketService {
   Stream<String> get errorStream => _errorController.stream;
 
   /// Check if WebSocket is connected
-  bool get isConnected => _channel != null;
+  bool get isConnected => _channel != null && !_isConnecting;
 
   /// Connect to WebSocket server
   Future<void> connect(String url, String token) async {
     if (_isConnecting) return;
-    
+
+    // Clean up any existing connection before creating a new one
+    _cleanup();
+
     _url = url;
     _token = token;
     _isConnecting = true;
@@ -49,9 +52,9 @@ class WebSocketService {
 
     try {
       _logger.i('Connecting to WebSocket: $url');
-      
+
       _channel = WebSocketChannel.connect(Uri.parse(url));
-      
+
       // Listen to messages
       _subscription = _channel!.stream.listen(
         _handleMessage,
@@ -61,22 +64,21 @@ class WebSocketService {
 
       // Send login message
       await _sendUserLogin();
-      
+
       // Start heartbeat
       _startHeartbeat();
-      
+
       _isConnecting = false;
       _reconnectAttempts = 0;
       _connectionController.add(true);
-      
+
       _logger.i('WebSocket connected successfully');
-      
     } catch (error) {
       _isConnecting = false;
       _logger.e('WebSocket connection failed: $error');
       _errorController.add('连接失败: $error');
       _connectionController.add(false);
-      
+
       if (!_isManuallyDisconnected) {
         _scheduleReconnect();
       }
@@ -94,11 +96,11 @@ class WebSocketService {
   /// Send user login message
   Future<void> _sendUserLogin() async {
     if (_token == null) return;
-    
+
     final message = WebsocketMessage()
       ..cmd = WebSocketCommands.userLogin
       ..strParam = _token!;
-    
+
     await _sendMessage(message);
     _logger.d('User login message sent');
   }
@@ -112,7 +114,7 @@ class WebSocketService {
       ..cmd = WebSocketCommands.askQuestionReply
       ..askQuestionRequest = originalRequest
       ..askQuestionResponse = response;
-    
+
     await _sendMessage(message);
     _logger.d('Ask question reply sent: ${response.iD}');
   }
@@ -126,7 +128,7 @@ class WebSocketService {
       ..cmd = WebSocketCommands.taskFinishReply
       ..taskFinishRequest = originalRequest
       ..taskFinishResponse = response;
-    
+
     await _sendMessage(message);
     _logger.d('Task finish reply sent: ${response.iD}');
   }
@@ -164,9 +166,8 @@ class WebSocketService {
 
       final message = WebsocketMessage.fromBuffer(bytes);
       _messageController.add(message);
-      
+
       _logger.d('Received message: ${message.cmd}');
-      
     } catch (error) {
       _logger.e('Failed to parse message: $error');
       _errorController.add('消息解析失败: $error');
@@ -178,7 +179,10 @@ class WebSocketService {
     _logger.e('WebSocket error: $error');
     _errorController.add('连接错误: $error');
     _connectionController.add(false);
-    
+
+    // Clean up current connection resources
+    _isConnecting = false;
+
     if (!_isManuallyDisconnected) {
       _scheduleReconnect();
     }
@@ -188,7 +192,10 @@ class WebSocketService {
   void _handleDisconnection() {
     _logger.w('WebSocket disconnected');
     _connectionController.add(false);
-    
+
+    // Clean up current connection resources
+    _isConnecting = false;
+
     if (!_isManuallyDisconnected) {
       _scheduleReconnect();
     }
@@ -202,15 +209,20 @@ class WebSocketService {
       return;
     }
 
+    // Cancel any existing reconnect timer
+    _reconnectTimer?.cancel();
+
     _reconnectAttempts++;
     final delay = Duration(
       milliseconds: AppConfig.reconnectDelayMs * _reconnectAttempts,
     );
 
-    _logger.i('Scheduling reconnect attempt $_reconnectAttempts in ${delay.inSeconds}s');
+    _logger.i(
+        'Scheduling reconnect attempt $_reconnectAttempts in ${delay.inSeconds}s');
 
     _reconnectTimer = Timer(delay, () {
       if (!_isManuallyDisconnected && _url != null && _token != null) {
+        _logger.i('Attempting reconnect $_reconnectAttempts');
         connect(_url!, _token!);
       }
     });
@@ -232,16 +244,35 @@ class WebSocketService {
 
   /// Clean up resources
   void _cleanup() {
-    _subscription?.cancel();
-    _channel?.sink.close();
+    _logger.d('Cleaning up WebSocket resources');
+
+    // Cancel timers first
     _reconnectTimer?.cancel();
     _heartbeatTimer?.cancel();
-    
+
+    // Cancel subscription and close channel
+    if (_subscription != null) {
+      _subscription!.cancel();
+      _logger.d('WebSocket subscription cancelled');
+    }
+
+    if (_channel != null) {
+      try {
+        _channel!.sink.close();
+        _logger.d('WebSocket channel closed');
+      } catch (error) {
+        _logger.w('Error closing WebSocket channel: $error');
+      }
+    }
+
+    // Reset all references
     _channel = null;
     _subscription = null;
     _reconnectTimer = null;
     _heartbeatTimer = null;
     _isConnecting = false;
+
+    _logger.d('WebSocket resources cleaned up');
   }
 
   /// Dispose service
