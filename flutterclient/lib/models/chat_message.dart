@@ -18,6 +18,7 @@ class ChatMessage {
   final String? replyText;
   final DateTime? repliedAt;
   final bool repliedByCurrentUser;
+  final String? repliedByNickname;
 
   ChatMessage({
     String? id,
@@ -34,6 +35,7 @@ class ChatMessage {
     this.replyText,
     this.repliedAt,
     this.repliedByCurrentUser = false,
+    this.repliedByNickname,
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
@@ -77,6 +79,7 @@ class ChatMessage {
     List<ContentItem>? contents,
     bool? isError,
     bool? repliedByCurrentUser,
+    String? repliedByNickname,
   }) {
     return ChatMessage(
       id: id,
@@ -93,6 +96,7 @@ class ChatMessage {
       replyText: replyText ?? this.replyText,
       repliedAt: repliedAt ?? this.repliedAt,
       repliedByCurrentUser: repliedByCurrentUser ?? this.repliedByCurrentUser,
+      repliedByNickname: repliedByNickname ?? this.repliedByNickname,
     );
   }
 
@@ -113,6 +117,7 @@ class ChatMessage {
       'replyText': replyText,
       'repliedAt': repliedAt?.toIso8601String(),
       'repliedByCurrentUser': repliedByCurrentUser,
+      'repliedByNickname': repliedByNickname,
     };
   }
 
@@ -137,6 +142,7 @@ class ChatMessage {
       repliedAt:
           json['repliedAt'] != null ? DateTime.parse(json['repliedAt']) : null,
       repliedByCurrentUser: json['repliedByCurrentUser'] ?? false,
+      repliedByNickname: json['repliedByNickname'],
     );
   }
 

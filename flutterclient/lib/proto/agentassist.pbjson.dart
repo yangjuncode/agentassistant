@@ -346,6 +346,7 @@ const WebsocketMessage$json = {
     {'1': 'GetPendingMessagesResponse', '3': 16, '4': 1, '5': 11, '6': '.agentassistproto.GetPendingMessagesResponse', '10': 'GetPendingMessagesResponse'},
     {'1': 'RequestCancelledNotification', '3': 17, '4': 1, '5': 11, '6': '.agentassistproto.RequestCancelledNotification', '10': 'RequestCancelledNotification'},
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
+    {'1': 'Nickname', '3': 18, '4': 1, '5': 9, '10': 'Nickname'},
   ],
 };
 
@@ -368,7 +369,7 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'bmRpbmdNZXNzYWdlc1Jlc3BvbnNlUhpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJyChxSZX'
     'F1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uGBEgASgLMi4uYWdlbnRhc3Npc3Rwcm90by5SZXF1'
     'ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uUhxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEh'
-    'oKCFN0clBhcmFtGAwgASgJUghTdHJQYXJhbQ==');
+    'oKCFN0clBhcmFtGAwgASgJUghTdHJQYXJhbRIaCghOaWNrbmFtZRgSIAEoCVIITmlja25hbWU=');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',

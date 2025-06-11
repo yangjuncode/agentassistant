@@ -16,6 +16,13 @@
         </div>
         <div class="col-auto">
           <q-btn
+            flat
+            round
+            icon="settings"
+            @click="showSettings = true"
+            class="q-mr-sm"
+          />
+          <q-btn
             v-if="isConnected"
             flat
             round
@@ -100,6 +107,26 @@
         class="q-mt-sm"
       />
     </div>
+
+    <!-- Settings Dialog -->
+    <q-dialog v-model="showSettings" persistent>
+      <q-card style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6">设置</div>
+        </q-card-section>
+
+        <q-card-section>
+          <nickname-settings
+            v-model="userNickname"
+            @save="handleNicknameSave"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="关闭" color="primary" @click="showSettings = false" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -109,11 +136,13 @@ import { useRoute } from 'vue-router';
 import { useChatStore } from '../stores/chat';
 import ChatMessage from '../components/chat/ChatMessage.vue';
 import LoadingSpinner from '../components/LoadingSpinner.vue';
+import NicknameSettings from '../components/settings/NicknameSettings.vue';
 import { getTokenFromUrl, buildWebSocketUrl, isValidToken } from '../utils/url';
 
 const route = useRoute();
 const chatStore = useChatStore();
 const messagesContainer = ref<HTMLElement>();
+const showSettings = ref(false);
 
 // Computed properties
 const messages = computed(() => chatStore.messages);
@@ -122,6 +151,7 @@ const isConnecting = computed(() => chatStore.isConnecting);
 const connectionError = computed(() => chatStore.connectionError);
 const pendingQuestions = computed(() => chatStore.pendingQuestions);
 const pendingTasks = computed(() => chatStore.pendingTasks);
+const userNickname = computed(() => chatStore.userNickname);
 
 const connectionStatus = computed(() => {
   if (isConnecting.value) return '连接中...';
@@ -149,6 +179,11 @@ function handleReply(messageId: string, replyText: string) {
 
 function handleConfirm(messageId: string, confirmText?: string) {
   chatStore.confirmTask(messageId, confirmText);
+}
+
+function handleNicknameSave(nickname: string) {
+  chatStore.setNickname(nickname);
+  // The setNickname method now automatically updates the server if connected
 }
 
 async function reconnect() {
@@ -187,6 +222,9 @@ watch(messages, () => {
 
 // Lifecycle
 onMounted(async () => {
+  // Load nickname first
+  chatStore.loadNickname();
+
   // Try to get token from URL query parameters first, then from utility function
   let token = route.query.token as string;
   if (!token) {

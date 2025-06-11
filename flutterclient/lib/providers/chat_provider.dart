@@ -85,7 +85,9 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _webSocketService.connect(serverUrl, token);
+      // Load nickname before connecting
+      final nickname = await _loadNickname();
+      await _webSocketService.connect(serverUrl, token, nickname: nickname);
       await _saveConnectionInfo(serverUrl, token);
     } catch (error) {
       _connectionError = '连接失败: $error';
@@ -249,12 +251,15 @@ class ChatProvider extends ChangeNotifier {
 
       // Only update if the message is still pending (not already replied by this client)
       if (existingMessage.status == MessageStatus.pending) {
+        final repliedByNickname =
+            message.nickname.isNotEmpty ? message.nickname : '其他用户';
         final updatedMessage = existingMessage.copyWith(
           status: MessageStatus.replied,
           replyText: replyText ?? '已回复',
           contents: replyContents,
           repliedAt: DateTime.now(),
           repliedByCurrentUser: false,
+          repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
         notifyListeners();
@@ -312,12 +317,15 @@ class ChatProvider extends ChangeNotifier {
 
       // Only update if the message is still pending (not already confirmed by this client)
       if (existingMessage.status == MessageStatus.pending) {
+        final repliedByNickname =
+            message.nickname.isNotEmpty ? message.nickname : '其他用户';
         final updatedMessage = existingMessage.copyWith(
           status: MessageStatus.confirmed,
           replyText: replyText ?? '已确认',
           contents: replyContents,
           repliedAt: DateTime.now(),
           repliedByCurrentUser: false,
+          repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
         notifyListeners();
@@ -550,6 +558,58 @@ class ChatProvider extends ChangeNotifier {
       await prefs.setString(AppConfig.tokenStorageKey, token);
     } catch (error) {
       _logger.e('Failed to save connection info: $error');
+    }
+  }
+
+  /// Load nickname from SharedPreferences
+  Future<String?> _loadNickname() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final nickname = prefs.getString('user_nickname');
+      if (nickname != null && nickname.isNotEmpty) {
+        return nickname;
+      }
+      // Generate and save default nickname if none exists
+      final defaultNickname = _generateDefaultNickname();
+      await prefs.setString('user_nickname', defaultNickname);
+      return defaultNickname;
+    } catch (error) {
+      _logger.e('Failed to load nickname: $error');
+      return _generateDefaultNickname();
+    }
+  }
+
+  /// Generate a default nickname
+  String _generateDefaultNickname() {
+    final adjectives = ['聪明的', '勤奋的', '友善的', '活跃的', '创新的', '专业的'];
+    final nouns = ['开发者', '用户', '助手', '伙伴', '同事', '朋友'];
+
+    final now = DateTime.now();
+    final adjective = adjectives[now.millisecond % adjectives.length];
+    final noun = nouns[now.second % nouns.length];
+    final number = now.millisecond % 1000;
+
+    return '$adjective$noun$number';
+  }
+
+  /// Update nickname and send to server
+  Future<void> updateNickname(String nickname) async {
+    try {
+      // Save to SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_nickname', nickname);
+
+      // If connected, update nickname on server immediately
+      if (_isConnected) {
+        await _webSocketService.updateNickname(nickname);
+        _logger.i('Nickname updated and sent to server: $nickname');
+      } else {
+        _logger.i(
+            'Nickname saved locally, will be sent on next connection: $nickname');
+      }
+    } catch (error) {
+      _logger.e('Failed to update nickname: $error');
+      rethrow;
     }
   }
 

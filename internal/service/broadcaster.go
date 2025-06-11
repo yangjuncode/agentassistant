@@ -25,6 +25,7 @@ type WebResponse struct {
 type WebClient struct {
 	ID       string
 	Token    string
+	Nickname string
 	SendChan chan *agentassistproto.WebsocketMessage
 	mu       sync.RWMutex
 	active   bool
@@ -51,6 +52,20 @@ func (c *WebClient) GetToken() string {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	return c.Token
+}
+
+// SetNickname sets the nickname for the client
+func (c *WebClient) SetNickname(nickname string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.Nickname = nickname
+}
+
+// GetNickname returns the client's nickname
+func (c *WebClient) GetNickname() string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return c.Nickname
 }
 
 // IsActive returns whether the client is active

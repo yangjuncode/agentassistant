@@ -130,12 +130,23 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 
 		switch message.Cmd {
 		case "UserLogin":
-			// Handle user login - store the token
+			// Handle user login - store the token and nickname
 			if message.StrParam != "" {
 				client.SetToken(message.StrParam)
 				log.Printf("Client %s authenticated with token", client.ID)
 			} else {
 				log.Printf("Client %s sent empty token for UserLogin", client.ID)
+			}
+
+			// Set nickname if provided
+			if message.Nickname != "" {
+				client.SetNickname(message.Nickname)
+				log.Printf("Client %s set nickname to: %s", client.ID, message.Nickname)
+			} else {
+				// Generate default nickname if not provided
+				defaultNickname := fmt.Sprintf("User_%s", client.ID[:8])
+				client.SetNickname(defaultNickname)
+				log.Printf("Client %s assigned default nickname: %s", client.ID, defaultNickname)
 			}
 		case "AskQuestionReply":
 			h.handleAskQuestionReply(client, &message)
@@ -223,7 +234,8 @@ func (h *WebSocketHandler) broadcastAskQuestionReply(client *WebClient, message 
 		},
 		// Include response data if available
 		AskQuestionResponse: message.AskQuestionResponse,
-		StrParam:            fmt.Sprintf("Response received from client %s", client.ID),
+		StrParam:            fmt.Sprintf("Response received from %s", client.GetNickname()),
+		Nickname:            client.GetNickname(),
 	}
 
 	log.Printf("Broadcasting AskQuestionReply notification for request %s from client %s",
@@ -250,7 +262,8 @@ func (h *WebSocketHandler) broadcastTaskFinishReply(client *WebClient, message *
 		},
 		// Include response data if available
 		TaskFinishResponse: message.TaskFinishResponse,
-		StrParam:           fmt.Sprintf("Task completion confirmed by client %s", client.ID),
+		StrParam:           fmt.Sprintf("Task completion confirmed by %s", client.GetNickname()),
+		Nickname:           client.GetNickname(),
 	}
 
 	log.Printf("Broadcasting TaskFinishReply notification for request %s from client %s",

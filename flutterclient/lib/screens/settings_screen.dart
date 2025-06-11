@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../providers/chat_provider.dart';
 import '../config/app_config.dart';
+import '../widgets/settings/nickname_settings.dart';
 import 'login_screen.dart';
 
 /// Settings screen for Agent Assistant
@@ -173,6 +174,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         subtitle: const Text('断开与服务器的连接'),
                         onTap: _showDisconnectDialog,
                       ),
+                  ],
+                ),
+              ),
+
+              // User section
+              _buildSectionHeader('用户设置'),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    NicknameSettings(
+                      onNicknameChanged: (nickname) {
+                        // Handle nickname change if needed
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('昵称已更新为: $nickname'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),

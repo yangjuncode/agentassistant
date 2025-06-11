@@ -1124,7 +1124,7 @@ type WebsocketMessage struct {
 	// TaskFinish: mcp task_finish
 	// AskQuestionReply: user ask_question reply
 	// TaskFinishReply: user task_finish reply
-	// UserLogin: user login, str param is user token
+	// UserLogin: user login, str param is user token, nickname is user nickname
 	// AskQuestionReplyNotification: notification of an AskQuestionReply
 	// TaskFinishReplyNotification: notification of a TaskFinishReply
 	// CheckMessageValidity: check if messages are still valid
@@ -1150,7 +1150,9 @@ type WebsocketMessage struct {
 	// request cancelled notification
 	RequestCancelledNotification *RequestCancelledNotification `protobuf:"bytes,17,opt,name=RequestCancelledNotification,proto3" json:"RequestCancelledNotification,omitempty"`
 	// str param
-	StrParam      string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
+	StrParam string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
+	// user nickname (for UserLogin and notifications)
+	Nickname      string `protobuf:"bytes,18,opt,name=Nickname,proto3" json:"Nickname,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1262,6 +1264,13 @@ func (x *WebsocketMessage) GetStrParam() string {
 	return ""
 }
 
+func (x *WebsocketMessage) GetNickname() string {
+	if x != nil {
+		return x.Nickname
+	}
+	return ""
+}
+
 var File_agentassist_proto protoreflect.FileDescriptor
 
 const file_agentassist_proto_rawDesc = "" +
@@ -1349,7 +1358,7 @@ const file_agentassist_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x12!\n" +
-	"\fmessage_type\x18\x03 \x01(\tR\vmessageType\"\xca\a\n" +
+	"\fmessage_type\x18\x03 \x01(\tR\vmessageType\"\xe6\a\n" +
 	"\x10WebsocketMessage\x12\x10\n" +
 	"\x03Cmd\x18\x01 \x01(\tR\x03Cmd\x12T\n" +
 	"\x12AskQuestionRequest\x18\x02 \x01(\v2$.agentassistproto.AskQuestionRequestR\x12AskQuestionRequest\x12Q\n" +
@@ -1361,7 +1370,8 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x19GetPendingMessagesRequest\x18\x0f \x01(\v2+.agentassistproto.GetPendingMessagesRequestR\x19GetPendingMessagesRequest\x12l\n" +
 	"\x1aGetPendingMessagesResponse\x18\x10 \x01(\v2,.agentassistproto.GetPendingMessagesResponseR\x1aGetPendingMessagesResponse\x12r\n" +
 	"\x1cRequestCancelledNotification\x18\x11 \x01(\v2..agentassistproto.RequestCancelledNotificationR\x1cRequestCancelledNotification\x12\x1a\n" +
-	"\bStrParam\x18\f \x01(\tR\bStrParam2\xc5\x01\n" +
+	"\bStrParam\x18\f \x01(\tR\bStrParam\x12\x1a\n" +
+	"\bNickname\x18\x12 \x01(\tR\bNickname2\xc5\x01\n" +
 	"\x0eSrvAgentAssist\x12Z\n" +
 	"\vAskQuestion\x12$.agentassistproto.AskQuestionRequest\x1a%.agentassistproto.AskQuestionResponse\x12W\n" +
 	"\n" +

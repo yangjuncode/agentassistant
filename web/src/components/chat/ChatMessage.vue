@@ -95,7 +95,7 @@
           <div class="row items-center q-mb-sm">
             <q-icon name="reply" color="primary" class="q-mr-sm" />
             <span class="text-subtitle2 text-primary">
-              {{ message.repliedByCurrentUser ? '您的回复' : '其他用户的回复' }}
+              {{ message.repliedByCurrentUser ? '您的回复' : `${message.repliedByNickname || '其他用户'}的回复` }}
             </span>
             <q-space />
             <span v-if="message.repliedAt" class="text-caption text-grey-6">
@@ -199,7 +199,7 @@
           <div class="row items-center q-mb-sm">
             <q-icon name="check_circle" color="positive" class="q-mr-sm" />
             <span class="text-subtitle2 text-positive">
-              {{ message.repliedByCurrentUser ? '您的确认' : '其他用户的确认' }}
+              {{ message.repliedByCurrentUser ? '您的确认' : `${message.repliedByNickname || '其他用户'}的确认` }}
             </span>
             <q-space />
             <span v-if="message.repliedAt" class="text-caption text-grey-6">

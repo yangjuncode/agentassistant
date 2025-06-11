@@ -34,6 +34,7 @@ export interface ChatMessage {
   replyText?: string;
   repliedAt?: Date;
   repliedByCurrentUser?: boolean;
+  repliedByNickname?: string;
 }
 
 export const useChatStore = defineStore('chat', () => {
@@ -43,6 +44,7 @@ export const useChatStore = defineStore('chat', () => {
   const isConnecting = ref(false);
   const connectionError = ref<string | null>(null);
   const userToken = ref<string>('');
+  const userNickname = ref<string>('');
   const wsService = ref<WebSocketService | null>(null);
   const isManuallyDisconnected = ref(false);
 
@@ -71,9 +73,15 @@ export const useChatStore = defineStore('chat', () => {
   function initializeWebSocket(token: string, serverUrl: string) {
     userToken.value = token;
 
+    // Load nickname if not already loaded
+    if (!userNickname.value) {
+      loadNickname();
+    }
+
     const config: WebSocketServiceConfig = {
       url: serverUrl,
       token: token,
+      nickname: userNickname.value,
       onMessage: handleWebSocketMessage,
       onConnect: () => {
         isConnected.value = true;
@@ -195,11 +203,12 @@ export const useChatStore = defineStore('chat', () => {
       existingMessage.replyText = replyText || '已回复';
       existingMessage.repliedAt = new Date();
       existingMessage.repliedByCurrentUser = false;
+      existingMessage.repliedByNickname = message.Nickname || '其他用户';
       if (message.AskQuestionResponse) {
         existingMessage.response = message.AskQuestionResponse;
       }
 
-      console.log(`Updated question ${requestId} with reply from another user: ${replyText}`);
+      console.log(`Updated question ${requestId} with reply from ${existingMessage.repliedByNickname}: ${replyText}`);
     } else if (!existingMessage) {
       console.warn(`Message with request ID ${requestId} not found for reply notification`);
     }
@@ -228,11 +237,12 @@ export const useChatStore = defineStore('chat', () => {
       existingMessage.replyText = replyText || '已确认';
       existingMessage.repliedAt = new Date();
       existingMessage.repliedByCurrentUser = false;
+      existingMessage.repliedByNickname = message.Nickname || '其他用户';
       if (message.TaskFinishResponse) {
         existingMessage.response = message.TaskFinishResponse;
       }
 
-      console.log(`Updated task ${requestId} with confirmation from another user: ${replyText}`);
+      console.log(`Updated task ${requestId} with confirmation from ${existingMessage.repliedByNickname}: ${replyText}`);
     } else if (!existingMessage) {
       console.warn(`Message with request ID ${requestId} not found for task finish notification`);
     }
@@ -363,6 +373,38 @@ export const useChatStore = defineStore('chat', () => {
     connectionError.value = error;
   }
 
+  function setNickname(nickname: string) {
+    userNickname.value = nickname;
+    localStorage.setItem('user-nickname', nickname);
+
+    // If connected, update nickname on server immediately
+    if (wsService.value && isConnected.value) {
+      wsService.value.updateNickname(nickname);
+    }
+  }
+
+  function loadNickname() {
+    const saved = localStorage.getItem('user-nickname');
+    if (saved) {
+      userNickname.value = saved;
+    } else {
+      // Generate default nickname
+      const defaultNickname = generateDefaultNickname();
+      setNickname(defaultNickname);
+    }
+  }
+
+  function generateDefaultNickname(): string {
+    const adjectives = ['聪明的', '勤奋的', '友善的', '活跃的', '创新的', '专业的'];
+    const nouns = ['开发者', '用户', '助手', '伙伴', '同事', '朋友'];
+
+    const adjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+    const noun = nouns[Math.floor(Math.random() * nouns.length)];
+    const number = Math.floor(Math.random() * 1000);
+
+    return `${adjective}${noun}${number}`;
+  }
+
   return {
     // State
     messages: sortedMessages,
@@ -370,6 +412,7 @@ export const useChatStore = defineStore('chat', () => {
     isConnecting,
     connectionError,
     userToken,
+    userNickname,
 
     // Computed
     pendingQuestions,
@@ -381,6 +424,8 @@ export const useChatStore = defineStore('chat', () => {
     replyToQuestion,
     confirmTask,
     clearMessages,
-    setConnectionError
+    setConnectionError,
+    setNickname,
+    loadNickname
   };
 });

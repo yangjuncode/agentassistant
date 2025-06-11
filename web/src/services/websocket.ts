@@ -9,6 +9,7 @@ export type WebSocketMessageHandler = (message: WebsocketMessage) => void;
 export interface WebSocketServiceConfig {
   url: string;
   token: string;
+  nickname?: string;
   onMessage?: WebSocketMessageHandler;
   onConnect?: () => void;
   onDisconnect?: () => void;
@@ -157,9 +158,16 @@ export class WebSocketService {
   sendUserLogin(): void {
     const message = create(WebsocketMessageSchema, {
       Cmd: WebSocketCommands.USER_LOGIN,
-      StrParam: this.config.token
+      StrParam: this.config.token,
+      Nickname: this.config.nickname || ''
     });
     this.sendMessage(message);
+  }
+
+  updateNickname(nickname: string): void {
+    this.config.nickname = nickname;
+    // Send updated login message to server
+    this.sendUserLogin();
   }
 
   sendAskQuestionReply(originalRequest: AskQuestionRequest, response: AskQuestionResponse): void {

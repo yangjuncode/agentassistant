@@ -286,7 +286,8 @@ class MessageBubble extends StatelessWidget {
     if (message.repliedByCurrentUser) {
       return '您的回复';
     } else {
-      return '其他用户的回复';
+      final nickname = message.repliedByNickname ?? '其他用户';
+      return '${nickname}的回复';
     }
   }
 }

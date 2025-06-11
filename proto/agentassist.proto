@@ -163,7 +163,7 @@ message WebsocketMessage {
   // TaskFinish: mcp task_finish
   // AskQuestionReply: user ask_question reply
   // TaskFinishReply: user task_finish reply
-  // UserLogin: user login, str param is user token
+  // UserLogin: user login, str param is user token, nickname is user nickname
   // AskQuestionReplyNotification: notification of an AskQuestionReply
   // TaskFinishReplyNotification: notification of a TaskFinishReply
   // CheckMessageValidity: check if messages are still valid
@@ -200,6 +200,9 @@ message WebsocketMessage {
 
   //str param
   string StrParam = 12;
+
+  // user nickname (for UserLogin and notifications)
+  string Nickname = 18;
 }
 
 service SrvAgentAssist {

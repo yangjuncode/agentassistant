@@ -1261,6 +1261,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     GetPendingMessagesRequest? getPendingMessagesRequest,
     GetPendingMessagesResponse? getPendingMessagesResponse,
     RequestCancelledNotification? requestCancelledNotification,
+    $core.String? nickname,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -1274,6 +1275,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (getPendingMessagesRequest != null) result.getPendingMessagesRequest = getPendingMessagesRequest;
     if (getPendingMessagesResponse != null) result.getPendingMessagesResponse = getPendingMessagesResponse;
     if (requestCancelledNotification != null) result.requestCancelledNotification = requestCancelledNotification;
+    if (nickname != null) result.nickname = nickname;
     return result;
   }
 
@@ -1294,6 +1296,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<GetPendingMessagesRequest>(15, _omitFieldNames ? '' : 'GetPendingMessagesRequest', protoName: 'GetPendingMessagesRequest', subBuilder: GetPendingMessagesRequest.create)
     ..aOM<GetPendingMessagesResponse>(16, _omitFieldNames ? '' : 'GetPendingMessagesResponse', protoName: 'GetPendingMessagesResponse', subBuilder: GetPendingMessagesResponse.create)
     ..aOM<RequestCancelledNotification>(17, _omitFieldNames ? '' : 'RequestCancelledNotification', protoName: 'RequestCancelledNotification', subBuilder: RequestCancelledNotification.create)
+    ..aOS(18, _omitFieldNames ? '' : 'Nickname', protoName: 'Nickname')
     ..hasRequiredFields = false
   ;
 
@@ -1319,7 +1322,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// TaskFinish: mcp task_finish
   /// AskQuestionReply: user ask_question reply
   /// TaskFinishReply: user task_finish reply
-  /// UserLogin: user login, str param is user token
+  /// UserLogin: user login, str param is user token, nickname is user nickname
   /// AskQuestionReplyNotification: notification of an AskQuestionReply
   /// TaskFinishReplyNotification: notification of a TaskFinishReply
   /// CheckMessageValidity: check if messages are still valid
@@ -1451,6 +1454,16 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearRequestCancelledNotification() => $_clearField(17);
   @$pb.TagNumber(17)
   RequestCancelledNotification ensureRequestCancelledNotification() => $_ensure(10);
+
+  /// user nickname (for UserLogin and notifications)
+  @$pb.TagNumber(18)
+  $core.String get nickname => $_getSZ(11);
+  @$pb.TagNumber(18)
+  set nickname($core.String value) => $_setString(11, value);
+  @$pb.TagNumber(18)
+  $core.bool hasNickname() => $_has(11);
+  @$pb.TagNumber(18)
+  void clearNickname() => $_clearField(18);
 }
 
 class SrvAgentAssistApi {

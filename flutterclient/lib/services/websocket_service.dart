@@ -18,6 +18,7 @@ class WebSocketService {
 
   String? _url;
   String? _token;
+  String? _nickname;
   int _reconnectAttempts = 0;
   bool _isManuallyDisconnected = false;
   bool _isConnecting = false;
@@ -42,7 +43,7 @@ class WebSocketService {
   bool get isConnected => _channel != null && !_isConnecting;
 
   /// Connect to WebSocket server
-  Future<void> connect(String url, String token) async {
+  Future<void> connect(String url, String token, {String? nickname}) async {
     if (_isConnecting) return;
 
     // Clean up any existing connection before creating a new one
@@ -50,6 +51,7 @@ class WebSocketService {
 
     _url = url;
     _token = token;
+    _nickname = nickname;
     _isConnecting = true;
     _isManuallyDisconnected = false;
 
@@ -102,10 +104,12 @@ class WebSocketService {
 
     final message = WebsocketMessage()
       ..cmd = WebSocketCommands.userLogin
-      ..strParam = _token!;
+      ..strParam = _token!
+      ..nickname = _nickname ?? '';
 
     await _sendMessage(message);
-    _logger.d('User login message sent');
+    _logger
+        .d('User login message sent with nickname: ${_nickname ?? "default"}');
   }
 
   /// Send ask question reply
@@ -134,6 +138,14 @@ class WebSocketService {
 
     await _sendMessage(message);
     _logger.d('Task finish reply sent: ${response.iD}');
+  }
+
+  /// Update nickname and send to server
+  Future<void> updateNickname(String nickname) async {
+    _nickname = nickname;
+    // Send updated login message to server
+    await _sendUserLogin();
+    _logger.d('Nickname updated and sent to server: $nickname');
   }
 
   /// Send get pending messages request
@@ -299,7 +311,7 @@ class WebSocketService {
     _reconnectTimer = Timer(delay, () {
       if (!_isManuallyDisconnected && _url != null && _token != null) {
         _logger.i('Attempting reconnect $_reconnectAttempts');
-        connect(_url!, _token!);
+        connect(_url!, _token!, nickname: _nickname);
       }
     });
   }
