@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/chat_provider.dart';
+import '../models/chat_message.dart';
+import '../constants/websocket_commands.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/connection_status_bar.dart';
 import '../widgets/pending_actions_bar.dart';
@@ -20,6 +22,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   final Map<String, GlobalKey> _messageKeys = {};
   bool _hasInitialized = false;
+  List<ChatMessage> _previousMessages = [];
 
   @override
   void initState() {
@@ -71,15 +74,156 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Scroll to a specific message
   Future<void> _scrollToMessage(String messageId) async {
+    print('🎯 Attempting to scroll to message: $messageId');
+
     final messageKey = _messageKeys[messageId];
     if (messageKey?.currentContext != null) {
+      print(
+          '✅ Found message context, scrolling with Scrollable.ensureVisible...');
       await Scrollable.ensureVisible(
         messageKey!.currentContext!,
         duration: const Duration(milliseconds: 800),
         curve: Curves.easeInOut,
         alignment: 0.2, // Position message at 20% from top
       );
+      print('✅ Scroll completed for message: $messageId');
+    } else {
+      print(
+          '❌ No context found for message: $messageId, trying index-based scroll...');
+      await _scrollToMessageByIndex(messageId);
     }
+  }
+
+  /// Scroll to message by finding its index and calculating position
+  Future<void> _scrollToMessageByIndex(String messageId) async {
+    // Get current messages from the provider
+    final chatProvider = context.read<ChatProvider>();
+    final messages = chatProvider.messages;
+
+    // Find the index of the target message
+    final messageIndex = messages.indexWhere((m) => m.id == messageId);
+
+    if (messageIndex == -1) {
+      print('❌ Message not found in list: $messageId');
+      return;
+    }
+
+    print('📍 Found message at index: $messageIndex');
+
+    // Get viewport information
+    final double viewportHeight = _scrollController.position.viewportDimension;
+    final double maxScrollExtent = _scrollController.position.maxScrollExtent;
+
+    print('📍 Viewport height: $viewportHeight, Max scroll: $maxScrollExtent');
+
+    // Calculate approximate scroll position
+    // Use a more conservative estimate and position message higher in viewport
+    const double estimatedItemHeight = 150.0; // Increased estimate
+
+    final double targetOffset =
+        (messageIndex * estimatedItemHeight) - (viewportHeight * 0.3);
+
+    // Ensure we don't scroll beyond the maximum, but prefer to scroll to the end
+    // if the target is near the bottom to ensure input box is visible
+    final double scrollOffset;
+    if (messageIndex >= messages.length - 3) {
+      // If it's one of the last 3 messages, scroll to the very bottom
+      scrollOffset = maxScrollExtent;
+      print('📍 Target is near bottom, scrolling to max extent: $scrollOffset');
+    } else {
+      scrollOffset = targetOffset > maxScrollExtent
+          ? maxScrollExtent
+          : (targetOffset < 0 ? 0 : targetOffset);
+      print('📍 Calculated scroll offset: $scrollOffset');
+    }
+
+    // Animate to the calculated position
+    await _scrollController.animateTo(
+      scrollOffset,
+      duration: const Duration(milliseconds: 800),
+      curve: Curves.easeInOut,
+    );
+
+    print('✅ Index-based scroll completed for message: $messageId');
+
+    // After scrolling, wait a bit and try to use GlobalKey if available
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final messageKey = _messageKeys[messageId];
+    if (messageKey?.currentContext != null) {
+      print('🔄 Refining scroll position with GlobalKey...');
+      await Scrollable.ensureVisible(
+        messageKey!.currentContext!,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+        alignment: 0.8, // Position message towards bottom to show input box
+      );
+      print('✅ Refined scroll completed');
+    }
+  }
+
+  /// Check for new replyable messages and auto-scroll if needed
+  void _checkForNewReplyableMessages(List<ChatMessage> currentMessages) {
+    // Skip if not initialized yet
+    if (!_hasInitialized) {
+      print('⏳ Not initialized yet, skipping message check');
+      return;
+    }
+
+    print('🔍 Checking messages. Total: ${currentMessages.length}');
+    print('🗝️ Available message keys: ${_messageKeys.keys.toList()}');
+
+    // Find new replyable messages
+    final currentReplyableMessages = currentMessages
+        .where((m) => m.needsUserAction && m.status != MessageStatus.expired)
+        .toList();
+
+    final previousReplyableMessages = _previousMessages
+        .where((m) => m.needsUserAction && m.status != MessageStatus.expired)
+        .toList();
+
+    print(
+        '📝 Current replyable messages: ${currentReplyableMessages.map((m) => m.id).toList()}');
+    print(
+        '📝 Previous replyable messages: ${previousReplyableMessages.map((m) => m.id).toList()}');
+
+    // Check if there are new replyable messages
+    final newReplyableMessages = currentReplyableMessages
+        .where((current) => !previousReplyableMessages
+            .any((previous) => previous.id == current.id))
+        .toList();
+
+    print('🆕 New replyable messages found: ${newReplyableMessages.length}');
+    if (newReplyableMessages.isNotEmpty) {
+      print(
+          '🆕 New message IDs: ${newReplyableMessages.map((m) => m.id).toList()}');
+    }
+
+    if (newReplyableMessages.isNotEmpty) {
+      // Find the earliest new replyable message
+      newReplyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      final earliestNewMessage = newReplyableMessages.first;
+
+      print(
+          '🎯 Earliest new message: ${earliestNewMessage.id} (${earliestNewMessage.type})');
+      print(
+          '🗝️ Key exists for message: ${_messageKeys.containsKey(earliestNewMessage.id)}');
+
+      // Always scroll to new replyable messages to ensure input is visible
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        print(
+            '⏰ Post-frame callback triggered for message: ${earliestNewMessage.id}');
+        // Add a small delay to ensure the ListView has been built
+        Future.delayed(const Duration(milliseconds: 100), () {
+          print(
+              '⏰ Delayed scroll triggered for message: ${earliestNewMessage.id}');
+          _scrollToMessage(earliestNewMessage.id);
+        });
+      });
+    }
+
+    // Update previous messages
+    _previousMessages = List.from(currentMessages);
   }
 
   /// Show settings screen
@@ -205,7 +349,15 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
 
-    // Show messages list
+    // Pre-create GlobalKeys for all messages
+    for (final message in chatProvider.messages) {
+      _messageKeys[message.id] ??= GlobalKey();
+    }
+
+    // Check for new replyable messages after ensuring all keys are created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForNewReplyableMessages(chatProvider.messages);
+    });
 
     return ListView.builder(
       controller: _scrollController,
@@ -213,9 +365,6 @@ class _ChatScreenState extends State<ChatScreen> {
       itemCount: chatProvider.messages.length,
       itemBuilder: (context, index) {
         final message = chatProvider.messages[index];
-
-        // Create or get GlobalKey for this message
-        _messageKeys[message.id] ??= GlobalKey();
 
         return Padding(
           key: _messageKeys[message.id],

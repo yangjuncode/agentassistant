@@ -303,7 +303,7 @@ class WebSocketService {
       (_) {
         if (_channel != null) {
           // Send ping or keep-alive message if needed
-          _logger.d('Heartbeat check');
+          //_logger.d('Heartbeat check');
         }
       },
     );
