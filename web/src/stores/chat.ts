@@ -31,6 +31,9 @@ export interface ChatMessage {
   originalRequest?: AskQuestionRequest | TaskFinishRequest;
   response?: AskQuestionResponse | TaskFinishResponse;
   timeout: number | undefined;
+  replyText?: string;
+  repliedAt?: Date;
+  repliedByCurrentUser?: boolean;
 }
 
 export const useChatStore = defineStore('chat', () => {
@@ -171,48 +174,68 @@ export const useChatStore = defineStore('chat', () => {
 
   function handleAskQuestionReplyNotification(message: WebsocketMessage) {
     const requestId = message.AskQuestionRequest?.ID;
-    if (requestId) {
-      const existingMessage = messages.value.find(msg => msg.id === requestId);
-      if (existingMessage) {
-        existingMessage.isAnswered = true;
+    if (!requestId) {
+      console.warn('AskQuestionReplyNotification missing request ID');
+      return;
+    }
+
+    // Extract reply content from the response
+    let replyText = '';
+    if (message.AskQuestionResponse?.contents && message.AskQuestionResponse.contents.length > 0) {
+      const firstContent = message.AskQuestionResponse.contents[0];
+      if (firstContent && firstContent.text?.text) {
+        replyText = firstContent.text.text;
       }
     }
 
-    // Add notification message
-    const notificationMessage: ChatMessage = {
-      id: `notification-${Date.now()}`,
-      type: 'notification',
-      timestamp: new Date(),
-      content: message.StrParam || 'Question has been answered by another user',
-      isFromAgent: false,
-      projectDirectory: undefined,
-      timeout: undefined
-    };
+    // Find and update the existing message
+    const existingMessage = messages.value.find(msg => msg.id === requestId);
+    if (existingMessage && !existingMessage.isAnswered) {
+      existingMessage.isAnswered = true;
+      existingMessage.replyText = replyText || '已回复';
+      existingMessage.repliedAt = new Date();
+      existingMessage.repliedByCurrentUser = false;
+      if (message.AskQuestionResponse) {
+        existingMessage.response = message.AskQuestionResponse;
+      }
 
-    messages.value.push(notificationMessage);
+      console.log(`Updated question ${requestId} with reply from another user: ${replyText}`);
+    } else if (!existingMessage) {
+      console.warn(`Message with request ID ${requestId} not found for reply notification`);
+    }
   }
 
   function handleTaskFinishReplyNotification(message: WebsocketMessage) {
     const requestId = message.TaskFinishRequest?.ID;
-    if (requestId) {
-      const existingMessage = messages.value.find(msg => msg.id === requestId);
-      if (existingMessage) {
-        existingMessage.isAnswered = true;
+    if (!requestId) {
+      console.warn('TaskFinishReplyNotification missing request ID');
+      return;
+    }
+
+    // Extract reply content from the response
+    let replyText = '';
+    if (message.TaskFinishResponse?.contents && message.TaskFinishResponse.contents.length > 0) {
+      const firstContent = message.TaskFinishResponse.contents[0];
+      if (firstContent && firstContent.text?.text) {
+        replyText = firstContent.text.text;
       }
     }
 
-    // Add notification message
-    const notificationMessage: ChatMessage = {
-      id: `notification-${Date.now()}`,
-      type: 'notification',
-      timestamp: new Date(),
-      content: message.StrParam || 'Task has been completed by another user',
-      isFromAgent: false,
-      projectDirectory: undefined,
-      timeout: undefined
-    };
+    // Find and update the existing message
+    const existingMessage = messages.value.find(msg => msg.id === requestId);
+    if (existingMessage && !existingMessage.isAnswered) {
+      existingMessage.isAnswered = true;
+      existingMessage.replyText = replyText || '已确认';
+      existingMessage.repliedAt = new Date();
+      existingMessage.repliedByCurrentUser = false;
+      if (message.TaskFinishResponse) {
+        existingMessage.response = message.TaskFinishResponse;
+      }
 
-    messages.value.push(notificationMessage);
+      console.log(`Updated task ${requestId} with confirmation from another user: ${replyText}`);
+    } else if (!existingMessage) {
+      console.warn(`Message with request ID ${requestId} not found for task finish notification`);
+    }
   }
 
   function handleRequestCancelled(message: WebsocketMessage) {
@@ -282,21 +305,12 @@ export const useChatStore = defineStore('chat', () => {
       wsService.value.sendAskQuestionReply(originalRequest, response);
     }
 
-    // Mark question as answered and add reply message
+    // Mark question as answered and store reply info
     questionMessage.isAnswered = true;
     questionMessage.response = response;
-
-    const replyMessage: ChatMessage = {
-      id: `reply-${Date.now()}`,
-      type: 'reply',
-      timestamp: new Date(),
-      content: replyText,
-      isFromAgent: false,
-      projectDirectory: undefined,
-      timeout: undefined
-    };
-
-    messages.value.push(replyMessage);
+    questionMessage.replyText = replyText;
+    questionMessage.repliedAt = new Date();
+    questionMessage.repliedByCurrentUser = true;
     NotificationService.replySent();
   }
 
@@ -332,21 +346,12 @@ export const useChatStore = defineStore('chat', () => {
       wsService.value.sendTaskFinishReply(originalRequest, response);
     }
 
-    // Mark task as answered and add confirmation message
+    // Mark task as answered and store confirmation info
     taskMessage.isAnswered = true;
     taskMessage.response = response;
-
-    const confirmMessage: ChatMessage = {
-      id: `reply-${Date.now()}`,
-      type: 'reply',
-      timestamp: new Date(),
-      content: confirmationText,
-      isFromAgent: false,
-      projectDirectory: undefined,
-      timeout: undefined
-    };
-
-    messages.value.push(confirmMessage);
+    taskMessage.replyText = confirmationText;
+    taskMessage.repliedAt = new Date();
+    taskMessage.repliedByCurrentUser = true;
     NotificationService.confirmationSent();
   }
 

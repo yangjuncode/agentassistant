@@ -88,6 +88,23 @@
           </div>
         </div>
       </q-card-section>
+
+      <!-- Reply Content (if answered) -->
+      <q-card-section v-if="message.isAnswered && message.replyText" class="bg-blue-1">
+        <div class="reply-content">
+          <div class="row items-center q-mb-sm">
+            <q-icon name="reply" color="primary" class="q-mr-sm" />
+            <span class="text-subtitle2 text-primary">
+              {{ message.repliedByCurrentUser ? '您的回复' : '其他用户的回复' }}
+            </span>
+            <q-space />
+            <span v-if="message.repliedAt" class="text-caption text-grey-6">
+              {{ formatTime(message.repliedAt) }}
+            </span>
+          </div>
+          <div class="text-body1">{{ message.replyText }}</div>
+        </div>
+      </q-card-section>
     </q-card>
 
     <!-- Agent Task Finish -->
@@ -173,6 +190,23 @@
               @click="submitConfirm"
             />
           </div>
+        </div>
+      </q-card-section>
+
+      <!-- Confirmation Content (if answered) -->
+      <q-card-section v-if="message.isAnswered && message.replyText" class="bg-green-1">
+        <div class="reply-content">
+          <div class="row items-center q-mb-sm">
+            <q-icon name="check_circle" color="positive" class="q-mr-sm" />
+            <span class="text-subtitle2 text-positive">
+              {{ message.repliedByCurrentUser ? '您的确认' : '其他用户的确认' }}
+            </span>
+            <q-space />
+            <span v-if="message.repliedAt" class="text-caption text-grey-6">
+              {{ formatTime(message.repliedAt) }}
+            </span>
+          </div>
+          <div class="text-body1">{{ message.replyText }}</div>
         </div>
       </q-card-section>
     </q-card>
@@ -283,6 +317,11 @@ function formatTime(date: Date): string {
 .confirm-section {
   border-top: 1px solid #e0e0e0;
   padding-top: 16px;
+}
+
+.reply-content {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 12px;
 }
 
 .quick-reply-btn {
