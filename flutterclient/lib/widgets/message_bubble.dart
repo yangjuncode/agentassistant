@@ -4,18 +4,15 @@ import 'package:intl/intl.dart';
 import '../models/chat_message.dart';
 import '../constants/websocket_commands.dart';
 import 'content_display.dart';
+import 'inline_reply_widget.dart';
 
 /// Message bubble widget for displaying chat messages
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
-  final VoidCallback? onReply;
-  final VoidCallback? onConfirm;
 
   const MessageBubble({
     super.key,
     required this.message,
-    this.onReply,
-    this.onConfirm,
   });
 
   @override
@@ -30,16 +27,16 @@ class MessageBubble extends StatelessWidget {
             // Message header
             _buildHeader(context),
             const SizedBox(height: 12),
-            
+
             // Message content
             _buildContent(context),
-            
-            // Message actions
+
+            // Inline reply widget (if needs user action)
             if (message.needsUserAction) ...[
               const SizedBox(height: 16),
-              _buildActions(context),
+              InlineReplyWidget(message: message),
             ],
-            
+
             // Reply content (if replied)
             if (message.replyText != null) ...[
               const SizedBox(height: 16),
@@ -69,7 +66,7 @@ class MessageBubble extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 12),
-        
+
         // Message title and status
         Expanded(
           child: Column(
@@ -78,8 +75,8 @@ class MessageBubble extends StatelessWidget {
               Text(
                 message.displayTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               const SizedBox(height: 2),
               Row(
@@ -89,8 +86,8 @@ class MessageBubble extends StatelessWidget {
                   Text(
                     DateFormat('MM/dd HH:mm').format(message.timestamp),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
                 ],
               ),
@@ -112,7 +109,10 @@ class MessageBubble extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withOpacity(0.3),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -121,16 +121,16 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
         ],
-        
+
         // Additional content items
         if (message.contents.isNotEmpty) ...[
           const SizedBox(height: 12),
           ...message.contents.map((content) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: ContentDisplay(content: content),
-          )),
+                padding: const EdgeInsets.only(bottom: 8),
+                child: ContentDisplay(content: content),
+              )),
         ],
-        
+
         // Project directory info
         if (message.projectDirectory != null) ...[
           const SizedBox(height: 8),
@@ -146,42 +146,11 @@ class MessageBubble extends StatelessWidget {
                 child: Text(
                   '项目目录: ${message.projectDirectory}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ),
             ],
-          ),
-        ],
-      ],
-    );
-  }
-
-  /// Build action buttons for pending messages
-  Widget _buildActions(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        if (message.type == MessageType.question && onReply != null) ...[
-          ElevatedButton.icon(
-            onPressed: onReply,
-            icon: const Icon(Icons.reply, size: 18),
-            label: const Text('回复'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
-          ),
-        ],
-        if (message.type == MessageType.task && onConfirm != null) ...[
-          ElevatedButton.icon(
-            onPressed: onConfirm,
-            icon: const Icon(Icons.check, size: 18),
-            label: const Text('确认'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-            ),
           ),
         ],
       ],
@@ -214,17 +183,17 @@ class MessageBubble extends StatelessWidget {
               Text(
                 '您的回复',
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
               ),
               const Spacer(),
               if (message.repliedAt != null)
                 Text(
                   DateFormat('MM/dd HH:mm').format(message.repliedAt!),
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
             ],
           ),
@@ -242,7 +211,7 @@ class MessageBubble extends StatelessWidget {
   Widget _buildStatusChip(BuildContext context) {
     Color chipColor;
     String statusText;
-    
+
     switch (message.status) {
       case MessageStatus.pending:
         chipColor = Theme.of(context).colorScheme.error;
@@ -272,9 +241,9 @@ class MessageBubble extends StatelessWidget {
       child: Text(
         statusText,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          color: chipColor,
-          fontWeight: FontWeight.w500,
-        ),
+              color: chipColor,
+              fontWeight: FontWeight.w500,
+            ),
       ),
     );
   }

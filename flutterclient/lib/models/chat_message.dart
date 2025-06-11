@@ -129,9 +129,8 @@ class ChatMessage {
       meta: Map<String, String>.from(json['meta'] ?? {}),
       isError: json['isError'] ?? false,
       replyText: json['replyText'],
-      repliedAt: json['repliedAt'] != null 
-          ? DateTime.parse(json['repliedAt']) 
-          : null,
+      repliedAt:
+          json['repliedAt'] != null ? DateTime.parse(json['repliedAt']) : null,
     );
   }
 
@@ -157,8 +156,8 @@ class ChatMessage {
 
   /// Check if message needs user action
   bool get needsUserAction {
-    return status == MessageStatus.pending && 
-           (type == MessageType.question || type == MessageType.task);
+    return status == MessageStatus.pending &&
+        (type == MessageType.question || type == MessageType.task);
   }
 }
 

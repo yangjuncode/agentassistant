@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/chat_provider.dart';
-import '../models/chat_message.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/connection_status_bar.dart';
 import '../widgets/pending_actions_bar.dart';
@@ -37,124 +36,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  /// Handle message reply
-  void _handleReply(ChatMessage message) {
-    _showReplyDialog(message);
-  }
-
-  /// Handle task confirmation
-  void _handleConfirm(ChatMessage message) {
-    _showConfirmDialog(message);
-  }
-
-  /// Show reply dialog for questions
-  void _showReplyDialog(ChatMessage message) {
-    final controller = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('回复问题'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '问题：',
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              message.question ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: '您的回复',
-                hintText: '请输入回复内容...',
-              ),
-              maxLines: 3,
-              autofocus: true,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final reply = controller.text.trim();
-              if (reply.isNotEmpty) {
-                context.read<ChatProvider>().replyToQuestion(message.id, reply);
-                Navigator.of(context).pop();
-                _scrollToBottom();
-              }
-            },
-            child: const Text('发送'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Show confirmation dialog for tasks
-  void _showConfirmDialog(ChatMessage message) {
-    final controller = TextEditingController();
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认任务'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '任务摘要：',
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              message.summary ?? '',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: '确认备注（可选）',
-                hintText: '添加确认备注...',
-              ),
-              maxLines: 2,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('取消'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final confirmText = controller.text.trim();
-              context.read<ChatProvider>().confirmTask(
-                message.id, 
-                confirmText.isNotEmpty ? confirmText : null,
-              );
-              Navigator.of(context).pop();
-              _scrollToBottom();
-            },
-            child: const Text('确认'),
-          ),
-        ],
-      ),
-    );
-  }
-
   /// Show settings screen
   void _showSettings() {
     Navigator.of(context).push(
@@ -183,10 +64,10 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               // Connection status bar
               const ConnectionStatusBar(),
-              
+
               // Pending actions bar
               const PendingActionsBar(),
-              
+
               // Messages list
               Expanded(
                 child: _buildMessagesList(chatProvider),
@@ -232,8 +113,8 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               chatProvider.connectionError ?? '无法连接到服务器',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -269,8 +150,8 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(
               '连接成功后，AI Agent 的问题和任务将在这里显示',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -280,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // Show messages list
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    
+
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
@@ -291,8 +172,6 @@ class _ChatScreenState extends State<ChatScreen> {
           padding: const EdgeInsets.only(bottom: 16),
           child: MessageBubble(
             message: message,
-            onReply: () => _handleReply(message),
-            onConfirm: () => _handleConfirm(message),
           ),
         );
       },
