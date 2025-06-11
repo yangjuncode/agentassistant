@@ -7,28 +7,28 @@
           <q-icon name="smart_toy" color="blue" class="q-mr-sm" />
           <span class="text-subtitle2 text-blue-8">AI Agent 提问</span>
           <q-space />
-          <q-chip 
-            v-if="message.isAnswered" 
-            color="green" 
-            text-color="white" 
+          <q-chip
+            v-if="message.isAnswered"
+            color="green"
+            text-color="white"
             size="sm"
             icon="check"
           >
             已回复
           </q-chip>
-          <q-chip 
-            v-else 
-            color="orange" 
-            text-color="white" 
+          <q-chip
+            v-else
+            color="orange"
+            text-color="white"
             size="sm"
             icon="help"
           >
             待回复
           </q-chip>
         </div>
-        
+
         <div class="text-body1 q-mb-sm">{{ message.content }}</div>
-        
+
         <div class="text-caption text-grey-6">
           <div v-if="message.projectDirectory">
             <q-icon name="folder" class="q-mr-xs" />
@@ -54,7 +54,30 @@
             class="q-mb-sm"
             @keydown.ctrl.enter="submitReply"
           />
-          <div class="row justify-end">
+          <div class="row justify-between items-center">
+            <!-- Quick reply buttons -->
+            <div class="row q-gutter-sm">
+              <q-btn
+                outline
+                color="positive"
+                label="OK"
+                icon="check"
+                size="sm"
+                @click="submitQuickReply('OK')"
+                class="quick-reply-btn"
+              />
+              <q-btn
+                outline
+                color="info"
+                label="Continue"
+                icon="arrow_forward"
+                size="sm"
+                @click="submitQuickReply('Continue')"
+                class="quick-reply-btn"
+              />
+            </div>
+
+            <!-- Send button -->
             <q-btn
               color="primary"
               label="发送回复"
@@ -74,28 +97,28 @@
           <q-icon name="task_alt" color="green" class="q-mr-sm" />
           <span class="text-subtitle2 text-green-8">任务完成</span>
           <q-space />
-          <q-chip 
-            v-if="message.isAnswered" 
-            color="green" 
-            text-color="white" 
+          <q-chip
+            v-if="message.isAnswered"
+            color="green"
+            text-color="white"
             size="sm"
             icon="check"
           >
             已确认
           </q-chip>
-          <q-chip 
-            v-else 
-            color="orange" 
-            text-color="white" 
+          <q-chip
+            v-else
+            color="orange"
+            text-color="white"
             size="sm"
             icon="pending"
           >
             待确认
           </q-chip>
         </div>
-        
+
         <div class="text-body1 q-mb-sm">{{ message.content }}</div>
-        
+
         <div class="text-caption text-grey-6">
           <div v-if="message.projectDirectory">
             <q-icon name="folder" class="q-mr-xs" />
@@ -119,7 +142,30 @@
             class="q-mb-sm"
             placeholder="任务已确认"
           />
-          <div class="row justify-end q-gutter-sm">
+          <div class="row justify-between items-center">
+            <!-- Quick confirm buttons -->
+            <div class="row q-gutter-sm">
+              <q-btn
+                outline
+                color="positive"
+                label="OK"
+                icon="check"
+                size="sm"
+                @click="submitQuickConfirm('OK')"
+                class="quick-reply-btn"
+              />
+              <q-btn
+                outline
+                color="info"
+                label="Continue"
+                icon="arrow_forward"
+                size="sm"
+                @click="submitQuickConfirm('Continue')"
+                class="quick-reply-btn"
+              />
+            </div>
+
+            <!-- Confirm button -->
             <q-btn
               color="positive"
               label="确认完成"
@@ -187,9 +233,18 @@ function submitReply() {
   }
 }
 
+function submitQuickReply(quickText: string) {
+  emit('reply', props.message.id, quickText);
+  // Don't clear the text field for quick replies, user might want to add more
+}
+
 function submitConfirm() {
   emit('confirm', props.message.id, confirmText.value.trim() || undefined);
   confirmText.value = '任务已确认';
+}
+
+function submitQuickConfirm(quickText: string) {
+  emit('confirm', props.message.id, quickText);
 }
 
 function formatTime(date: Date): string {
@@ -230,17 +285,37 @@ function formatTime(date: Date): string {
   padding-top: 16px;
 }
 
+.quick-reply-btn {
+  min-width: 80px;
+  font-weight: 500;
+}
+
 @media (max-width: 600px) {
   .agent-message {
     margin-right: 5%;
   }
-  
+
   .user-message {
     margin-left: 5%;
   }
-  
+
   .notification-message {
     margin: 0 2%;
+  }
+
+  /* Stack buttons vertically on small screens */
+  .row.justify-between {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .row.justify-between .row.q-gutter-sm {
+    justify-content: center;
+  }
+
+  .quick-reply-btn {
+    flex: 1;
+    max-width: 120px;
   }
 }
 </style>

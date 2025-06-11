@@ -210,14 +210,78 @@ class ChatProvider extends ChangeNotifier {
 
   /// Handle ask question reply notification
   void _handleAskQuestionReplyNotification(WebsocketMessage message) {
-    // Update message status if needed
-    _logger.d('Ask question reply notification received');
+    if (!message.hasAskQuestionRequest()) {
+      _logger.w('AskQuestionReplyNotification missing request data');
+      return;
+    }
+
+    final request = message.askQuestionRequest;
+    final requestId = request.iD;
+
+    _logger
+        .i('Ask question reply notification received for request: $requestId');
+
+    // Find and update the existing message
+    final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
+    if (messageIndex != -1) {
+      final existingMessage = _messages[messageIndex];
+
+      // Only update if the message is still pending (not already replied by this client)
+      if (existingMessage.status == MessageStatus.pending) {
+        final updatedMessage = existingMessage.copyWith(
+          status: MessageStatus.replied,
+          repliedAt: DateTime.now(),
+        );
+        _messages[messageIndex] = updatedMessage;
+        notifyListeners();
+        _logger.i(
+            'Updated message $requestId status to replied (by another user)');
+
+        // Show notification to user
+        _showReplyNotification('问题已被其他用户回复', existingMessage.question ?? '');
+      }
+    } else {
+      _logger.w(
+          'Message with request ID $requestId not found for reply notification');
+    }
   }
 
   /// Handle task finish reply notification
   void _handleTaskFinishReplyNotification(WebsocketMessage message) {
-    // Update message status if needed
-    _logger.d('Task finish reply notification received');
+    if (!message.hasTaskFinishRequest()) {
+      _logger.w('TaskFinishReplyNotification missing request data');
+      return;
+    }
+
+    final request = message.taskFinishRequest;
+    final requestId = request.iD;
+
+    _logger
+        .i('Task finish reply notification received for request: $requestId');
+
+    // Find and update the existing message
+    final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
+    if (messageIndex != -1) {
+      final existingMessage = _messages[messageIndex];
+
+      // Only update if the message is still pending (not already confirmed by this client)
+      if (existingMessage.status == MessageStatus.pending) {
+        final updatedMessage = existingMessage.copyWith(
+          status: MessageStatus.confirmed,
+          repliedAt: DateTime.now(),
+        );
+        _messages[messageIndex] = updatedMessage;
+        notifyListeners();
+        _logger.i(
+            'Updated message $requestId status to confirmed (by another user)');
+
+        // Show notification to user
+        _showReplyNotification('任务已被其他用户确认', existingMessage.summary ?? '');
+      }
+    } else {
+      _logger.w(
+          'Message with request ID $requestId not found for task finish notification');
+    }
   }
 
   /// Handle request cancelled notification
@@ -435,6 +499,18 @@ class ChatProvider extends ChangeNotifier {
     } catch (error) {
       _logger.e('Failed to save connection info: $error');
     }
+  }
+
+  /// Show notification for reply/confirmation by another user
+  void _showReplyNotification(String title, String content) {
+    _logger.i('Showing reply notification: $title - $content');
+
+    // For now, just log the notification
+    // In a full implementation, this could show a toast/snackbar
+    // or trigger a system notification
+
+    // The UI will automatically update due to notifyListeners() being called
+    // when the message status is updated
   }
 
   /// Bring window to front if needed (desktop only)
