@@ -9,12 +9,13 @@ class SystemInputService {
   static const String _inputToolPath = '../bin/agentassistant-input';
 
   /// Send text to system input using agentassistant-input tool
-  /// 
+  ///
   /// [content] - The text content to send to system input
-  /// [isBase64Encoded] - Whether the content is base64 encoded
-  /// 
+  /// [isBase64Encoded] - Whether the content is already base64 encoded
+  ///
   /// Returns true if successful, false otherwise
-  static Future<bool> sendToSystemInput(String content, {bool isBase64Encoded = false}) async {
+  static Future<bool> sendToSystemInput(String content,
+      {bool isBase64Encoded = false}) async {
     try {
       if (content.isEmpty) {
         _logger.w('Cannot send empty content to system input');
@@ -34,24 +35,29 @@ class SystemInputService {
         return false;
       }
 
-      // Prepare command arguments
-      List<String> args;
+      // Always use base64 encoding to prevent issues with special characters
+      String encodedContent;
       if (isBase64Encoded) {
-        args = ['-input64', content];
+        encodedContent = content;
       } else {
-        args = ['-input', content];
+        encodedContent = base64Encode(utf8.encode(content));
       }
 
-      _logger.d('Executing agentassistant-input with args: $args');
+      // Always use -input64 argument for safety
+      final args = ['-input64', encodedContent];
+
+      _logger.d('Executing agentassistant-input with base64 encoded content');
 
       // Execute the command
       final result = await Process.run(_inputToolPath, args);
 
       if (result.exitCode == 0) {
-        _logger.i('Successfully sent text to system input: ${content.length} characters');
+        _logger.i(
+            'Successfully sent text to system input: ${content.length} characters');
         return true;
       } else {
-        _logger.e('Failed to send text to system input. Exit code: ${result.exitCode}');
+        _logger.e(
+            'Failed to send text to system input. Exit code: ${result.exitCode}');
         _logger.e('Error output: ${result.stderr}');
         return false;
       }
@@ -62,15 +68,10 @@ class SystemInputService {
   }
 
   /// Send text to system input with base64 encoding
-  /// This is useful for text containing special characters
+  /// This method is now equivalent to sendToSystemInput since base64 is always used
+  /// Kept for backward compatibility
   static Future<bool> sendToSystemInputBase64(String content) async {
-    try {
-      final encodedContent = base64Encode(utf8.encode(content));
-      return await sendToSystemInput(encodedContent, isBase64Encoded: true);
-    } catch (e) {
-      _logger.e('Failed to encode content to base64: $e');
-      return false;
-    }
+    return await sendToSystemInput(content);
   }
 
   /// Check if system input functionality is available
