@@ -134,150 +134,154 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.primary,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Spacer(flex: 2),
-
-              // Logo animation
-              AnimatedBuilder(
-                animation: _logoAnimation,
-                builder: (context, child) {
-                  return Transform.scale(
-                    scale: _logoAnimation.value,
-                    child: Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Icon(
-                        Icons.assistant,
-                        size: 60,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              const SizedBox(height: 32),
-
-              // App name
-              Text(
-                AppConfig.appName,
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-
-              const SizedBox(height: 8),
-
-              Text(
-                '智能助手客户端',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onPrimary
-                          .withOpacity(0.8),
-                    ),
-              ),
-
-              const Spacer(flex: 1),
-
-              // Status and progress
-              if (!_hasError) ...[
-                // Progress indicator
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Logo animation
                 AnimatedBuilder(
-                  animation: _progressAnimation,
+                  animation: _logoAnimation,
                   builder: (context, child) {
-                    return SizedBox(
-                      width: 200,
-                      child: LinearProgressIndicator(
-                        value: _progressAnimation.value,
-                        backgroundColor: Theme.of(context)
-                            .colorScheme
-                            .onPrimary
-                            .withOpacity(0.3),
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.onPrimary,
+                    return Transform.scale(
+                      scale: _logoAnimation.value,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.assistant,
+                          size: 60,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     );
                   },
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 32),
 
-                // Status message
+                // App name
                 Text(
-                  _statusMessage,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  AppConfig.appName,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
+
+                const SizedBox(height: 8),
+
+                Text(
+                  '智能助手客户端',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context)
                             .colorScheme
                             .onPrimary
-                            .withOpacity(0.9),
+                            .withOpacity(0.8),
                       ),
-                ),
-              ] else ...[
-                // Error state
-                Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  textAlign: TextAlign.center,
                 ),
 
-                const SizedBox(height: 16),
+                const SizedBox(height: 48),
 
-                Text(
-                  _statusMessage,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
+                // Status and progress
+                if (!_hasError) ...[
+                  // Progress indicator
+                  AnimatedBuilder(
+                    animation: _progressAnimation,
+                    builder: (context, child) {
+                      return SizedBox(
+                        width: 200,
+                        child: LinearProgressIndicator(
+                          value: _progressAnimation.value,
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .onPrimary
+                              .withOpacity(0.3),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Theme.of(context).colorScheme.onPrimary,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
 
-                if (_errorMessage != null) ...[
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
+
+                  // Status message
                   Text(
-                    _errorMessage!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    _statusMessage,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context)
                               .colorScheme
                               .onPrimary
-                              .withOpacity(0.8),
+                              .withOpacity(0.9),
                         ),
                     textAlign: TextAlign.center,
                   ),
-                ],
-
-                const SizedBox(height: 24),
-
-                // Retry button
-                ElevatedButton.icon(
-                  onPressed: _retry,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('重试'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.onPrimary,
-                    foregroundColor: Theme.of(context).colorScheme.primary,
+                ] else ...[
+                  // Error state
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.onPrimary,
                   ),
-                ),
-              ],
 
-              const Spacer(flex: 1),
-            ],
+                  const SizedBox(height: 16),
+
+                  Text(
+                    _statusMessage,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      _errorMessage!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimary
+                                .withOpacity(0.8),
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+
+                  const SizedBox(height: 24),
+
+                  // Retry button
+                  ElevatedButton.icon(
+                    onPressed: _retry,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('重试'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                      foregroundColor: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
