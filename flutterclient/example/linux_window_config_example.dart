@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../lib/services/window_service.dart';
+import 'package:flutterclient/services/window_service.dart';
 
 /// Example showing how to configure Linux X11 window behavior
 void main() async {

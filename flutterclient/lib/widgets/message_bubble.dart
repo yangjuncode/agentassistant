@@ -287,7 +287,7 @@ class MessageBubble extends StatelessWidget {
       return '您的回复';
     } else {
       final nickname = message.repliedByNickname ?? '其他用户';
-      return '${nickname}的回复';
+      return '$nickname的回复';
     }
   }
 }

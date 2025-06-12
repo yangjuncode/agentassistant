@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../lib/services/websocket_service.dart';
+import 'package:flutterclient/services/websocket_service.dart';
 
 void main() {
   group('WebSocketService', () {

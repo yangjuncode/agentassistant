@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:logger/logger.dart';
 
-import '../lib/services/websocket_service.dart';
+import 'package:flutterclient/services/websocket_service.dart';
 
 /// Example demonstrating the WebSocket reconnection fix
 /// This example shows how the service now properly cleans up old connections

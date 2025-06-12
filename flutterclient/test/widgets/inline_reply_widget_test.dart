@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import '../../lib/widgets/inline_reply_widget.dart';
-import '../../lib/models/chat_message.dart';
-import '../../lib/providers/chat_provider.dart';
-import '../../lib/constants/websocket_commands.dart';
+import 'package:flutterclient/widgets/inline_reply_widget.dart';
+import 'package:flutterclient/models/chat_message.dart';
+import 'package:flutterclient/providers/chat_provider.dart';
+import 'package:flutterclient/constants/websocket_commands.dart';
 
 void main() {
   group('InlineReplyWidget Tests', () {
