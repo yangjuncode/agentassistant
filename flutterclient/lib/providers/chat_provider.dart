@@ -716,6 +716,8 @@ class ChatProvider extends ChangeNotifier {
 
   /// Handle user connection status notification
   void _handleUserConnectionStatusNotification(pb.WebsocketMessage message) {
+    _logger.i('Received UserConnectionStatusNotification: ${message.cmd}');
+
     if (!message.hasUserConnectionStatusNotification()) {
       _logger.w('UserConnectionStatusNotification missing notification data');
       return;
@@ -725,13 +727,20 @@ class ChatProvider extends ChangeNotifier {
     final user = notification.user;
     final status = notification.status;
 
+    _logger.i(
+        'Processing user connection status: $status for user: ${user.nickname} (${user.clientId})');
+
     if (status == 'connected') {
       // Add user to online users list if not already present
       final existingIndex =
           _onlineUsers.indexWhere((u) => u.clientId == user.clientId);
       if (existingIndex == -1 && user.clientId != currentClientId) {
         _onlineUsers.add(user);
-        _logger.i('User ${user.nickname} (${user.clientId}) connected');
+        _logger.i(
+            '✅ User ${user.nickname} (${user.clientId}) added to online users list');
+      } else {
+        _logger.w(
+            '⚠️ User ${user.nickname} (${user.clientId}) already in list or is current user');
       }
     } else if (status == 'disconnected') {
       // Remove user from online users list
@@ -741,12 +750,17 @@ class ChatProvider extends ChangeNotifier {
         final disconnectedUser = _onlineUsers[userIndex];
         _onlineUsers.removeAt(userIndex);
         _logger.i(
-            'User ${disconnectedUser.nickname} (${disconnectedUser.clientId}) disconnected');
+            '✅ User ${disconnectedUser.nickname} (${disconnectedUser.clientId}) removed from online users list');
 
         // Close chat dialog if it's open for this user
         if (_activeChatUserId == user.clientId) {
           setActiveChatUser(null);
+          _logger
+              .i('✅ Closed chat dialog for disconnected user ${user.clientId}');
         }
+      } else {
+        _logger.w(
+            '⚠️ User ${user.nickname} (${user.clientId}) not found in online users list');
       }
     }
 

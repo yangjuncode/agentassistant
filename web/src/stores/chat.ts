@@ -504,17 +504,23 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   function handleUserConnectionStatusNotification(message: WebsocketMessage) {
+    console.log('Received UserConnectionStatusNotification:', message);
+
     if (message.UserConnectionStatusNotification) {
       const notification = message.UserConnectionStatusNotification;
       const user = notification.user;
       const status = notification.status;
+
+      console.log(`Processing user connection status: ${status} for user:`, user);
 
       if (status === 'connected') {
         // Add user to online users list if not already present
         const existingUserIndex = onlineUsers.value.findIndex(u => u.clientId === user?.clientId);
         if (existingUserIndex === -1 && user && user.clientId !== currentClientId.value) {
           onlineUsers.value.push(user);
-          console.log(`User ${user.nickname} (${user.clientId}) connected`);
+          console.log(`✅ User ${user.nickname} (${user.clientId}) added to online users list`);
+        } else {
+          console.log(`⚠️ User ${user?.nickname} (${user?.clientId}) already in list or is current user`);
         }
       } else if (status === 'disconnected') {
         // Remove user from online users list
@@ -522,14 +528,19 @@ export const useChatStore = defineStore('chat', () => {
         if (userIndex !== -1) {
           const disconnectedUser = onlineUsers.value[userIndex];
           onlineUsers.value.splice(userIndex, 1);
-          console.log(`User ${disconnectedUser?.nickname} (${disconnectedUser?.clientId}) disconnected`);
+          console.log(`✅ User ${disconnectedUser?.nickname} (${disconnectedUser?.clientId}) removed from online users list`);
 
           // Close chat dialog if it's open for this user
           if (activeChatUser.value === user?.clientId) {
             setActiveChatUser(null);
+            console.log(`✅ Closed chat dialog for disconnected user ${user?.clientId}`);
           }
+        } else {
+          console.log(`⚠️ User ${user?.nickname} (${user?.clientId}) not found in online users list`);
         }
       }
+    } else {
+      console.error('UserConnectionStatusNotification missing notification data');
     }
   }
 

@@ -456,7 +456,19 @@ func (b *Broadcaster) BroadcastUserConnectionStatus(user *WebClient, status stri
 		return
 	}
 
-	notification := &agentassistproto.WebsocketMessage{ /* … */ }
+	// Create notification message
+	notification := &agentassistproto.WebsocketMessage{
+		Cmd: "UserConnectionStatusNotification",
+		UserConnectionStatusNotification: &agentassistproto.UserConnectionStatusNotification{
+			User: &agentassistproto.OnlineUser{
+				ClientId:    user.ID,
+				Nickname:    user.GetNickname(),
+				ConnectedAt: user.ConnectedAt,
+			},
+			Status:    status,
+			Timestamp: time.Now().Unix(),
+		},
+	}
 
 	// snapshot under read-lock
 	b.mu.RLock()
