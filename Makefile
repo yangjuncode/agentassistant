@@ -13,10 +13,13 @@ help:
 
 # Build all binaries
 build:
+	@mkdir -p bin/
 	@echo "Building agent assistant server..."
 	go build -o bin/agentassistant-srv ./cmd/agentassistant-srv
 	@echo "Building agent assistant MCP..."
 	go build -o bin/agentassistant-mcp ./cmd/agentassistant-mcp
+	@echo "Building agent assistant input..."
+	go build -o bin/agentassistant-input ./cmd/agentassistant-input
 	@echo "Build complete!"
 
 # Run tests

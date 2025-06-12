@@ -33,5 +33,6 @@ go.work.sum
 
 bin/
 dist/
-agentassistant-mcp
-agentassistant-srv
+cmd/agentassistant-mcp/agentassistant-mcp
+cmd/agentassistant-srv/agentassistant-srv
+cmd/agentassistant-input/agentassistant-input
