@@ -199,6 +199,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
+              // System Input section
+              _buildSectionHeader('系统输入'),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      secondary: const Icon(Icons.input),
+                      title: const Text('自动转发聊天消息'),
+                      subtitle: const Text('收到聊天消息时自动发送到系统输入'),
+                      value: chatProvider.autoForwardToSystemInput,
+                      onChanged: (value) {
+                        chatProvider.setAutoForwardToSystemInput(value);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(value ? '已开启自动转发' : '已关闭自动转发'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
               // Messages section
               _buildSectionHeader('消息'),
               Card(

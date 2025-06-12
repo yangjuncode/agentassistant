@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
+import 'package:fixnum/fixnum.dart';
 
 import '../models/chat_message.dart';
 import '../services/websocket_service.dart';
 import '../services/window_service.dart';
+import '../services/system_input_service.dart';
 import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
 import '../proto/agentassist.pb.dart' as pb;
@@ -24,6 +26,7 @@ class ChatProvider extends ChangeNotifier {
   String? _connectionError;
   String? _currentToken;
   String? _activeChatUserId;
+  bool _autoForwardToSystemInput = false;
 
   StreamSubscription? _messageSubscription;
   StreamSubscription? _connectionSubscription;
@@ -37,6 +40,7 @@ class ChatProvider extends ChangeNotifier {
   List<pb.OnlineUser> get onlineUsers => List.unmodifiable(_onlineUsers);
   String? get activeChatUserId => _activeChatUserId;
   String? get currentClientId => _webSocketService.clientId;
+  bool get autoForwardToSystemInput => _autoForwardToSystemInput;
 
   List<ChatMessage> get pendingQuestions => _messages
       .where((m) => m.type == MessageType.question && m.needsUserAction)
@@ -48,6 +52,7 @@ class ChatProvider extends ChangeNotifier {
 
   ChatProvider() {
     _initializeWebSocketListeners();
+    _loadAutoForwardSetting();
   }
 
   /// Initialize WebSocket event listeners
@@ -710,6 +715,11 @@ class ChatProvider extends ChangeNotifier {
 
     notifyListeners();
 
+    // Auto forward to system input if enabled and message is from another user
+    if (_autoForwardToSystemInput && senderId != _webSocketService.clientId) {
+      _autoForwardMessageToSystemInput(chatMessage.content);
+    }
+
     // Bring window to front when new chat message is received
     _bringWindowToFrontIfNeeded();
   }
@@ -791,6 +801,24 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       await _webSocketService.sendChatMessage(receiverClientId, content);
+
+      // Add message to local chat history
+      if (!_chatMessages.containsKey(receiverClientId)) {
+        _chatMessages[receiverClientId] = [];
+      }
+
+      final localMessage = pb.ChatMessage()
+        ..messageId = 'local-${DateTime.now().millisecondsSinceEpoch}'
+        ..senderClientId = _webSocketService.clientId ?? ''
+        ..senderNickname = await _loadNickname() ?? 'Me'
+        ..receiverClientId = receiverClientId
+        ..receiverNickname = ''
+        ..content = content
+        ..sentAt = Int64(DateTime.now().millisecondsSinceEpoch ~/ 1000);
+
+      _chatMessages[receiverClientId]!.add(localMessage);
+      notifyListeners();
+
       _logger.i('Chat message sent to $receiverClientId: $content');
     } catch (error) {
       _logger.e('Failed to send chat message: $error');
@@ -806,6 +834,47 @@ class ChatProvider extends ChangeNotifier {
   /// Get chat messages for a specific user
   List<pb.ChatMessage> getChatMessages(String userId) {
     return _chatMessages[userId] ?? [];
+  }
+
+  /// Load auto forward to system input setting
+  Future<void> _loadAutoForwardSetting() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _autoForwardToSystemInput =
+          prefs.getBool('auto_forward_to_system_input') ?? false;
+      _logger.i('Loaded auto forward setting: $_autoForwardToSystemInput');
+    } catch (error) {
+      _logger.e('Failed to load auto forward setting: $error');
+      _autoForwardToSystemInput = false;
+    }
+  }
+
+  /// Set auto forward to system input setting
+  Future<void> setAutoForwardToSystemInput(bool enabled) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('auto_forward_to_system_input', enabled);
+      _autoForwardToSystemInput = enabled;
+      notifyListeners();
+      _logger.i('Auto forward setting updated: $enabled');
+    } catch (error) {
+      _logger.e('Failed to save auto forward setting: $error');
+    }
+  }
+
+  /// Auto forward message to system input
+  Future<void> _autoForwardMessageToSystemInput(String content) async {
+    try {
+      final success = await SystemInputService.sendToSystemInput(content);
+      if (success) {
+        _logger.i(
+            'Auto forwarded message to system input: ${content.length} characters');
+      } else {
+        _logger.w('Failed to auto forward message to system input');
+      }
+    } catch (error) {
+      _logger.e('Exception during auto forward to system input: $error');
+    }
   }
 
   @override

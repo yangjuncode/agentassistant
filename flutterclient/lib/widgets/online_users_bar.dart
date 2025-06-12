@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import 'package:fixnum/fixnum.dart';
 
 import '../providers/chat_provider.dart';
 import '../proto/agentassist.pb.dart' as pb;
-import '../services/system_input_service.dart';
 
 /// Widget that displays online users in a horizontal bar below the app bar
 class OnlineUsersBar extends StatelessWidget {
@@ -295,8 +296,8 @@ class _ChatDialogState extends State<_ChatDialog> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[index];
-                      final isFromMe =
-                          message.senderClientId != widget.user.clientId;
+                      final isFromMe = message.senderClientId ==
+                          widget.chatProvider.currentClientId;
 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -331,20 +332,22 @@ class _ChatDialogState extends State<_ChatDialog> {
                                               .onSurface,
                                     ),
                                   ),
-                                  if (!isFromMe) ...[
-                                    const SizedBox(height: 8),
-                                    ElevatedButton.icon(
-                                      onPressed: () =>
-                                          _sendToSystemInput(message.content),
-                                      icon: const Icon(Icons.input, size: 16),
-                                      label: const Text('发送到系统输入'),
-                                      style: ElevatedButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 4),
-                                        minimumSize: const Size(0, 32),
-                                      ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _formatMessageTime(message.sentAt),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isFromMe
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary
+                                              .withValues(alpha: 0.7)
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant
+                                              .withValues(alpha: 0.7),
                                     ),
-                                  ],
+                                  ),
                                 ],
                               ),
                             ),
@@ -387,24 +390,24 @@ class _ChatDialogState extends State<_ChatDialog> {
     );
   }
 
-  Future<void> _sendToSystemInput(String content) async {
-    try {
-      final success = await SystemInputService.sendToSystemInput(content);
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('文本已发送到系统输入')),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('发送到系统输入失败')),
-        );
-      }
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('发送失败: $error')),
-        );
-      }
+  String _formatMessageTime(Int64 sentAt) {
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(sentAt.toInt() * 1000);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final messageDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    if (messageDate == today) {
+      // Today: show only time
+      return DateFormat('HH:mm').format(dateTime);
+    } else if (messageDate == today.subtract(const Duration(days: 1))) {
+      // Yesterday
+      return '昨天 ${DateFormat('HH:mm').format(dateTime)}';
+    } else if (dateTime.year == now.year) {
+      // This year: show month/day and time
+      return DateFormat('MM/dd HH:mm').format(dateTime);
+    } else {
+      // Different year: show full date and time
+      return DateFormat('yyyy/MM/dd HH:mm').format(dateTime);
     }
   }
 }

@@ -43,33 +43,44 @@
 
         <div class="chat-messages" ref="messagesContainer">
           <div v-if="chatMessages.length === 0" class="no-messages">
-            还没有聊天消息
+            <div class="no-messages-icon">💬</div>
+            <div class="no-messages-text">还没有聊天消息</div>
+            <div class="no-messages-subtitle">开始对话吧！</div>
           </div>
           <div
             v-for="message in chatMessages"
             :key="message.messageId"
-            class="message"
+            class="message-wrapper"
             :class="{ 'from-me': message.senderClientId !== activeChatUser.clientId }"
           >
-            <div class="message-content">
-              {{ message.content }}
+            <div class="message-avatar">
+              <div class="avatar-circle" :class="{ 'me': message.senderClientId !== activeChatUser.clientId }">
+                {{ message.senderClientId !== activeChatUser.clientId ? '我' : (message.senderNickname?.charAt(0) || '用') }}
+              </div>
             </div>
-            <div class="message-time">
-              {{ formatTime(message.sentAt) }}
+            <div class="message-bubble">
+              <div class="message-content">
+                {{ message.content }}
+              </div>
+              <div class="message-time">
+                {{ formatTime(message.sentAt) }}
+              </div>
             </div>
           </div>
         </div>
 
         <div class="chat-input">
-          <input
-            v-model="messageInput"
-            @keyup.enter="sendMessage"
-            placeholder="输入消息..."
-            class="message-input"
-          />
-          <button @click="sendMessage" class="send-btn" :disabled="!messageInput.trim()">
-            <Icon name="send" />
-          </button>
+          <div class="input-wrapper">
+            <input
+              v-model="messageInput"
+              @keyup.enter="sendMessage"
+              placeholder="输入消息..."
+              class="message-input"
+            />
+            <button @click="sendMessage" class="send-btn" :disabled="!messageInput.trim()">
+              <Icon name="send" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -269,22 +280,25 @@ watch(() => chatStore.activeChatUser, (newActiveChatUser) => {
 }
 
 .chat-dialog {
-  width: 400px;
-  height: 500px;
-  background-color: rgb(var(--color-surface));
-  border-radius: 12px;
+  width: 450px;
+  height: 600px;
+  background: linear-gradient(135deg, rgb(var(--color-surface)) 0%, rgba(var(--color-surface-container), 0.8) 100%);
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
-  border-bottom: 1px solid rgba(var(--color-outline), 0.2);
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(var(--color-primary), 0.1) 0%, rgba(var(--color-primary), 0.05) 100%);
+  border-bottom: 1px solid rgba(var(--color-outline), 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .chat-user-info {
@@ -313,89 +327,220 @@ watch(() => chatStore.activeChatUser, (newActiveChatUser) => {
 
 .chat-messages {
   flex: 1;
-  padding: 16px;
+  padding: 20px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
+  background: linear-gradient(180deg, rgba(var(--color-surface-container), 0.3) 0%, rgba(var(--color-surface-container), 0.1) 100%);
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background: rgba(var(--color-on-surface-variant), 0.3);
+  border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--color-on-surface-variant), 0.5);
 }
 
 .no-messages {
   text-align: center;
   color: rgb(var(--color-on-surface-variant));
-  margin-top: 50%;
-}
-
-.message {
+  margin-top: 40%;
   display: flex;
   flex-direction: column;
-  max-width: 70%;
+  align-items: center;
+  gap: 8px;
 }
 
-.message.from-me {
+.no-messages-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+}
+
+.no-messages-text {
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.no-messages-subtitle {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.message-wrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 80%;
+  margin-bottom: 4px;
+}
+
+.message-wrapper.from-me {
   align-self: flex-end;
+  flex-direction: row-reverse;
 }
 
-.message-content {
-  padding: 12px;
-  border-radius: 12px;
-  background-color: rgba(var(--color-surface-container-highest), 1);
-  color: rgb(var(--color-on-surface));
+.message-avatar {
+  flex-shrink: 0;
+  margin-bottom: 4px;
 }
 
-.message.from-me .message-content {
-  background-color: rgb(var(--color-primary));
+.avatar-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(var(--color-secondary), 0.8) 0%, rgba(var(--color-secondary), 0.6) 100%);
+  color: rgb(var(--color-on-secondary));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-circle.me {
+  background: linear-gradient(135deg, rgba(var(--color-primary), 0.9) 0%, rgba(var(--color-primary), 0.7) 100%);
   color: rgb(var(--color-on-primary));
 }
 
-.message-time {
-  font-size: 0.75rem;
-  color: rgb(var(--color-on-surface-variant));
-  margin-top: 4px;
-  align-self: flex-end;
+.message-bubble {
+  display: flex;
+  flex-direction: column;
+  max-width: 100%;
 }
 
-.message.from-me .message-time {
+.message-content {
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(var(--color-surface-container-highest), 0.9) 0%, rgba(var(--color-surface-container), 0.8) 100%);
+  color: rgb(var(--color-on-surface));
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(var(--color-outline), 0.1);
+  position: relative;
+  word-wrap: break-word;
+}
+
+.message-wrapper.from-me .message-content {
+  background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgba(var(--color-primary), 0.9) 100%);
+  color: rgb(var(--color-on-primary));
+  box-shadow: 0 3px 16px rgba(var(--color-primary), 0.3);
+}
+
+.message-wrapper.from-me .message-content::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid rgb(var(--color-primary));
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+.message-wrapper:not(.from-me) .message-content::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -6px;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-right: 6px solid rgba(var(--color-surface-container-highest), 0.9);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+
+.message-time {
+  font-size: 0.7rem;
+  color: rgba(var(--color-on-surface-variant), 0.7);
+  margin-top: 4px;
+  padding: 0 4px;
+}
+
+.message-wrapper.from-me .message-time {
   align-self: flex-start;
 }
 
+.message-wrapper:not(.from-me) .message-time {
+  align-self: flex-end;
+}
+
 .chat-input {
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(var(--color-surface-container), 0.5) 0%, rgba(var(--color-surface), 0.8) 100%);
+  border-top: 1px solid rgba(var(--color-outline), 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.input-wrapper {
   display: flex;
-  padding: 16px;
-  gap: 8px;
-  border-top: 1px solid rgba(var(--color-outline), 0.2);
+  gap: 12px;
+  align-items: flex-end;
+  background: rgba(var(--color-surface), 0.9);
+  border-radius: 24px;
+  padding: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(var(--color-outline), 0.1);
 }
 
 .message-input {
   flex: 1;
-  padding: 8px 12px;
-  border: 1px solid rgba(var(--color-outline), 0.3);
-  border-radius: 8px;
-  background-color: rgb(var(--color-surface));
+  padding: 12px 16px;
+  border: none;
+  border-radius: 20px;
+  background-color: transparent;
   color: rgb(var(--color-on-surface));
+  font-size: 0.95rem;
+  resize: none;
+  outline: none;
 }
 
-.message-input:focus {
-  outline: none;
-  border-color: rgb(var(--color-primary));
+.message-input::placeholder {
+  color: rgba(var(--color-on-surface-variant), 0.6);
 }
 
 .send-btn {
-  padding: 8px 12px;
+  width: 40px;
+  height: 40px;
   border: none;
-  background-color: rgb(var(--color-primary));
+  background: linear-gradient(135deg, rgb(var(--color-primary)) 0%, rgba(var(--color-primary), 0.8) 100%);
   color: rgb(var(--color-on-primary));
-  border-radius: 8px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(var(--color-primary), 0.3);
 }
 
 .send-btn:hover:not(:disabled) {
-  background-color: rgba(var(--color-primary), 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(var(--color-primary), 0.4);
+}
+
+.send-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .send-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(var(--color-primary), 0.1);
 }
 </style>
