@@ -8,7 +8,7 @@ import '../services/websocket_service.dart';
 import '../services/window_service.dart';
 import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
-import '../proto/agentassist.pb.dart';
+import '../proto/agentassist.pb.dart' as pb;
 
 /// Chat provider for managing chat state and WebSocket communication
 class ChatProvider extends ChangeNotifier {
@@ -163,7 +163,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Handle incoming WebSocket messages
-  void _handleWebSocketMessage(WebsocketMessage message) {
+  void _handleWebSocketMessage(pb.WebsocketMessage message) {
     _logger.d('Handling WebSocket message: ${message.cmd}');
 
     switch (message.cmd) {
@@ -191,7 +191,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Handle ask question message
-  void _handleAskQuestionMessage(AskQuestionRequest request) {
+  void _handleAskQuestionMessage(pb.AskQuestionRequest request) {
     final chatMessage = ChatMessage.fromAskQuestionRequest(request);
     _addMessage(chatMessage);
     _logger.i('Received question: ${request.request.question}');
@@ -201,7 +201,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Handle task finish message
-  void _handleTaskFinishMessage(TaskFinishRequest request) {
+  void _handleTaskFinishMessage(pb.TaskFinishRequest request) {
     final chatMessage = ChatMessage.fromTaskFinishRequest(request);
     _addMessage(chatMessage);
     _logger.i('Received task finish: ${request.request.summary}');
@@ -211,7 +211,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Handle ask question reply notification
-  void _handleAskQuestionReplyNotification(WebsocketMessage message) {
+  void _handleAskQuestionReplyNotification(pb.WebsocketMessage message) {
     if (!message.hasAskQuestionRequest()) {
       _logger.w('AskQuestionReplyNotification missing request data');
       return;
@@ -277,7 +277,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Handle task finish reply notification
-  void _handleTaskFinishReplyNotification(WebsocketMessage message) {
+  void _handleTaskFinishReplyNotification(pb.WebsocketMessage message) {
     if (!message.hasTaskFinishRequest()) {
       _logger.w('TaskFinishReplyNotification missing request data');
       return;
@@ -343,7 +343,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Handle request cancelled notification
-  void _handleRequestCancelledNotification(WebsocketMessage message) {
+  void _handleRequestCancelledNotification(pb.WebsocketMessage message) {
     if (!message.hasRequestCancelledNotification()) {
       _logger.w('RequestCancelled message missing notification data');
       return;
@@ -373,7 +373,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Handle get pending messages response
-  void _handleGetPendingMessagesResponse(WebsocketMessage message) {
+  void _handleGetPendingMessagesResponse(pb.WebsocketMessage message) {
     if (!message.hasGetPendingMessagesResponse()) {
       _logger.w('GetPendingMessages response missing response data');
       return;
@@ -422,22 +422,22 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       // Create response
-      final response = AskQuestionResponse()
+      final response = pb.AskQuestionResponse()
         ..iD = message.requestId
         ..isError = false
         ..contents.addAll([
-          McpResultContent()
-            ..type = ContentTypes.text
-            ..text = (TextContent()
+          pb.McpResultContent()
+            ..type = 1 // text content type
+            ..text = (pb.TextContent()
               ..type = 'text'
               ..text = replyText),
         ]);
 
       // Create original request for reply
-      final originalRequest = AskQuestionRequest()
+      final originalRequest = pb.AskQuestionRequest()
         ..iD = message.requestId
         ..userToken = _currentToken ?? ''
-        ..request = (McpAskQuestionRequest()
+        ..request = (pb.McpAskQuestionRequest()
           ..projectDirectory = message.projectDirectory ?? ''
           ..question = message.question ?? '');
 
@@ -468,25 +468,25 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       // Create response
-      final response = TaskFinishResponse()
+      final response = pb.TaskFinishResponse()
         ..iD = message.requestId
         ..isError = false;
 
       if (confirmText != null && confirmText.isNotEmpty) {
         response.contents.add(
-          McpResultContent()
-            ..type = ContentTypes.text
-            ..text = (TextContent()
+          pb.McpResultContent()
+            ..type = 1 // text content type
+            ..text = (pb.TextContent()
               ..type = 'text'
               ..text = confirmText),
         );
       }
 
       // Create original request for reply
-      final originalRequest = TaskFinishRequest()
+      final originalRequest = pb.TaskFinishRequest()
         ..iD = message.requestId
         ..userToken = _currentToken ?? ''
-        ..request = (McpTaskFinishRequest()
+        ..request = (pb.McpTaskFinishRequest()
           ..projectDirectory = message.projectDirectory ?? ''
           ..summary = message.summary ?? '');
 
