@@ -1736,6 +1736,82 @@ class UserLoginResponse extends $pb.GeneratedMessage {
   void clearErrorMessage() => $_clearField(3);
 }
 
+/// UserConnectionStatusNotification represents a notification when a user connects or disconnects
+class UserConnectionStatusNotification extends $pb.GeneratedMessage {
+  factory UserConnectionStatusNotification({
+    OnlineUser? user,
+    $core.String? status,
+    $fixnum.Int64? timestamp,
+  }) {
+    final result = create();
+    if (user != null) result.user = user;
+    if (status != null) result.status = status;
+    if (timestamp != null) result.timestamp = timestamp;
+    return result;
+  }
+
+  UserConnectionStatusNotification._();
+
+  factory UserConnectionStatusNotification.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory UserConnectionStatusNotification.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UserConnectionStatusNotification', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOM<OnlineUser>(1, _omitFieldNames ? '' : 'user', subBuilder: OnlineUser.create)
+    ..aOS(2, _omitFieldNames ? '' : 'status')
+    ..aInt64(3, _omitFieldNames ? '' : 'timestamp')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UserConnectionStatusNotification clone() => UserConnectionStatusNotification()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UserConnectionStatusNotification copyWith(void Function(UserConnectionStatusNotification) updates) => super.copyWith((message) => updates(message as UserConnectionStatusNotification)) as UserConnectionStatusNotification;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UserConnectionStatusNotification create() => UserConnectionStatusNotification._();
+  @$core.override
+  UserConnectionStatusNotification createEmptyInstance() => create();
+  static $pb.PbList<UserConnectionStatusNotification> createRepeated() => $pb.PbList<UserConnectionStatusNotification>();
+  @$core.pragma('dart2js:noInline')
+  static UserConnectionStatusNotification getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserConnectionStatusNotification>(create);
+  static UserConnectionStatusNotification? _defaultInstance;
+
+  /// the user who connected/disconnected
+  @$pb.TagNumber(1)
+  OnlineUser get user => $_getN(0);
+  @$pb.TagNumber(1)
+  set user(OnlineUser value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasUser() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUser() => $_clearField(1);
+  @$pb.TagNumber(1)
+  OnlineUser ensureUser() => $_ensure(0);
+
+  /// connection status: "connected" or "disconnected"
+  @$pb.TagNumber(2)
+  $core.String get status => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set status($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasStatus() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearStatus() => $_clearField(2);
+
+  /// timestamp of the status change
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get timestamp => $_getI64(2);
+  @$pb.TagNumber(3)
+  set timestamp($fixnum.Int64 value) => $_setInt64(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTimestamp() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTimestamp() => $_clearField(3);
+}
+
 class WebsocketMessage extends $pb.GeneratedMessage {
   factory WebsocketMessage({
     $core.String? cmd,
@@ -1755,6 +1831,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     SendChatMessageRequest? sendChatMessageRequest,
     ChatMessageNotification? chatMessageNotification,
     UserLoginResponse? userLoginResponse,
+    UserConnectionStatusNotification? userConnectionStatusNotification,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -1774,6 +1851,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (sendChatMessageRequest != null) result.sendChatMessageRequest = sendChatMessageRequest;
     if (chatMessageNotification != null) result.chatMessageNotification = chatMessageNotification;
     if (userLoginResponse != null) result.userLoginResponse = userLoginResponse;
+    if (userConnectionStatusNotification != null) result.userConnectionStatusNotification = userConnectionStatusNotification;
     return result;
   }
 
@@ -1800,6 +1878,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<SendChatMessageRequest>(21, _omitFieldNames ? '' : 'SendChatMessageRequest', protoName: 'SendChatMessageRequest', subBuilder: SendChatMessageRequest.create)
     ..aOM<ChatMessageNotification>(22, _omitFieldNames ? '' : 'ChatMessageNotification', protoName: 'ChatMessageNotification', subBuilder: ChatMessageNotification.create)
     ..aOM<UserLoginResponse>(23, _omitFieldNames ? '' : 'UserLoginResponse', protoName: 'UserLoginResponse', subBuilder: UserLoginResponse.create)
+    ..aOM<UserConnectionStatusNotification>(24, _omitFieldNames ? '' : 'UserConnectionStatusNotification', protoName: 'UserConnectionStatusNotification', subBuilder: UserConnectionStatusNotification.create)
     ..hasRequiredFields = false
   ;
 
@@ -2030,6 +2109,18 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearUserLoginResponse() => $_clearField(23);
   @$pb.TagNumber(23)
   UserLoginResponse ensureUserLoginResponse() => $_ensure(16);
+
+  /// user connection status notification
+  @$pb.TagNumber(24)
+  UserConnectionStatusNotification get userConnectionStatusNotification => $_getN(17);
+  @$pb.TagNumber(24)
+  set userConnectionStatusNotification(UserConnectionStatusNotification value) => $_setField(24, value);
+  @$pb.TagNumber(24)
+  $core.bool hasUserConnectionStatusNotification() => $_has(17);
+  @$pb.TagNumber(24)
+  void clearUserConnectionStatusNotification() => $_clearField(24);
+  @$pb.TagNumber(24)
+  UserConnectionStatusNotification ensureUserConnectionStatusNotification() => $_ensure(17);
 }
 
 class SrvAgentAssistApi {

@@ -145,6 +145,14 @@ watch(chatMessages, () => {
     scrollToBottom()
   })
 }, { deep: true })
+
+// Watch for active chat user changes (e.g., when user disconnects)
+watch(() => chatStore.activeChatUser, (newActiveChatUser) => {
+  if (newActiveChatUser === null && activeChatUser.value) {
+    // Active chat user was cleared (likely due to disconnection)
+    activeChatUser.value = null
+  }
+})
 </script>
 
 <style scoped>

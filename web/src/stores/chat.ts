@@ -157,6 +157,9 @@ export const useChatStore = defineStore('chat', () => {
       case WebSocketCommands.USER_LOGIN:
         handleUserLoginResponse(message);
         break;
+      case WebSocketCommands.USER_CONNECTION_STATUS_NOTIFICATION:
+        handleUserConnectionStatusNotification(message);
+        break;
       default:
         console.log('Unknown message command:', message.Cmd);
     }
@@ -498,6 +501,36 @@ export const useChatStore = defineStore('chat', () => {
 
   function getChatMessages(clientId: string): ProtoChatMessage[] {
     return protoChatMessages.value.get(clientId) || [];
+  }
+
+  function handleUserConnectionStatusNotification(message: WebsocketMessage) {
+    if (message.UserConnectionStatusNotification) {
+      const notification = message.UserConnectionStatusNotification;
+      const user = notification.user;
+      const status = notification.status;
+
+      if (status === 'connected') {
+        // Add user to online users list if not already present
+        const existingUserIndex = onlineUsers.value.findIndex(u => u.clientId === user?.clientId);
+        if (existingUserIndex === -1 && user && user.clientId !== currentClientId.value) {
+          onlineUsers.value.push(user);
+          console.log(`User ${user.nickname} (${user.clientId}) connected`);
+        }
+      } else if (status === 'disconnected') {
+        // Remove user from online users list
+        const userIndex = onlineUsers.value.findIndex(u => u.clientId === user?.clientId);
+        if (userIndex !== -1) {
+          const disconnectedUser = onlineUsers.value[userIndex];
+          onlineUsers.value.splice(userIndex, 1);
+          console.log(`User ${disconnectedUser?.nickname} (${disconnectedUser?.clientId}) disconnected`);
+
+          // Close chat dialog if it's open for this user
+          if (activeChatUser.value === user?.clientId) {
+            setActiveChatUser(null);
+          }
+        }
+      }
+    }
   }
 
   return {

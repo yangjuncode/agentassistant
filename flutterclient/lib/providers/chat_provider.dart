@@ -122,6 +122,8 @@ class ChatProvider extends ChangeNotifier {
           _logger.i('Auto-connection successful');
           // Fetch pending messages after successful connection
           await fetchPendingMessages();
+          // Request online users after successful connection
+          await requestOnlineUsers();
           return true;
         } else {
           _logger.w('Auto-connection failed: not connected after timeout');
@@ -198,6 +200,9 @@ class ChatProvider extends ChangeNotifier {
         break;
       case WebSocketCommands.chatMessageNotification:
         _handleChatMessageNotification(message);
+        break;
+      case WebSocketCommands.userConnectionStatusNotification:
+        _handleUserConnectionStatusNotification(message);
         break;
       default:
         _logger.w('Unknown message command: ${message.cmd}');
@@ -707,6 +712,45 @@ class ChatProvider extends ChangeNotifier {
 
     // Bring window to front when new chat message is received
     _bringWindowToFrontIfNeeded();
+  }
+
+  /// Handle user connection status notification
+  void _handleUserConnectionStatusNotification(pb.WebsocketMessage message) {
+    if (!message.hasUserConnectionStatusNotification()) {
+      _logger.w('UserConnectionStatusNotification missing notification data');
+      return;
+    }
+
+    final notification = message.userConnectionStatusNotification;
+    final user = notification.user;
+    final status = notification.status;
+
+    if (status == 'connected') {
+      // Add user to online users list if not already present
+      final existingIndex =
+          _onlineUsers.indexWhere((u) => u.clientId == user.clientId);
+      if (existingIndex == -1 && user.clientId != currentClientId) {
+        _onlineUsers.add(user);
+        _logger.i('User ${user.nickname} (${user.clientId}) connected');
+      }
+    } else if (status == 'disconnected') {
+      // Remove user from online users list
+      final userIndex =
+          _onlineUsers.indexWhere((u) => u.clientId == user.clientId);
+      if (userIndex != -1) {
+        final disconnectedUser = _onlineUsers[userIndex];
+        _onlineUsers.removeAt(userIndex);
+        _logger.i(
+            'User ${disconnectedUser.nickname} (${disconnectedUser.clientId}) disconnected');
+
+        // Close chat dialog if it's open for this user
+        if (_activeChatUserId == user.clientId) {
+          setActiveChatUser(null);
+        }
+      }
+    }
+
+    notifyListeners();
   }
 
   /// Request online users from server

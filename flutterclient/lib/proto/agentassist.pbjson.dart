@@ -437,6 +437,22 @@ final $typed_data.Uint8List userLoginResponseDescriptor = $convert.base64Decode(
     'ChFVc2VyTG9naW5SZXNwb25zZRIbCgljbGllbnRfaWQYASABKAlSCGNsaWVudElkEhgKB3N1Y2'
     'Nlc3MYAiABKAhSB3N1Y2Nlc3MSIwoNZXJyb3JfbWVzc2FnZRgDIAEoCVIMZXJyb3JNZXNzYWdl');
 
+@$core.Deprecated('Use userConnectionStatusNotificationDescriptor instead')
+const UserConnectionStatusNotification$json = {
+  '1': 'UserConnectionStatusNotification',
+  '2': [
+    {'1': 'user', '3': 1, '4': 1, '5': 11, '6': '.agentassistproto.OnlineUser', '10': 'user'},
+    {'1': 'status', '3': 2, '4': 1, '5': 9, '10': 'status'},
+    {'1': 'timestamp', '3': 3, '4': 1, '5': 3, '10': 'timestamp'},
+  ],
+};
+
+/// Descriptor for `UserConnectionStatusNotification`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userConnectionStatusNotificationDescriptor = $convert.base64Decode(
+    'CiBVc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhIwCgR1c2VyGAEgASgLMhwuYWdlbn'
+    'Rhc3Npc3Rwcm90by5PbmxpbmVVc2VyUgR1c2VyEhYKBnN0YXR1cxgCIAEoCVIGc3RhdHVzEhwK'
+    'CXRpbWVzdGFtcBgDIAEoA1IJdGltZXN0YW1w');
+
 @$core.Deprecated('Use websocketMessageDescriptor instead')
 const WebsocketMessage$json = {
   '1': 'WebsocketMessage',
@@ -456,6 +472,7 @@ const WebsocketMessage$json = {
     {'1': 'SendChatMessageRequest', '3': 21, '4': 1, '5': 11, '6': '.agentassistproto.SendChatMessageRequest', '10': 'SendChatMessageRequest'},
     {'1': 'ChatMessageNotification', '3': 22, '4': 1, '5': 11, '6': '.agentassistproto.ChatMessageNotification', '10': 'ChatMessageNotification'},
     {'1': 'UserLoginResponse', '3': 23, '4': 1, '5': 11, '6': '.agentassistproto.UserLoginResponse', '10': 'UserLoginResponse'},
+    {'1': 'UserConnectionStatusNotification', '3': 24, '4': 1, '5': 11, '6': '.agentassistproto.UserConnectionStatusNotification', '10': 'UserConnectionStatusNotification'},
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
     {'1': 'Nickname', '3': 18, '4': 1, '5': 9, '10': 'Nickname'},
   ],
@@ -488,8 +505,10 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'c3NhZ2VSZXF1ZXN0EmMKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3'
     'Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvblIXQ2hhdE1lc3NhZ2VOb3RpZmljYXRp'
     'b24SUQoRVXNlckxvZ2luUmVzcG9uc2UYFyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlVzZXJMb2'
-    'dpblJlc3BvbnNlUhFVc2VyTG9naW5SZXNwb25zZRIaCghTdHJQYXJhbRgMIAEoCVIIU3RyUGFy'
-    'YW0SGgoITmlja25hbWUYEiABKAlSCE5pY2tuYW1l');
+    'dpblJlc3BvbnNlUhFVc2VyTG9naW5SZXNwb25zZRJ+CiBVc2VyQ29ubmVjdGlvblN0YXR1c05v'
+    'dGlmaWNhdGlvbhgYIAEoCzIyLmFnZW50YXNzaXN0cHJvdG8uVXNlckNvbm5lY3Rpb25TdGF0dX'
+    'NOb3RpZmljYXRpb25SIFVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEhoKCFN0clBh'
+    'cmFtGAwgASgJUghTdHJQYXJhbRIaCghOaWNrbmFtZRgSIAEoCVIITmlja25hbWU=');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',

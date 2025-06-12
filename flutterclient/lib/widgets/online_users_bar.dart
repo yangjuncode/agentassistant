@@ -192,10 +192,23 @@ class _ChatDialogState extends State<_ChatDialog> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
     });
+
+    // Listen for active chat user changes (e.g., when user disconnects)
+    widget.chatProvider.addListener(_onChatProviderChanged);
+  }
+
+  void _onChatProviderChanged() {
+    // If the active chat user was cleared (likely due to disconnection), close dialog
+    if (widget.chatProvider.activeChatUserId == null) {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   @override
   void dispose() {
+    widget.chatProvider.removeListener(_onChatProviderChanged);
     _messageController.dispose();
     _scrollController.dispose();
     widget.chatProvider.setActiveChatUser(null);

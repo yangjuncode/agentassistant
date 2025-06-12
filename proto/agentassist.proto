@@ -223,6 +223,16 @@ message UserLoginResponse {
   string error_message = 3;
 }
 
+// UserConnectionStatusNotification represents a notification when a user connects or disconnects
+message UserConnectionStatusNotification {
+  // the user who connected/disconnected
+  OnlineUser user = 1;
+  // connection status: "connected" or "disconnected"
+  string status = 2;
+  // timestamp of the status change
+  int64 timestamp = 3;
+}
+
 
 
 message WebsocketMessage {
@@ -283,6 +293,9 @@ message WebsocketMessage {
 
   // user login response
   UserLoginResponse UserLoginResponse = 23;
+
+  // user connection status notification
+  UserConnectionStatusNotification UserConnectionStatusNotification = 24;
 
   //str param
   string StrParam = 12;

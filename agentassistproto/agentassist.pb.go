@@ -1547,6 +1547,70 @@ func (x *UserLoginResponse) GetErrorMessage() string {
 	return ""
 }
 
+// UserConnectionStatusNotification represents a notification when a user connects or disconnects
+type UserConnectionStatusNotification struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// the user who connected/disconnected
+	User *OnlineUser `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
+	// connection status: "connected" or "disconnected"
+	Status string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
+	// timestamp of the status change
+	Timestamp     int64 `protobuf:"varint,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UserConnectionStatusNotification) Reset() {
+	*x = UserConnectionStatusNotification{}
+	mi := &file_agentassist_proto_msgTypes[25]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UserConnectionStatusNotification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UserConnectionStatusNotification) ProtoMessage() {}
+
+func (x *UserConnectionStatusNotification) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[25]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UserConnectionStatusNotification.ProtoReflect.Descriptor instead.
+func (*UserConnectionStatusNotification) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{25}
+}
+
+func (x *UserConnectionStatusNotification) GetUser() *OnlineUser {
+	if x != nil {
+		return x.User
+	}
+	return nil
+}
+
+func (x *UserConnectionStatusNotification) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *UserConnectionStatusNotification) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
+}
+
 type WebsocketMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// WebsocketMessage cmd
@@ -1592,6 +1656,8 @@ type WebsocketMessage struct {
 	ChatMessageNotification *ChatMessageNotification `protobuf:"bytes,22,opt,name=ChatMessageNotification,proto3" json:"ChatMessageNotification,omitempty"`
 	// user login response
 	UserLoginResponse *UserLoginResponse `protobuf:"bytes,23,opt,name=UserLoginResponse,proto3" json:"UserLoginResponse,omitempty"`
+	// user connection status notification
+	UserConnectionStatusNotification *UserConnectionStatusNotification `protobuf:"bytes,24,opt,name=UserConnectionStatusNotification,proto3" json:"UserConnectionStatusNotification,omitempty"`
 	// str param
 	StrParam string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
 	// user nickname (for UserLogin and notifications)
@@ -1602,7 +1668,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_agentassist_proto_msgTypes[25]
+	mi := &file_agentassist_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1614,7 +1680,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[25]
+	mi := &file_agentassist_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1627,7 +1693,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{25}
+	return file_agentassist_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *WebsocketMessage) GetCmd() string {
@@ -1731,6 +1797,13 @@ func (x *WebsocketMessage) GetChatMessageNotification() *ChatMessageNotification
 func (x *WebsocketMessage) GetUserLoginResponse() *UserLoginResponse {
 	if x != nil {
 		return x.UserLoginResponse
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetUserConnectionStatusNotification() *UserConnectionStatusNotification {
+	if x != nil {
+		return x.UserConnectionStatusNotification
 	}
 	return nil
 }
@@ -1866,7 +1939,11 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x11UserLoginResponse\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12#\n" +
-	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\xc1\v\n" +
+	"\rerror_message\x18\x03 \x01(\tR\ferrorMessage\"\x8a\x01\n" +
+	" UserConnectionStatusNotification\x120\n" +
+	"\x04user\x18\x01 \x01(\v2\x1c.agentassistproto.OnlineUserR\x04user\x12\x16\n" +
+	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1c\n" +
+	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"\xc1\f\n" +
 	"\x10WebsocketMessage\x12\x10\n" +
 	"\x03Cmd\x18\x01 \x01(\tR\x03Cmd\x12T\n" +
 	"\x12AskQuestionRequest\x18\x02 \x01(\v2$.agentassistproto.AskQuestionRequestR\x12AskQuestionRequest\x12Q\n" +
@@ -1882,7 +1959,8 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x16GetOnlineUsersResponse\x18\x14 \x01(\v2(.agentassistproto.GetOnlineUsersResponseR\x16GetOnlineUsersResponse\x12`\n" +
 	"\x16SendChatMessageRequest\x18\x15 \x01(\v2(.agentassistproto.SendChatMessageRequestR\x16SendChatMessageRequest\x12c\n" +
 	"\x17ChatMessageNotification\x18\x16 \x01(\v2).agentassistproto.ChatMessageNotificationR\x17ChatMessageNotification\x12Q\n" +
-	"\x11UserLoginResponse\x18\x17 \x01(\v2#.agentassistproto.UserLoginResponseR\x11UserLoginResponse\x12\x1a\n" +
+	"\x11UserLoginResponse\x18\x17 \x01(\v2#.agentassistproto.UserLoginResponseR\x11UserLoginResponse\x12~\n" +
+	" UserConnectionStatusNotification\x18\x18 \x01(\v22.agentassistproto.UserConnectionStatusNotificationR UserConnectionStatusNotification\x12\x1a\n" +
 	"\bStrParam\x18\f \x01(\tR\bStrParam\x12\x1a\n" +
 	"\bNickname\x18\x12 \x01(\tR\bNickname2\xc5\x01\n" +
 	"\x0eSrvAgentAssist\x12Z\n" +
@@ -1902,37 +1980,38 @@ func file_agentassist_proto_rawDescGZIP() []byte {
 	return file_agentassist_proto_rawDescData
 }
 
-var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 29)
+var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_agentassist_proto_goTypes = []any{
-	(*TextContent)(nil),                  // 0: agentassistproto.TextContent
-	(*ImageContent)(nil),                 // 1: agentassistproto.ImageContent
-	(*AudioContent)(nil),                 // 2: agentassistproto.AudioContent
-	(*EmbeddedResource)(nil),             // 3: agentassistproto.EmbeddedResource
-	(*McpResultContent)(nil),             // 4: agentassistproto.McpResultContent
-	(*MsgEmpty)(nil),                     // 5: agentassistproto.MsgEmpty
-	(*McpAskQuestionRequest)(nil),        // 6: agentassistproto.McpAskQuestionRequest
-	(*AskQuestionRequest)(nil),           // 7: agentassistproto.AskQuestionRequest
-	(*AskQuestionResponse)(nil),          // 8: agentassistproto.AskQuestionResponse
-	(*McpTaskFinishRequest)(nil),         // 9: agentassistproto.McpTaskFinishRequest
-	(*TaskFinishRequest)(nil),            // 10: agentassistproto.TaskFinishRequest
-	(*TaskFinishResponse)(nil),           // 11: agentassistproto.TaskFinishResponse
-	(*CheckMessageValidityRequest)(nil),  // 12: agentassistproto.CheckMessageValidityRequest
-	(*CheckMessageValidityResponse)(nil), // 13: agentassistproto.CheckMessageValidityResponse
-	(*GetPendingMessagesRequest)(nil),    // 14: agentassistproto.GetPendingMessagesRequest
-	(*PendingMessage)(nil),               // 15: agentassistproto.PendingMessage
-	(*GetPendingMessagesResponse)(nil),   // 16: agentassistproto.GetPendingMessagesResponse
-	(*RequestCancelledNotification)(nil), // 17: agentassistproto.RequestCancelledNotification
-	(*OnlineUser)(nil),                   // 18: agentassistproto.OnlineUser
-	(*GetOnlineUsersRequest)(nil),        // 19: agentassistproto.GetOnlineUsersRequest
-	(*GetOnlineUsersResponse)(nil),       // 20: agentassistproto.GetOnlineUsersResponse
-	(*ChatMessage)(nil),                  // 21: agentassistproto.ChatMessage
-	(*SendChatMessageRequest)(nil),       // 22: agentassistproto.SendChatMessageRequest
-	(*ChatMessageNotification)(nil),      // 23: agentassistproto.ChatMessageNotification
-	(*UserLoginResponse)(nil),            // 24: agentassistproto.UserLoginResponse
-	(*WebsocketMessage)(nil),             // 25: agentassistproto.WebsocketMessage
-	nil,                                  // 26: agentassistproto.AskQuestionResponse.MetaEntry
-	nil,                                  // 27: agentassistproto.TaskFinishResponse.MetaEntry
-	nil,                                  // 28: agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	(*TextContent)(nil),                      // 0: agentassistproto.TextContent
+	(*ImageContent)(nil),                     // 1: agentassistproto.ImageContent
+	(*AudioContent)(nil),                     // 2: agentassistproto.AudioContent
+	(*EmbeddedResource)(nil),                 // 3: agentassistproto.EmbeddedResource
+	(*McpResultContent)(nil),                 // 4: agentassistproto.McpResultContent
+	(*MsgEmpty)(nil),                         // 5: agentassistproto.MsgEmpty
+	(*McpAskQuestionRequest)(nil),            // 6: agentassistproto.McpAskQuestionRequest
+	(*AskQuestionRequest)(nil),               // 7: agentassistproto.AskQuestionRequest
+	(*AskQuestionResponse)(nil),              // 8: agentassistproto.AskQuestionResponse
+	(*McpTaskFinishRequest)(nil),             // 9: agentassistproto.McpTaskFinishRequest
+	(*TaskFinishRequest)(nil),                // 10: agentassistproto.TaskFinishRequest
+	(*TaskFinishResponse)(nil),               // 11: agentassistproto.TaskFinishResponse
+	(*CheckMessageValidityRequest)(nil),      // 12: agentassistproto.CheckMessageValidityRequest
+	(*CheckMessageValidityResponse)(nil),     // 13: agentassistproto.CheckMessageValidityResponse
+	(*GetPendingMessagesRequest)(nil),        // 14: agentassistproto.GetPendingMessagesRequest
+	(*PendingMessage)(nil),                   // 15: agentassistproto.PendingMessage
+	(*GetPendingMessagesResponse)(nil),       // 16: agentassistproto.GetPendingMessagesResponse
+	(*RequestCancelledNotification)(nil),     // 17: agentassistproto.RequestCancelledNotification
+	(*OnlineUser)(nil),                       // 18: agentassistproto.OnlineUser
+	(*GetOnlineUsersRequest)(nil),            // 19: agentassistproto.GetOnlineUsersRequest
+	(*GetOnlineUsersResponse)(nil),           // 20: agentassistproto.GetOnlineUsersResponse
+	(*ChatMessage)(nil),                      // 21: agentassistproto.ChatMessage
+	(*SendChatMessageRequest)(nil),           // 22: agentassistproto.SendChatMessageRequest
+	(*ChatMessageNotification)(nil),          // 23: agentassistproto.ChatMessageNotification
+	(*UserLoginResponse)(nil),                // 24: agentassistproto.UserLoginResponse
+	(*UserConnectionStatusNotification)(nil), // 25: agentassistproto.UserConnectionStatusNotification
+	(*WebsocketMessage)(nil),                 // 26: agentassistproto.WebsocketMessage
+	nil,                                      // 27: agentassistproto.AskQuestionResponse.MetaEntry
+	nil,                                      // 28: agentassistproto.TaskFinishResponse.MetaEntry
+	nil,                                      // 29: agentassistproto.CheckMessageValidityResponse.ValidityEntry
 }
 var file_agentassist_proto_depIdxs = []int32{
 	0,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
@@ -1940,40 +2019,42 @@ var file_agentassist_proto_depIdxs = []int32{
 	2,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
 	3,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
 	6,  // 4: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
-	26, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
+	27, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
 	4,  // 6: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
 	9,  // 7: agentassistproto.TaskFinishRequest.Request:type_name -> agentassistproto.McpTaskFinishRequest
-	27, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
+	28, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
 	4,  // 9: agentassistproto.TaskFinishResponse.contents:type_name -> agentassistproto.McpResultContent
-	28, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	29, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
 	7,  // 11: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
 	10, // 12: agentassistproto.PendingMessage.task_finish_request:type_name -> agentassistproto.TaskFinishRequest
 	15, // 13: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
 	18, // 14: agentassistproto.GetOnlineUsersResponse.online_users:type_name -> agentassistproto.OnlineUser
 	21, // 15: agentassistproto.ChatMessageNotification.chat_message:type_name -> agentassistproto.ChatMessage
-	7,  // 16: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
-	10, // 17: agentassistproto.WebsocketMessage.TaskFinishRequest:type_name -> agentassistproto.TaskFinishRequest
-	8,  // 18: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
-	11, // 19: agentassistproto.WebsocketMessage.TaskFinishResponse:type_name -> agentassistproto.TaskFinishResponse
-	12, // 20: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
-	13, // 21: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
-	14, // 22: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
-	16, // 23: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
-	17, // 24: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
-	19, // 25: agentassistproto.WebsocketMessage.GetOnlineUsersRequest:type_name -> agentassistproto.GetOnlineUsersRequest
-	20, // 26: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
-	22, // 27: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
-	23, // 28: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
-	24, // 29: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
-	7,  // 30: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
-	10, // 31: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
-	8,  // 32: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
-	11, // 33: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
-	32, // [32:34] is the sub-list for method output_type
-	30, // [30:32] is the sub-list for method input_type
-	30, // [30:30] is the sub-list for extension type_name
-	30, // [30:30] is the sub-list for extension extendee
-	0,  // [0:30] is the sub-list for field type_name
+	18, // 16: agentassistproto.UserConnectionStatusNotification.user:type_name -> agentassistproto.OnlineUser
+	7,  // 17: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
+	10, // 18: agentassistproto.WebsocketMessage.TaskFinishRequest:type_name -> agentassistproto.TaskFinishRequest
+	8,  // 19: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
+	11, // 20: agentassistproto.WebsocketMessage.TaskFinishResponse:type_name -> agentassistproto.TaskFinishResponse
+	12, // 21: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
+	13, // 22: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
+	14, // 23: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
+	16, // 24: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
+	17, // 25: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
+	19, // 26: agentassistproto.WebsocketMessage.GetOnlineUsersRequest:type_name -> agentassistproto.GetOnlineUsersRequest
+	20, // 27: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
+	22, // 28: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
+	23, // 29: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
+	24, // 30: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
+	25, // 31: agentassistproto.WebsocketMessage.UserConnectionStatusNotification:type_name -> agentassistproto.UserConnectionStatusNotification
+	7,  // 32: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
+	10, // 33: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
+	8,  // 34: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
+	11, // 35: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
+	34, // [34:36] is the sub-list for method output_type
+	32, // [32:34] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_agentassist_proto_init() }
@@ -1987,7 +2068,7 @@ func file_agentassist_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agentassist_proto_rawDesc), len(file_agentassist_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   29,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

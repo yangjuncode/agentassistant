@@ -449,6 +449,38 @@ func (b *Broadcaster) SendChatMessage(senderClientID, receiverClientID, content 
 	return nil
 }
 
+// Broadcast to all clients with the same token, excluding the user themselves
+func (b *Broadcaster) BroadcastUserConnectionStatus(user *WebClient, status string) {
+	userToken := user.GetToken()
+	if userToken == "" {
+		return
+	}
+
+	notification := &agentassistproto.WebsocketMessage{ /* … */ }
+
+	// snapshot under read-lock
+	b.mu.RLock()
+	targets := make([]*WebClient, 0, len(b.clients))
+	for _, c := range b.clients {
+		if c.IsActive() && c.GetToken() == userToken && c.ID != user.ID {
+			targets = append(targets, c)
+		}
+	}
+	b.mu.RUnlock()
+
+	// fan-out without holding the lock
+	for _, c := range targets {
+		go func(cl *WebClient) {
+			if !cl.Send(notification) {
+				b.unregister <- cl
+			}
+		}(c)
+	}
+
+	log.Printf("Broadcasted user %s (%s) status: %s to %d clients with token %s",
+		user.GetNickname(), user.ID, status, len(targets), userToken)
+}
+
 // generateChatMessageID generates a unique chat message ID
 func generateChatMessageID() string {
 	return fmt.Sprintf("chat_%d_%s", time.Now().UnixNano(), randomString(6))

@@ -15,6 +15,8 @@ class WebSocketCommands {
   static const String getOnlineUsers = 'GetOnlineUsers';
   static const String sendChatMessage = 'SendChatMessage';
   static const String chatMessageNotification = 'ChatMessageNotification';
+  static const String userConnectionStatusNotification =
+      'UserConnectionStatusNotification';
 }
 
 /// Content type constants for McpResultContent

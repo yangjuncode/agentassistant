@@ -52,7 +52,13 @@ func (h *WebSocketHandler) HandleWebSocket(w http.ResponseWriter, r *http.Reques
 
 	// Register client with broadcaster
 	h.broadcaster.RegisterClient(client)
-	defer h.broadcaster.UnregisterClient(client)
+	defer func() {
+		// Broadcast disconnection status before unregistering
+		if client.GetToken() != "" {
+			h.broadcaster.BroadcastUserConnectionStatus(client, "disconnected")
+		}
+		h.broadcaster.UnregisterClient(client)
+	}()
 
 	// Set up ping/pong to keep connection alive
 	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
@@ -163,6 +169,9 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			} else {
 				log.Printf("Sent login response to client %s", client.ID)
 			}
+
+			// Broadcast user connection status to other clients with the same token
+			h.broadcaster.BroadcastUserConnectionStatus(client, "connected")
 		case "AskQuestionReply":
 			h.handleAskQuestionReply(client, &message)
 			h.broadcastAskQuestionReply(client, &message)
