@@ -1248,6 +1248,420 @@ class RequestCancelledNotification extends $pb.GeneratedMessage {
   void clearMessageType() => $_clearField(3);
 }
 
+/// OnlineUser represents an online user with the same token
+class OnlineUser extends $pb.GeneratedMessage {
+  factory OnlineUser({
+    $core.String? clientId,
+    $core.String? nickname,
+    $fixnum.Int64? connectedAt,
+  }) {
+    final result = create();
+    if (clientId != null) result.clientId = clientId;
+    if (nickname != null) result.nickname = nickname;
+    if (connectedAt != null) result.connectedAt = connectedAt;
+    return result;
+  }
+
+  OnlineUser._();
+
+  factory OnlineUser.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory OnlineUser.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'OnlineUser', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'clientId')
+    ..aOS(2, _omitFieldNames ? '' : 'nickname')
+    ..aInt64(3, _omitFieldNames ? '' : 'connectedAt')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  OnlineUser clone() => OnlineUser()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  OnlineUser copyWith(void Function(OnlineUser) updates) => super.copyWith((message) => updates(message as OnlineUser)) as OnlineUser;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static OnlineUser create() => OnlineUser._();
+  @$core.override
+  OnlineUser createEmptyInstance() => create();
+  static $pb.PbList<OnlineUser> createRepeated() => $pb.PbList<OnlineUser>();
+  @$core.pragma('dart2js:noInline')
+  static OnlineUser getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<OnlineUser>(create);
+  static OnlineUser? _defaultInstance;
+
+  /// client id
+  @$pb.TagNumber(1)
+  $core.String get clientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set clientId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearClientId() => $_clearField(1);
+
+  /// user nickname
+  @$pb.TagNumber(2)
+  $core.String get nickname => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set nickname($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasNickname() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearNickname() => $_clearField(2);
+
+  /// connection timestamp
+  @$pb.TagNumber(3)
+  $fixnum.Int64 get connectedAt => $_getI64(2);
+  @$pb.TagNumber(3)
+  set connectedAt($fixnum.Int64 value) => $_setInt64(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasConnectedAt() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearConnectedAt() => $_clearField(3);
+}
+
+/// GetOnlineUsersRequest represents a request to get online users with the same token
+class GetOnlineUsersRequest extends $pb.GeneratedMessage {
+  factory GetOnlineUsersRequest({
+    $core.String? userToken,
+  }) {
+    final result = create();
+    if (userToken != null) result.userToken = userToken;
+    return result;
+  }
+
+  GetOnlineUsersRequest._();
+
+  factory GetOnlineUsersRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory GetOnlineUsersRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetOnlineUsersRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'userToken')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetOnlineUsersRequest clone() => GetOnlineUsersRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetOnlineUsersRequest copyWith(void Function(GetOnlineUsersRequest) updates) => super.copyWith((message) => updates(message as GetOnlineUsersRequest)) as GetOnlineUsersRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetOnlineUsersRequest create() => GetOnlineUsersRequest._();
+  @$core.override
+  GetOnlineUsersRequest createEmptyInstance() => create();
+  static $pb.PbList<GetOnlineUsersRequest> createRepeated() => $pb.PbList<GetOnlineUsersRequest>();
+  @$core.pragma('dart2js:noInline')
+  static GetOnlineUsersRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetOnlineUsersRequest>(create);
+  static GetOnlineUsersRequest? _defaultInstance;
+
+  /// user token to filter users
+  @$pb.TagNumber(1)
+  $core.String get userToken => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set userToken($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasUserToken() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearUserToken() => $_clearField(1);
+}
+
+/// GetOnlineUsersResponse represents the response containing online users
+class GetOnlineUsersResponse extends $pb.GeneratedMessage {
+  factory GetOnlineUsersResponse({
+    $core.Iterable<OnlineUser>? onlineUsers,
+    $core.int? totalCount,
+  }) {
+    final result = create();
+    if (onlineUsers != null) result.onlineUsers.addAll(onlineUsers);
+    if (totalCount != null) result.totalCount = totalCount;
+    return result;
+  }
+
+  GetOnlineUsersResponse._();
+
+  factory GetOnlineUsersResponse.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory GetOnlineUsersResponse.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'GetOnlineUsersResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..pc<OnlineUser>(1, _omitFieldNames ? '' : 'onlineUsers', $pb.PbFieldType.PM, subBuilder: OnlineUser.create)
+    ..a<$core.int>(2, _omitFieldNames ? '' : 'totalCount', $pb.PbFieldType.O3)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetOnlineUsersResponse clone() => GetOnlineUsersResponse()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  GetOnlineUsersResponse copyWith(void Function(GetOnlineUsersResponse) updates) => super.copyWith((message) => updates(message as GetOnlineUsersResponse)) as GetOnlineUsersResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static GetOnlineUsersResponse create() => GetOnlineUsersResponse._();
+  @$core.override
+  GetOnlineUsersResponse createEmptyInstance() => create();
+  static $pb.PbList<GetOnlineUsersResponse> createRepeated() => $pb.PbList<GetOnlineUsersResponse>();
+  @$core.pragma('dart2js:noInline')
+  static GetOnlineUsersResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<GetOnlineUsersResponse>(create);
+  static GetOnlineUsersResponse? _defaultInstance;
+
+  /// list of online users
+  @$pb.TagNumber(1)
+  $pb.PbList<OnlineUser> get onlineUsers => $_getList(0);
+
+  /// total count of online users
+  @$pb.TagNumber(2)
+  $core.int get totalCount => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set totalCount($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasTotalCount() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTotalCount() => $_clearField(2);
+}
+
+/// ChatMessage represents a chat message between users
+class ChatMessage extends $pb.GeneratedMessage {
+  factory ChatMessage({
+    $core.String? messageId,
+    $core.String? senderClientId,
+    $core.String? senderNickname,
+    $core.String? receiverClientId,
+    $core.String? receiverNickname,
+    $core.String? content,
+    $fixnum.Int64? sentAt,
+  }) {
+    final result = create();
+    if (messageId != null) result.messageId = messageId;
+    if (senderClientId != null) result.senderClientId = senderClientId;
+    if (senderNickname != null) result.senderNickname = senderNickname;
+    if (receiverClientId != null) result.receiverClientId = receiverClientId;
+    if (receiverNickname != null) result.receiverNickname = receiverNickname;
+    if (content != null) result.content = content;
+    if (sentAt != null) result.sentAt = sentAt;
+    return result;
+  }
+
+  ChatMessage._();
+
+  factory ChatMessage.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory ChatMessage.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ChatMessage', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'messageId')
+    ..aOS(2, _omitFieldNames ? '' : 'senderClientId')
+    ..aOS(3, _omitFieldNames ? '' : 'senderNickname')
+    ..aOS(4, _omitFieldNames ? '' : 'receiverClientId')
+    ..aOS(5, _omitFieldNames ? '' : 'receiverNickname')
+    ..aOS(6, _omitFieldNames ? '' : 'content')
+    ..aInt64(7, _omitFieldNames ? '' : 'sentAt')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ChatMessage clone() => ChatMessage()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ChatMessage copyWith(void Function(ChatMessage) updates) => super.copyWith((message) => updates(message as ChatMessage)) as ChatMessage;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ChatMessage create() => ChatMessage._();
+  @$core.override
+  ChatMessage createEmptyInstance() => create();
+  static $pb.PbList<ChatMessage> createRepeated() => $pb.PbList<ChatMessage>();
+  @$core.pragma('dart2js:noInline')
+  static ChatMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ChatMessage>(create);
+  static ChatMessage? _defaultInstance;
+
+  /// message id
+  @$pb.TagNumber(1)
+  $core.String get messageId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set messageId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasMessageId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMessageId() => $_clearField(1);
+
+  /// sender client id
+  @$pb.TagNumber(2)
+  $core.String get senderClientId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set senderClientId($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasSenderClientId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSenderClientId() => $_clearField(2);
+
+  /// sender nickname
+  @$pb.TagNumber(3)
+  $core.String get senderNickname => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set senderNickname($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasSenderNickname() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearSenderNickname() => $_clearField(3);
+
+  /// receiver client id
+  @$pb.TagNumber(4)
+  $core.String get receiverClientId => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set receiverClientId($core.String value) => $_setString(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasReceiverClientId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearReceiverClientId() => $_clearField(4);
+
+  /// receiver nickname
+  @$pb.TagNumber(5)
+  $core.String get receiverNickname => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set receiverNickname($core.String value) => $_setString(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasReceiverNickname() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearReceiverNickname() => $_clearField(5);
+
+  /// message content
+  @$pb.TagNumber(6)
+  $core.String get content => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set content($core.String value) => $_setString(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasContent() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearContent() => $_clearField(6);
+
+  /// timestamp when the message was sent
+  @$pb.TagNumber(7)
+  $fixnum.Int64 get sentAt => $_getI64(6);
+  @$pb.TagNumber(7)
+  set sentAt($fixnum.Int64 value) => $_setInt64(6, value);
+  @$pb.TagNumber(7)
+  $core.bool hasSentAt() => $_has(6);
+  @$pb.TagNumber(7)
+  void clearSentAt() => $_clearField(7);
+}
+
+/// SendChatMessageRequest represents a request to send a chat message
+class SendChatMessageRequest extends $pb.GeneratedMessage {
+  factory SendChatMessageRequest({
+    $core.String? receiverClientId,
+    $core.String? content,
+  }) {
+    final result = create();
+    if (receiverClientId != null) result.receiverClientId = receiverClientId;
+    if (content != null) result.content = content;
+    return result;
+  }
+
+  SendChatMessageRequest._();
+
+  factory SendChatMessageRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory SendChatMessageRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SendChatMessageRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'receiverClientId')
+    ..aOS(2, _omitFieldNames ? '' : 'content')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SendChatMessageRequest clone() => SendChatMessageRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SendChatMessageRequest copyWith(void Function(SendChatMessageRequest) updates) => super.copyWith((message) => updates(message as SendChatMessageRequest)) as SendChatMessageRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SendChatMessageRequest create() => SendChatMessageRequest._();
+  @$core.override
+  SendChatMessageRequest createEmptyInstance() => create();
+  static $pb.PbList<SendChatMessageRequest> createRepeated() => $pb.PbList<SendChatMessageRequest>();
+  @$core.pragma('dart2js:noInline')
+  static SendChatMessageRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SendChatMessageRequest>(create);
+  static SendChatMessageRequest? _defaultInstance;
+
+  /// receiver client id
+  @$pb.TagNumber(1)
+  $core.String get receiverClientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set receiverClientId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasReceiverClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearReceiverClientId() => $_clearField(1);
+
+  /// message content
+  @$pb.TagNumber(2)
+  $core.String get content => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set content($core.String value) => $_setString(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasContent() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearContent() => $_clearField(2);
+}
+
+/// ChatMessageNotification represents a notification of a new chat message
+class ChatMessageNotification extends $pb.GeneratedMessage {
+  factory ChatMessageNotification({
+    ChatMessage? chatMessage,
+  }) {
+    final result = create();
+    if (chatMessage != null) result.chatMessage = chatMessage;
+    return result;
+  }
+
+  ChatMessageNotification._();
+
+  factory ChatMessageNotification.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory ChatMessageNotification.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ChatMessageNotification', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOM<ChatMessage>(1, _omitFieldNames ? '' : 'chatMessage', subBuilder: ChatMessage.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ChatMessageNotification clone() => ChatMessageNotification()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ChatMessageNotification copyWith(void Function(ChatMessageNotification) updates) => super.copyWith((message) => updates(message as ChatMessageNotification)) as ChatMessageNotification;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ChatMessageNotification create() => ChatMessageNotification._();
+  @$core.override
+  ChatMessageNotification createEmptyInstance() => create();
+  static $pb.PbList<ChatMessageNotification> createRepeated() => $pb.PbList<ChatMessageNotification>();
+  @$core.pragma('dart2js:noInline')
+  static ChatMessageNotification getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ChatMessageNotification>(create);
+  static ChatMessageNotification? _defaultInstance;
+
+  /// the chat message
+  @$pb.TagNumber(1)
+  ChatMessage get chatMessage => $_getN(0);
+  @$pb.TagNumber(1)
+  set chatMessage(ChatMessage value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasChatMessage() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearChatMessage() => $_clearField(1);
+  @$pb.TagNumber(1)
+  ChatMessage ensureChatMessage() => $_ensure(0);
+}
+
 class WebsocketMessage extends $pb.GeneratedMessage {
   factory WebsocketMessage({
     $core.String? cmd,
@@ -1262,6 +1676,10 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     GetPendingMessagesResponse? getPendingMessagesResponse,
     RequestCancelledNotification? requestCancelledNotification,
     $core.String? nickname,
+    GetOnlineUsersRequest? getOnlineUsersRequest,
+    GetOnlineUsersResponse? getOnlineUsersResponse,
+    SendChatMessageRequest? sendChatMessageRequest,
+    ChatMessageNotification? chatMessageNotification,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -1276,6 +1694,10 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (getPendingMessagesResponse != null) result.getPendingMessagesResponse = getPendingMessagesResponse;
     if (requestCancelledNotification != null) result.requestCancelledNotification = requestCancelledNotification;
     if (nickname != null) result.nickname = nickname;
+    if (getOnlineUsersRequest != null) result.getOnlineUsersRequest = getOnlineUsersRequest;
+    if (getOnlineUsersResponse != null) result.getOnlineUsersResponse = getOnlineUsersResponse;
+    if (sendChatMessageRequest != null) result.sendChatMessageRequest = sendChatMessageRequest;
+    if (chatMessageNotification != null) result.chatMessageNotification = chatMessageNotification;
     return result;
   }
 
@@ -1297,6 +1719,10 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<GetPendingMessagesResponse>(16, _omitFieldNames ? '' : 'GetPendingMessagesResponse', protoName: 'GetPendingMessagesResponse', subBuilder: GetPendingMessagesResponse.create)
     ..aOM<RequestCancelledNotification>(17, _omitFieldNames ? '' : 'RequestCancelledNotification', protoName: 'RequestCancelledNotification', subBuilder: RequestCancelledNotification.create)
     ..aOS(18, _omitFieldNames ? '' : 'Nickname', protoName: 'Nickname')
+    ..aOM<GetOnlineUsersRequest>(19, _omitFieldNames ? '' : 'GetOnlineUsersRequest', protoName: 'GetOnlineUsersRequest', subBuilder: GetOnlineUsersRequest.create)
+    ..aOM<GetOnlineUsersResponse>(20, _omitFieldNames ? '' : 'GetOnlineUsersResponse', protoName: 'GetOnlineUsersResponse', subBuilder: GetOnlineUsersResponse.create)
+    ..aOM<SendChatMessageRequest>(21, _omitFieldNames ? '' : 'SendChatMessageRequest', protoName: 'SendChatMessageRequest', subBuilder: SendChatMessageRequest.create)
+    ..aOM<ChatMessageNotification>(22, _omitFieldNames ? '' : 'ChatMessageNotification', protoName: 'ChatMessageNotification', subBuilder: ChatMessageNotification.create)
     ..hasRequiredFields = false
   ;
 
@@ -1328,6 +1754,9 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// CheckMessageValidity: check if messages are still valid
   /// GetPendingMessages: get all pending messages for a user
   /// RequestCancelled: notification that a request has been cancelled
+  /// GetOnlineUsers: get online users with the same token
+  /// SendChatMessage: send a chat message to another user
+  /// ChatMessageNotification: notification of a new chat message
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -1464,6 +1893,54 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   $core.bool hasNickname() => $_has(11);
   @$pb.TagNumber(18)
   void clearNickname() => $_clearField(18);
+
+  /// get online users request
+  @$pb.TagNumber(19)
+  GetOnlineUsersRequest get getOnlineUsersRequest => $_getN(12);
+  @$pb.TagNumber(19)
+  set getOnlineUsersRequest(GetOnlineUsersRequest value) => $_setField(19, value);
+  @$pb.TagNumber(19)
+  $core.bool hasGetOnlineUsersRequest() => $_has(12);
+  @$pb.TagNumber(19)
+  void clearGetOnlineUsersRequest() => $_clearField(19);
+  @$pb.TagNumber(19)
+  GetOnlineUsersRequest ensureGetOnlineUsersRequest() => $_ensure(12);
+
+  /// get online users response
+  @$pb.TagNumber(20)
+  GetOnlineUsersResponse get getOnlineUsersResponse => $_getN(13);
+  @$pb.TagNumber(20)
+  set getOnlineUsersResponse(GetOnlineUsersResponse value) => $_setField(20, value);
+  @$pb.TagNumber(20)
+  $core.bool hasGetOnlineUsersResponse() => $_has(13);
+  @$pb.TagNumber(20)
+  void clearGetOnlineUsersResponse() => $_clearField(20);
+  @$pb.TagNumber(20)
+  GetOnlineUsersResponse ensureGetOnlineUsersResponse() => $_ensure(13);
+
+  /// send chat message request
+  @$pb.TagNumber(21)
+  SendChatMessageRequest get sendChatMessageRequest => $_getN(14);
+  @$pb.TagNumber(21)
+  set sendChatMessageRequest(SendChatMessageRequest value) => $_setField(21, value);
+  @$pb.TagNumber(21)
+  $core.bool hasSendChatMessageRequest() => $_has(14);
+  @$pb.TagNumber(21)
+  void clearSendChatMessageRequest() => $_clearField(21);
+  @$pb.TagNumber(21)
+  SendChatMessageRequest ensureSendChatMessageRequest() => $_ensure(14);
+
+  /// chat message notification
+  @$pb.TagNumber(22)
+  ChatMessageNotification get chatMessageNotification => $_getN(15);
+  @$pb.TagNumber(22)
+  set chatMessageNotification(ChatMessageNotification value) => $_setField(22, value);
+  @$pb.TagNumber(22)
+  $core.bool hasChatMessageNotification() => $_has(15);
+  @$pb.TagNumber(22)
+  void clearChatMessageNotification() => $_clearField(22);
+  @$pb.TagNumber(22)
+  ChatMessageNotification ensureChatMessageNotification() => $_ensure(15);
 }
 
 class SrvAgentAssistApi {

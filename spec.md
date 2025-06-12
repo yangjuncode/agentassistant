@@ -41,10 +41,10 @@ agentassistant_server_token = "test-token"
 
 1. 当 `SrvAgentAssist` RPC 服务被调用时，`agentassistant-srv` 会将请求转换为 `BroadcastRequest`。
 2. 该 `BroadcastRequest` 会被广播给所有使用相同 `token` 连接的 WebSocket 用户。
-3. 当用户通过 Web 界面回应时，`agentassistant-srv` 通过 `SrvAgentAssistReply` 服务中的相应 reply 方法接收回应。
+3. 当用户通过 web/flutter 界面回应时，`agentassistant-srv` 通过 `SrvAgentAssistReply` 服务中的相应 reply 方法接收回应。
 4. 最后，`agentassistant-srv` 将此结果返回给 `agentassistant-mcp`，后者再将其传递给 AI Agent。
 
-## Agent Assistant web 界面
+## Agent Assistant web/flutter 界面
 
 `agentassistant-srv` 的 Web 用户界面是用户与 Agent Assistant 系统进行交互的主要入口。它是一个现代化的单页应用程序 (SPA)，旨在提供流畅的用户体验。
 
@@ -70,15 +70,21 @@ agentassistant_server_token = "test-token"
 **工作流程：**
 
 1. 当用户通过 打开 `agentassistant-srv` 的 Web 用户界面时，url 参数中必须包含 ?token=xxx，xxx为 `agentassistant-mcp` 的 token.
-2. web 界面通过 WebSocket 连接 `agentassistant-srv`，并发送 `WebsocketMessage.UserLogin` 消息。
+2. web/flutter 界面通过 WebSocket 连接 `agentassistant-srv`，并发送 `WebsocketMessage.UserLogin` 消息。
 3. `agentassistant-srv` 接收到 `WebsocketMessage.UserLogin` 消息后，将用户登录状态存储在内存中。
 
-4. 当 `agentassistant-mcp` 发起 `ask_question` 时，`agentassistant-srv` 会向 Web 界面发送 `WebsocketMessage.AskQuestion` 消息（包含 `AskQuestionRequest`）。
-5. Web 界面接收到 `WebsocketMessage.AskQuestion` 消息后，将问题展示给用户。用户回复时，Web 界面将使用 websocket 发送 `agentassistant-srv` 的 `WebsocketMessage.cmd=AskQuestionReply` 消息 ，并附带用户的回复内容。
-6. `agentassistant-srv` 接收到来自 Web 界面的 `WebsocketMessage.cmd=AskQuestionReply` 后，将此回复转发给相应的 `agentassistant-mcp`。
-7. 当 `agentassistant-mcp` 发起 `task_finish` 时，`agentassistant-srv` 会向 Web 界面发送 `WebsocketMessage.TaskFinish` 消息（包含 `TaskFinishRequest`）。
-8. Web 界面接收到 `WebsocketMessage.TaskFinish` 消息后，通常会向用户展示任务已完成的通知。如果 `TaskFinishRequest` 中表明需要用户确认或有进一步的简单交互，用户通过界面操作后，Web 界面将使用 websocket 发送 `agentassistant-srv`  `WebsocketMessage.cmd=TaskFinishReply` 消息。
-9. `agentassistant-srv` 接收到来自 Web 界面的 `TaskFinishReply` 后（如果发生），将此回复转发给相应的 `agentassistant-mcp`。
+4. 当 `agentassistant-mcp` 发起 `ask_question` 时，`agentassistant-srv` 会向 web/flutter 界面发送 `WebsocketMessage.AskQuestion` 消息（包含 `AskQuestionRequest`）。
+5. web/flutter 界面接收到 `WebsocketMessage.AskQuestion` 消息后，将问题展示给用户。用户回复时，web/flutter 界面将使用 websocket 发送 `agentassistant-srv` 的 `WebsocketMessage.cmd=AskQuestionReply` 消息 ，并附带用户的回复内容。
+6. `agentassistant-srv` 接收到来自 web/flutter 界面的 `WebsocketMessage.cmd=AskQuestionReply` 后，将此回复转发给相应的 `agentassistant-mcp`。
+7. 当 `agentassistant-mcp` 发起 `task_finish` 时，`agentassistant-srv` 会向 web/flutter 界面发送 `WebsocketMessage.TaskFinish` 消息（包含 `TaskFinishRequest`）。
+8. web/flutter 界面接收到 `WebsocketMessage.TaskFinish` 消息后，通常会向用户展示任务已完成的通知。如果 `TaskFinishRequest` 中表明需要用户确认或有进一步的简单交互，用户通过界面操作后，web/flutter 界面将使用 websocket 发送 `agentassistant-srv`  `WebsocketMessage.cmd=TaskFinishReply` 消息。
+9. `agentassistant-srv` 接收到来自 web/flutter 界面的 `TaskFinishReply` 后（如果发生），将此回复转发给相应的 `agentassistant-mcp`。
+
+** 用户界面间的主动实时通信：**
+- 在多用户环境中，web/flutter 界面可以通过 WebSocket 实现主动通信。以方便使用不同的用户界面间的输入能力，比如手机端的语音输入，PC 端的文本输入等
+- 当一个用户界面在登录时，它向后台获取当前相同token的在线用户列表，并在界面标题栏目下方显示（nickname）。
+- 用户可以点击其他在线用户的nickname,进入对话聊天列表,在其中进行对话，对话内容不需要存储，只需要在用户界面间进行实时通信即可。
+- flutter pc 端有一个选项，可以将收到的对话文本作为输入内容，发送到当前系统，发送到当前系统的输入框中的功能实现为调用 agentassistant-input来实现。
 
 ## WebSocket 通信协议详细规范
 
@@ -114,7 +120,7 @@ WebsocketMessage {
 
 **使用场景：**
 
-- Web 界面建立 WebSocket 连接后立即发送
+- web/flutter 界面建立 WebSocket 连接后立即发送
 - 服务器验证令牌并存储用户登录状态
 - 只有通过验证的客户端才能接收后续的广播消息
 
@@ -144,11 +150,11 @@ WebsocketMessage {
 1. `agentassistant-mcp` 调用 `ask_question` 工具
 2. `agentassistant-srv` 接收 RPC 请求并转换为 WebSocket 消息
 3. 消息广播给所有匹配令牌的已连接客户端
-4. Web 界面展示问题并等待用户回复
+4. web/flutter 界面展示问题并等待用户回复
 
 #### 3. AskQuestionReply - 用户问题回复
 
-**用途：** 用户通过 Web 界面回复 AI 代理的问题
+**用途：** 用户通过 web/flutter 界面回复 AI 代理的问题
 
 **消息结构：**
 
@@ -175,8 +181,8 @@ WebsocketMessage {
 
 **工作流程：**
 
-1. 用户在 Web 界面中输入回复内容
-2. Web 界面发送 `AskQuestionReply` 消息
+1. 用户在 web/flutter 界面中输入回复内容
+2. web/flutter 界面发送 `AskQuestionReply` 消息
 3. `agentassistant-srv` 处理回复并转发给对应的 `agentassistant-mcp`
 4. 同时触发 `AskQuestionReplyNotification` 通知其他客户端
 
@@ -206,7 +212,7 @@ WebsocketMessage {
 1. `agentassistant-mcp` 调用 `task_finish` 工具
 2. `agentassistant-srv` 接收 RPC 请求并转换为 WebSocket 消息
 3. 消息广播给所有匹配令牌的已连接客户端
-4. Web 界面展示任务完成通知
+4. web/flutter 界面展示任务完成通知
 
 #### 5. TaskFinishReply - 任务完成确认
 
@@ -237,8 +243,8 @@ WebsocketMessage {
 
 **工作流程：**
 
-1. 用户在 Web 界面中确认任务完成或提供反馈
-2. Web 界面发送 `TaskFinishReply` 消息
+1. 用户在 web/flutter 界面中确认任务完成或提供反馈
+2. web/flutter 界面发送 `TaskFinishReply` 消息
 3. `agentassistant-srv` 处理回复并转发给对应的 `agentassistant-mcp`
 4. 同时触发 `TaskFinishReplyNotification` 通知其他客户端
 
@@ -356,6 +362,148 @@ websocket.onmessage = (event) => {
 };
 ```
 
+#### 8. GetOnlineUsers - 获取在线用户列表
+
+**用途：** 客户端请求获取相同token的在线用户列表
+
+**请求消息结构：**
+
+```protobuf
+WebsocketMessage {
+  Cmd = "GetOnlineUsers"
+  GetOnlineUsersRequest = {
+    user_token = "<用户令牌>"
+  }
+}
+```
+
+**响应消息结构：**
+
+```protobuf
+WebsocketMessage {
+  Cmd = "GetOnlineUsers"
+  GetOnlineUsersResponse = {
+    online_users = [
+      {
+        client_id = "<客户端ID>"
+        nickname = "<用户昵称>"
+        connected_at = <连接时间戳>
+      }
+    ]
+    total_count = <在线用户总数>
+  }
+}
+```
+
+**工作流程：**
+
+1. 客户端发送 `GetOnlineUsers` 请求
+2. 服务器查找所有相同token的在线用户
+3. 服务器返回在线用户列表给请求客户端
+
+#### 9. SendChatMessage - 发送聊天消息
+
+**用途：** 用户向另一个在线用户发送聊天消息
+
+**消息结构：**
+
+```protobuf
+WebsocketMessage {
+  Cmd = "SendChatMessage"
+  SendChatMessageRequest = {
+    receiver_client_id = "<接收者客户端ID>"
+    content = "<消息内容>"
+  }
+}
+```
+
+**工作流程：**
+
+1. 发送者客户端发送 `SendChatMessage` 消息
+2. 服务器验证发送者和接收者都在线且有相同token
+3. 服务器向接收者发送 `ChatMessageNotification`
+
+#### 10. ChatMessageNotification - 聊天消息通知
+
+**用途：** 通知用户收到新的聊天消息
+
+**消息结构：**
+
+```protobuf
+WebsocketMessage {
+  Cmd = "ChatMessageNotification"
+  ChatMessageNotification = {
+    chat_message = {
+      message_id = "<消息唯一标识符>"
+      sender_client_id = "<发送者客户端ID>"
+      sender_nickname = "<发送者昵称>"
+      receiver_client_id = "<接收者客户端ID>"
+      receiver_nickname = "<接收者昵称>"
+      content = "<消息内容>"
+      sent_at = <发送时间戳>
+    }
+  }
+}
+```
+
+**功能特性：**
+
+- **实时通信：** 用户间可以进行实时聊天
+- **跨平台输入：** 支持不同设备间的输入能力共享
+- **临时存储：** 聊天消息不需要持久化存储
+
+#### 11. 远程输入功能（Flutter PC本地实现）
+
+**用途：** Flutter PC客户端可以将收到的聊天消息发送到本地系统输入框
+
+**实现方式：**
+
+- **本地处理**：Flutter PC客户端直接调用本地的 `agentassistant-input` 工具
+- **无需服务器**：不通过WebSocket服务器，完全在客户端本地执行
+- **用户触发**：用户主动选择将聊天消息发送到系统输入
+
+**工作流程：**
+
+1. Flutter PC客户端收到其他用户的聊天消息
+2. 用户点击"发送到系统输入"选项
+3. 客户端本地调用 `agentassistant-input` 工具
+4. 文本被输入到PC本地系统的活动输入框中
+
+**使用场景：**
+
+- 手机端语音输入，PC端接收聊天消息并输入到系统
+- 跨设备的文本传输和本地输入
+- 远程协作时的文本共享
+
+### 用户界面间主动实时通信流程
+
+#### 获取在线用户
+
+1. 用户界面登录后，发送 `GetOnlineUsers` 请求
+2. 服务器返回相同token的在线用户列表
+3. 界面在标题栏下方显示在线用户的昵称
+
+#### 发起聊天
+
+1. 用户点击其他在线用户的昵称
+2. 界面进入聊天模式，显示聊天历史（如有）
+3. 用户可以输入消息并发送
+
+#### 消息传递
+
+1. 发送者输入消息并点击发送
+2. 客户端发送 `SendChatMessage` 到服务器
+3. 服务器验证并转发给接收者
+4. 接收者收到 `ChatMessageNotification`
+5. 接收者界面显示新消息
+
+#### 远程输入（Flutter PC）
+
+1. Flutter PC客户端收到聊天消息
+2. 用户选择"发送到系统输入"选项
+3. 客户端本地调用 `agentassistant-input` 工具
+4. 文本被输入到PC本地系统的当前活动输入框
+
 ### 错误处理
 
 **连接错误：**
@@ -373,4 +521,9 @@ websocket.onmessage = (event) => {
 
 - 如果接收到格式不正确的 protobuf 消息，服务器会记录错误并忽略该消息
 - 客户端应确保发送的消息符合 protobuf 规范
+
+**聊天错误：**
+
+- 如果接收者不在线，服务器会记录错误但不会通知发送者
+- 如果发送者和接收者token不匹配，消息会被拒绝
 

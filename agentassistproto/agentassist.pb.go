@@ -1117,6 +1117,372 @@ func (x *RequestCancelledNotification) GetMessageType() string {
 	return ""
 }
 
+// OnlineUser represents an online user with the same token
+type OnlineUser struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// client id
+	ClientId string `protobuf:"bytes,1,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
+	// user nickname
+	Nickname string `protobuf:"bytes,2,opt,name=nickname,proto3" json:"nickname,omitempty"`
+	// connection timestamp
+	ConnectedAt   int64 `protobuf:"varint,3,opt,name=connected_at,json=connectedAt,proto3" json:"connected_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OnlineUser) Reset() {
+	*x = OnlineUser{}
+	mi := &file_agentassist_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OnlineUser) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OnlineUser) ProtoMessage() {}
+
+func (x *OnlineUser) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OnlineUser.ProtoReflect.Descriptor instead.
+func (*OnlineUser) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *OnlineUser) GetClientId() string {
+	if x != nil {
+		return x.ClientId
+	}
+	return ""
+}
+
+func (x *OnlineUser) GetNickname() string {
+	if x != nil {
+		return x.Nickname
+	}
+	return ""
+}
+
+func (x *OnlineUser) GetConnectedAt() int64 {
+	if x != nil {
+		return x.ConnectedAt
+	}
+	return 0
+}
+
+// GetOnlineUsersRequest represents a request to get online users with the same token
+type GetOnlineUsersRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// user token to filter users
+	UserToken     string `protobuf:"bytes,1,opt,name=user_token,json=userToken,proto3" json:"user_token,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOnlineUsersRequest) Reset() {
+	*x = GetOnlineUsersRequest{}
+	mi := &file_agentassist_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOnlineUsersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOnlineUsersRequest) ProtoMessage() {}
+
+func (x *GetOnlineUsersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOnlineUsersRequest.ProtoReflect.Descriptor instead.
+func (*GetOnlineUsersRequest) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetOnlineUsersRequest) GetUserToken() string {
+	if x != nil {
+		return x.UserToken
+	}
+	return ""
+}
+
+// GetOnlineUsersResponse represents the response containing online users
+type GetOnlineUsersResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// list of online users
+	OnlineUsers []*OnlineUser `protobuf:"bytes,1,rep,name=online_users,json=onlineUsers,proto3" json:"online_users,omitempty"`
+	// total count of online users
+	TotalCount    int32 `protobuf:"varint,2,opt,name=total_count,json=totalCount,proto3" json:"total_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetOnlineUsersResponse) Reset() {
+	*x = GetOnlineUsersResponse{}
+	mi := &file_agentassist_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetOnlineUsersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetOnlineUsersResponse) ProtoMessage() {}
+
+func (x *GetOnlineUsersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetOnlineUsersResponse.ProtoReflect.Descriptor instead.
+func (*GetOnlineUsersResponse) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *GetOnlineUsersResponse) GetOnlineUsers() []*OnlineUser {
+	if x != nil {
+		return x.OnlineUsers
+	}
+	return nil
+}
+
+func (x *GetOnlineUsersResponse) GetTotalCount() int32 {
+	if x != nil {
+		return x.TotalCount
+	}
+	return 0
+}
+
+// ChatMessage represents a chat message between users
+type ChatMessage struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// message id
+	MessageId string `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	// sender client id
+	SenderClientId string `protobuf:"bytes,2,opt,name=sender_client_id,json=senderClientId,proto3" json:"sender_client_id,omitempty"`
+	// sender nickname
+	SenderNickname string `protobuf:"bytes,3,opt,name=sender_nickname,json=senderNickname,proto3" json:"sender_nickname,omitempty"`
+	// receiver client id
+	ReceiverClientId string `protobuf:"bytes,4,opt,name=receiver_client_id,json=receiverClientId,proto3" json:"receiver_client_id,omitempty"`
+	// receiver nickname
+	ReceiverNickname string `protobuf:"bytes,5,opt,name=receiver_nickname,json=receiverNickname,proto3" json:"receiver_nickname,omitempty"`
+	// message content
+	Content string `protobuf:"bytes,6,opt,name=content,proto3" json:"content,omitempty"`
+	// timestamp when the message was sent
+	SentAt        int64 `protobuf:"varint,7,opt,name=sent_at,json=sentAt,proto3" json:"sent_at,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChatMessage) Reset() {
+	*x = ChatMessage{}
+	mi := &file_agentassist_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChatMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChatMessage) ProtoMessage() {}
+
+func (x *ChatMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChatMessage.ProtoReflect.Descriptor instead.
+func (*ChatMessage) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *ChatMessage) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetSenderClientId() string {
+	if x != nil {
+		return x.SenderClientId
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetSenderNickname() string {
+	if x != nil {
+		return x.SenderNickname
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetReceiverClientId() string {
+	if x != nil {
+		return x.ReceiverClientId
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetReceiverNickname() string {
+	if x != nil {
+		return x.ReceiverNickname
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *ChatMessage) GetSentAt() int64 {
+	if x != nil {
+		return x.SentAt
+	}
+	return 0
+}
+
+// SendChatMessageRequest represents a request to send a chat message
+type SendChatMessageRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// receiver client id
+	ReceiverClientId string `protobuf:"bytes,1,opt,name=receiver_client_id,json=receiverClientId,proto3" json:"receiver_client_id,omitempty"`
+	// message content
+	Content       string `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SendChatMessageRequest) Reset() {
+	*x = SendChatMessageRequest{}
+	mi := &file_agentassist_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendChatMessageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendChatMessageRequest) ProtoMessage() {}
+
+func (x *SendChatMessageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendChatMessageRequest.ProtoReflect.Descriptor instead.
+func (*SendChatMessageRequest) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *SendChatMessageRequest) GetReceiverClientId() string {
+	if x != nil {
+		return x.ReceiverClientId
+	}
+	return ""
+}
+
+func (x *SendChatMessageRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+// ChatMessageNotification represents a notification of a new chat message
+type ChatMessageNotification struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// the chat message
+	ChatMessage   *ChatMessage `protobuf:"bytes,1,opt,name=chat_message,json=chatMessage,proto3" json:"chat_message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChatMessageNotification) Reset() {
+	*x = ChatMessageNotification{}
+	mi := &file_agentassist_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChatMessageNotification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChatMessageNotification) ProtoMessage() {}
+
+func (x *ChatMessageNotification) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChatMessageNotification.ProtoReflect.Descriptor instead.
+func (*ChatMessageNotification) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{23}
+}
+
+func (x *ChatMessageNotification) GetChatMessage() *ChatMessage {
+	if x != nil {
+		return x.ChatMessage
+	}
+	return nil
+}
+
 type WebsocketMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// WebsocketMessage cmd
@@ -1130,6 +1496,9 @@ type WebsocketMessage struct {
 	// CheckMessageValidity: check if messages are still valid
 	// GetPendingMessages: get all pending messages for a user
 	// RequestCancelled: notification that a request has been cancelled
+	// GetOnlineUsers: get online users with the same token
+	// SendChatMessage: send a chat message to another user
+	// ChatMessageNotification: notification of a new chat message
 	Cmd string `protobuf:"bytes,1,opt,name=Cmd,proto3" json:"Cmd,omitempty"`
 	// ask question
 	AskQuestionRequest *AskQuestionRequest `protobuf:"bytes,2,opt,name=AskQuestionRequest,proto3" json:"AskQuestionRequest,omitempty"`
@@ -1149,6 +1518,14 @@ type WebsocketMessage struct {
 	GetPendingMessagesResponse *GetPendingMessagesResponse `protobuf:"bytes,16,opt,name=GetPendingMessagesResponse,proto3" json:"GetPendingMessagesResponse,omitempty"`
 	// request cancelled notification
 	RequestCancelledNotification *RequestCancelledNotification `protobuf:"bytes,17,opt,name=RequestCancelledNotification,proto3" json:"RequestCancelledNotification,omitempty"`
+	// get online users request
+	GetOnlineUsersRequest *GetOnlineUsersRequest `protobuf:"bytes,19,opt,name=GetOnlineUsersRequest,proto3" json:"GetOnlineUsersRequest,omitempty"`
+	// get online users response
+	GetOnlineUsersResponse *GetOnlineUsersResponse `protobuf:"bytes,20,opt,name=GetOnlineUsersResponse,proto3" json:"GetOnlineUsersResponse,omitempty"`
+	// send chat message request
+	SendChatMessageRequest *SendChatMessageRequest `protobuf:"bytes,21,opt,name=SendChatMessageRequest,proto3" json:"SendChatMessageRequest,omitempty"`
+	// chat message notification
+	ChatMessageNotification *ChatMessageNotification `protobuf:"bytes,22,opt,name=ChatMessageNotification,proto3" json:"ChatMessageNotification,omitempty"`
 	// str param
 	StrParam string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
 	// user nickname (for UserLogin and notifications)
@@ -1159,7 +1536,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_agentassist_proto_msgTypes[18]
+	mi := &file_agentassist_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1171,7 +1548,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[18]
+	mi := &file_agentassist_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1184,7 +1561,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{18}
+	return file_agentassist_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *WebsocketMessage) GetCmd() string {
@@ -1253,6 +1630,34 @@ func (x *WebsocketMessage) GetGetPendingMessagesResponse() *GetPendingMessagesRe
 func (x *WebsocketMessage) GetRequestCancelledNotification() *RequestCancelledNotification {
 	if x != nil {
 		return x.RequestCancelledNotification
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetGetOnlineUsersRequest() *GetOnlineUsersRequest {
+	if x != nil {
+		return x.GetOnlineUsersRequest
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetGetOnlineUsersResponse() *GetOnlineUsersResponse {
+	if x != nil {
+		return x.GetOnlineUsersResponse
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetSendChatMessageRequest() *SendChatMessageRequest {
+	if x != nil {
+		return x.SendChatMessageRequest
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetChatMessageNotification() *ChatMessageNotification {
+	if x != nil {
+		return x.ChatMessageNotification
 	}
 	return nil
 }
@@ -1358,7 +1763,34 @@ const file_agentassist_proto_rawDesc = "" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x16\n" +
 	"\x06reason\x18\x02 \x01(\tR\x06reason\x12!\n" +
-	"\fmessage_type\x18\x03 \x01(\tR\vmessageType\"\xe6\a\n" +
+	"\fmessage_type\x18\x03 \x01(\tR\vmessageType\"h\n" +
+	"\n" +
+	"OnlineUser\x12\x1b\n" +
+	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12\x1a\n" +
+	"\bnickname\x18\x02 \x01(\tR\bnickname\x12!\n" +
+	"\fconnected_at\x18\x03 \x01(\x03R\vconnectedAt\"6\n" +
+	"\x15GetOnlineUsersRequest\x12\x1d\n" +
+	"\n" +
+	"user_token\x18\x01 \x01(\tR\tuserToken\"z\n" +
+	"\x16GetOnlineUsersResponse\x12?\n" +
+	"\fonline_users\x18\x01 \x03(\v2\x1c.agentassistproto.OnlineUserR\vonlineUsers\x12\x1f\n" +
+	"\vtotal_count\x18\x02 \x01(\x05R\n" +
+	"totalCount\"\x8d\x02\n" +
+	"\vChatMessage\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\x12(\n" +
+	"\x10sender_client_id\x18\x02 \x01(\tR\x0esenderClientId\x12'\n" +
+	"\x0fsender_nickname\x18\x03 \x01(\tR\x0esenderNickname\x12,\n" +
+	"\x12receiver_client_id\x18\x04 \x01(\tR\x10receiverClientId\x12+\n" +
+	"\x11receiver_nickname\x18\x05 \x01(\tR\x10receiverNickname\x12\x18\n" +
+	"\acontent\x18\x06 \x01(\tR\acontent\x12\x17\n" +
+	"\asent_at\x18\a \x01(\x03R\x06sentAt\"`\n" +
+	"\x16SendChatMessageRequest\x12,\n" +
+	"\x12receiver_client_id\x18\x01 \x01(\tR\x10receiverClientId\x12\x18\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\"[\n" +
+	"\x17ChatMessageNotification\x12@\n" +
+	"\fchat_message\x18\x01 \x01(\v2\x1d.agentassistproto.ChatMessageR\vchatMessage\"\xee\n" +
+	"\n" +
 	"\x10WebsocketMessage\x12\x10\n" +
 	"\x03Cmd\x18\x01 \x01(\tR\x03Cmd\x12T\n" +
 	"\x12AskQuestionRequest\x18\x02 \x01(\v2$.agentassistproto.AskQuestionRequestR\x12AskQuestionRequest\x12Q\n" +
@@ -1369,7 +1801,11 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x1cCheckMessageValidityResponse\x18\x0e \x01(\v2..agentassistproto.CheckMessageValidityResponseR\x1cCheckMessageValidityResponse\x12i\n" +
 	"\x19GetPendingMessagesRequest\x18\x0f \x01(\v2+.agentassistproto.GetPendingMessagesRequestR\x19GetPendingMessagesRequest\x12l\n" +
 	"\x1aGetPendingMessagesResponse\x18\x10 \x01(\v2,.agentassistproto.GetPendingMessagesResponseR\x1aGetPendingMessagesResponse\x12r\n" +
-	"\x1cRequestCancelledNotification\x18\x11 \x01(\v2..agentassistproto.RequestCancelledNotificationR\x1cRequestCancelledNotification\x12\x1a\n" +
+	"\x1cRequestCancelledNotification\x18\x11 \x01(\v2..agentassistproto.RequestCancelledNotificationR\x1cRequestCancelledNotification\x12]\n" +
+	"\x15GetOnlineUsersRequest\x18\x13 \x01(\v2'.agentassistproto.GetOnlineUsersRequestR\x15GetOnlineUsersRequest\x12`\n" +
+	"\x16GetOnlineUsersResponse\x18\x14 \x01(\v2(.agentassistproto.GetOnlineUsersResponseR\x16GetOnlineUsersResponse\x12`\n" +
+	"\x16SendChatMessageRequest\x18\x15 \x01(\v2(.agentassistproto.SendChatMessageRequestR\x16SendChatMessageRequest\x12c\n" +
+	"\x17ChatMessageNotification\x18\x16 \x01(\v2).agentassistproto.ChatMessageNotificationR\x17ChatMessageNotification\x12\x1a\n" +
 	"\bStrParam\x18\f \x01(\tR\bStrParam\x12\x1a\n" +
 	"\bNickname\x18\x12 \x01(\tR\bNickname2\xc5\x01\n" +
 	"\x0eSrvAgentAssist\x12Z\n" +
@@ -1389,7 +1825,7 @@ func file_agentassist_proto_rawDescGZIP() []byte {
 	return file_agentassist_proto_rawDescData
 }
 
-var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 28)
 var file_agentassist_proto_goTypes = []any{
 	(*TextContent)(nil),                  // 0: agentassistproto.TextContent
 	(*ImageContent)(nil),                 // 1: agentassistproto.ImageContent
@@ -1409,10 +1845,16 @@ var file_agentassist_proto_goTypes = []any{
 	(*PendingMessage)(nil),               // 15: agentassistproto.PendingMessage
 	(*GetPendingMessagesResponse)(nil),   // 16: agentassistproto.GetPendingMessagesResponse
 	(*RequestCancelledNotification)(nil), // 17: agentassistproto.RequestCancelledNotification
-	(*WebsocketMessage)(nil),             // 18: agentassistproto.WebsocketMessage
-	nil,                                  // 19: agentassistproto.AskQuestionResponse.MetaEntry
-	nil,                                  // 20: agentassistproto.TaskFinishResponse.MetaEntry
-	nil,                                  // 21: agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	(*OnlineUser)(nil),                   // 18: agentassistproto.OnlineUser
+	(*GetOnlineUsersRequest)(nil),        // 19: agentassistproto.GetOnlineUsersRequest
+	(*GetOnlineUsersResponse)(nil),       // 20: agentassistproto.GetOnlineUsersResponse
+	(*ChatMessage)(nil),                  // 21: agentassistproto.ChatMessage
+	(*SendChatMessageRequest)(nil),       // 22: agentassistproto.SendChatMessageRequest
+	(*ChatMessageNotification)(nil),      // 23: agentassistproto.ChatMessageNotification
+	(*WebsocketMessage)(nil),             // 24: agentassistproto.WebsocketMessage
+	nil,                                  // 25: agentassistproto.AskQuestionResponse.MetaEntry
+	nil,                                  // 26: agentassistproto.TaskFinishResponse.MetaEntry
+	nil,                                  // 27: agentassistproto.CheckMessageValidityResponse.ValidityEntry
 }
 var file_agentassist_proto_depIdxs = []int32{
 	0,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
@@ -1420,33 +1862,39 @@ var file_agentassist_proto_depIdxs = []int32{
 	2,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
 	3,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
 	6,  // 4: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
-	19, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
+	25, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
 	4,  // 6: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
 	9,  // 7: agentassistproto.TaskFinishRequest.Request:type_name -> agentassistproto.McpTaskFinishRequest
-	20, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
+	26, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
 	4,  // 9: agentassistproto.TaskFinishResponse.contents:type_name -> agentassistproto.McpResultContent
-	21, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	27, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
 	7,  // 11: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
 	10, // 12: agentassistproto.PendingMessage.task_finish_request:type_name -> agentassistproto.TaskFinishRequest
 	15, // 13: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
-	7,  // 14: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
-	10, // 15: agentassistproto.WebsocketMessage.TaskFinishRequest:type_name -> agentassistproto.TaskFinishRequest
-	8,  // 16: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
-	11, // 17: agentassistproto.WebsocketMessage.TaskFinishResponse:type_name -> agentassistproto.TaskFinishResponse
-	12, // 18: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
-	13, // 19: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
-	14, // 20: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
-	16, // 21: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
-	17, // 22: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
-	7,  // 23: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
-	10, // 24: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
-	8,  // 25: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
-	11, // 26: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
-	25, // [25:27] is the sub-list for method output_type
-	23, // [23:25] is the sub-list for method input_type
-	23, // [23:23] is the sub-list for extension type_name
-	23, // [23:23] is the sub-list for extension extendee
-	0,  // [0:23] is the sub-list for field type_name
+	18, // 14: agentassistproto.GetOnlineUsersResponse.online_users:type_name -> agentassistproto.OnlineUser
+	21, // 15: agentassistproto.ChatMessageNotification.chat_message:type_name -> agentassistproto.ChatMessage
+	7,  // 16: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
+	10, // 17: agentassistproto.WebsocketMessage.TaskFinishRequest:type_name -> agentassistproto.TaskFinishRequest
+	8,  // 18: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
+	11, // 19: agentassistproto.WebsocketMessage.TaskFinishResponse:type_name -> agentassistproto.TaskFinishResponse
+	12, // 20: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
+	13, // 21: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
+	14, // 22: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
+	16, // 23: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
+	17, // 24: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
+	19, // 25: agentassistproto.WebsocketMessage.GetOnlineUsersRequest:type_name -> agentassistproto.GetOnlineUsersRequest
+	20, // 26: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
+	22, // 27: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
+	23, // 28: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
+	7,  // 29: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
+	10, // 30: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
+	8,  // 31: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
+	11, // 32: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
+	31, // [31:33] is the sub-list for method output_type
+	29, // [29:31] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_agentassist_proto_init() }
@@ -1460,7 +1908,7 @@ func file_agentassist_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agentassist_proto_rawDesc), len(file_agentassist_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   22,
+			NumMessages:   28,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

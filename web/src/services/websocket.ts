@@ -188,6 +188,27 @@ export class WebSocketService {
     this.sendMessage(message);
   }
 
+  getOnlineUsers(): void {
+    const message = create(WebsocketMessageSchema, {
+      Cmd: WebSocketCommands.GET_ONLINE_USERS,
+      GetOnlineUsersRequest: {
+        userToken: this.config.token
+      }
+    });
+    this.sendMessage(message);
+  }
+
+  sendChatMessage(receiverClientId: string, content: string): void {
+    const message = create(WebsocketMessageSchema, {
+      Cmd: WebSocketCommands.SEND_CHAT_MESSAGE,
+      SendChatMessageRequest: {
+        receiverClientId: receiverClientId,
+        content: content
+      }
+    });
+    this.sendMessage(message);
+  }
+
   isConnected(): boolean {
     return this.ws !== null && this.ws.readyState === WebSocket.OPEN;
   }

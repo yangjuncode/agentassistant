@@ -157,6 +157,64 @@ message RequestCancelledNotification {
   string message_type = 3;
 }
 
+// OnlineUser represents an online user with the same token
+message OnlineUser {
+  // client id
+  string client_id = 1;
+  // user nickname
+  string nickname = 2;
+  // connection timestamp
+  int64 connected_at = 3;
+}
+
+// GetOnlineUsersRequest represents a request to get online users with the same token
+message GetOnlineUsersRequest {
+  // user token to filter users
+  string user_token = 1;
+}
+
+// GetOnlineUsersResponse represents the response containing online users
+message GetOnlineUsersResponse {
+  // list of online users
+  repeated OnlineUser online_users = 1;
+  // total count of online users
+  int32 total_count = 2;
+}
+
+// ChatMessage represents a chat message between users
+message ChatMessage {
+  // message id
+  string message_id = 1;
+  // sender client id
+  string sender_client_id = 2;
+  // sender nickname
+  string sender_nickname = 3;
+  // receiver client id
+  string receiver_client_id = 4;
+  // receiver nickname
+  string receiver_nickname = 5;
+  // message content
+  string content = 6;
+  // timestamp when the message was sent
+  int64 sent_at = 7;
+}
+
+// SendChatMessageRequest represents a request to send a chat message
+message SendChatMessageRequest {
+  // receiver client id
+  string receiver_client_id = 1;
+  // message content
+  string content = 2;
+}
+
+// ChatMessageNotification represents a notification of a new chat message
+message ChatMessageNotification {
+  // the chat message
+  ChatMessage chat_message = 1;
+}
+
+
+
 message WebsocketMessage {
   // WebsocketMessage cmd
   // AskQuestion: mcp ask_question
@@ -169,6 +227,9 @@ message WebsocketMessage {
   // CheckMessageValidity: check if messages are still valid
   // GetPendingMessages: get all pending messages for a user
   // RequestCancelled: notification that a request has been cancelled
+  // GetOnlineUsers: get online users with the same token
+  // SendChatMessage: send a chat message to another user
+  // ChatMessageNotification: notification of a new chat message
   string Cmd = 1;
 
   //ask question
@@ -197,6 +258,18 @@ message WebsocketMessage {
 
   // request cancelled notification
   RequestCancelledNotification RequestCancelledNotification = 17;
+
+  // get online users request
+  GetOnlineUsersRequest GetOnlineUsersRequest = 19;
+
+  // get online users response
+  GetOnlineUsersResponse GetOnlineUsersResponse = 20;
+
+  // send chat message request
+  SendChatMessageRequest SendChatMessageRequest = 21;
+
+  // chat message notification
+  ChatMessageNotification ChatMessageNotification = 22;
 
   //str param
   string StrParam = 12;

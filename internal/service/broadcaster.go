@@ -1,8 +1,10 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	agentassistproto "github.com/yangjuncode/agentassistant/agentassistproto"
 )
@@ -23,20 +25,22 @@ type WebResponse struct {
 
 // WebClient represents a connected web client
 type WebClient struct {
-	ID       string
-	Token    string
-	Nickname string
-	SendChan chan *agentassistproto.WebsocketMessage
-	mu       sync.RWMutex
-	active   bool
+	ID          string
+	Token       string
+	Nickname    string
+	ConnectedAt int64
+	SendChan    chan *agentassistproto.WebsocketMessage
+	mu          sync.RWMutex
+	active      bool
 }
 
 // NewWebClient creates a new web client
 func NewWebClient(id string) *WebClient {
 	return &WebClient{
-		ID:       id,
-		SendChan: make(chan *agentassistproto.WebsocketMessage, 10), // Buffered channel
-		active:   true,
+		ID:          id,
+		ConnectedAt: time.Now().Unix(),
+		SendChan:    make(chan *agentassistproto.WebsocketMessage, 10), // Buffered channel
+		active:      true,
 	}
 }
 
@@ -362,6 +366,92 @@ func (b *Broadcaster) HandleResponse(requestID string, response *WebResponse) {
 	default:
 		log.Printf("Failed to queue response for request %s: channel full", requestID)
 	}
+}
+
+// GetOnlineUsers returns a list of online users with the same token
+func (b *Broadcaster) GetOnlineUsers(token string) []*agentassistproto.OnlineUser {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	var onlineUsers []*agentassistproto.OnlineUser
+	for _, client := range b.clients {
+		if client.IsActive() && client.GetToken() == token {
+			onlineUsers = append(onlineUsers, &agentassistproto.OnlineUser{
+				ClientId:    client.ID,
+				Nickname:    client.GetNickname(),
+				ConnectedAt: client.ConnectedAt,
+			})
+		}
+	}
+
+	return onlineUsers
+}
+
+// SendChatMessage sends a chat message from one client to another
+func (b *Broadcaster) SendChatMessage(senderClientID, receiverClientID, content string) error {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	// Find sender and receiver clients
+	var senderClient, receiverClient *WebClient
+	for _, client := range b.clients {
+		if client.IsActive() {
+			if client.ID == senderClientID {
+				senderClient = client
+			}
+			if client.ID == receiverClientID {
+				receiverClient = client
+			}
+		}
+	}
+
+	if senderClient == nil {
+		return fmt.Errorf("sender client not found: %s", senderClientID)
+	}
+	if receiverClient == nil {
+		return fmt.Errorf("receiver client not found: %s", receiverClientID)
+	}
+
+	// Verify both clients have the same token
+	if senderClient.GetToken() != receiverClient.GetToken() {
+		return fmt.Errorf("clients do not have the same token")
+	}
+
+	// Create chat message
+	chatMessage := &agentassistproto.ChatMessage{
+		MessageId:        generateChatMessageID(),
+		SenderClientId:   senderClientID,
+		SenderNickname:   senderClient.GetNickname(),
+		ReceiverClientId: receiverClientID,
+		ReceiverNickname: receiverClient.GetNickname(),
+		Content:          content,
+		SentAt:           time.Now().Unix(),
+	}
+
+	// Create notification message
+	notification := &agentassistproto.WebsocketMessage{
+		Cmd: "ChatMessageNotification",
+		ChatMessageNotification: &agentassistproto.ChatMessageNotification{
+			ChatMessage: chatMessage,
+		},
+	}
+
+	// Send to receiver
+	if !receiverClient.Send(notification) {
+		return fmt.Errorf("failed to send message to receiver")
+	}
+
+	log.Printf("Chat message sent from %s (%s) to %s (%s): %s",
+		senderClient.GetNickname(), senderClientID,
+		receiverClient.GetNickname(), receiverClientID,
+		content)
+
+	return nil
+}
+
+// generateChatMessageID generates a unique chat message ID
+func generateChatMessageID() string {
+	return fmt.Sprintf("chat_%d_%s", time.Now().UnixNano(), randomString(6))
 }
 
 // CheckMessageValidity checks if the given request IDs are still valid (pending)

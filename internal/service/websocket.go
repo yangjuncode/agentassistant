@@ -158,6 +158,11 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			h.handleCheckMessageValidity(client, &message)
 		case "GetPendingMessages":
 			h.handleGetPendingMessages(client, &message)
+		case "GetOnlineUsers":
+			h.handleGetOnlineUsers(client, &message)
+		case "SendChatMessage":
+			h.handleSendChatMessage(client, &message)
+
 		case "RequestCancelled":
 			// This is a notification message, clients don't send this to server
 			log.Printf("Client %s sent RequestCancelled message (unexpected)", client.ID)
@@ -361,4 +366,57 @@ func randomString(length int) string {
 		b[i] = charset[time.Now().UnixNano()%int64(len(charset))]
 	}
 	return string(b)
+}
+
+// handleGetOnlineUsers handles get online users requests
+func (h *WebSocketHandler) handleGetOnlineUsers(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	log.Printf("Client %s requesting online users", client.ID)
+
+	// Get client token for filtering
+	clientToken := client.GetToken()
+	if clientToken == "" {
+		log.Printf("Client %s has no token, cannot get online users", client.ID)
+		return
+	}
+
+	// Get online users from broadcaster
+	onlineUsers := h.broadcaster.GetOnlineUsers(clientToken)
+
+	// Create response message
+	response := &agentassistproto.WebsocketMessage{
+		Cmd: "GetOnlineUsers",
+		GetOnlineUsersResponse: &agentassistproto.GetOnlineUsersResponse{
+			OnlineUsers: onlineUsers,
+			TotalCount:  int32(len(onlineUsers)),
+		},
+	}
+
+	// Send response back to the requesting client
+	if !client.Send(response) {
+		log.Printf("Failed to send GetOnlineUsers response to client %s", client.ID)
+	} else {
+		log.Printf("Sent %d online users to client %s", len(onlineUsers), client.ID)
+	}
+}
+
+// handleSendChatMessage handles send chat message requests
+func (h *WebSocketHandler) handleSendChatMessage(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	log.Printf("Client %s sending chat message", client.ID)
+
+	if message.SendChatMessageRequest == nil {
+		log.Printf("Client %s sent SendChatMessage with nil request", client.ID)
+		return
+	}
+
+	request := message.SendChatMessageRequest
+	if request.ReceiverClientId == "" || request.Content == "" {
+		log.Printf("Client %s sent invalid chat message request", client.ID)
+		return
+	}
+
+	// Send chat message through broadcaster
+	err := h.broadcaster.SendChatMessage(client.ID, request.ReceiverClientId, request.Content)
+	if err != nil {
+		log.Printf("Failed to send chat message from client %s: %v", client.ID, err)
+	}
 }

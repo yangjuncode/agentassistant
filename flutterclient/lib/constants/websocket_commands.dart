@@ -12,6 +12,9 @@ class WebSocketCommands {
   static const String checkMessageValidity = 'CheckMessageValidity';
   static const String getPendingMessages = 'GetPendingMessages';
   static const String requestCancelled = 'RequestCancelled';
+  static const String getOnlineUsers = 'GetOnlineUsers';
+  static const String sendChatMessage = 'SendChatMessage';
+  static const String chatMessageNotification = 'ChatMessageNotification';
 }
 
 /// Content type constants for McpResultContent

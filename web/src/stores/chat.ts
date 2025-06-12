@@ -5,7 +5,8 @@ import type {
   AskQuestionRequest,
   TaskFinishRequest,
   AskQuestionResponse,
-  TaskFinishResponse
+  TaskFinishResponse,
+  OnlineUser
 } from '../proto/agentassist_pb';
 import {
   AskQuestionResponseSchema,
@@ -47,6 +48,9 @@ export const useChatStore = defineStore('chat', () => {
   const userNickname = ref<string>('');
   const wsService = ref<WebSocketService | null>(null);
   const isManuallyDisconnected = ref(false);
+  const onlineUsers = ref<OnlineUser[]>([]);
+  const chatMessages = ref<Map<string, ChatMessage[]>>(new Map());
+  const activeChatUser = ref<string | null>(null);
 
   // Computed
   const sortedMessages = computed(() => {
@@ -140,6 +144,12 @@ export const useChatStore = defineStore('chat', () => {
         break;
       case WebSocketCommands.REQUEST_CANCELLED:
         handleRequestCancelled(message);
+        break;
+      case WebSocketCommands.GET_ONLINE_USERS:
+        handleGetOnlineUsersResponse(message);
+        break;
+      case WebSocketCommands.CHAT_MESSAGE_NOTIFICATION:
+        handleChatMessageNotification(message);
         break;
       default:
         console.log('Unknown message command:', message.Cmd);
@@ -405,6 +415,75 @@ export const useChatStore = defineStore('chat', () => {
     return `${adjective}${noun}${number}`;
   }
 
+  function handleGetOnlineUsersResponse(message: WebsocketMessage) {
+    if (message.GetOnlineUsersResponse) {
+      onlineUsers.value = message.GetOnlineUsersResponse.onlineUsers || [];
+      console.log('Updated online users:', onlineUsers.value.length);
+    }
+  }
+
+  function handleChatMessageNotification(message: WebsocketMessage) {
+    if (message.ChatMessageNotification?.chatMessage) {
+      const chatMsg = message.ChatMessageNotification.chatMessage;
+      const chatUserId = chatMsg.senderClientId;
+
+      if (!chatMessages.value.has(chatUserId)) {
+        chatMessages.value.set(chatUserId, []);
+      }
+
+      const userChatMessages = chatMessages.value.get(chatUserId)!;
+      userChatMessages.push({
+        id: chatMsg.messageId,
+        type: 'reply',
+        timestamp: new Date(chatMsg.sentAt * 1000),
+        content: chatMsg.content,
+        isFromAgent: false,
+        projectDirectory: undefined,
+        timeout: undefined
+      });
+
+      console.log(`Received chat message from ${chatMsg.senderNickname}: ${chatMsg.content}`);
+      NotificationService.questionReceived(); // Reuse notification for chat messages
+    }
+  }
+
+  function requestOnlineUsers() {
+    if (wsService.value) {
+      wsService.value.getOnlineUsers();
+    }
+  }
+
+  function sendChatMessage(receiverClientId: string, content: string) {
+    if (wsService.value) {
+      wsService.value.sendChatMessage(receiverClientId, content);
+
+      // Add message to local chat history
+      if (!chatMessages.value.has(receiverClientId)) {
+        chatMessages.value.set(receiverClientId, []);
+      }
+
+      const userChatMessages = chatMessages.value.get(receiverClientId)!;
+      userChatMessages.push({
+        id: `local-${Date.now()}`,
+        type: 'reply',
+        timestamp: new Date(),
+        content: content,
+        isFromAgent: false,
+        projectDirectory: undefined,
+        timeout: undefined,
+        repliedByCurrentUser: true
+      });
+    }
+  }
+
+  function setActiveChatUser(clientId: string | null) {
+    activeChatUser.value = clientId;
+  }
+
+  function getChatMessages(clientId: string): ChatMessage[] {
+    return chatMessages.value.get(clientId) || [];
+  }
+
   return {
     // State
     messages: sortedMessages,
@@ -413,6 +492,8 @@ export const useChatStore = defineStore('chat', () => {
     connectionError,
     userToken,
     userNickname,
+    onlineUsers,
+    activeChatUser,
 
     // Computed
     pendingQuestions,
@@ -426,6 +507,10 @@ export const useChatStore = defineStore('chat', () => {
     clearMessages,
     setConnectionError,
     setNickname,
-    loadNickname
+    loadNickname,
+    requestOnlineUsers,
+    sendChatMessage,
+    setActiveChatUser,
+    getChatMessages
   };
 });

@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file agentassist.proto.
  */
 export const file_agentassist: GenFile = /*@__PURE__*/
-  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSJUChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIQCghRdWVzdGlvbhgCIAEoCRIPCgdUaW1lb3V0GAMgASgFIm0KEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0ItQBChNBc2tRdWVzdGlvblJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPQoETWV0YRgDIAMoCzIvLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiUgoUTWNwVGFza0ZpbmlzaFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUiawoRVGFza0ZpbmlzaFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFRhc2tGaW5pc2hSZXF1ZXN0ItIBChJUYXNrRmluaXNoUmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI8CgRNZXRhGAMgAygLMi4uYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIjIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBITCgtyZXF1ZXN0X2lkcxgBIAMoCSKfAQocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOCgh2YWxpZGl0eRgBIAMoCzI8LmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZS5WYWxpZGl0eUVudHJ5Gi8KDVZhbGlkaXR5RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgIOgI4ASIvChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAki0QEKDlBlbmRpbmdNZXNzYWdlEhQKDG1lc3NhZ2VfdHlwZRgBIAEoCRJCChRhc2tfcXVlc3Rpb25fcmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0EkAKE3Rhc2tfZmluaXNoX3JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0EhIKCmNyZWF0ZWRfYXQYBCABKAMSDwoHdGltZW91dBgFIAEoBSJtChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRI6ChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMiAuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZRITCgt0b3RhbF9jb3VudBgCIAEoBSJYChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEhIKCnJlcXVlc3RfaWQYASABKAkSDgoGcmVhc29uGAIgASgJEhQKDG1lc3NhZ2VfdHlwZRgDIAEoCSLtBQoQV2Vic29ja2V0TWVzc2FnZRILCgNDbWQYASABKAkSQAoSQXNrUXVlc3Rpb25SZXF1ZXN0GAIgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlcXVlc3QSPgoRVGFza0ZpbmlzaFJlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0EkIKE0Fza1F1ZXN0aW9uUmVzcG9uc2UYBCABKAsyJS5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2USQAoSVGFza0ZpbmlzaFJlc3BvbnNlGAUgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2USUgobQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0GA0gASgLMi0uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSVAocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRgOIAEoCzIuLmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0GA8gASgLMisuYWdlbnRhc3Npc3Rwcm90by5HZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0ElAKGkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlGBAgASgLMiwuYWdlbnRhc3Npc3Rwcm90by5HZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJUChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uGBEgASgLMi4uYWdlbnRhc3Npc3Rwcm90by5SZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEhAKCFN0clBhcmFtGAwgASgJEhAKCE5pY2tuYW1lGBIgASgJMsUBCg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcKClRhc2tGaW5pc2gSIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0GiQuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2VCOFo2Z2l0aHViLmNvbS95YW5nanVuY29kZS9hZ2VudGFzc2lzdGFudC9hZ2VudGFzc2lzdHByb3RvYgZwcm90bzM");
+  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSJUChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIQCghRdWVzdGlvbhgCIAEoCRIPCgdUaW1lb3V0GAMgASgFIm0KEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0ItQBChNBc2tRdWVzdGlvblJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPQoETWV0YRgDIAMoCzIvLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiUgoUTWNwVGFza0ZpbmlzaFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUiawoRVGFza0ZpbmlzaFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFRhc2tGaW5pc2hSZXF1ZXN0ItIBChJUYXNrRmluaXNoUmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI8CgRNZXRhGAMgAygLMi4uYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIjIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBITCgtyZXF1ZXN0X2lkcxgBIAMoCSKfAQocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOCgh2YWxpZGl0eRgBIAMoCzI8LmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZS5WYWxpZGl0eUVudHJ5Gi8KDVZhbGlkaXR5RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgIOgI4ASIvChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAki0QEKDlBlbmRpbmdNZXNzYWdlEhQKDG1lc3NhZ2VfdHlwZRgBIAEoCRJCChRhc2tfcXVlc3Rpb25fcmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0EkAKE3Rhc2tfZmluaXNoX3JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0EhIKCmNyZWF0ZWRfYXQYBCABKAMSDwoHdGltZW91dBgFIAEoBSJtChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRI6ChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMiAuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZRITCgt0b3RhbF9jb3VudBgCIAEoBSJYChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEhIKCnJlcXVlc3RfaWQYASABKAkSDgoGcmVhc29uGAIgASgJEhQKDG1lc3NhZ2VfdHlwZRgDIAEoCSJHCgpPbmxpbmVVc2VyEhEKCWNsaWVudF9pZBgBIAEoCRIQCghuaWNrbmFtZRgCIAEoCRIUCgxjb25uZWN0ZWRfYXQYAyABKAMiKwoVR2V0T25saW5lVXNlcnNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAkiYQoWR2V0T25saW5lVXNlcnNSZXNwb25zZRIyCgxvbmxpbmVfdXNlcnMYASADKAsyHC5hZ2VudGFzc2lzdHByb3RvLk9ubGluZVVzZXISEwoLdG90YWxfY291bnQYAiABKAUirQEKC0NoYXRNZXNzYWdlEhIKCm1lc3NhZ2VfaWQYASABKAkSGAoQc2VuZGVyX2NsaWVudF9pZBgCIAEoCRIXCg9zZW5kZXJfbmlja25hbWUYAyABKAkSGgoScmVjZWl2ZXJfY2xpZW50X2lkGAQgASgJEhkKEXJlY2VpdmVyX25pY2tuYW1lGAUgASgJEg8KB2NvbnRlbnQYBiABKAkSDwoHc2VudF9hdBgHIAEoAyJFChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EhoKEnJlY2VpdmVyX2NsaWVudF9pZBgBIAEoCRIPCgdjb250ZW50GAIgASgJIk4KF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uEjMKDGNoYXRfbWVzc2FnZRgBIAEoCzIdLmFnZW50YXNzaXN0cHJvdG8uQ2hhdE1lc3NhZ2UilQgKEFdlYnNvY2tldE1lc3NhZ2USCwoDQ21kGAEgASgJEkAKEkFza1F1ZXN0aW9uUmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0Ej4KEVRhc2tGaW5pc2hSZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVxdWVzdBJCChNBc2tRdWVzdGlvblJlc3BvbnNlGAQgASgLMiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlEkAKElRhc2tGaW5pc2hSZXNwb25zZRgFIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uVGFza0ZpbmlzaFJlc3BvbnNlElIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBgNIAEoCzItLmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0ElQKHENoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2UYDiABKAsyLi5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2USTgoZR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBgPIAEoCzIrLmFnZW50YXNzaXN0cHJvdG8uR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBJQChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRgQIAEoCzIsLmFnZW50YXNzaXN0cHJvdG8uR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2USVAocUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhgRIAEoCzIuLmFnZW50YXNzaXN0cHJvdG8uUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhJGChVHZXRPbmxpbmVVc2Vyc1JlcXVlc3QYEyABKAsyJy5hZ2VudGFzc2lzdHByb3RvLkdldE9ubGluZVVzZXJzUmVxdWVzdBJIChZHZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlGBQgASgLMiguYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlEkgKFlNlbmRDaGF0TWVzc2FnZVJlcXVlc3QYFSABKAsyKC5hZ2VudGFzc2lzdHByb3RvLlNlbmRDaGF0TWVzc2FnZVJlcXVlc3QSSgoXQ2hhdE1lc3NhZ2VOb3RpZmljYXRpb24YFiABKAsyKS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlTm90aWZpY2F0aW9uEhAKCFN0clBhcmFtGAwgASgJEhAKCE5pY2tuYW1lGBIgASgJMsUBCg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcKClRhc2tGaW5pc2gSIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0GiQuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2VCOFo2Z2l0aHViLmNvbS95YW5nanVuY29kZS9hZ2VudGFzc2lzdGFudC9hZ2VudGFzc2lzdHByb3RvYgZwcm90bzM");
 
 /**
  * TextContent represents text provided to or from an LLM.
@@ -592,6 +592,202 @@ export const RequestCancelledNotificationSchema: GenMessage<RequestCancelledNoti
   messageDesc(file_agentassist, 17);
 
 /**
+ * OnlineUser represents an online user with the same token
+ *
+ * @generated from message agentassistproto.OnlineUser
+ */
+export type OnlineUser = Message<"agentassistproto.OnlineUser"> & {
+  /**
+   * client id
+   *
+   * @generated from field: string client_id = 1;
+   */
+  clientId: string;
+
+  /**
+   * user nickname
+   *
+   * @generated from field: string nickname = 2;
+   */
+  nickname: string;
+
+  /**
+   * connection timestamp
+   *
+   * @generated from field: int64 connected_at = 3;
+   */
+  connectedAt: bigint;
+};
+
+/**
+ * Describes the message agentassistproto.OnlineUser.
+ * Use `create(OnlineUserSchema)` to create a new message.
+ */
+export const OnlineUserSchema: GenMessage<OnlineUser> = /*@__PURE__*/
+  messageDesc(file_agentassist, 18);
+
+/**
+ * GetOnlineUsersRequest represents a request to get online users with the same token
+ *
+ * @generated from message agentassistproto.GetOnlineUsersRequest
+ */
+export type GetOnlineUsersRequest = Message<"agentassistproto.GetOnlineUsersRequest"> & {
+  /**
+   * user token to filter users
+   *
+   * @generated from field: string user_token = 1;
+   */
+  userToken: string;
+};
+
+/**
+ * Describes the message agentassistproto.GetOnlineUsersRequest.
+ * Use `create(GetOnlineUsersRequestSchema)` to create a new message.
+ */
+export const GetOnlineUsersRequestSchema: GenMessage<GetOnlineUsersRequest> = /*@__PURE__*/
+  messageDesc(file_agentassist, 19);
+
+/**
+ * GetOnlineUsersResponse represents the response containing online users
+ *
+ * @generated from message agentassistproto.GetOnlineUsersResponse
+ */
+export type GetOnlineUsersResponse = Message<"agentassistproto.GetOnlineUsersResponse"> & {
+  /**
+   * list of online users
+   *
+   * @generated from field: repeated agentassistproto.OnlineUser online_users = 1;
+   */
+  onlineUsers: OnlineUser[];
+
+  /**
+   * total count of online users
+   *
+   * @generated from field: int32 total_count = 2;
+   */
+  totalCount: number;
+};
+
+/**
+ * Describes the message agentassistproto.GetOnlineUsersResponse.
+ * Use `create(GetOnlineUsersResponseSchema)` to create a new message.
+ */
+export const GetOnlineUsersResponseSchema: GenMessage<GetOnlineUsersResponse> = /*@__PURE__*/
+  messageDesc(file_agentassist, 20);
+
+/**
+ * ChatMessage represents a chat message between users
+ *
+ * @generated from message agentassistproto.ChatMessage
+ */
+export type ChatMessage = Message<"agentassistproto.ChatMessage"> & {
+  /**
+   * message id
+   *
+   * @generated from field: string message_id = 1;
+   */
+  messageId: string;
+
+  /**
+   * sender client id
+   *
+   * @generated from field: string sender_client_id = 2;
+   */
+  senderClientId: string;
+
+  /**
+   * sender nickname
+   *
+   * @generated from field: string sender_nickname = 3;
+   */
+  senderNickname: string;
+
+  /**
+   * receiver client id
+   *
+   * @generated from field: string receiver_client_id = 4;
+   */
+  receiverClientId: string;
+
+  /**
+   * receiver nickname
+   *
+   * @generated from field: string receiver_nickname = 5;
+   */
+  receiverNickname: string;
+
+  /**
+   * message content
+   *
+   * @generated from field: string content = 6;
+   */
+  content: string;
+
+  /**
+   * timestamp when the message was sent
+   *
+   * @generated from field: int64 sent_at = 7;
+   */
+  sentAt: bigint;
+};
+
+/**
+ * Describes the message agentassistproto.ChatMessage.
+ * Use `create(ChatMessageSchema)` to create a new message.
+ */
+export const ChatMessageSchema: GenMessage<ChatMessage> = /*@__PURE__*/
+  messageDesc(file_agentassist, 21);
+
+/**
+ * SendChatMessageRequest represents a request to send a chat message
+ *
+ * @generated from message agentassistproto.SendChatMessageRequest
+ */
+export type SendChatMessageRequest = Message<"agentassistproto.SendChatMessageRequest"> & {
+  /**
+   * receiver client id
+   *
+   * @generated from field: string receiver_client_id = 1;
+   */
+  receiverClientId: string;
+
+  /**
+   * message content
+   *
+   * @generated from field: string content = 2;
+   */
+  content: string;
+};
+
+/**
+ * Describes the message agentassistproto.SendChatMessageRequest.
+ * Use `create(SendChatMessageRequestSchema)` to create a new message.
+ */
+export const SendChatMessageRequestSchema: GenMessage<SendChatMessageRequest> = /*@__PURE__*/
+  messageDesc(file_agentassist, 22);
+
+/**
+ * ChatMessageNotification represents a notification of a new chat message
+ *
+ * @generated from message agentassistproto.ChatMessageNotification
+ */
+export type ChatMessageNotification = Message<"agentassistproto.ChatMessageNotification"> & {
+  /**
+   * the chat message
+   *
+   * @generated from field: agentassistproto.ChatMessage chat_message = 1;
+   */
+  chatMessage?: ChatMessage;
+};
+
+/**
+ * Describes the message agentassistproto.ChatMessageNotification.
+ * Use `create(ChatMessageNotificationSchema)` to create a new message.
+ */
+export const ChatMessageNotificationSchema: GenMessage<ChatMessageNotification> = /*@__PURE__*/
+  messageDesc(file_agentassist, 23);
+
+/**
  * @generated from message agentassistproto.WebsocketMessage
  */
 export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
@@ -607,6 +803,9 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
    * CheckMessageValidity: check if messages are still valid
    * GetPendingMessages: get all pending messages for a user
    * RequestCancelled: notification that a request has been cancelled
+   * GetOnlineUsers: get online users with the same token
+   * SendChatMessage: send a chat message to another user
+   * ChatMessageNotification: notification of a new chat message
    *
    * @generated from field: string Cmd = 1;
    */
@@ -676,6 +875,34 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
   RequestCancelledNotification?: RequestCancelledNotification;
 
   /**
+   * get online users request
+   *
+   * @generated from field: agentassistproto.GetOnlineUsersRequest GetOnlineUsersRequest = 19;
+   */
+  GetOnlineUsersRequest?: GetOnlineUsersRequest;
+
+  /**
+   * get online users response
+   *
+   * @generated from field: agentassistproto.GetOnlineUsersResponse GetOnlineUsersResponse = 20;
+   */
+  GetOnlineUsersResponse?: GetOnlineUsersResponse;
+
+  /**
+   * send chat message request
+   *
+   * @generated from field: agentassistproto.SendChatMessageRequest SendChatMessageRequest = 21;
+   */
+  SendChatMessageRequest?: SendChatMessageRequest;
+
+  /**
+   * chat message notification
+   *
+   * @generated from field: agentassistproto.ChatMessageNotification ChatMessageNotification = 22;
+   */
+  ChatMessageNotification?: ChatMessageNotification;
+
+  /**
    * str param
    *
    * @generated from field: string StrParam = 12;
@@ -695,7 +922,7 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
  * Use `create(WebsocketMessageSchema)` to create a new message.
  */
 export const WebsocketMessageSchema: GenMessage<WebsocketMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 18);
+  messageDesc(file_agentassist, 24);
 
 /**
  * @generated from service agentassistproto.SrvAgentAssist

@@ -331,6 +331,97 @@ final $typed_data.Uint8List requestCancelledNotificationDescriptor = $convert.ba
     'Vlc3RJZBIWCgZyZWFzb24YAiABKAlSBnJlYXNvbhIhCgxtZXNzYWdlX3R5cGUYAyABKAlSC21l'
     'c3NhZ2VUeXBl');
 
+@$core.Deprecated('Use onlineUserDescriptor instead')
+const OnlineUser$json = {
+  '1': 'OnlineUser',
+  '2': [
+    {'1': 'client_id', '3': 1, '4': 1, '5': 9, '10': 'clientId'},
+    {'1': 'nickname', '3': 2, '4': 1, '5': 9, '10': 'nickname'},
+    {'1': 'connected_at', '3': 3, '4': 1, '5': 3, '10': 'connectedAt'},
+  ],
+};
+
+/// Descriptor for `OnlineUser`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List onlineUserDescriptor = $convert.base64Decode(
+    'CgpPbmxpbmVVc2VyEhsKCWNsaWVudF9pZBgBIAEoCVIIY2xpZW50SWQSGgoIbmlja25hbWUYAi'
+    'ABKAlSCG5pY2tuYW1lEiEKDGNvbm5lY3RlZF9hdBgDIAEoA1ILY29ubmVjdGVkQXQ=');
+
+@$core.Deprecated('Use getOnlineUsersRequestDescriptor instead')
+const GetOnlineUsersRequest$json = {
+  '1': 'GetOnlineUsersRequest',
+  '2': [
+    {'1': 'user_token', '3': 1, '4': 1, '5': 9, '10': 'userToken'},
+  ],
+};
+
+/// Descriptor for `GetOnlineUsersRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getOnlineUsersRequestDescriptor = $convert.base64Decode(
+    'ChVHZXRPbmxpbmVVc2Vyc1JlcXVlc3QSHQoKdXNlcl90b2tlbhgBIAEoCVIJdXNlclRva2Vu');
+
+@$core.Deprecated('Use getOnlineUsersResponseDescriptor instead')
+const GetOnlineUsersResponse$json = {
+  '1': 'GetOnlineUsersResponse',
+  '2': [
+    {'1': 'online_users', '3': 1, '4': 3, '5': 11, '6': '.agentassistproto.OnlineUser', '10': 'onlineUsers'},
+    {'1': 'total_count', '3': 2, '4': 1, '5': 5, '10': 'totalCount'},
+  ],
+};
+
+/// Descriptor for `GetOnlineUsersResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List getOnlineUsersResponseDescriptor = $convert.base64Decode(
+    'ChZHZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlEj8KDG9ubGluZV91c2VycxgBIAMoCzIcLmFnZW50YX'
+    'NzaXN0cHJvdG8uT25saW5lVXNlclILb25saW5lVXNlcnMSHwoLdG90YWxfY291bnQYAiABKAVS'
+    'CnRvdGFsQ291bnQ=');
+
+@$core.Deprecated('Use chatMessageDescriptor instead')
+const ChatMessage$json = {
+  '1': 'ChatMessage',
+  '2': [
+    {'1': 'message_id', '3': 1, '4': 1, '5': 9, '10': 'messageId'},
+    {'1': 'sender_client_id', '3': 2, '4': 1, '5': 9, '10': 'senderClientId'},
+    {'1': 'sender_nickname', '3': 3, '4': 1, '5': 9, '10': 'senderNickname'},
+    {'1': 'receiver_client_id', '3': 4, '4': 1, '5': 9, '10': 'receiverClientId'},
+    {'1': 'receiver_nickname', '3': 5, '4': 1, '5': 9, '10': 'receiverNickname'},
+    {'1': 'content', '3': 6, '4': 1, '5': 9, '10': 'content'},
+    {'1': 'sent_at', '3': 7, '4': 1, '5': 3, '10': 'sentAt'},
+  ],
+};
+
+/// Descriptor for `ChatMessage`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List chatMessageDescriptor = $convert.base64Decode(
+    'CgtDaGF0TWVzc2FnZRIdCgptZXNzYWdlX2lkGAEgASgJUgltZXNzYWdlSWQSKAoQc2VuZGVyX2'
+    'NsaWVudF9pZBgCIAEoCVIOc2VuZGVyQ2xpZW50SWQSJwoPc2VuZGVyX25pY2tuYW1lGAMgASgJ'
+    'Ug5zZW5kZXJOaWNrbmFtZRIsChJyZWNlaXZlcl9jbGllbnRfaWQYBCABKAlSEHJlY2VpdmVyQ2'
+    'xpZW50SWQSKwoRcmVjZWl2ZXJfbmlja25hbWUYBSABKAlSEHJlY2VpdmVyTmlja25hbWUSGAoH'
+    'Y29udGVudBgGIAEoCVIHY29udGVudBIXCgdzZW50X2F0GAcgASgDUgZzZW50QXQ=');
+
+@$core.Deprecated('Use sendChatMessageRequestDescriptor instead')
+const SendChatMessageRequest$json = {
+  '1': 'SendChatMessageRequest',
+  '2': [
+    {'1': 'receiver_client_id', '3': 1, '4': 1, '5': 9, '10': 'receiverClientId'},
+    {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
+  ],
+};
+
+/// Descriptor for `SendChatMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List sendChatMessageRequestDescriptor = $convert.base64Decode(
+    'ChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EiwKEnJlY2VpdmVyX2NsaWVudF9pZBgBIAEoCVIQcm'
+    'VjZWl2ZXJDbGllbnRJZBIYCgdjb250ZW50GAIgASgJUgdjb250ZW50');
+
+@$core.Deprecated('Use chatMessageNotificationDescriptor instead')
+const ChatMessageNotification$json = {
+  '1': 'ChatMessageNotification',
+  '2': [
+    {'1': 'chat_message', '3': 1, '4': 1, '5': 11, '6': '.agentassistproto.ChatMessage', '10': 'chatMessage'},
+  ],
+};
+
+/// Descriptor for `ChatMessageNotification`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List chatMessageNotificationDescriptor = $convert.base64Decode(
+    'ChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhJACgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudG'
+    'Fzc2lzdHByb3RvLkNoYXRNZXNzYWdlUgtjaGF0TWVzc2FnZQ==');
+
 @$core.Deprecated('Use websocketMessageDescriptor instead')
 const WebsocketMessage$json = {
   '1': 'WebsocketMessage',
@@ -345,6 +436,10 @@ const WebsocketMessage$json = {
     {'1': 'GetPendingMessagesRequest', '3': 15, '4': 1, '5': 11, '6': '.agentassistproto.GetPendingMessagesRequest', '10': 'GetPendingMessagesRequest'},
     {'1': 'GetPendingMessagesResponse', '3': 16, '4': 1, '5': 11, '6': '.agentassistproto.GetPendingMessagesResponse', '10': 'GetPendingMessagesResponse'},
     {'1': 'RequestCancelledNotification', '3': 17, '4': 1, '5': 11, '6': '.agentassistproto.RequestCancelledNotification', '10': 'RequestCancelledNotification'},
+    {'1': 'GetOnlineUsersRequest', '3': 19, '4': 1, '5': 11, '6': '.agentassistproto.GetOnlineUsersRequest', '10': 'GetOnlineUsersRequest'},
+    {'1': 'GetOnlineUsersResponse', '3': 20, '4': 1, '5': 11, '6': '.agentassistproto.GetOnlineUsersResponse', '10': 'GetOnlineUsersResponse'},
+    {'1': 'SendChatMessageRequest', '3': 21, '4': 1, '5': 11, '6': '.agentassistproto.SendChatMessageRequest', '10': 'SendChatMessageRequest'},
+    {'1': 'ChatMessageNotification', '3': 22, '4': 1, '5': 11, '6': '.agentassistproto.ChatMessageNotification', '10': 'ChatMessageNotification'},
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
     {'1': 'Nickname', '3': 18, '4': 1, '5': 9, '10': 'Nickname'},
   ],
@@ -368,8 +463,16 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2UYECABKAsyLC5hZ2VudGFzc2lzdHByb3RvLkdldFBl'
     'bmRpbmdNZXNzYWdlc1Jlc3BvbnNlUhpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJyChxSZX'
     'F1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uGBEgASgLMi4uYWdlbnRhc3Npc3Rwcm90by5SZXF1'
-    'ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uUhxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEh'
-    'oKCFN0clBhcmFtGAwgASgJUghTdHJQYXJhbRIaCghOaWNrbmFtZRgSIAEoCVIITmlja25hbWU=');
+    'ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uUhxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEl'
+    '0KFUdldE9ubGluZVVzZXJzUmVxdWVzdBgTIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uR2V0T25s'
+    'aW5lVXNlcnNSZXF1ZXN0UhVHZXRPbmxpbmVVc2Vyc1JlcXVlc3QSYAoWR2V0T25saW5lVXNlcn'
+    'NSZXNwb25zZRgUIAEoCzIoLmFnZW50YXNzaXN0cHJvdG8uR2V0T25saW5lVXNlcnNSZXNwb25z'
+    'ZVIWR2V0T25saW5lVXNlcnNSZXNwb25zZRJgChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0GBUgAS'
+    'gLMiguYWdlbnRhc3Npc3Rwcm90by5TZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0UhZTZW5kQ2hhdE1l'
+    'c3NhZ2VSZXF1ZXN0EmMKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3'
+    'Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvblIXQ2hhdE1lc3NhZ2VOb3RpZmljYXRp'
+    'b24SGgoIU3RyUGFyYW0YDCABKAlSCFN0clBhcmFtEhoKCE5pY2tuYW1lGBIgASgJUghOaWNrbm'
+    'FtZQ==');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',

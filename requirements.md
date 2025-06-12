@@ -32,9 +32,10 @@ Agent Assistant 是一个基于 MCP (Model Context Protocol) 协议的 AI 助手
    - 实现 `SrvAgentAssist` 服务，包含 `AskQuestion` 和 `TaskFinish` RPC 方法
    - 处理多种内容类型的消息转发和响应
 
-3. **Web 界面**：用户交互界面，展示请求并收集反馈
+3. **Web/flutter 界面**：用户交互界面，展示请求并收集反馈
 
 4. **RPC 及其交互协议**：用于 agentassistant-mcp 与 agentassistant-srv与 Web 界面之间的通信，使用protobuf定义的[connectrpc](https://connectrpc.com)
+5. 用户界面间可以通过 WebSocket 进行实时通信，可以在一个用户界面主动向另一个用户界面发送消息。
 
 ### 2.2 支持的内容类型
 
