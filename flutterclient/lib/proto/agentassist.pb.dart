@@ -1662,6 +1662,80 @@ class ChatMessageNotification extends $pb.GeneratedMessage {
   ChatMessage ensureChatMessage() => $_ensure(0);
 }
 
+/// UserLoginResponse represents the response to a user login
+class UserLoginResponse extends $pb.GeneratedMessage {
+  factory UserLoginResponse({
+    $core.String? clientId,
+    $core.bool? success,
+    $core.String? errorMessage,
+  }) {
+    final result = create();
+    if (clientId != null) result.clientId = clientId;
+    if (success != null) result.success = success;
+    if (errorMessage != null) result.errorMessage = errorMessage;
+    return result;
+  }
+
+  UserLoginResponse._();
+
+  factory UserLoginResponse.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory UserLoginResponse.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'UserLoginResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'clientId')
+    ..aOB(2, _omitFieldNames ? '' : 'success')
+    ..aOS(3, _omitFieldNames ? '' : 'errorMessage')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UserLoginResponse clone() => UserLoginResponse()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  UserLoginResponse copyWith(void Function(UserLoginResponse) updates) => super.copyWith((message) => updates(message as UserLoginResponse)) as UserLoginResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static UserLoginResponse create() => UserLoginResponse._();
+  @$core.override
+  UserLoginResponse createEmptyInstance() => create();
+  static $pb.PbList<UserLoginResponse> createRepeated() => $pb.PbList<UserLoginResponse>();
+  @$core.pragma('dart2js:noInline')
+  static UserLoginResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<UserLoginResponse>(create);
+  static UserLoginResponse? _defaultInstance;
+
+  /// client id assigned by server
+  @$pb.TagNumber(1)
+  $core.String get clientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set clientId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearClientId() => $_clearField(1);
+
+  /// success status
+  @$pb.TagNumber(2)
+  $core.bool get success => $_getBF(1);
+  @$pb.TagNumber(2)
+  set success($core.bool value) => $_setBool(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasSuccess() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSuccess() => $_clearField(2);
+
+  /// error message if login failed
+  @$pb.TagNumber(3)
+  $core.String get errorMessage => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set errorMessage($core.String value) => $_setString(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasErrorMessage() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearErrorMessage() => $_clearField(3);
+}
+
 class WebsocketMessage extends $pb.GeneratedMessage {
   factory WebsocketMessage({
     $core.String? cmd,
@@ -1680,6 +1754,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     GetOnlineUsersResponse? getOnlineUsersResponse,
     SendChatMessageRequest? sendChatMessageRequest,
     ChatMessageNotification? chatMessageNotification,
+    UserLoginResponse? userLoginResponse,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -1698,6 +1773,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (getOnlineUsersResponse != null) result.getOnlineUsersResponse = getOnlineUsersResponse;
     if (sendChatMessageRequest != null) result.sendChatMessageRequest = sendChatMessageRequest;
     if (chatMessageNotification != null) result.chatMessageNotification = chatMessageNotification;
+    if (userLoginResponse != null) result.userLoginResponse = userLoginResponse;
     return result;
   }
 
@@ -1723,6 +1799,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<GetOnlineUsersResponse>(20, _omitFieldNames ? '' : 'GetOnlineUsersResponse', protoName: 'GetOnlineUsersResponse', subBuilder: GetOnlineUsersResponse.create)
     ..aOM<SendChatMessageRequest>(21, _omitFieldNames ? '' : 'SendChatMessageRequest', protoName: 'SendChatMessageRequest', subBuilder: SendChatMessageRequest.create)
     ..aOM<ChatMessageNotification>(22, _omitFieldNames ? '' : 'ChatMessageNotification', protoName: 'ChatMessageNotification', subBuilder: ChatMessageNotification.create)
+    ..aOM<UserLoginResponse>(23, _omitFieldNames ? '' : 'UserLoginResponse', protoName: 'UserLoginResponse', subBuilder: UserLoginResponse.create)
     ..hasRequiredFields = false
   ;
 
@@ -1941,6 +2018,18 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearChatMessageNotification() => $_clearField(22);
   @$pb.TagNumber(22)
   ChatMessageNotification ensureChatMessageNotification() => $_ensure(15);
+
+  /// user login response
+  @$pb.TagNumber(23)
+  UserLoginResponse get userLoginResponse => $_getN(16);
+  @$pb.TagNumber(23)
+  set userLoginResponse(UserLoginResponse value) => $_setField(23, value);
+  @$pb.TagNumber(23)
+  $core.bool hasUserLoginResponse() => $_has(16);
+  @$pb.TagNumber(23)
+  void clearUserLoginResponse() => $_clearField(23);
+  @$pb.TagNumber(23)
+  UserLoginResponse ensureUserLoginResponse() => $_ensure(16);
 }
 
 class SrvAgentAssistApi {

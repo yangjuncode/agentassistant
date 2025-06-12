@@ -16,11 +16,14 @@ class ChatProvider extends ChangeNotifier {
 
   final WebSocketService _webSocketService = WebSocketService();
   final List<ChatMessage> _messages = [];
+  final List<pb.OnlineUser> _onlineUsers = [];
+  final Map<String, List<pb.ChatMessage>> _chatMessages = {};
 
   bool _isConnected = false;
   bool _isConnecting = false;
   String? _connectionError;
   String? _currentToken;
+  String? _activeChatUserId;
 
   StreamSubscription? _messageSubscription;
   StreamSubscription? _connectionSubscription;
@@ -31,6 +34,9 @@ class ChatProvider extends ChangeNotifier {
   bool get isConnected => _isConnected;
   bool get isConnecting => _isConnecting;
   String? get connectionError => _connectionError;
+  List<pb.OnlineUser> get onlineUsers => List.unmodifiable(_onlineUsers);
+  String? get activeChatUserId => _activeChatUserId;
+  String? get currentClientId => _webSocketService.clientId;
 
   List<ChatMessage> get pendingQuestions => _messages
       .where((m) => m.type == MessageType.question && m.needsUserAction)
@@ -59,6 +65,8 @@ class ChatProvider extends ChangeNotifier {
           _connectionError = null;
           // Fetch pending messages when connected
           fetchPendingMessages();
+          // Request online users when connected
+          requestOnlineUsers();
         }
         notifyListeners();
       },
@@ -184,6 +192,12 @@ class ChatProvider extends ChangeNotifier {
         break;
       case WebSocketCommands.requestCancelled:
         _handleRequestCancelledNotification(message);
+        break;
+      case WebSocketCommands.getOnlineUsers:
+        _handleGetOnlineUsersResponse(message);
+        break;
+      case WebSocketCommands.chatMessageNotification:
+        _handleChatMessageNotification(message);
         break;
       default:
         _logger.w('Unknown message command: ${message.cmd}');
@@ -649,6 +663,91 @@ class ChatProvider extends ChangeNotifier {
     } catch (error) {
       _logger.e('Failed to bring window to front: $error');
     }
+  }
+
+  /// Handle get online users response
+  void _handleGetOnlineUsersResponse(pb.WebsocketMessage message) {
+    if (!message.hasGetOnlineUsersResponse()) {
+      _logger.w('GetOnlineUsers response missing response data');
+      return;
+    }
+
+    final response = message.getOnlineUsersResponse;
+    _logger.i('Received ${response.totalCount} online users from server');
+
+    // Update online users list
+    _onlineUsers.clear();
+    _onlineUsers.addAll(response.onlineUsers);
+    notifyListeners();
+
+    _logger.i('Updated online users list: ${_onlineUsers.length} users');
+  }
+
+  /// Handle chat message notification
+  void _handleChatMessageNotification(pb.WebsocketMessage message) {
+    if (!message.hasChatMessageNotification()) {
+      _logger.w('ChatMessageNotification missing notification data');
+      return;
+    }
+
+    final notification = message.chatMessageNotification;
+    final chatMessage = notification.chatMessage;
+
+    _logger.i(
+        'Received chat message from ${chatMessage.senderNickname}: ${chatMessage.content}');
+
+    // Add to chat messages map
+    final senderId = chatMessage.senderClientId;
+    if (!_chatMessages.containsKey(senderId)) {
+      _chatMessages[senderId] = [];
+    }
+    _chatMessages[senderId]!.add(chatMessage);
+
+    notifyListeners();
+
+    // Bring window to front when new chat message is received
+    _bringWindowToFrontIfNeeded();
+  }
+
+  /// Request online users from server
+  Future<void> requestOnlineUsers() async {
+    if (!_isConnected) {
+      _logger.w('Cannot request online users: not connected');
+      return;
+    }
+
+    try {
+      await _webSocketService.sendGetOnlineUsers();
+      _logger.i('Online users request sent');
+    } catch (error) {
+      _logger.e('Failed to request online users: $error');
+    }
+  }
+
+  /// Send chat message to another user
+  Future<void> sendChatMessage(String receiverClientId, String content) async {
+    if (!_isConnected) {
+      _logger.w('Cannot send chat message: not connected');
+      return;
+    }
+
+    try {
+      await _webSocketService.sendChatMessage(receiverClientId, content);
+      _logger.i('Chat message sent to $receiverClientId: $content');
+    } catch (error) {
+      _logger.e('Failed to send chat message: $error');
+    }
+  }
+
+  /// Set active chat user
+  void setActiveChatUser(String? userId) {
+    _activeChatUserId = userId;
+    notifyListeners();
+  }
+
+  /// Get chat messages for a specific user
+  List<pb.ChatMessage> getChatMessages(String userId) {
+    return _chatMessages[userId] ?? [];
   }
 
   @override

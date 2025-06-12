@@ -7,6 +7,7 @@ import '../constants/websocket_commands.dart';
 import '../widgets/message_bubble.dart';
 import '../widgets/connection_status_bar.dart';
 import '../widgets/pending_actions_indicator.dart';
+import '../widgets/online_users_bar.dart';
 import '../config/app_config.dart';
 import 'settings_screen.dart';
 
@@ -255,6 +256,9 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               // Connection status bar
               const ConnectionStatusBar(),
+
+              // Online users bar
+              const OnlineUsersBar(),
 
               // Messages list
               Expanded(

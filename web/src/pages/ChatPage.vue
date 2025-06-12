@@ -34,6 +34,9 @@
       </div>
     </div>
 
+    <!-- Online Users Bar -->
+    <online-users-bar />
+
     <!-- Messages Area -->
     <div class="chat-messages q-pa-md" ref="messagesContainer">
       <!-- Loading State -->
@@ -137,6 +140,7 @@ import { useChatStore } from '../stores/chat';
 import ChatMessage from '../components/chat/ChatMessage.vue';
 import LoadingSpinner from '../components/LoadingSpinner.vue';
 import NicknameSettings from '../components/settings/NicknameSettings.vue';
+import OnlineUsersBar from '../components/OnlineUsersBar.vue';
 import { getTokenFromUrl, buildWebSocketUrl, isValidToken } from '../utils/url';
 
 const route = useRoute();

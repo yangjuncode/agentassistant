@@ -422,6 +422,21 @@ final $typed_data.Uint8List chatMessageNotificationDescriptor = $convert.base64D
     'ChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhJACgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudG'
     'Fzc2lzdHByb3RvLkNoYXRNZXNzYWdlUgtjaGF0TWVzc2FnZQ==');
 
+@$core.Deprecated('Use userLoginResponseDescriptor instead')
+const UserLoginResponse$json = {
+  '1': 'UserLoginResponse',
+  '2': [
+    {'1': 'client_id', '3': 1, '4': 1, '5': 9, '10': 'clientId'},
+    {'1': 'success', '3': 2, '4': 1, '5': 8, '10': 'success'},
+    {'1': 'error_message', '3': 3, '4': 1, '5': 9, '10': 'errorMessage'},
+  ],
+};
+
+/// Descriptor for `UserLoginResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List userLoginResponseDescriptor = $convert.base64Decode(
+    'ChFVc2VyTG9naW5SZXNwb25zZRIbCgljbGllbnRfaWQYASABKAlSCGNsaWVudElkEhgKB3N1Y2'
+    'Nlc3MYAiABKAhSB3N1Y2Nlc3MSIwoNZXJyb3JfbWVzc2FnZRgDIAEoCVIMZXJyb3JNZXNzYWdl');
+
 @$core.Deprecated('Use websocketMessageDescriptor instead')
 const WebsocketMessage$json = {
   '1': 'WebsocketMessage',
@@ -440,6 +455,7 @@ const WebsocketMessage$json = {
     {'1': 'GetOnlineUsersResponse', '3': 20, '4': 1, '5': 11, '6': '.agentassistproto.GetOnlineUsersResponse', '10': 'GetOnlineUsersResponse'},
     {'1': 'SendChatMessageRequest', '3': 21, '4': 1, '5': 11, '6': '.agentassistproto.SendChatMessageRequest', '10': 'SendChatMessageRequest'},
     {'1': 'ChatMessageNotification', '3': 22, '4': 1, '5': 11, '6': '.agentassistproto.ChatMessageNotification', '10': 'ChatMessageNotification'},
+    {'1': 'UserLoginResponse', '3': 23, '4': 1, '5': 11, '6': '.agentassistproto.UserLoginResponse', '10': 'UserLoginResponse'},
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
     {'1': 'Nickname', '3': 18, '4': 1, '5': 9, '10': 'Nickname'},
   ],
@@ -471,8 +487,9 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'gLMiguYWdlbnRhc3Npc3Rwcm90by5TZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0UhZTZW5kQ2hhdE1l'
     'c3NhZ2VSZXF1ZXN0EmMKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3'
     'Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvblIXQ2hhdE1lc3NhZ2VOb3RpZmljYXRp'
-    'b24SGgoIU3RyUGFyYW0YDCABKAlSCFN0clBhcmFtEhoKCE5pY2tuYW1lGBIgASgJUghOaWNrbm'
-    'FtZQ==');
+    'b24SUQoRVXNlckxvZ2luUmVzcG9uc2UYFyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlVzZXJMb2'
+    'dpblJlc3BvbnNlUhFVc2VyTG9naW5SZXNwb25zZRIaCghTdHJQYXJhbRgMIAEoCVIIU3RyUGFy'
+    'YW0SGgoITmlja25hbWUYEiABKAlSCE5pY2tuYW1l');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',

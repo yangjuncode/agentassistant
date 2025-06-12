@@ -19,6 +19,7 @@ export interface WebSocketServiceConfig {
 export class WebSocketService {
   private ws: WebSocket | null = null;
   private config: WebSocketServiceConfig;
+  private clientId: string | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = APP_CONFIG.websocket.reconnectAttempts;
   private reconnectDelay = APP_CONFIG.websocket.reconnectDelay;
@@ -215,5 +216,13 @@ export class WebSocketService {
 
   getReadyState(): number {
     return this.ws ? this.ws.readyState : WebSocket.CLOSED;
+  }
+
+  getClientId(): string | null {
+    return this.clientId;
+  }
+
+  setClientId(clientId: string): void {
+    this.clientId = clientId;
   }
 }

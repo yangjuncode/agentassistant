@@ -368,14 +368,14 @@ func (b *Broadcaster) HandleResponse(requestID string, response *WebResponse) {
 	}
 }
 
-// GetOnlineUsers returns a list of online users with the same token
-func (b *Broadcaster) GetOnlineUsers(token string) []*agentassistproto.OnlineUser {
+// GetOnlineUsers returns a list of online users with the same token, excluding the requester
+func (b *Broadcaster) GetOnlineUsers(token string, excludeClientID string) []*agentassistproto.OnlineUser {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 
 	var onlineUsers []*agentassistproto.OnlineUser
 	for _, client := range b.clients {
-		if client.IsActive() && client.GetToken() == token {
+		if client.IsActive() && client.GetToken() == token && client.ID != excludeClientID {
 			onlineUsers = append(onlineUsers, &agentassistproto.OnlineUser{
 				ClientId:    client.ID,
 				Nickname:    client.GetNickname(),

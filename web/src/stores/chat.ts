@@ -6,13 +6,15 @@ import type {
   TaskFinishRequest,
   AskQuestionResponse,
   TaskFinishResponse,
-  OnlineUser
+  OnlineUser,
+  ChatMessage as ProtoChatMessage
 } from '../proto/agentassist_pb';
 import {
   AskQuestionResponseSchema,
   TaskFinishResponseSchema,
   McpResultContentSchema,
-  TextContentSchema
+  TextContentSchema,
+  ChatMessageSchema
 } from '../proto/agentassist_pb';
 import { create } from '@bufbuild/protobuf';
 import type { WebSocketServiceConfig } from '../services/websocket';
@@ -49,8 +51,9 @@ export const useChatStore = defineStore('chat', () => {
   const wsService = ref<WebSocketService | null>(null);
   const isManuallyDisconnected = ref(false);
   const onlineUsers = ref<OnlineUser[]>([]);
-  const chatMessages = ref<Map<string, ChatMessage[]>>(new Map());
+  const protoChatMessages = ref<Map<string, ProtoChatMessage[]>>(new Map());
   const activeChatUser = ref<string | null>(null);
+  const currentClientId = ref<string | null>(null);
 
   // Computed
   const sortedMessages = computed(() => {
@@ -150,6 +153,9 @@ export const useChatStore = defineStore('chat', () => {
         break;
       case WebSocketCommands.CHAT_MESSAGE_NOTIFICATION:
         handleChatMessageNotification(message);
+        break;
+      case WebSocketCommands.USER_LOGIN:
+        handleUserLoginResponse(message);
         break;
       default:
         console.log('Unknown message command:', message.Cmd);
@@ -415,9 +421,26 @@ export const useChatStore = defineStore('chat', () => {
     return `${adjective}${noun}${number}`;
   }
 
+  function handleUserLoginResponse(message: WebsocketMessage) {
+    if (message.UserLoginResponse) {
+      const response = message.UserLoginResponse;
+      if (response.success) {
+        currentClientId.value = response.clientId;
+        wsService.value?.setClientId(response.clientId);
+        console.log('User login successful, client ID:', response.clientId);
+        // Request online users after successful login
+        requestOnlineUsers();
+      } else {
+        console.error('User login failed:', response.errorMessage);
+      }
+    }
+  }
+
   function handleGetOnlineUsersResponse(message: WebsocketMessage) {
     if (message.GetOnlineUsersResponse) {
-      onlineUsers.value = message.GetOnlineUsersResponse.onlineUsers || [];
+      const allUsers = message.GetOnlineUsersResponse.onlineUsers || [];
+      // Filter out current user
+      onlineUsers.value = allUsers.filter(user => user.clientId !== currentClientId.value);
       console.log('Updated online users:', onlineUsers.value.length);
     }
   }
@@ -427,20 +450,13 @@ export const useChatStore = defineStore('chat', () => {
       const chatMsg = message.ChatMessageNotification.chatMessage;
       const chatUserId = chatMsg.senderClientId;
 
-      if (!chatMessages.value.has(chatUserId)) {
-        chatMessages.value.set(chatUserId, []);
+      // Store in protobuf chat messages
+      if (!protoChatMessages.value.has(chatUserId)) {
+        protoChatMessages.value.set(chatUserId, []);
       }
 
-      const userChatMessages = chatMessages.value.get(chatUserId)!;
-      userChatMessages.push({
-        id: chatMsg.messageId,
-        type: 'reply',
-        timestamp: new Date(chatMsg.sentAt * 1000),
-        content: chatMsg.content,
-        isFromAgent: false,
-        projectDirectory: undefined,
-        timeout: undefined
-      });
+      const userProtoChatMessages = protoChatMessages.value.get(chatUserId)!;
+      userProtoChatMessages.push(chatMsg);
 
       console.log(`Received chat message from ${chatMsg.senderNickname}: ${chatMsg.content}`);
       NotificationService.questionReceived(); // Reuse notification for chat messages
@@ -454,25 +470,25 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   function sendChatMessage(receiverClientId: string, content: string) {
-    if (wsService.value) {
+    if (wsService.value && currentClientId.value) {
       wsService.value.sendChatMessage(receiverClientId, content);
 
-      // Add message to local chat history
-      if (!chatMessages.value.has(receiverClientId)) {
-        chatMessages.value.set(receiverClientId, []);
+      // Add message to local protobuf chat history
+      if (!protoChatMessages.value.has(receiverClientId)) {
+        protoChatMessages.value.set(receiverClientId, []);
       }
 
-      const userChatMessages = chatMessages.value.get(receiverClientId)!;
-      userChatMessages.push({
-        id: `local-${Date.now()}`,
-        type: 'reply',
-        timestamp: new Date(),
+      const userProtoChatMessages = protoChatMessages.value.get(receiverClientId)!;
+      const localMessage = create(ChatMessageSchema, {
+        messageId: `local-${Date.now()}`,
+        senderClientId: currentClientId.value,
+        senderNickname: userNickname.value || 'Me',
+        receiverClientId: receiverClientId,
+        receiverNickname: '',
         content: content,
-        isFromAgent: false,
-        projectDirectory: undefined,
-        timeout: undefined,
-        repliedByCurrentUser: true
+        sentAt: BigInt(Math.floor(Date.now() / 1000))
       });
+      userProtoChatMessages.push(localMessage);
     }
   }
 
@@ -480,8 +496,8 @@ export const useChatStore = defineStore('chat', () => {
     activeChatUser.value = clientId;
   }
 
-  function getChatMessages(clientId: string): ChatMessage[] {
-    return chatMessages.value.get(clientId) || [];
+  function getChatMessages(clientId: string): ProtoChatMessage[] {
+    return protoChatMessages.value.get(clientId) || [];
   }
 
   return {
@@ -494,6 +510,7 @@ export const useChatStore = defineStore('chat', () => {
     userNickname,
     onlineUsers,
     activeChatUser,
+    currentClientId,
 
     // Computed
     pendingQuestions,

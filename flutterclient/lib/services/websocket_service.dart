@@ -19,6 +19,7 @@ class WebSocketService {
   String? _url;
   String? _token;
   String? _nickname;
+  String? _clientId;
   int _reconnectAttempts = 0;
   bool _isManuallyDisconnected = false;
   bool _isConnecting = false;
@@ -41,6 +42,9 @@ class WebSocketService {
 
   /// Check if WebSocket is connected
   bool get isConnected => _channel != null && !_isConnecting;
+
+  /// Get current client ID
+  String? get clientId => _clientId;
 
   /// Connect to WebSocket server
   Future<void> connect(String url, String token, {String? nickname}) async {
@@ -157,6 +161,29 @@ class WebSocketService {
     _logger.d('Get pending messages request sent');
   }
 
+  /// Send get online users request
+  Future<void> sendGetOnlineUsers() async {
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.getOnlineUsers
+      ..getOnlineUsersRequest =
+          (GetOnlineUsersRequest()..userToken = _token ?? '');
+
+    await _sendMessage(message);
+    _logger.d('Get online users request sent');
+  }
+
+  /// Send chat message to another user
+  Future<void> sendChatMessage(String receiverClientId, String content) async {
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.sendChatMessage
+      ..sendChatMessageRequest = (SendChatMessageRequest()
+        ..receiverClientId = receiverClientId
+        ..content = content);
+
+    await _sendMessage(message);
+    _logger.d('Chat message sent to $receiverClientId: $content');
+  }
+
   /// Check message validity
   Future<Map<String, bool>> checkMessageValidity(
       List<String> requestIds) async {
@@ -234,6 +261,9 @@ class WebSocketService {
       if (message.cmd == WebSocketCommands.checkMessageValidity &&
           message.hasCheckMessageValidityResponse()) {
         _handleValidityCheckResponse(message.checkMessageValidityResponse);
+      } else if (message.cmd == WebSocketCommands.userLogin &&
+          message.hasUserLoginResponse()) {
+        _handleUserLoginResponse(message.userLoginResponse);
       } else {
         _messageController.add(message);
       }
@@ -259,6 +289,17 @@ class WebSocketService {
       if (completer != null && !completer.isCompleted) {
         completer.complete(response.validity);
       }
+    }
+  }
+
+  /// Handle user login response
+  void _handleUserLoginResponse(UserLoginResponse response) {
+    if (response.success) {
+      _clientId = response.clientId;
+      _logger.i('User login successful, client ID: $_clientId');
+    } else {
+      _logger.e('User login failed: ${response.errorMessage}');
+      _errorController.add('登录失败: ${response.errorMessage}');
     }
   }
 

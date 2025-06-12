@@ -213,6 +213,16 @@ message ChatMessageNotification {
   ChatMessage chat_message = 1;
 }
 
+// UserLoginResponse represents the response to a user login
+message UserLoginResponse {
+  // client id assigned by server
+  string client_id = 1;
+  // success status
+  bool success = 2;
+  // error message if login failed
+  string error_message = 3;
+}
+
 
 
 message WebsocketMessage {
@@ -270,6 +280,9 @@ message WebsocketMessage {
 
   // chat message notification
   ChatMessageNotification ChatMessageNotification = 22;
+
+  // user login response
+  UserLoginResponse UserLoginResponse = 23;
 
   //str param
   string StrParam = 12;

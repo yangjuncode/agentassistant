@@ -148,6 +148,21 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 				client.SetNickname(defaultNickname)
 				log.Printf("Client %s assigned default nickname: %s", client.ID, defaultNickname)
 			}
+
+			// Send login response with client ID
+			loginResponse := &agentassistproto.WebsocketMessage{
+				Cmd: "UserLogin",
+				UserLoginResponse: &agentassistproto.UserLoginResponse{
+					ClientId:     client.ID,
+					Success:      true,
+					ErrorMessage: "",
+				},
+			}
+			if !client.Send(loginResponse) {
+				log.Printf("Failed to send login response to client %s", client.ID)
+			} else {
+				log.Printf("Sent login response to client %s", client.ID)
+			}
 		case "AskQuestionReply":
 			h.handleAskQuestionReply(client, &message)
 			h.broadcastAskQuestionReply(client, &message)
@@ -379,8 +394,8 @@ func (h *WebSocketHandler) handleGetOnlineUsers(client *WebClient, message *agen
 		return
 	}
 
-	// Get online users from broadcaster
-	onlineUsers := h.broadcaster.GetOnlineUsers(clientToken)
+	// Get online users from broadcaster (excluding the requester)
+	onlineUsers := h.broadcaster.GetOnlineUsers(clientToken, client.ID)
 
 	// Create response message
 	response := &agentassistproto.WebsocketMessage{
