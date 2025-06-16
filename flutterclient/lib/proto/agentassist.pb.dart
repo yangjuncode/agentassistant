@@ -1662,6 +1662,54 @@ class ChatMessageNotification extends $pb.GeneratedMessage {
   ChatMessage ensureChatMessage() => $_ensure(0);
 }
 
+/// SendBackspaceRequest represents a request to send a backspace command
+class SendBackspaceRequest extends $pb.GeneratedMessage {
+  factory SendBackspaceRequest({
+    $core.String? receiverClientId,
+  }) {
+    final result = create();
+    if (receiverClientId != null) result.receiverClientId = receiverClientId;
+    return result;
+  }
+
+  SendBackspaceRequest._();
+
+  factory SendBackspaceRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory SendBackspaceRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SendBackspaceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'receiverClientId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SendBackspaceRequest clone() => SendBackspaceRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  SendBackspaceRequest copyWith(void Function(SendBackspaceRequest) updates) => super.copyWith((message) => updates(message as SendBackspaceRequest)) as SendBackspaceRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static SendBackspaceRequest create() => SendBackspaceRequest._();
+  @$core.override
+  SendBackspaceRequest createEmptyInstance() => create();
+  static $pb.PbList<SendBackspaceRequest> createRepeated() => $pb.PbList<SendBackspaceRequest>();
+  @$core.pragma('dart2js:noInline')
+  static SendBackspaceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SendBackspaceRequest>(create);
+  static SendBackspaceRequest? _defaultInstance;
+
+  /// receiver client id
+  @$pb.TagNumber(1)
+  $core.String get receiverClientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set receiverClientId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasReceiverClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearReceiverClientId() => $_clearField(1);
+}
+
 /// UserLoginResponse represents the response to a user login
 class UserLoginResponse extends $pb.GeneratedMessage {
   factory UserLoginResponse({
@@ -1832,6 +1880,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ChatMessageNotification? chatMessageNotification,
     UserLoginResponse? userLoginResponse,
     UserConnectionStatusNotification? userConnectionStatusNotification,
+    SendBackspaceRequest? sendBackspaceRequest,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -1852,6 +1901,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (chatMessageNotification != null) result.chatMessageNotification = chatMessageNotification;
     if (userLoginResponse != null) result.userLoginResponse = userLoginResponse;
     if (userConnectionStatusNotification != null) result.userConnectionStatusNotification = userConnectionStatusNotification;
+    if (sendBackspaceRequest != null) result.sendBackspaceRequest = sendBackspaceRequest;
     return result;
   }
 
@@ -1879,6 +1929,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<ChatMessageNotification>(22, _omitFieldNames ? '' : 'ChatMessageNotification', protoName: 'ChatMessageNotification', subBuilder: ChatMessageNotification.create)
     ..aOM<UserLoginResponse>(23, _omitFieldNames ? '' : 'UserLoginResponse', protoName: 'UserLoginResponse', subBuilder: UserLoginResponse.create)
     ..aOM<UserConnectionStatusNotification>(24, _omitFieldNames ? '' : 'UserConnectionStatusNotification', protoName: 'UserConnectionStatusNotification', subBuilder: UserConnectionStatusNotification.create)
+    ..aOM<SendBackspaceRequest>(25, _omitFieldNames ? '' : 'SendBackspaceRequest', protoName: 'SendBackspaceRequest', subBuilder: SendBackspaceRequest.create)
     ..hasRequiredFields = false
   ;
 
@@ -1913,6 +1964,7 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// GetOnlineUsers: get online users with the same token
   /// SendChatMessage: send a chat message to another user
   /// ChatMessageNotification: notification of a new chat message
+  /// SendBackspace: send a backspace command to another user
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -2121,6 +2173,18 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearUserConnectionStatusNotification() => $_clearField(24);
   @$pb.TagNumber(24)
   UserConnectionStatusNotification ensureUserConnectionStatusNotification() => $_ensure(17);
+
+  /// send backspace request
+  @$pb.TagNumber(25)
+  SendBackspaceRequest get sendBackspaceRequest => $_getN(18);
+  @$pb.TagNumber(25)
+  set sendBackspaceRequest(SendBackspaceRequest value) => $_setField(25, value);
+  @$pb.TagNumber(25)
+  $core.bool hasSendBackspaceRequest() => $_has(18);
+  @$pb.TagNumber(25)
+  void clearSendBackspaceRequest() => $_clearField(25);
+  @$pb.TagNumber(25)
+  SendBackspaceRequest ensureSendBackspaceRequest() => $_ensure(18);
 }
 
 class SrvAgentAssistApi {

@@ -1483,6 +1483,52 @@ func (x *ChatMessageNotification) GetChatMessage() *ChatMessage {
 	return nil
 }
 
+// SendBackspaceRequest represents a request to send a backspace command
+type SendBackspaceRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// receiver client id
+	ReceiverClientId string `protobuf:"bytes,1,opt,name=receiver_client_id,json=receiverClientId,proto3" json:"receiver_client_id,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *SendBackspaceRequest) Reset() {
+	*x = SendBackspaceRequest{}
+	mi := &file_agentassist_proto_msgTypes[24]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SendBackspaceRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SendBackspaceRequest) ProtoMessage() {}
+
+func (x *SendBackspaceRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[24]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SendBackspaceRequest.ProtoReflect.Descriptor instead.
+func (*SendBackspaceRequest) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{24}
+}
+
+func (x *SendBackspaceRequest) GetReceiverClientId() string {
+	if x != nil {
+		return x.ReceiverClientId
+	}
+	return ""
+}
+
 // UserLoginResponse represents the response to a user login
 type UserLoginResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1498,7 +1544,7 @@ type UserLoginResponse struct {
 
 func (x *UserLoginResponse) Reset() {
 	*x = UserLoginResponse{}
-	mi := &file_agentassist_proto_msgTypes[24]
+	mi := &file_agentassist_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1510,7 +1556,7 @@ func (x *UserLoginResponse) String() string {
 func (*UserLoginResponse) ProtoMessage() {}
 
 func (x *UserLoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[24]
+	mi := &file_agentassist_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1523,7 +1569,7 @@ func (x *UserLoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserLoginResponse.ProtoReflect.Descriptor instead.
 func (*UserLoginResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{24}
+	return file_agentassist_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *UserLoginResponse) GetClientId() string {
@@ -1562,7 +1608,7 @@ type UserConnectionStatusNotification struct {
 
 func (x *UserConnectionStatusNotification) Reset() {
 	*x = UserConnectionStatusNotification{}
-	mi := &file_agentassist_proto_msgTypes[25]
+	mi := &file_agentassist_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1574,7 +1620,7 @@ func (x *UserConnectionStatusNotification) String() string {
 func (*UserConnectionStatusNotification) ProtoMessage() {}
 
 func (x *UserConnectionStatusNotification) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[25]
+	mi := &file_agentassist_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1587,7 +1633,7 @@ func (x *UserConnectionStatusNotification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserConnectionStatusNotification.ProtoReflect.Descriptor instead.
 func (*UserConnectionStatusNotification) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{25}
+	return file_agentassist_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *UserConnectionStatusNotification) GetUser() *OnlineUser {
@@ -1627,6 +1673,7 @@ type WebsocketMessage struct {
 	// GetOnlineUsers: get online users with the same token
 	// SendChatMessage: send a chat message to another user
 	// ChatMessageNotification: notification of a new chat message
+	// SendBackspace: send a backspace command to another user
 	Cmd string `protobuf:"bytes,1,opt,name=Cmd,proto3" json:"Cmd,omitempty"`
 	// ask question
 	AskQuestionRequest *AskQuestionRequest `protobuf:"bytes,2,opt,name=AskQuestionRequest,proto3" json:"AskQuestionRequest,omitempty"`
@@ -1658,6 +1705,8 @@ type WebsocketMessage struct {
 	UserLoginResponse *UserLoginResponse `protobuf:"bytes,23,opt,name=UserLoginResponse,proto3" json:"UserLoginResponse,omitempty"`
 	// user connection status notification
 	UserConnectionStatusNotification *UserConnectionStatusNotification `protobuf:"bytes,24,opt,name=UserConnectionStatusNotification,proto3" json:"UserConnectionStatusNotification,omitempty"`
+	// send backspace request
+	SendBackspaceRequest *SendBackspaceRequest `protobuf:"bytes,25,opt,name=SendBackspaceRequest,proto3" json:"SendBackspaceRequest,omitempty"`
 	// str param
 	StrParam string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
 	// user nickname (for UserLogin and notifications)
@@ -1668,7 +1717,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_agentassist_proto_msgTypes[26]
+	mi := &file_agentassist_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1680,7 +1729,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[26]
+	mi := &file_agentassist_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1693,7 +1742,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{26}
+	return file_agentassist_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *WebsocketMessage) GetCmd() string {
@@ -1804,6 +1853,13 @@ func (x *WebsocketMessage) GetUserLoginResponse() *UserLoginResponse {
 func (x *WebsocketMessage) GetUserConnectionStatusNotification() *UserConnectionStatusNotification {
 	if x != nil {
 		return x.UserConnectionStatusNotification
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetSendBackspaceRequest() *SendBackspaceRequest {
+	if x != nil {
+		return x.SendBackspaceRequest
 	}
 	return nil
 }
@@ -1935,7 +1991,9 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x12receiver_client_id\x18\x01 \x01(\tR\x10receiverClientId\x12\x18\n" +
 	"\acontent\x18\x02 \x01(\tR\acontent\"[\n" +
 	"\x17ChatMessageNotification\x12@\n" +
-	"\fchat_message\x18\x01 \x01(\v2\x1d.agentassistproto.ChatMessageR\vchatMessage\"o\n" +
+	"\fchat_message\x18\x01 \x01(\v2\x1d.agentassistproto.ChatMessageR\vchatMessage\"D\n" +
+	"\x14SendBackspaceRequest\x12,\n" +
+	"\x12receiver_client_id\x18\x01 \x01(\tR\x10receiverClientId\"o\n" +
 	"\x11UserLoginResponse\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12#\n" +
@@ -1943,7 +2001,7 @@ const file_agentassist_proto_rawDesc = "" +
 	" UserConnectionStatusNotification\x120\n" +
 	"\x04user\x18\x01 \x01(\v2\x1c.agentassistproto.OnlineUserR\x04user\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1c\n" +
-	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"\xc1\f\n" +
+	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"\x9d\r\n" +
 	"\x10WebsocketMessage\x12\x10\n" +
 	"\x03Cmd\x18\x01 \x01(\tR\x03Cmd\x12T\n" +
 	"\x12AskQuestionRequest\x18\x02 \x01(\v2$.agentassistproto.AskQuestionRequestR\x12AskQuestionRequest\x12Q\n" +
@@ -1960,7 +2018,8 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x16SendChatMessageRequest\x18\x15 \x01(\v2(.agentassistproto.SendChatMessageRequestR\x16SendChatMessageRequest\x12c\n" +
 	"\x17ChatMessageNotification\x18\x16 \x01(\v2).agentassistproto.ChatMessageNotificationR\x17ChatMessageNotification\x12Q\n" +
 	"\x11UserLoginResponse\x18\x17 \x01(\v2#.agentassistproto.UserLoginResponseR\x11UserLoginResponse\x12~\n" +
-	" UserConnectionStatusNotification\x18\x18 \x01(\v22.agentassistproto.UserConnectionStatusNotificationR UserConnectionStatusNotification\x12\x1a\n" +
+	" UserConnectionStatusNotification\x18\x18 \x01(\v22.agentassistproto.UserConnectionStatusNotificationR UserConnectionStatusNotification\x12Z\n" +
+	"\x14SendBackspaceRequest\x18\x19 \x01(\v2&.agentassistproto.SendBackspaceRequestR\x14SendBackspaceRequest\x12\x1a\n" +
 	"\bStrParam\x18\f \x01(\tR\bStrParam\x12\x1a\n" +
 	"\bNickname\x18\x12 \x01(\tR\bNickname2\xc5\x01\n" +
 	"\x0eSrvAgentAssist\x12Z\n" +
@@ -1980,7 +2039,7 @@ func file_agentassist_proto_rawDescGZIP() []byte {
 	return file_agentassist_proto_rawDescData
 }
 
-var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
+var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
 var file_agentassist_proto_goTypes = []any{
 	(*TextContent)(nil),                      // 0: agentassistproto.TextContent
 	(*ImageContent)(nil),                     // 1: agentassistproto.ImageContent
@@ -2006,12 +2065,13 @@ var file_agentassist_proto_goTypes = []any{
 	(*ChatMessage)(nil),                      // 21: agentassistproto.ChatMessage
 	(*SendChatMessageRequest)(nil),           // 22: agentassistproto.SendChatMessageRequest
 	(*ChatMessageNotification)(nil),          // 23: agentassistproto.ChatMessageNotification
-	(*UserLoginResponse)(nil),                // 24: agentassistproto.UserLoginResponse
-	(*UserConnectionStatusNotification)(nil), // 25: agentassistproto.UserConnectionStatusNotification
-	(*WebsocketMessage)(nil),                 // 26: agentassistproto.WebsocketMessage
-	nil,                                      // 27: agentassistproto.AskQuestionResponse.MetaEntry
-	nil,                                      // 28: agentassistproto.TaskFinishResponse.MetaEntry
-	nil,                                      // 29: agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	(*SendBackspaceRequest)(nil),             // 24: agentassistproto.SendBackspaceRequest
+	(*UserLoginResponse)(nil),                // 25: agentassistproto.UserLoginResponse
+	(*UserConnectionStatusNotification)(nil), // 26: agentassistproto.UserConnectionStatusNotification
+	(*WebsocketMessage)(nil),                 // 27: agentassistproto.WebsocketMessage
+	nil,                                      // 28: agentassistproto.AskQuestionResponse.MetaEntry
+	nil,                                      // 29: agentassistproto.TaskFinishResponse.MetaEntry
+	nil,                                      // 30: agentassistproto.CheckMessageValidityResponse.ValidityEntry
 }
 var file_agentassist_proto_depIdxs = []int32{
 	0,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
@@ -2019,12 +2079,12 @@ var file_agentassist_proto_depIdxs = []int32{
 	2,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
 	3,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
 	6,  // 4: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
-	27, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
+	28, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
 	4,  // 6: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
 	9,  // 7: agentassistproto.TaskFinishRequest.Request:type_name -> agentassistproto.McpTaskFinishRequest
-	28, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
+	29, // 8: agentassistproto.TaskFinishResponse.Meta:type_name -> agentassistproto.TaskFinishResponse.MetaEntry
 	4,  // 9: agentassistproto.TaskFinishResponse.contents:type_name -> agentassistproto.McpResultContent
-	29, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	30, // 10: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
 	7,  // 11: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
 	10, // 12: agentassistproto.PendingMessage.task_finish_request:type_name -> agentassistproto.TaskFinishRequest
 	15, // 13: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
@@ -2044,17 +2104,18 @@ var file_agentassist_proto_depIdxs = []int32{
 	20, // 27: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
 	22, // 28: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
 	23, // 29: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
-	24, // 30: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
-	25, // 31: agentassistproto.WebsocketMessage.UserConnectionStatusNotification:type_name -> agentassistproto.UserConnectionStatusNotification
-	7,  // 32: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
-	10, // 33: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
-	8,  // 34: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
-	11, // 35: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
-	34, // [34:36] is the sub-list for method output_type
-	32, // [32:34] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	25, // 30: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
+	26, // 31: agentassistproto.WebsocketMessage.UserConnectionStatusNotification:type_name -> agentassistproto.UserConnectionStatusNotification
+	24, // 32: agentassistproto.WebsocketMessage.SendBackspaceRequest:type_name -> agentassistproto.SendBackspaceRequest
+	7,  // 33: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
+	10, // 34: agentassistproto.SrvAgentAssist.TaskFinish:input_type -> agentassistproto.TaskFinishRequest
+	8,  // 35: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
+	11, // 36: agentassistproto.SrvAgentAssist.TaskFinish:output_type -> agentassistproto.TaskFinishResponse
+	35, // [35:37] is the sub-list for method output_type
+	33, // [33:35] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_agentassist_proto_init() }
@@ -2068,7 +2129,7 @@ func file_agentassist_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agentassist_proto_rawDesc), len(file_agentassist_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   30,
+			NumMessages:   31,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
