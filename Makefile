@@ -46,6 +46,12 @@ generate: proto-gen
 proto-gen:
 	@echo "Generating protobuf code..."
 	protoc  -Iproto --go_out=paths=source_relative:./agentassistproto --connect-go_out=paths=source_relative:./agentassistproto --connect-go_opt=package_suffix="" proto/agentassist.proto
+	#cd web and call protogen
+	cd web && pnpm run proto:gen
+	cd -
+	#cd flutter client
+	cd flutter_client && ./generate_proto.sh
+	cd -
 	@echo "Protobuf generation complete!"
 
 # Install dependencies

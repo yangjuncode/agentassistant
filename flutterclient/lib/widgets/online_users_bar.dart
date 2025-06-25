@@ -241,6 +241,129 @@ class _ChatDialogState extends State<_ChatDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Theme.of(context).platform == TargetPlatform.android ||
+        Theme.of(context).platform == TargetPlatform.iOS;
+
+    // Define widgets to be used in the layout
+    final headerWidget = Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            shape: BoxShape.circle,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            widget.user.nickname.isNotEmpty
+                ? widget.user.nickname
+                : 'User_${widget.user.clientId.substring(0, 8)}',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ),
+        IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.close),
+        ),
+      ],
+    );
+
+    final messagesWidget = Expanded(
+      child: Consumer<ChatProvider>(
+        builder: (context, chatProvider, child) {
+          final messages = chatProvider.getChatMessages(widget.user.clientId);
+          if (messages.isEmpty) {
+            return const Center(child: Text('还没有聊天消息'));
+          }
+          return ListView.builder(
+            controller: _scrollController,
+            itemCount: messages.length,
+            itemBuilder: (context, index) {
+              final message = messages[index];
+              final isFromMe =
+                  message.senderClientId == widget.chatProvider.currentClientId;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  mainAxisAlignment:
+                      isFromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 250),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isFromMe
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            message.content,
+                            style: TextStyle(
+                              color: isFromMe
+                                  ? Theme.of(context).colorScheme.onPrimary
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _formatMessageTime(message.sentAt),
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isFromMe
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .onPrimary
+                                      .withValues(alpha: 0.7)
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant
+                                      .withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+
+    final inputWidget = Row(
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _messageController,
+            decoration: const InputDecoration(
+              hintText: '输入消息...',
+              border: OutlineInputBorder(),
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            ),
+            onSubmitted: (_) => _sendMessage(),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: _sendMessage,
+          icon: const Icon(Icons.send),
+        ),
+      ],
+    );
+
+    // Build the layout based on the platform
     return Dialog(
       child: Container(
         width: 400,
@@ -248,142 +371,17 @@ class _ChatDialogState extends State<_ChatDialog> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // Header
-            Row(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    widget.user.nickname.isNotEmpty
-                        ? widget.user.nickname
-                        : 'User_${widget.user.clientId.substring(0, 8)}',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close),
-                ),
-              ],
-            ),
+            headerWidget,
             const Divider(),
-
-            // Messages
-            Expanded(
-              child: Consumer<ChatProvider>(
-                builder: (context, chatProvider, child) {
-                  final messages =
-                      chatProvider.getChatMessages(widget.user.clientId);
-
-                  if (messages.isEmpty) {
-                    return const Center(
-                      child: Text('还没有聊天消息'),
-                    );
-                  }
-
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      final isFromMe = message.senderClientId ==
-                          widget.chatProvider.currentClientId;
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Row(
-                          mainAxisAlignment: isFromMe
-                              ? MainAxisAlignment.end
-                              : MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              constraints: const BoxConstraints(maxWidth: 250),
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: isFromMe
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    message.content,
-                                    style: TextStyle(
-                                      color: isFromMe
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    _formatMessageTime(message.sentAt),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: isFromMe
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary
-                                              .withValues(alpha: 0.7)
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant
-                                              .withValues(alpha: 0.7),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-
-            const Divider(),
-
-            // Input
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: const InputDecoration(
-                      hintText: '输入消息...',
-                      border: OutlineInputBorder(),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    ),
-                    onSubmitted: (_) => _sendMessage(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _sendMessage,
-                  icon: const Icon(Icons.send),
-                ),
-              ],
-            ),
+            if (isMobile) ...[
+              inputWidget,
+              const SizedBox(height: 8),
+            ],
+            messagesWidget,
+            if (!isMobile) ...[
+              const Divider(),
+              inputWidget,
+            ],
           ],
         ),
       ),
