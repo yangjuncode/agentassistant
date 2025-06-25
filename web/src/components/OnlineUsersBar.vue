@@ -41,6 +41,21 @@
           </button>
         </div>
 
+        <!-- Input on top for mobile -->
+        <div v-if="isMobile" class="chat-input chat-input-top">
+          <div class="input-wrapper">
+            <input
+              v-model="messageInput"
+              @keyup.enter="sendMessage"
+              placeholder="输入消息..."
+              class="message-input"
+            />
+            <button @click="sendMessage" class="send-btn" :disabled="!messageInput.trim()">
+              <Icon name="send" />
+            </button>
+          </div>
+        </div>
+
         <div class="chat-messages" ref="messagesContainer">
           <div v-if="chatMessages.length === 0" class="no-messages">
             <div class="no-messages-icon">💬</div>
@@ -69,7 +84,8 @@
           </div>
         </div>
 
-        <div class="chat-input">
+        <!-- Input on bottom for desktop -->
+        <div v-if="!isMobile" class="chat-input chat-input-bottom">
           <div class="input-wrapper">
             <input
               v-model="messageInput"
@@ -88,12 +104,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import { useChatStore } from '../stores/chat'
 import type { OnlineUser, ChatMessage } from '../proto/agentassist_pb'
+
 import Icon from './Icon.vue'
 
 const chatStore = useChatStore()
+
+// Mobile detection
+const isMobile = ref(false)
+
+/**
+ * Detects if the current browser is likely running on a mobile device.
+ * It uses a combination of user agent, modern client hints, screen width,
+ * touch support, and CSS media queries for a more robust check.
+ *
+ * @returns {boolean} True if the device is likely mobile, false otherwise.
+ */
+function isMobileDevice(): boolean {
+  try {
+    const win = window
+    const navigator = win.navigator as unknown as {
+      userAgentData?: {
+        mobile: boolean;
+      };
+      maxTouchPoints?: number;
+    } & Navigator;
+
+    // 1. Check for modern Client Hints API (most reliable)
+    const userAgentData = navigator.userAgentData
+    if (userAgentData?.mobile !== undefined) {
+      return userAgentData.mobile;
+    }
+
+    // 2. Check for mobile-specific features
+    if (
+      'standalone' in window.navigator ||
+      'msstandalone' in window.navigator ||
+      'maxTouchPoints' in navigator && navigator.maxTouchPoints > 0
+    ) {
+      return true;
+    }
+
+    // 3. Check for mobile-specific APIs
+    if (
+      'orientation' in window ||
+      'onorientationchange' in window ||
+      'ontouchstart' in window ||
+      'ontouchmove' in window ||
+      'ontouchend' in window
+    ) {
+      return true;
+    }
+
+    // 4. Check for mobile-specific media queries
+    const mediaQuery = (query: string) => {
+      return window.matchMedia?.(query)?.matches ?? false;
+    };
+
+    if (
+      mediaQuery('(any-pointer: coarse)') ||
+      mediaQuery('(hover: none)')
+    ) {
+      return true;
+    }
+
+    // 5. Check for mobile-specific user agent strings
+    const userAgent = navigator.userAgent || '';
+    const mobilePatterns = [
+      /Android/i,
+      /iPhone/i,
+      /iPad/i,
+      /iPod/i,
+      /BlackBerry/i,
+      /IEMobile/i,
+      /Opera Mini/i,
+      /Windows Phone/i,
+      /Mobile Safari/i,
+      /CriOS/i,
+      /FxiOS/i
+    ];
+
+    if (mobilePatterns.some(pattern => pattern.test(userAgent))) {
+      return true;
+    }
+
+    // 6. Check for small screen size (last resort)
+    const screenWidth = document.documentElement?.clientWidth ||
+      document.body?.clientWidth ||
+      1000;
+    return screenWidth < 768;
+
+  } catch (error) {
+    console.error('Error detecting mobile device:', error);
+    // If detection fails, assume desktop to avoid false positives
+    return false;
+  }
+}
+
+function checkIsMobile() {
+  isMobile.value = isMobileDevice()
+}
+
+onMounted(() => {
+  checkIsMobile()
+  window.addEventListener('resize', checkIsMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkIsMobile)
+})
 
 // Filter out current user
 const filteredOnlineUsers = computed(() => {
@@ -482,8 +603,15 @@ watch(() => chatStore.activeChatUser, (newActiveChatUser) => {
 .chat-input {
   padding: 20px;
   background: linear-gradient(135deg, rgba(var(--color-surface-container), 0.5) 0%, rgba(var(--color-surface), 0.8) 100%);
-  border-top: 1px solid rgba(var(--color-outline), 0.1);
   backdrop-filter: blur(10px);
+}
+
+.chat-input-top {
+  border-bottom: 1px solid rgba(var(--color-outline), 0.1);
+}
+
+.chat-input-bottom {
+  border-top: 1px solid rgba(var(--color-outline), 0.1);
 }
 
 .input-wrapper {
