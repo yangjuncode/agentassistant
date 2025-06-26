@@ -28,7 +28,7 @@
 
     <!-- Chat Dialog -->
     <div v-if="activeChatUser" class="chat-dialog-overlay" @click="closeChatDialog">
-      <div class="chat-dialog" @click.stop>
+      <div class="chat-dialog" @click.stop :class="{ 'is-mobile': isMobile }">
         <div class="chat-header">
           <div class="chat-user-info">
             <div class="user-status"></div>
@@ -124,7 +124,7 @@ const isMobile = ref(false)
  */
 function isMobileDevice(): boolean {
   try {
-    const win = window
+    const win: Window = window
     const navigator = win.navigator as unknown as {
       userAgentData?: {
         mobile: boolean;
@@ -191,9 +191,10 @@ function isMobileDevice(): boolean {
     }
 
     // 6. Check for small screen size (last resort)
-    const screenWidth = document.documentElement?.clientWidth ||
+    const screenWidth = globalThis.window.innerWidth ||
+      document.documentElement?.clientWidth ||
       document.body?.clientWidth ||
-      1000;
+      0;
     return screenWidth < 768;
 
   } catch (error) {
@@ -670,5 +671,13 @@ watch(() => chatStore.activeChatUser, (newActiveChatUser) => {
   cursor: not-allowed;
   transform: none;
   box-shadow: 0 2px 8px rgba(var(--color-primary), 0.1);
+}
+
+/* Responsive adjustments for mobile */
+.chat-dialog.is-mobile {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
 }
 </style>
