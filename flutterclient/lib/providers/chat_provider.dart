@@ -52,7 +52,8 @@ class ChatProvider extends ChangeNotifier {
 
   ChatProvider() {
     _initializeWebSocketListeners();
-    _loadAutoForwardSetting();
+    // Defer loading settings to avoid calling notifyListeners during build.
+    Future.microtask(() => _loadAutoForwardSetting());
   }
 
   /// Initialize WebSocket event listeners

@@ -29,7 +29,13 @@ class _SplashScreenState extends State<SplashScreen>
   void initState() {
     super.initState();
     _initializeAnimations();
-    _initializeApp();
+    // Defer initialization until after the first frame is built to avoid
+    // calling provider notifiers during the build phase.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _initializeApp();
+      }
+    });
   }
 
   void _initializeAnimations() {
