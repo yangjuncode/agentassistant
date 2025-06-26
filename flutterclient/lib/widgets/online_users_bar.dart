@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart';
@@ -184,6 +185,7 @@ class _ChatDialog extends StatefulWidget {
 class _ChatDialogState extends State<_ChatDialog> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final FocusNode _inputFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -213,6 +215,7 @@ class _ChatDialogState extends State<_ChatDialog> {
     widget.chatProvider.removeListener(_onChatProviderChanged);
     _messageController.dispose();
     _scrollController.dispose();
+    _inputFocusNode.dispose();
     // Use addPostFrameCallback to avoid calling setState during dispose
     SchedulerBinding.instance.addPostFrameCallback((_) {
       widget.chatProvider.setActiveChatUser(null);
@@ -237,9 +240,10 @@ class _ChatDialogState extends State<_ChatDialog> {
     widget.chatProvider.sendChatMessage(widget.user.clientId, content);
     _messageController.clear();
 
-    // Scroll to bottom after sending message
+    // Scroll to bottom and refocus input after sending message
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollToBottom();
+      _inputFocusNode.requestFocus();
     });
   }
 
@@ -349,16 +353,37 @@ class _ChatDialogState extends State<_ChatDialog> {
     );
 
     final inputWidget = Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(
-          child: TextField(
-            controller: _messageController,
-            decoration: const InputDecoration(
-              hintText: '输入消息...',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Focus(
+            onKeyEvent: (FocusNode node, KeyEvent event) {
+              // Check for Ctrl+Enter key combination
+              if (event is KeyDownEvent &&
+                  event.logicalKey == LogicalKeyboardKey.enter &&
+                  (HardwareKeyboard.instance.isControlPressed ||
+                      HardwareKeyboard.instance.isMetaPressed)) {
+                _sendMessage();
+                return KeyEventResult.handled;
+              }
+              return KeyEventResult.ignored;
+            },
+            child: TextField(
+              controller: _messageController,
+              focusNode: _inputFocusNode,
+              decoration: const InputDecoration(
+                hintText: '输入消息... (Ctrl+Enter 发送)',
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+              maxLines: 4,
+              minLines: 1,
+              keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.newline,
+              onSubmitted:
+                  null, // Disable Enter to send, use Ctrl+Enter instead
             ),
-            onSubmitted: (_) => _sendMessage(),
           ),
         ),
         const SizedBox(width: 8),

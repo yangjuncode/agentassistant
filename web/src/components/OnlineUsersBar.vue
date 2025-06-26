@@ -44,12 +44,15 @@
         <!-- Input on top for mobile -->
         <div v-if="isMobile" class="chat-input chat-input-top">
           <div class="input-wrapper">
-            <input
+            <textarea
+              ref="mobileMessageInput"
               v-model="messageInput"
-              @keyup.enter="sendMessage"
-              placeholder="输入消息..."
+              @keydown.ctrl.enter="sendMessage"
+              @keydown.meta.enter="sendMessage"
+              placeholder="输入消息... (Ctrl+Enter 发送)"
               class="message-input"
-            />
+              rows="2"
+            ></textarea>
             <button @click="sendMessage" class="send-btn" :disabled="!messageInput.trim()">
               <Icon name="send" />
             </button>
@@ -87,12 +90,15 @@
         <!-- Input on bottom for desktop -->
         <div v-if="!isMobile" class="chat-input chat-input-bottom">
           <div class="input-wrapper">
-            <input
+            <textarea
+              ref="desktopMessageInput"
               v-model="messageInput"
-              @keyup.enter="sendMessage"
-              placeholder="输入消息..."
+              @keydown.ctrl.enter="sendMessage"
+              @keydown.meta.enter="sendMessage"
+              placeholder="输入消息... (Ctrl+Enter 发送)"
               class="message-input"
-            />
+              rows="2"
+            ></textarea>
             <button @click="sendMessage" class="send-btn" :disabled="!messageInput.trim()">
               <Icon name="send" />
             </button>
@@ -226,6 +232,8 @@ const filteredOnlineUsers = computed(() => {
 const activeChatUser = ref<OnlineUser | null>(null)
 const messageInput = ref('')
 const messagesContainer = ref<HTMLElement>()
+const mobileMessageInput = ref<HTMLTextAreaElement>()
+const desktopMessageInput = ref<HTMLTextAreaElement>()
 
 // Get chat messages for active user
 const chatMessages = computed((): ChatMessage[] => {
@@ -259,6 +267,12 @@ function sendMessage() {
 
   void nextTick(() => {
     scrollToBottom()
+    // Refocus the appropriate input based on device type
+    if (isMobile.value && mobileMessageInput.value) {
+      mobileMessageInput.value.focus()
+    } else if (!isMobile.value && desktopMessageInput.value) {
+      desktopMessageInput.value.focus()
+    }
   })
 }
 
@@ -636,6 +650,11 @@ watch(() => chatStore.activeChatUser, (newActiveChatUser) => {
   font-size: 0.95rem;
   resize: none;
   outline: none;
+  font-family: inherit;
+  line-height: 1.4;
+  min-height: 40px;
+  max-height: 120px;
+  overflow-y: auto;
 }
 
 .message-input::placeholder {
