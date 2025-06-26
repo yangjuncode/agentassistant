@@ -718,7 +718,8 @@ class ChatProvider extends ChangeNotifier {
 
     // Auto forward to system input if enabled and message is from another user
     if (_autoForwardToSystemInput && senderId != _webSocketService.clientId) {
-      _autoForwardMessageToSystemInput(chatMessage.content);
+      // Use microtask to defer auto-forwarding until after the current build cycle
+      Future.microtask(() => _autoForwardMessageToSystemInput(chatMessage.content));
     }
 
     // Bring window to front when new chat message is received

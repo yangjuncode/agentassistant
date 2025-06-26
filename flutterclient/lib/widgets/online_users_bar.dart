@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart';
@@ -187,10 +188,10 @@ class _ChatDialogState extends State<_ChatDialog> {
   @override
   void initState() {
     super.initState();
-    widget.chatProvider.setActiveChatUser(widget.user.clientId);
 
-    // Scroll to bottom after dialog is built
+    // Defer setting active chat user to avoid calling notifyListeners during build
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.chatProvider.setActiveChatUser(widget.user.clientId);
       _scrollToBottom();
     });
 
@@ -212,7 +213,10 @@ class _ChatDialogState extends State<_ChatDialog> {
     widget.chatProvider.removeListener(_onChatProviderChanged);
     _messageController.dispose();
     _scrollController.dispose();
-    widget.chatProvider.setActiveChatUser(null);
+    // Use addPostFrameCallback to avoid calling setState during dispose
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      widget.chatProvider.setActiveChatUser(null);
+    });
     super.dispose();
   }
 
@@ -290,8 +294,9 @@ class _ChatDialogState extends State<_ChatDialog> {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4),
                 child: Row(
-                  mainAxisAlignment:
-                      isFromMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  mainAxisAlignment: isFromMe
+                      ? MainAxisAlignment.end
+                      : MainAxisAlignment.start,
                   children: [
                     Container(
                       constraints: const BoxConstraints(maxWidth: 250),
@@ -299,7 +304,9 @@ class _ChatDialogState extends State<_ChatDialog> {
                       decoration: BoxDecoration(
                         color: isFromMe
                             ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                            : Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
@@ -349,8 +356,7 @@ class _ChatDialogState extends State<_ChatDialog> {
             decoration: const InputDecoration(
               hintText: '输入消息...',
               border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             ),
             onSubmitted: (_) => _sendMessage(),
           ),
