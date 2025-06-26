@@ -1,5 +1,9 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:provider/provider.dart';
+import 'package:logger/logger.dart';
 
 import 'providers/chat_provider.dart';
 import 'screens/login_screen.dart';
@@ -8,13 +12,105 @@ import 'screens/splash_screen.dart';
 import 'config/app_config.dart';
 import 'services/window_service.dart';
 
+// Global logger instance
+final Logger logger = Logger();
+
+// Error reporting function
+void reportError(FlutterErrorDetails details) {
+  logger.e('Flutter error caught: ${details.exception}', error: details.exception, stackTrace: details.stack);
+}
+
+// Frame timing monitor
+class FrameTimingMonitor {
+  static const int _warningThresholdMs = 100; // Frame time warning threshold
+  static int _consecutiveSlowFrames = 0;
+  static const int _maxConsecutiveSlowFrames = 5;
+  static Timer? _recoveryTimer;
+  static bool _isMonitoring = false;
+  
+  // Start monitoring frame timings
+  static void startMonitoring() {
+    if (_isMonitoring) return;
+    _isMonitoring = true;
+    
+    WidgetsBinding.instance.addTimingsCallback((List<FrameTiming> timings) {
+      for (final timing in timings) {
+        final buildTime = timing.buildDuration.inMilliseconds;
+        final rasterTime = timing.rasterDuration.inMilliseconds;
+        final totalTime = buildTime + rasterTime;
+        
+        if (totalTime > _warningThresholdMs) {
+          _consecutiveSlowFrames++;
+          logger.w('Slow frame detected: build=${buildTime}ms, raster=${rasterTime}ms, total=${totalTime}ms');
+          
+          if (_consecutiveSlowFrames >= _maxConsecutiveSlowFrames) {
+            logger.e('Multiple consecutive slow frames detected, may cause black screen');
+            _scheduleRecovery();
+          }
+        } else {
+          _consecutiveSlowFrames = 0;
+          if (_recoveryTimer != null) {
+            _recoveryTimer!.cancel();
+            _recoveryTimer = null;
+          }
+        }
+      }
+    });
+    
+    logger.i('Frame timing monitor started');
+  }
+  
+  // Schedule recovery action for potential black screen
+  static void _scheduleRecovery() {
+    if (_recoveryTimer != null) return;
+    
+    _recoveryTimer = Timer(const Duration(seconds: 2), () {
+      logger.i('Triggering UI refresh to recover from potential black screen');
+      _consecutiveSlowFrames = 0;
+      _recoveryTimer = null;
+      
+      // Force a rebuild of the widget tree
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.reassembleApplication();
+      });
+    });
+  }
+}
+
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize window service for desktop platforms
-  await WindowService().initialize();
-
-  runApp(const AgentAssistantApp());
+  // Catch errors during initialization
+  try {
+    // Initialize Flutter binding
+    WidgetsFlutterBinding.ensureInitialized();
+    
+    // Set up error handling
+    FlutterError.onError = (FlutterErrorDetails details) {
+      FlutterError.presentError(details);
+      reportError(details);
+    };
+    
+    // Initialize window service for desktop platforms
+    await WindowService().initialize();
+    
+    // Start frame timing monitor
+    FrameTimingMonitor.startMonitoring();
+    
+    // Enable additional debug information in debug mode
+    debugPrintMarkNeedsLayoutStacks = true;
+    debugPrintLayouts = true;
+    
+    // Run the app with error zone
+    runZonedGuarded(
+      () => runApp(const AgentAssistantApp()),
+      (error, stackTrace) {
+        logger.e('Uncaught error in zone', error: error, stackTrace: stackTrace);
+      },
+    );
+  } catch (e, stack) {
+    logger.e('Error during app initialization', error: e, stackTrace: stack);
+    // Still try to run the app even if initialization failed
+    runApp(const AgentAssistantApp());
+  }
 }
 
 class AgentAssistantApp extends StatelessWidget {

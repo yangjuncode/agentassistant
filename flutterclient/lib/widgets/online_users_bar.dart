@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:logger/logger.dart';
 import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart';
 
@@ -36,13 +36,13 @@ class OnlineUsersBar extends StatelessWidget {
             color: Theme.of(context)
                 .colorScheme
                 .surfaceContainerHighest
-                .withValues(alpha: 0.3),
+                .withOpacity(0.3),
             border: Border(
               bottom: BorderSide(
                 color: Theme.of(context)
                     .colorScheme
                     .outline
-                    .withValues(alpha: 0.2),
+                    .withOpacity(0.2),
                 width: 1,
               ),
             ),
@@ -108,13 +108,13 @@ class OnlineUsersBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: isActive
-              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isActive
                 ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                : Theme.of(context).colorScheme.outline.withOpacity(0.3),
             width: isActive ? 2 : 1,
           ),
         ),
@@ -185,121 +185,145 @@ class _ChatDialog extends StatefulWidget {
 
 class _ChatDialogState extends State<_ChatDialog> {
   final TextEditingController _messageController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
   final FocusNode _inputFocusNode = FocusNode();
-
-  // Auto-send functionality
+  final ScrollController _scrollController = ScrollController();
+  final Logger _logger = Logger();
   Timer? _autoSendTimer;
-  static const Duration _autoSendDelay = Duration(seconds: 2);
 
   @override
   void initState() {
     super.initState();
-
-    // Defer setting active chat user to avoid calling notifyListeners during build
+    // Defer focus request to post-frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.chatProvider.setActiveChatUser(widget.user.clientId);
-      _scrollToBottom();
+      if (mounted) {
+        _safeInitialize();
+      }
     });
-
-    // Listen for active chat user changes (e.g., when user disconnects)
-    widget.chatProvider.addListener(_onChatProviderChanged);
   }
 
-  void _onChatProviderChanged() {
-    // If the active chat user was cleared (likely due to disconnection), close dialog
-    if (widget.chatProvider.activeChatUserId == null) {
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+  // Safe initialization with error handling
+  void _safeInitialize() {
+    try {
+      _inputFocusNode.requestFocus();
+      _logger.d('Chat dialog initialized successfully');
+    } catch (e, stack) {
+      _logger.e('Error initializing chat dialog', error: e, stackTrace: stack);
     }
   }
 
+
+
   @override
   void dispose() {
-    widget.chatProvider.removeListener(_onChatProviderChanged);
-    _messageController.dispose();
-    _scrollController.dispose();
-    _inputFocusNode.dispose();
-    _clearAutoSendTimer();
-    // Use addPostFrameCallback to avoid calling setState during dispose
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      widget.chatProvider.setActiveChatUser(null);
-    });
-    super.dispose();
+    try {
+      _messageController.dispose();
+      _inputFocusNode.dispose();
+      _scrollController.dispose();
+      _clearAutoSendTimer();
+    } catch (e, stack) {
+      _logger.e('Error disposing chat dialog resources', error: e, stackTrace: stack);
+    } finally {
+      super.dispose();
+    }
   }
 
   void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+    try {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    } catch (e, stack) {
+      _logger.e('Error scrolling to bottom', error: e, stackTrace: stack);
     }
   }
 
   // Auto-send functionality
   void _clearAutoSendTimer() {
-    _autoSendTimer?.cancel();
-    _autoSendTimer = null;
+    try {
+      if (_autoSendTimer != null) {
+        _autoSendTimer?.cancel();
+        _autoSendTimer = null;
+      }
+    } catch (e, stack) {
+      _logger.e('Error clearing auto-send timer', error: e, stackTrace: stack);
+    }
   }
 
   void _scheduleAutoSend() {
-    _clearAutoSendTimer();
-
-    // Only schedule auto-send if there's content
-    final content = _messageController.text.trim();
-    if (content.isNotEmpty) {
-      _autoSendTimer = Timer(_autoSendDelay, () {
-        _sendMessage();
+    try {
+      _clearAutoSendTimer();
+      _autoSendTimer = Timer(const Duration(seconds: 2), () {
+        if (mounted) {
+          _sendMessage();
+        }
       });
+    } catch (e, stack) {
+      _logger.e('Error scheduling auto-send', error: e, stackTrace: stack);
     }
   }
 
-  void _onInputChanged() {
-    _scheduleAutoSend();
+  void _onInputChanged(String value) {
+    try {
+      if (value.trim().isNotEmpty) {
+        _scheduleAutoSend();
+      } else {
+        _clearAutoSendTimer();
+      }
+    } catch (e, stack) {
+      _logger.e('Error handling input change', error: e, stackTrace: stack);
+    }
   }
 
   void _sendMessage() {
-    String content = _messageController.text.trim();
-    if (content.isEmpty) return;
+    try {
+      final content = _messageController.text.trim();
+      if (content.isEmpty) return;
 
-    // Clear auto-send timer since we're sending manually
-    _clearAutoSendTimer();
+      // Check if message ends with a comma, if not, append one
+      final messageToSend = content.endsWith(',') ? content : '$content,';
 
-    // Check if the message ends with a comma, if not, append one
-    if (!content.endsWith(',')) {
-      content = '$content,';
+      widget.chatProvider.sendChatMessage(widget.user.clientId, messageToSend);
+      _messageController.clear();
+
+      // Use a safe post-frame callback
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          try {
+            _scrollToBottom();
+            _inputFocusNode.requestFocus();
+          } catch (e, stack) {
+            _logger.e('Error in post-send UI updates', error: e, stackTrace: stack);
+          }
+        }
+      });
+
+      _logger.d('Message sent successfully');
+    } catch (e, stack) {
+      _logger.e('Error sending message', error: e, stackTrace: stack);
     }
-
-    widget.chatProvider.sendChatMessage(widget.user.clientId, content);
-    _messageController.clear();
-
-    // Scroll to bottom and refocus input after sending message
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollToBottom();
-      _inputFocusNode.requestFocus();
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = Theme.of(context).platform == TargetPlatform.android ||
-        Theme.of(context).platform == TargetPlatform.iOS;
-
-    // Define widgets to be used in the layout
-    final headerWidget = Row(
-      children: [
-        Container(
-          width: 12,
-          height: 12,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            shape: BoxShape.circle,
+    try {
+      // Determine if we're on a mobile platform
+      final isMobile = MediaQuery.of(context).size.width < 600;
+      
+      final headerWidget = Row(
+        children: [
+          Container(
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+              shape: BoxShape.circle,
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
+          const SizedBox(width: 8),
         Expanded(
           child: Text(
             widget.user.nickname.isNotEmpty
@@ -317,7 +341,7 @@ class _ChatDialogState extends State<_ChatDialog> {
       ],
     );
 
-    final messagesWidget = Expanded(
+    final messagesSection = Expanded(
       child: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
           final messages = chatProvider.getChatMessages(widget.user.clientId);
@@ -369,11 +393,11 @@ class _ChatDialogState extends State<_ChatDialog> {
                                   ? Theme.of(context)
                                       .colorScheme
                                       .onPrimary
-                                      .withValues(alpha: 0.7)
+                                      .withOpacity(0.7)
                                   : Theme.of(context)
                                       .colorScheme
                                       .onSurfaceVariant
-                                      .withValues(alpha: 0.7),
+                                      .withOpacity(0.7),
                             ),
                           ),
                         ],
@@ -388,7 +412,7 @@ class _ChatDialogState extends State<_ChatDialog> {
       ),
     );
 
-    final inputWidget = Row(
+    final inputSection = Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(
@@ -417,9 +441,8 @@ class _ChatDialogState extends State<_ChatDialog> {
               minLines: 1,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
-              onChanged: (_) => _onInputChanged(),
-              onSubmitted:
-                  null, // Disable Enter to send, use Ctrl+Enter instead
+              onChanged: (value) => _onInputChanged(value),
+              onSubmitted: null, // Disable Enter to send, use Ctrl+Enter instead
             ),
           ),
         ),
@@ -442,18 +465,43 @@ class _ChatDialogState extends State<_ChatDialog> {
             headerWidget,
             const Divider(),
             if (isMobile) ...[
-              inputWidget,
+              inputSection,
               const SizedBox(height: 8),
             ],
-            messagesWidget,
+            messagesSection,
             if (!isMobile) ...[
               const Divider(),
-              inputWidget,
+              inputSection,
             ],
           ],
         ),
       ),
     );
+    } catch (e, stack) {
+      _logger.e('Error building chat dialog', error: e, stackTrace: stack);
+      return Dialog(
+        child: Container(
+          width: 400,
+          height: 200,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
+              const SizedBox(height: 16),
+              const Text('聊天窗口加载失败'),
+              const SizedBox(height: 8),
+              Text(e.toString(), style: const TextStyle(fontSize: 12)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('关闭'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 
   String _formatMessageTime(Int64 sentAt) {
