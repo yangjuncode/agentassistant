@@ -232,8 +232,8 @@ const filteredOnlineUsers = computed(() => {
 const activeChatUser = ref<OnlineUser | null>(null)
 const messageInput = ref('')
 const messagesContainer = ref<HTMLElement>()
-const mobileMessageInput = ref<HTMLTextAreaElement>()
-const desktopMessageInput = ref<HTMLTextAreaElement>()
+const mobileMessageInput = ref<HTMLTextAreaElement | null>(null)
+const desktopMessageInput = ref<HTMLTextAreaElement | null>(null)
 
 // Get chat messages for active user
 const chatMessages = computed((): ChatMessage[] => {
@@ -250,6 +250,14 @@ function openChatDialog(user: OnlineUser) {
   chatStore.setActiveChatUser(user.clientId)
   void nextTick(() => {
     scrollToBottom()
+
+    // Focus input when opening chat dialog
+    requestAnimationFrame(() => {
+      const targetInput = isMobile.value ? mobileMessageInput.value : desktopMessageInput.value
+      if (targetInput) {
+        targetInput.focus()
+      }
+    })
   })
 }
 
@@ -267,12 +275,17 @@ function sendMessage() {
 
   void nextTick(() => {
     scrollToBottom()
-    // Refocus the appropriate input based on device type
-    if (isMobile.value && mobileMessageInput.value) {
-      mobileMessageInput.value.focus()
-    } else if (!isMobile.value && desktopMessageInput.value) {
-      desktopMessageInput.value.focus()
-    }
+
+    // Use requestAnimationFrame to ensure focus happens after rendering
+    requestAnimationFrame(() => {
+      // Refocus the appropriate input based on device type
+      const targetInput = isMobile.value ? mobileMessageInput.value : desktopMessageInput.value
+      if (targetInput) {
+        targetInput.focus()
+        // Also set cursor to end of text (though text should be empty)
+        targetInput.setSelectionRange(targetInput.value.length, targetInput.value.length)
+      }
+    })
   })
 }
 
