@@ -49,7 +49,8 @@
               v-model="messageInput"
               @keydown.ctrl.enter="sendMessage"
               @keydown.meta.enter="sendMessage"
-              placeholder="输入消息... (Ctrl+Enter 发送)"
+              @input="onInputChange"
+              placeholder="输入消息... (2秒自动发送或Ctrl+Enter)"
               class="message-input"
               rows="2"
             ></textarea>
@@ -95,7 +96,8 @@
               v-model="messageInput"
               @keydown.ctrl.enter="sendMessage"
               @keydown.meta.enter="sendMessage"
-              placeholder="输入消息... (Ctrl+Enter 发送)"
+              @input="onInputChange"
+              placeholder="输入消息... (2秒自动发送或Ctrl+Enter)"
               class="message-input"
               rows="2"
             ></textarea>
@@ -221,6 +223,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkIsMobile)
+  // Clear auto-send timer on component unmount
+  clearAutoSendTimer()
 })
 
 // Filter out current user
@@ -234,6 +238,10 @@ const messageInput = ref('')
 const messagesContainer = ref<HTMLElement>()
 const mobileMessageInput = ref<HTMLTextAreaElement | null>(null)
 const desktopMessageInput = ref<HTMLTextAreaElement | null>(null)
+
+// Auto-send functionality
+const autoSendTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const AUTO_SEND_DELAY = 2000 // 2 seconds
 
 // Get chat messages for active user
 const chatMessages = computed((): ChatMessage[] => {
@@ -264,11 +272,40 @@ function openChatDialog(user: OnlineUser) {
 function closeChatDialog() {
   activeChatUser.value = null
   chatStore.setActiveChatUser(null)
+  // Clear auto-send timer when closing dialog
+  clearAutoSendTimer()
+}
+
+// Auto-send functionality
+function clearAutoSendTimer() {
+  if (autoSendTimer.value) {
+    clearTimeout(autoSendTimer.value)
+    autoSendTimer.value = null
+  }
+}
+
+function scheduleAutoSend() {
+  clearAutoSendTimer()
+
+  // Only schedule auto-send if there's content and an active chat user
+  const content = messageInput.value.trim()
+  if (content && activeChatUser.value) {
+    autoSendTimer.value = setTimeout(() => {
+      sendMessage()
+    }, AUTO_SEND_DELAY)
+  }
+}
+
+function onInputChange() {
+  scheduleAutoSend()
 }
 
 function sendMessage() {
   let content = messageInput.value.trim()
   if (!content || !activeChatUser.value) return
+
+  // Clear auto-send timer since we're sending manually
+  clearAutoSendTimer()
 
   // Check if the message ends with a comma, if not, append one
   if (!content.endsWith(',')) {

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
@@ -187,6 +188,10 @@ class _ChatDialogState extends State<_ChatDialog> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _inputFocusNode = FocusNode();
 
+  // Auto-send functionality
+  Timer? _autoSendTimer;
+  static const Duration _autoSendDelay = Duration(seconds: 2);
+
   @override
   void initState() {
     super.initState();
@@ -216,6 +221,7 @@ class _ChatDialogState extends State<_ChatDialog> {
     _messageController.dispose();
     _scrollController.dispose();
     _inputFocusNode.dispose();
+    _clearAutoSendTimer();
     // Use addPostFrameCallback to avoid calling setState during dispose
     SchedulerBinding.instance.addPostFrameCallback((_) {
       widget.chatProvider.setActiveChatUser(null);
@@ -233,9 +239,34 @@ class _ChatDialogState extends State<_ChatDialog> {
     }
   }
 
+  // Auto-send functionality
+  void _clearAutoSendTimer() {
+    _autoSendTimer?.cancel();
+    _autoSendTimer = null;
+  }
+
+  void _scheduleAutoSend() {
+    _clearAutoSendTimer();
+
+    // Only schedule auto-send if there's content
+    final content = _messageController.text.trim();
+    if (content.isNotEmpty) {
+      _autoSendTimer = Timer(_autoSendDelay, () {
+        _sendMessage();
+      });
+    }
+  }
+
+  void _onInputChanged() {
+    _scheduleAutoSend();
+  }
+
   void _sendMessage() {
     String content = _messageController.text.trim();
     if (content.isEmpty) return;
+
+    // Clear auto-send timer since we're sending manually
+    _clearAutoSendTimer();
 
     // Check if the message ends with a comma, if not, append one
     if (!content.endsWith(',')) {
@@ -377,7 +408,7 @@ class _ChatDialogState extends State<_ChatDialog> {
               controller: _messageController,
               focusNode: _inputFocusNode,
               decoration: const InputDecoration(
-                hintText: '输入消息... (Ctrl+Enter 发送)',
+                hintText: '输入消息... (2秒后自动发送或Ctrl+Enter)',
                 border: OutlineInputBorder(),
                 contentPadding:
                     EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -386,6 +417,7 @@ class _ChatDialogState extends State<_ChatDialog> {
               minLines: 1,
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.newline,
+              onChanged: (_) => _onInputChanged(),
               onSubmitted:
                   null, // Disable Enter to send, use Ctrl+Enter instead
             ),
