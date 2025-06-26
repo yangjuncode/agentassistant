@@ -267,8 +267,13 @@ function closeChatDialog() {
 }
 
 function sendMessage() {
-  const content = messageInput.value.trim()
+  let content = messageInput.value.trim()
   if (!content || !activeChatUser.value) return
+
+  // Check if the message ends with a comma, if not, append one
+  if (!content.endsWith(',')) {
+    content = `${content},`
+  }
 
   chatStore.sendChatMessage(activeChatUser.value.clientId, content)
   messageInput.value = ''

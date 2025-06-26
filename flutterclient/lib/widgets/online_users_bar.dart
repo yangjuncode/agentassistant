@@ -234,8 +234,13 @@ class _ChatDialogState extends State<_ChatDialog> {
   }
 
   void _sendMessage() {
-    final content = _messageController.text.trim();
+    String content = _messageController.text.trim();
     if (content.isEmpty) return;
+
+    // Check if the message ends with a comma, if not, append one
+    if (!content.endsWith(',')) {
+      content = '$content,';
+    }
 
     widget.chatProvider.sendChatMessage(widget.user.clientId, content);
     _messageController.clear();
