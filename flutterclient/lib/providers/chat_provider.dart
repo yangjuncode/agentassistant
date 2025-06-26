@@ -720,10 +720,12 @@ class ChatProvider extends ChangeNotifier {
     if (_autoForwardToSystemInput && senderId != _webSocketService.clientId) {
       // Use microtask to defer auto-forwarding until after the current build cycle
       Future.microtask(() => _autoForwardMessageToSystemInput(chatMessage.content));
+      // Don't bring window to front when auto-forwarding is enabled
+      _logger.i('Auto-forwarding enabled, not bringing window to front');
+    } else {
+      // Only bring window to front if auto-forwarding is disabled
+      _bringWindowToFrontIfNeeded();
     }
-
-    // Bring window to front when new chat message is received
-    _bringWindowToFrontIfNeeded();
   }
 
   /// Handle user connection status notification
