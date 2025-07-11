@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/yangjuncode/agentassistant/www"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -43,36 +45,13 @@ func main() {
 		fileServer := http.FileServer(http.Dir(webDir))
 		mux.Handle("/", fileServer)
 	} else {
-		// Fallback to examples/webclient if web/dist doesn't exist
-		exampleDir := "examples/webclient"
-		if _, err := os.Stat(exampleDir); err == nil {
-			fileServer := http.FileServer(http.Dir(exampleDir))
-			mux.Handle("/", fileServer)
-		} else {
-			// Serve a simple message if no web files are found
-			mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-				w.Header().Set("Content-Type", "text/html")
-				w.WriteHeader(http.StatusOK)
-				w.Write([]byte(`
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Agent Assistant Server</title>
-</head>
-<body>
-    <h1>Agent Assistant Server</h1>
-    <p>Server is running on port 8080</p>
-    <p>WebSocket endpoint: /ws</p>
-    <p>RPC endpoints:</p>
-    <ul>
-        <li>/agentassistproto.SrvAgentAssist/AskQuestion</li>
-        <li>/agentassistproto.SrvAgentAssist/TaskFinish</li>
-    </ul>
-</body>
-</html>
-				`))
-			})
+		//fallback to package www.Dist embedded directory
+		wwwfs, err := fs.Sub(www.Dist, "dist")
+		if err != nil {
+			log.Fatal(err)
 		}
+		fileServer := http.FileServer(http.FS(wwwfs))
+		mux.Handle("/", fileServer)
 	}
 
 	// Add CORS middleware for web interface
