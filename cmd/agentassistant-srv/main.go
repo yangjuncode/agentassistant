@@ -3,12 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/yangjuncode/agentassistant/www"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -18,7 +21,47 @@ import (
 	"golang.org/x/net/http2/h2c"
 )
 
+// Config represents the TOML configuration structure
+type Config struct {
+	AgentAssistantServerPort int `toml:"agentassistant_server_port"`
+}
+
+// loadConfig loads configuration from the TOML file
+func loadConfig() (*Config, error) {
+	// Get the executable directory
+	execPath, err := os.Executable()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get executable path: %w", err)
+	}
+
+	// Look for config file in the bin directory relative to executable
+	configPath := filepath.Join(filepath.Dir(execPath), "agentassistant-mcp.toml")
+
+	// If not found, try relative to current working directory
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		configPath = "agentassistant-mcp.toml"
+	}
+
+	var config Config
+	if _, err := toml.DecodeFile(configPath, &config); err != nil {
+		return nil, fmt.Errorf("failed to decode config file %s: %w", configPath, err)
+	}
+
+	// Set default port if not specified
+	if config.AgentAssistantServerPort == 0 {
+		config.AgentAssistantServerPort = 2000
+	}
+
+	return &config, nil
+}
+
 func main() {
+	// Load configuration
+	config, err := loadConfig()
+	if err != nil {
+		log.Fatalf("Failed to load configuration: %v", err)
+	}
+
 	// Create the service instance
 	svc := service.NewAgentAssistService()
 
@@ -59,13 +102,13 @@ func main() {
 
 	// Create HTTP server with HTTP/2 support
 	server := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":" + strconv.Itoa(config.AgentAssistantServerPort),
 		Handler: h2c.NewHandler(corsHandler, &http2.Server{}),
 	}
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Starting Agent Assistant server on :8080")
+		log.Printf("Starting Agent Assistant server on :%d", config.AgentAssistantServerPort)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server failed to start: %v", err)
 		}
