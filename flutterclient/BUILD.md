@@ -5,6 +5,7 @@
 ### 必需软件
 
 1. **Flutter SDK** (>= 3.5.0)
+
    ```bash
    # 检查 Flutter 版本
    flutter --version
@@ -16,6 +17,7 @@
 2. **Dart SDK** (包含在 Flutter 中)
 
 3. **Protocol Buffers 编译器**
+
    ```bash
    # macOS
    brew install protobuf
@@ -28,6 +30,7 @@
    ```
 
 4. **protoc-gen-dart 插件**
+
    ```bash
    dart pub global activate protoc_plugin
    ```
@@ -172,12 +175,14 @@ android {
 ### Android 签名
 
 1. **生成密钥库**
+
    ```bash
    keytool -genkey -v -keystore ~/upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
    ```
 
 2. **配置签名**
    创建 `android/key.properties`:
+
    ```properties
    storePassword=<password>
    keyPassword=<password>
@@ -186,6 +191,7 @@ android {
    ```
 
 3. **更新 build.gradle**
+
    ```gradle
    signingConfigs {
        release {
@@ -205,6 +211,7 @@ android {
    - 配置 Provisioning Profile
 
 2. **构建和上传**
+
    ```bash
    flutter build ipa --release
    ```
@@ -277,6 +284,7 @@ flutter build apk --release --split-per-abi
 ### 代码优化
 
 1. **移除未使用的代码**
+
    ```bash
    flutter analyze --no-fatal-infos
    ```
@@ -307,16 +315,19 @@ flutter logs
 ### 测试策略
 
 1. **单元测试**
+
    ```bash
    flutter test test/unit/
    ```
 
 2. **集成测试**
+
    ```bash
    flutter drive --target=test_driver/app.dart
    ```
 
 3. **设备测试**
+
    ```bash
    # 列出可用设备
    flutter devices
@@ -330,6 +341,7 @@ flutter logs
 ### 常见构建问题
 
 1. **Gradle 构建失败**
+
    ```bash
    cd android
    ./gradlew clean
@@ -339,6 +351,7 @@ flutter logs
    ```
 
 2. **iOS 构建失败**
+
    ```bash
    cd ios
    rm -rf Pods
@@ -350,6 +363,7 @@ flutter logs
    ```
 
 3. **Protobuf 生成失败**
+
    ```bash
    dart pub global activate protoc_plugin
    export PATH="$PATH:$HOME/.pub-cache/bin"
@@ -389,6 +403,7 @@ flutter logs
    - 更新平台特定的版本配置
 
 2. **构建发布版本**
+
    ```bash
    flutter build apk --release
    flutter build appbundle --release  # Android
