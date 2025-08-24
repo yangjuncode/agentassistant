@@ -39,10 +39,7 @@ class OnlineUsersBar extends StatelessWidget {
                 .withOpacity(0.3),
             border: Border(
               bottom: BorderSide(
-                color: Theme.of(context)
-                    .colorScheme
-                    .outline
-                    .withOpacity(0.2),
+                color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
                 width: 1,
               ),
             ),
@@ -189,6 +186,7 @@ class _ChatDialogState extends State<_ChatDialog> {
   final ScrollController _scrollController = ScrollController();
   final Logger _logger = Logger();
   Timer? _autoSendTimer;
+  int _lastSentTextLength = 0;
 
   @override
   void initState() {
@@ -211,8 +209,6 @@ class _ChatDialogState extends State<_ChatDialog> {
     }
   }
 
-
-
   @override
   void dispose() {
     try {
@@ -221,7 +217,8 @@ class _ChatDialogState extends State<_ChatDialog> {
       _scrollController.dispose();
       _clearAutoSendTimer();
     } catch (e, stack) {
-      _logger.e('Error disposing chat dialog resources', error: e, stackTrace: stack);
+      _logger.e('Error disposing chat dialog resources',
+          error: e, stackTrace: stack);
     } finally {
       super.dispose();
     }
@@ -258,7 +255,7 @@ class _ChatDialogState extends State<_ChatDialog> {
       _clearAutoSendTimer();
       _autoSendTimer = Timer(const Duration(seconds: 2), () {
         if (mounted) {
-          _sendMessage();
+          _sendMessage(isAutoSend: true);
         }
       });
     } catch (e, stack) {
@@ -267,41 +264,76 @@ class _ChatDialogState extends State<_ChatDialog> {
   }
 
   void _onInputChanged(String value) {
-    try {
-      if (value.trim().isNotEmpty) {
-        _scheduleAutoSend();
-      } else {
-        _clearAutoSendTimer();
-      }
-    } catch (e, stack) {
-      _logger.e('Error handling input change', error: e, stackTrace: stack);
+    if (value.isNotEmpty) {
+      _scheduleAutoSend();
+    } else {
+      _clearAutoSendTimer();
+      _lastSentTextLength = 0; // Reset when input is cleared
+    }
+    if (mounted) {
+      setState(() {});
     }
   }
 
-  void _sendMessage() {
+  void _sendMessage({bool isAutoSend = false}) {
     try {
-      final content = _messageController.text.trim();
-      if (content.isEmpty) return;
+      _clearAutoSendTimer();
+      final content = _messageController.text;
+      if (content.trim().isEmpty) {
+        if (!isAutoSend) {
+          _messageController.clear();
+          _lastSentTextLength = 0;
+        }
+        return;
+      }
 
-      // Check if message ends with a comma, if not, append one
-      final messageToSend = content.endsWith(',') ? content : '$content,';
-
-      widget.chatProvider.sendChatMessage(widget.user.clientId, messageToSend);
-      _messageController.clear();
-
-      // Use a safe post-frame callback
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          try {
-            _scrollToBottom();
-            _inputFocusNode.requestFocus();
-          } catch (e, stack) {
-            _logger.e('Error in post-send UI updates', error: e, stackTrace: stack);
+      if (isAutoSend) {
+        // Auto-send only the new text since the last send
+        if (content.length > _lastSentTextLength) {
+          final newText = content.substring(_lastSentTextLength).trim();
+          if (newText.isNotEmpty) {
+            final messageToSend = newText.endsWith(',') ? newText : '$newText,';
+            widget.chatProvider
+                .sendChatMessageSilent(widget.user.clientId, messageToSend);
+            // Update the length of sent text, but don't clear the controller
+            _lastSentTextLength = content.length;
+            _logger.d(
+                'Auto-sent new text: "$newText", total length now: $_lastSentTextLength');
           }
         }
-      });
+      } else {
+        // Manual send should only send the part not already auto-sent
+        String newText = '';
+        if (content.length > _lastSentTextLength) {
+          newText = content.substring(_lastSentTextLength).trim();
+        }
+        if (newText.isEmpty) {
+          // Nothing new to send; avoid duplicate sending
+          _logger.d('Manual send: no new text since last auto-send, skipping');
+          return;
+        }
+        final messageToSend = newText.endsWith(',') ? newText : '$newText,';
+        widget.chatProvider
+            .sendChatMessage(widget.user.clientId, messageToSend);
+        _messageController.clear();
+        _lastSentTextLength = 0; // Reset tracker
+        _logger.d('Manual send: sent only new text and cleared input');
 
-      _logger.d('Message sent successfully');
+        // Handle UI updates for manual send
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            try {
+              _scrollToBottom();
+              if (!_inputFocusNode.hasFocus) {
+                _inputFocusNode.requestFocus();
+              }
+            } catch (e, stack) {
+              _logger.e('Error in post-send UI updates',
+                  error: e, stackTrace: stack);
+            }
+          }
+        });
+      }
     } catch (e, stack) {
       _logger.e('Error sending message', error: e, stackTrace: stack);
     }
@@ -312,7 +344,7 @@ class _ChatDialogState extends State<_ChatDialog> {
     try {
       // Determine if we're on a mobile platform
       final isMobile = MediaQuery.of(context).size.width < 600;
-      
+
       final headerWidget = Row(
         children: [
           Container(
@@ -324,159 +356,160 @@ class _ChatDialogState extends State<_ChatDialog> {
             ),
           ),
           const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            widget.user.nickname.isNotEmpty
-                ? widget.user.nickname
-                : 'User_${widget.user.clientId.substring(0, 8)}',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-          ),
-        ),
-        IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.close),
-        ),
-      ],
-    );
-
-    final messagesSection = Expanded(
-      child: Consumer<ChatProvider>(
-        builder: (context, chatProvider, child) {
-          final messages = chatProvider.getChatMessages(widget.user.clientId);
-          if (messages.isEmpty) {
-            return const Center(child: Text('还没有聊天消息'));
-          }
-          return ListView.builder(
-            controller: _scrollController,
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              final message = messages[index];
-              final isFromMe =
-                  message.senderClientId == widget.chatProvider.currentClientId;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  mainAxisAlignment: isFromMe
-                      ? MainAxisAlignment.end
-                      : MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 250),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isFromMe
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            message.content,
-                            style: TextStyle(
-                              color: isFromMe
-                                  ? Theme.of(context).colorScheme.onPrimary
-                                  : Theme.of(context).colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _formatMessageTime(message.sentAt),
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: isFromMe
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .onPrimary
-                                      .withOpacity(0.7)
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant
-                                      .withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-
-    final inputSection = Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Expanded(
-          child: Focus(
-            onKeyEvent: (FocusNode node, KeyEvent event) {
-              // Check for Ctrl+Enter key combination
-              if (event is KeyDownEvent &&
-                  event.logicalKey == LogicalKeyboardKey.enter &&
-                  (HardwareKeyboard.instance.isControlPressed ||
-                      HardwareKeyboard.instance.isMetaPressed)) {
-                _sendMessage();
-                return KeyEventResult.handled;
-              }
-              return KeyEventResult.ignored;
-            },
-            child: TextField(
-              controller: _messageController,
-              focusNode: _inputFocusNode,
-              decoration: const InputDecoration(
-                hintText: '输入消息... (2秒后自动发送或Ctrl+Enter)',
-                border: OutlineInputBorder(),
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              ),
-              maxLines: 4,
-              minLines: 1,
-              keyboardType: TextInputType.multiline,
-              textInputAction: TextInputAction.newline,
-              onChanged: (value) => _onInputChanged(value),
-              onSubmitted: null, // Disable Enter to send, use Ctrl+Enter instead
+          Expanded(
+            child: Text(
+              widget.user.nickname.isNotEmpty
+                  ? widget.user.nickname
+                  : 'User_${widget.user.clientId.substring(0, 8)}',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
-        ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: _sendMessage,
-          icon: const Icon(Icons.send),
-        ),
-      ],
-    );
+          IconButton(
+            onPressed: () => Navigator.of(context).pop(),
+            icon: const Icon(Icons.close),
+          ),
+        ],
+      );
 
-    // Build the layout based on the platform
-    return Dialog(
-      child: Container(
-        width: 400,
-        height: 500,
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            headerWidget,
-            const Divider(),
-            if (isMobile) ...[
-              inputSection,
-              const SizedBox(height: 8),
-            ],
-            messagesSection,
-            if (!isMobile) ...[
-              const Divider(),
-              inputSection,
-            ],
-          ],
+      final messagesSection = Expanded(
+        child: Consumer<ChatProvider>(
+          builder: (context, chatProvider, child) {
+            final messages = chatProvider.getChatMessages(widget.user.clientId);
+            if (messages.isEmpty) {
+              return const Center(child: Text('还没有聊天消息'));
+            }
+            return ListView.builder(
+              controller: _scrollController,
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                final isFromMe = message.senderClientId ==
+                    widget.chatProvider.currentClientId;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: isFromMe
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: 250),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isFromMe
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              message.content,
+                              style: TextStyle(
+                                color: isFromMe
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _formatMessageTime(message.sentAt),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: isFromMe
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .onPrimary
+                                        .withOpacity(0.7)
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant
+                                        .withOpacity(0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
         ),
-      ),
-    );
+      );
+
+      final inputSection = Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Focus(
+              onKeyEvent: (FocusNode node, KeyEvent event) {
+                // Check for Ctrl+Enter key combination
+                if (event is KeyDownEvent &&
+                    event.logicalKey == LogicalKeyboardKey.enter &&
+                    (HardwareKeyboard.instance.isControlPressed ||
+                        HardwareKeyboard.instance.isMetaPressed)) {
+                  _sendMessage();
+                  return KeyEventResult.handled;
+                }
+                return KeyEventResult.ignored;
+              },
+              child: TextField(
+                controller: _messageController,
+                focusNode: _inputFocusNode,
+                decoration: const InputDecoration(
+                  hintText: '输入消息... (2秒后自动发送或Ctrl+Enter)',
+                  border: OutlineInputBorder(),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+                maxLines: 4,
+                minLines: 1,
+                keyboardType: TextInputType.multiline,
+                textInputAction: TextInputAction.newline,
+                onChanged: (value) => _onInputChanged(value),
+                onSubmitted:
+                    null, // Disable Enter to send, use Ctrl+Enter instead
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () => _sendMessage(),
+            icon: const Icon(Icons.send),
+          ),
+        ],
+      );
+
+      // Build the layout based on the platform
+      return Dialog(
+        child: Container(
+          width: 400,
+          height: 500,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              headerWidget,
+              const Divider(),
+              if (isMobile) ...[
+                inputSection,
+                const SizedBox(height: 8),
+              ],
+              messagesSection,
+              if (!isMobile) ...[
+                const Divider(),
+                inputSection,
+              ],
+            ],
+          ),
+        ),
+      );
     } catch (e, stack) {
       _logger.e('Error building chat dialog', error: e, stackTrace: stack);
       return Dialog(

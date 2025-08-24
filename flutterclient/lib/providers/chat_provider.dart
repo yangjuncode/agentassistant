@@ -719,7 +719,8 @@ class ChatProvider extends ChangeNotifier {
     // Auto forward to system input if enabled and message is from another user
     if (_autoForwardToSystemInput && senderId != _webSocketService.clientId) {
       // Use microtask to defer auto-forwarding until after the current build cycle
-      Future.microtask(() => _autoForwardMessageToSystemInput(chatMessage.content));
+      Future.microtask(
+          () => _autoForwardMessageToSystemInput(chatMessage.content));
       // Don't bring window to front when auto-forwarding is enabled
       _logger.i('Auto-forwarding enabled, not bringing window to front');
     } else {
@@ -798,6 +799,18 @@ class ChatProvider extends ChangeNotifier {
 
   /// Send chat message to another user
   Future<void> sendChatMessage(String receiverClientId, String content) async {
+    await _sendChatMessageInternal(receiverClientId, content, notifyUI: true);
+  }
+
+  /// Send chat message without triggering UI updates (for auto-send)
+  Future<void> sendChatMessageSilent(
+      String receiverClientId, String content) async {
+    await _sendChatMessageInternal(receiverClientId, content, notifyUI: false);
+  }
+
+  /// Internal method to send chat messages with optional UI notification
+  Future<void> _sendChatMessageInternal(String receiverClientId, String content,
+      {required bool notifyUI}) async {
     if (!_isConnected) {
       _logger.w('Cannot send chat message: not connected');
       return;
@@ -821,9 +834,14 @@ class ChatProvider extends ChangeNotifier {
         ..sentAt = Int64(DateTime.now().millisecondsSinceEpoch ~/ 1000);
 
       _chatMessages[receiverClientId]!.add(localMessage);
-      notifyListeners();
 
-      _logger.i('Chat message sent to $receiverClientId: $content');
+      // Only notify listeners if requested (for manual sends)
+      if (notifyUI) {
+        notifyListeners();
+      }
+
+      _logger.i(
+          'Chat message sent to $receiverClientId: $content (UI notify: $notifyUI)');
     } catch (error) {
       _logger.e('Failed to send chat message: $error');
     }
