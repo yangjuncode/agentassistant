@@ -31,7 +31,8 @@ class TrayService with TrayListener {
   static const String _iconGreenBlinkIco = 'assets/tray/green_blink.ico';
   static const String _iconRedBlinkIco = 'assets/tray/red_blink.ico';
 
-  bool get isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+  bool get isDesktop =>
+      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
   Future<void> initialize() async {
     if (!isDesktop) {
@@ -43,7 +44,7 @@ class TrayService with TrayListener {
     try {
       trayManager.addListener(this);
       await _applyIcon();
-      await _setToolTip('AgentAssistant');
+      await _setToolTip('AgentAssistant-flutter');
       await _setupContextMenu();
       _initialized = true;
       _logger.i('TrayService initialized');
@@ -110,7 +111,7 @@ class TrayService with TrayListener {
   String _tooltipText() {
     final status = _connected ? '已连接' : '未连接';
     final pending = _pendingCount > 0 ? ' | 待处理: $_pendingCount' : '';
-    return 'AgentAssistant ($status)$pending';
+    return 'AgentAssistant-flutter ($status)$pending';
   }
 
   Future<void> _applyIcon() async {
