@@ -11,6 +11,7 @@ import 'screens/chat_screen.dart';
 import 'screens/splash_screen.dart';
 import 'config/app_config.dart';
 import 'services/window_service.dart';
+import 'services/tray_service.dart';
 
 // Global logger instance
 final Logger logger = Logger();
@@ -91,6 +92,8 @@ void main() async {
     
     // Initialize window service for desktop platforms
     await WindowService().initialize();
+    // Initialize tray service for desktop platforms
+    await TrayService().initialize();
     
     // Start frame timing monitor
     FrameTimingMonitor.startMonitoring();

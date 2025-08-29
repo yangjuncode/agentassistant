@@ -8,6 +8,7 @@ import '../models/chat_message.dart';
 import '../services/websocket_service.dart';
 import '../services/window_service.dart';
 import '../services/system_input_service.dart';
+import '../services/tray_service.dart';
 import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
 import '../proto/agentassist.pb.dart' as pb;
@@ -67,6 +68,8 @@ class ChatProvider extends ChangeNotifier {
       (connected) {
         _isConnected = connected;
         _isConnecting = false;
+        // Update tray connection status
+        TrayService().setConnected(connected);
         if (connected) {
           _connectionError = null;
           // Fetch pending messages when connected
@@ -438,6 +441,7 @@ class ChatProvider extends ChangeNotifier {
 
     _logger.i('Successfully loaded ${_messages.length} pending messages');
     notifyListeners();
+    _updateTrayPendingCount();
   }
 
   /// Reply to a question
@@ -539,6 +543,7 @@ class ChatProvider extends ChangeNotifier {
   void _addMessage(ChatMessage message) {
     _messages.add(message);
     notifyListeners();
+    _updateTrayPendingCount();
   }
 
   /// Update existing message
@@ -547,6 +552,7 @@ class ChatProvider extends ChangeNotifier {
     if (index != -1) {
       _messages[index] = updatedMessage;
       notifyListeners();
+      _updateTrayPendingCount();
     }
   }
 
@@ -554,6 +560,7 @@ class ChatProvider extends ChangeNotifier {
   void clearMessages() {
     _messages.clear();
     notifyListeners();
+    _updateTrayPendingCount();
   }
 
   /// Find the earliest replyable message
@@ -800,12 +807,15 @@ class ChatProvider extends ChangeNotifier {
   /// Send chat message to another user
   Future<void> sendChatMessage(String receiverClientId, String content) async {
     await _sendChatMessageInternal(receiverClientId, content, notifyUI: true);
+    // Chat messages don't count toward MCP pending, but keep tray in sync anyway
+    _updateTrayPendingCount();
   }
 
   /// Send chat message without triggering UI updates (for auto-send)
   Future<void> sendChatMessageSilent(
       String receiverClientId, String content) async {
     await _sendChatMessageInternal(receiverClientId, content, notifyUI: false);
+    _updateTrayPendingCount();
   }
 
   /// Internal method to send chat messages with optional UI notification
@@ -905,6 +915,15 @@ class ChatProvider extends ChangeNotifier {
     _connectionSubscription?.cancel();
     _errorSubscription?.cancel();
     _webSocketService.dispose();
+    // Optionally, do not destroy tray globally here (it's app-wide service)
     super.dispose();
+  }
+
+  // Update tray pending count: number of messages that need user action
+  void _updateTrayPendingCount() {
+    try {
+      final int count = pendingQuestions.length + pendingTasks.length;
+      TrayService().setPendingCount(count);
+    } catch (_) {}
   }
 }
