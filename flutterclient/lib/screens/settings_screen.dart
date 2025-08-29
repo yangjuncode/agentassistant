@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -18,11 +19,14 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   String _appVersion = '';
+  String? _serverUrl;
+  String? _token;
 
   @override
   void initState() {
     super.initState();
     _loadAppInfo();
+    _loadConnectionConfig();
   }
 
   /// Load app information
@@ -36,6 +40,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
       setState(() {
         _appVersion = AppConfig.appVersion;
       });
+    }
+  }
+
+  /// Load websocket connection configuration from SharedPreferences
+  Future<void> _loadConnectionConfig() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedUrl = prefs.getString(AppConfig.serverUrlStorageKey);
+      final savedToken = prefs.getString(AppConfig.tokenStorageKey);
+
+      if (!mounted) return;
+      setState(() {
+        _serverUrl = savedUrl;
+        _token = savedToken;
+      });
+    } catch (_) {
+      // keep defaults; do not crash settings
     }
   }
 
@@ -166,6 +187,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             ? '与服务器连接正常'
                             : chatProvider.connectionError ?? '连接已断开',
                       ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.cloud),
+                      title: const Text('服务器地址'),
+                      subtitle: Text(_serverUrl ?? '未设置'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.badge),
+                      title: const Text('客户端 ID'),
+                      subtitle: Text(chatProvider.currentClientId ?? '—'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.vpn_key),
+                      title: const Text('访问令牌'),
+                      subtitle: Text(_token ?? '未设置'),
                     ),
                     if (chatProvider.isConnected)
                       ListTile(
