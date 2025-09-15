@@ -21,6 +21,8 @@ class ChatProvider extends ChangeNotifier {
   final List<ChatMessage> _messages = [];
   final List<pb.OnlineUser> _onlineUsers = [];
   final Map<String, List<pb.ChatMessage>> _chatMessages = {};
+  // Per-message reply/confirm drafts to persist inline editor content
+  final Map<String, String> _replyDrafts = {};
 
   bool _isConnected = false;
   bool _isConnecting = false;
@@ -42,6 +44,9 @@ class ChatProvider extends ChangeNotifier {
   String? get activeChatUserId => _activeChatUserId;
   String? get currentClientId => _webSocketService.clientId;
   bool get autoForwardToSystemInput => _autoForwardToSystemInput;
+  // Expose read-only view of drafts if needed
+  Map<String, String> get replyDrafts => Map.unmodifiable(_replyDrafts);
+  bool get hasAnyDraft => _replyDrafts.values.any((t) => t.trim().isNotEmpty);
 
   List<ChatMessage> get pendingQuestions => _messages
       .where((m) => m.type == MessageType.question && m.needsUserAction)
@@ -55,6 +60,20 @@ class ChatProvider extends ChangeNotifier {
     _initializeWebSocketListeners();
     // Defer loading settings to avoid calling notifyListeners during build.
     Future.microtask(() => _loadAutoForwardSetting());
+  }
+
+  /// Get a saved draft for a message
+  String? getDraft(String messageId) => _replyDrafts[messageId];
+
+  /// Set/update draft for a message
+  void setDraft(String messageId, String text) {
+    _replyDrafts[messageId] = text;
+    // Intentionally avoid notifyListeners to prevent rebuild on each keystroke
+  }
+
+  /// Clear draft for a message
+  void clearDraft(String messageId) {
+    _replyDrafts.remove(messageId);
   }
 
   /// Initialize WebSocket event listeners
@@ -483,6 +502,8 @@ class ChatProvider extends ChangeNotifier {
       _updateMessage(updatedMessage);
 
       _logger.i('Question reply sent: $messageId');
+      // Clear draft after successful send
+      _replyDrafts.remove(messageId);
     } catch (error) {
       _logger.e('Failed to reply to question: $error');
       _connectionError = '回复失败: $error';
@@ -532,6 +553,8 @@ class ChatProvider extends ChangeNotifier {
       _updateMessage(updatedMessage);
 
       _logger.i('Task confirmed: $messageId');
+      // Clear draft after successful confirm
+      _replyDrafts.remove(messageId);
     } catch (error) {
       _logger.e('Failed to confirm task: $error');
       _connectionError = '确认失败: $error';

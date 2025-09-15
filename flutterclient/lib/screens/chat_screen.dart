@@ -50,7 +50,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Wait for message validity check to complete
     await _waitForValidityCheck(chatProvider);
 
-    // Find and scroll to earliest replyable message
+    // Always scroll to earliest replyable message on init
     await _scrollToEarliestReplyableMessage(chatProvider);
   }
 
@@ -201,26 +201,26 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (newReplyableMessages.isNotEmpty) {
-      // Find the earliest new replyable message
-      newReplyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-      final earliestNewMessage = newReplyableMessages.first;
+        // Find the earliest new replyable message
+        newReplyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+        final earliestNewMessage = newReplyableMessages.first;
 
-      print(
-          '🎯 Earliest new message: ${earliestNewMessage.id} (${earliestNewMessage.type})');
-      print(
-          '🗝️ Key exists for message: ${_messageKeys.containsKey(earliestNewMessage.id)}');
-
-      // Always scroll to new replyable messages to ensure input is visible
-      WidgetsBinding.instance.addPostFrameCallback((_) {
         print(
-            '⏰ Post-frame callback triggered for message: ${earliestNewMessage.id}');
-        // Add a small delay to ensure the ListView has been built
-        Future.delayed(const Duration(milliseconds: 100), () {
+            '🎯 Earliest new message: ${earliestNewMessage.id} (${earliestNewMessage.type})');
+        print(
+            '🗝️ Key exists for message: ${_messageKeys.containsKey(earliestNewMessage.id)}');
+
+        // Always scroll to new replyable messages to ensure input is visible
+        WidgetsBinding.instance.addPostFrameCallback((_) {
           print(
-              '⏰ Delayed scroll triggered for message: ${earliestNewMessage.id}');
-          _scrollToMessage(earliestNewMessage.id);
+              '⏰ Post-frame callback triggered for message: ${earliestNewMessage.id}');
+          // Add a small delay to ensure the ListView has been built
+          Future.delayed(const Duration(milliseconds: 100), () {
+            print(
+                '⏰ Delayed scroll triggered for message: ${earliestNewMessage.id}');
+            _scrollToMessage(earliestNewMessage.id);
+          });
         });
-      });
     }
 
     // Update previous messages

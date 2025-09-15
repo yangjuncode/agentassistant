@@ -100,7 +100,7 @@ This tool allows you to ask a question to the Agent Assistant. The Agent Assista
 Args:
 - project_directory: The current project directory
 - question: The question to ask
-- timeout: The timeout in seconds, default is 600s
+- timeout: The timeout in seconds, default is 3600s (1 hour)
 
 Returns:
 - List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent Assistant
@@ -117,8 +117,8 @@ Returns:
 		),
 		//timeout
 		mcp.WithNumber("timeout",
-			mcp.DefaultNumber(600),
-			mcp.Description("Timeout in seconds, default is 600s"),
+			mcp.DefaultNumber(3600),
+			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
 		),
 	)
 
@@ -131,7 +131,7 @@ This tool allows you to finish a task and ask for feedback from the Agent Assist
 Args:
 - project_directory: The current project directory
 - summary: The summary of the task
-- timeout: The timeout in seconds, default is 600s
+- timeout: The timeout in seconds, default is 3600s (1 hour)
 
 Returns:
 - List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent Assistant
@@ -148,8 +148,8 @@ Returns:
 		),
 		//timeout
 		mcp.WithNumber("timeout",
-			mcp.DefaultNumber(600),
-			mcp.Description("Timeout in seconds, default is 600s"),
+			mcp.DefaultNumber(3600),
+			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
 		),
 	)
 
@@ -205,7 +205,7 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 
 	timeout, err := request.RequireInt("timeout")
 	if err != nil {
-		timeout = 600 // Default timeout
+		timeout = 3600 // Default timeout (1 hour)
 	}
 
 	// Create RPC request
@@ -243,7 +243,7 @@ func taskFinishHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 
 	timeout, err := request.RequireInt("timeout")
 	if err != nil {
-		timeout = 600 // Default timeout
+		timeout = 3600 // Default timeout (1 hour)
 	}
 
 	// Create RPC request

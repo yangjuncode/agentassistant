@@ -29,6 +29,18 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     super.initState();
     _controller = TextEditingController();
     _focusNode = FocusNode();
+    // Initialize from saved draft if any
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final chatProvider = context.read<ChatProvider>();
+      final draft = chatProvider.getDraft(widget.message.id);
+      if (draft != null && draft.isNotEmpty) {
+        _controller.text = draft;
+      }
+      // Listen to changes and persist as draft (lightweight, no notify)
+      _controller.addListener(() {
+        chatProvider.setDraft(widget.message.id, _controller.text);
+      });
+    });
   }
 
   @override
@@ -39,8 +51,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   }
 
   Future<void> _handleSubmit([String? quickReply]) async {
-    final replyText = quickReply ?? _controller.text.trim();
-    if (replyText.isEmpty || _isSubmitting) return;
+    var replyText = quickReply ?? _controller.text.trim();
+    // If input is empty, use default reply text
+    if (replyText.isEmpty) {
+      replyText = 'ok, well done, task end. stop.';
+    }
+    if (_isSubmitting) return;
 
     setState(() {
       _isSubmitting = true;
@@ -59,6 +75,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       if (quickReply == null) {
         _controller.clear();
       }
+      // Clear saved draft after successful send
+      chatProvider.clearDraft(widget.message.id);
     } catch (error) {
       // Error handling is done in ChatProvider
       if (mounted) {
@@ -128,7 +146,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
               ),
               maxLines: 3,
               minLines: 2,
-              autofocus: true,
+              // Don't steal focus if any draft exists (user is likely editing elsewhere)
+              autofocus: !context.read<ChatProvider>().hasAnyDraft,
               enabled: !_isSubmitting,
             ),
           ),

@@ -75,6 +75,9 @@ flutter build apk
 
 # 构建 iOS
 flutter build ios
+
+# 构建 Linux
+flutter build linux --release
 ```
 
 ## 配置说明
