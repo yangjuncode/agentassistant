@@ -4,7 +4,7 @@ The `agentassistant-srv` is the core service component of the Agent Assistant sy
 
 ## Features
 
-- **Connect-Go RPC Server**: Implements the `SrvAgentAssist` service with `AskQuestion` and `TaskFinish` methods
+- **Connect-Go RPC Server**: Implements the `SrvAgentAssist` service with `AskQuestion` and `WorkReport` methods
 - **WebSocket Support**: Real-time communication with web clients for user interaction
 - **Content Type Support**: Handles TextContent, ImageContent, AudioContent, and EmbeddedResource
 - **Timeout Management**: Configurable timeouts with 600-second default
@@ -27,14 +27,14 @@ The `agentassistant-srv` is the core service component of the Agent Assistant sy
   - `Meta`: Error metadata or additional information
   - `Contents`: Array of `McpResultContent` with user responses
 
-#### TaskFinish
-- **Path**: `/agentassistproto.SrvAgentAssist/TaskFinish`
+#### WorkReport
+- **Path**: `/agentassistproto.SrvAgentAssist/WorkReport`
 - **Purpose**: AI agent reports task completion and requests confirmation
-- **Request**: `TaskFinishRequest`
+- **Request**: `WorkReportRequest`
   - `ProjectDirectory`: Current project directory
   - `Summary`: Task completion summary
   - `Timeout`: Timeout in seconds (default: 600)
-- **Response**: `TaskFinishResponse`
+- **Response**: `WorkReportResponse`
   - `IsError`: Whether an error occurred
   - `Meta`: Error metadata or additional information
   - `Contents`: Array of `McpResultContent` with user responses

@@ -1,10 +1,10 @@
 # Broadcast Methods Implementation
 
-This document describes the implementation of the `broadcastAskQuestionReply` and `broadcastTaskFinishReply` methods in the WebSocket handler.
+This document describes the implementation of the `broadcastAskQuestionReply` and `broadcastWorkReportReply` methods in the WebSocket handler.
 
 ## Overview
 
-These methods enable real-time notification of all connected web clients (except the sender) when a client responds to an AskQuestion or TaskFinish request. This allows for collaborative awareness in multi-user scenarios.
+These methods enable real-time notification of all connected web clients (except the sender) when a client responds to an AskQuestion or WorkReport request. This allows for collaborative awareness in multi-user scenarios.
 
 ## Implementation Details
 
@@ -37,27 +37,27 @@ This method:
 - Adds a descriptive message indicating which client provided the response
 - Broadcasts to all clients except the sender
 
-### 3. broadcastTaskFinishReply Method
+### 3. broadcastWorkReportReply Method
 
 Added to `websocket.go`:
 
 ```go
-func (h *WebSocketHandler) broadcastTaskFinishReply(client *WebClient, message *agentassistproto.WebsocketMessage)
+func (h *WebSocketHandler) broadcastWorkReportReply(client *WebClient, message *agentassistproto.WebsocketMessage)
 ```
 
 This method:
-- Validates that the message contains TaskFinishRequest data
-- Creates a notification message with command "TaskFinishReplyNotification"
+- Validates that the message contains WorkReportRequest data
+- Creates a notification message with command "WorkReportReplyNotification"
 - Includes the original request data and response data
 - Adds a descriptive message indicating which client confirmed task completion
 - Broadcasts to all clients except the sender
 
 ## Message Flow
 
-1. **Client A** sends an AskQuestionReply or TaskFinishReply
+1. **Client A** sends an AskQuestionReply or WorkReportReply
 2. **WebSocket Handler** processes the reply:
-   - Calls `handleAskQuestionReply` or `handleTaskFinishReply` to process the response
-   - Calls `broadcastAskQuestionReply` or `broadcastTaskFinishReply` to notify other clients
+   - Calls `handleAskQuestionReply` or `handleWorkReportReply` to process the response
+   - Calls `broadcastAskQuestionReply` or `broadcastWorkReportReply` to notify other clients
 3. **Broadcaster** sends notification to all other connected clients
 4. **Other clients** receive the notification and can update their UI accordingly
 
@@ -78,17 +78,17 @@ This method:
 }
 ```
 
-### TaskFinishReplyNotification
+### WorkReportReplyNotification
 
 ```json
 {
-  "cmd": "TaskFinishReplyNotification",
-  "taskFinishRequest": {
+  "cmd": "WorkReportReplyNotification",
+  "workReportRequest": {
     "id": "original-request-id",
     "userToken": "user-token", 
     "request": { /* original request data */ }
   },
-  "taskFinishResponse": { /* response data */ },
+  "workReportResponse": { /* response data */ },
   "strParam": "Task completion confirmed by client {clientID}"
 }
 ```
@@ -101,9 +101,9 @@ The broadcast methods are automatically called when processing replies:
 case "AskQuestionReply":
     h.handleAskQuestionReply(client, &message)
     h.broadcastAskQuestionReply(client, &message)
-case "TaskFinishReply":
-    h.handleTaskFinishReply(client, &message)
-    h.broadcastTaskFinishReply(client, &message)
+case "WorkReportReply":
+    h.handleWorkReportReply(client, &message)
+    h.broadcastWorkReportReply(client, &message)
 ```
 
 ## Benefits

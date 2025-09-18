@@ -666,8 +666,8 @@ class AskQuestionResponse extends $pb.GeneratedMessage {
   $pb.PbList<McpResultContent> get contents => $_getList(3);
 }
 
-class McpTaskFinishRequest extends $pb.GeneratedMessage {
-  factory McpTaskFinishRequest({
+class McpWorkReportRequest extends $pb.GeneratedMessage {
+  factory McpWorkReportRequest({
     $core.String? projectDirectory,
     $core.String? summary,
     $core.int? timeout,
@@ -679,12 +679,12 @@ class McpTaskFinishRequest extends $pb.GeneratedMessage {
     return result;
   }
 
-  McpTaskFinishRequest._();
+  McpWorkReportRequest._();
 
-  factory McpTaskFinishRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory McpTaskFinishRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+  factory McpWorkReportRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory McpWorkReportRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'McpTaskFinishRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'McpWorkReportRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'ProjectDirectory', protoName: 'ProjectDirectory')
     ..aOS(2, _omitFieldNames ? '' : 'Summary', protoName: 'Summary')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'Timeout', $pb.PbFieldType.O3, protoName: 'Timeout')
@@ -692,21 +692,21 @@ class McpTaskFinishRequest extends $pb.GeneratedMessage {
   ;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  McpTaskFinishRequest clone() => McpTaskFinishRequest()..mergeFromMessage(this);
+  McpWorkReportRequest clone() => McpWorkReportRequest()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  McpTaskFinishRequest copyWith(void Function(McpTaskFinishRequest) updates) => super.copyWith((message) => updates(message as McpTaskFinishRequest)) as McpTaskFinishRequest;
+  McpWorkReportRequest copyWith(void Function(McpWorkReportRequest) updates) => super.copyWith((message) => updates(message as McpWorkReportRequest)) as McpWorkReportRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static McpTaskFinishRequest create() => McpTaskFinishRequest._();
+  static McpWorkReportRequest create() => McpWorkReportRequest._();
   @$core.override
-  McpTaskFinishRequest createEmptyInstance() => create();
-  static $pb.PbList<McpTaskFinishRequest> createRepeated() => $pb.PbList<McpTaskFinishRequest>();
+  McpWorkReportRequest createEmptyInstance() => create();
+  static $pb.PbList<McpWorkReportRequest> createRepeated() => $pb.PbList<McpWorkReportRequest>();
   @$core.pragma('dart2js:noInline')
-  static McpTaskFinishRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<McpTaskFinishRequest>(create);
-  static McpTaskFinishRequest? _defaultInstance;
+  static McpWorkReportRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<McpWorkReportRequest>(create);
+  static McpWorkReportRequest? _defaultInstance;
 
   /// current project directory
   @$pb.TagNumber(1)
@@ -718,7 +718,7 @@ class McpTaskFinishRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearProjectDirectory() => $_clearField(1);
 
-  /// ai agent's summary
+  /// ai agent's work report summary
   @$pb.TagNumber(2)
   $core.String get summary => $_getSZ(1);
   @$pb.TagNumber(2)
@@ -739,11 +739,11 @@ class McpTaskFinishRequest extends $pb.GeneratedMessage {
   void clearTimeout() => $_clearField(3);
 }
 
-class TaskFinishRequest extends $pb.GeneratedMessage {
-  factory TaskFinishRequest({
+class WorkReportRequest extends $pb.GeneratedMessage {
+  factory WorkReportRequest({
     $core.String? iD,
     $core.String? userToken,
-    McpTaskFinishRequest? request,
+    McpWorkReportRequest? request,
   }) {
     final result = create();
     if (iD != null) result.iD = iD;
@@ -752,34 +752,34 @@ class TaskFinishRequest extends $pb.GeneratedMessage {
     return result;
   }
 
-  TaskFinishRequest._();
+  WorkReportRequest._();
 
-  factory TaskFinishRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory TaskFinishRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+  factory WorkReportRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory WorkReportRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TaskFinishRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WorkReportRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'ID', protoName: 'ID')
     ..aOS(2, _omitFieldNames ? '' : 'UserToken', protoName: 'UserToken')
-    ..aOM<McpTaskFinishRequest>(3, _omitFieldNames ? '' : 'Request', protoName: 'Request', subBuilder: McpTaskFinishRequest.create)
+    ..aOM<McpWorkReportRequest>(3, _omitFieldNames ? '' : 'Request', protoName: 'Request', subBuilder: McpWorkReportRequest.create)
     ..hasRequiredFields = false
   ;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  TaskFinishRequest clone() => TaskFinishRequest()..mergeFromMessage(this);
+  WorkReportRequest clone() => WorkReportRequest()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  TaskFinishRequest copyWith(void Function(TaskFinishRequest) updates) => super.copyWith((message) => updates(message as TaskFinishRequest)) as TaskFinishRequest;
+  WorkReportRequest copyWith(void Function(WorkReportRequest) updates) => super.copyWith((message) => updates(message as WorkReportRequest)) as WorkReportRequest;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static TaskFinishRequest create() => TaskFinishRequest._();
+  static WorkReportRequest create() => WorkReportRequest._();
   @$core.override
-  TaskFinishRequest createEmptyInstance() => create();
-  static $pb.PbList<TaskFinishRequest> createRepeated() => $pb.PbList<TaskFinishRequest>();
+  WorkReportRequest createEmptyInstance() => create();
+  static $pb.PbList<WorkReportRequest> createRepeated() => $pb.PbList<WorkReportRequest>();
   @$core.pragma('dart2js:noInline')
-  static TaskFinishRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TaskFinishRequest>(create);
-  static TaskFinishRequest? _defaultInstance;
+  static WorkReportRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WorkReportRequest>(create);
+  static WorkReportRequest? _defaultInstance;
 
   /// request id
   @$pb.TagNumber(1)
@@ -801,21 +801,21 @@ class TaskFinishRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearUserToken() => $_clearField(2);
 
-  /// ai agent's summary
+  /// ai agent's work report summary
   @$pb.TagNumber(3)
-  McpTaskFinishRequest get request => $_getN(2);
+  McpWorkReportRequest get request => $_getN(2);
   @$pb.TagNumber(3)
-  set request(McpTaskFinishRequest value) => $_setField(3, value);
+  set request(McpWorkReportRequest value) => $_setField(3, value);
   @$pb.TagNumber(3)
   $core.bool hasRequest() => $_has(2);
   @$pb.TagNumber(3)
   void clearRequest() => $_clearField(3);
   @$pb.TagNumber(3)
-  McpTaskFinishRequest ensureRequest() => $_ensure(2);
+  McpWorkReportRequest ensureRequest() => $_ensure(2);
 }
 
-class TaskFinishResponse extends $pb.GeneratedMessage {
-  factory TaskFinishResponse({
+class WorkReportResponse extends $pb.GeneratedMessage {
+  factory WorkReportResponse({
     $core.String? iD,
     $core.bool? isError,
     $core.Iterable<$core.MapEntry<$core.String, $core.String>>? meta,
@@ -829,35 +829,35 @@ class TaskFinishResponse extends $pb.GeneratedMessage {
     return result;
   }
 
-  TaskFinishResponse._();
+  WorkReportResponse._();
 
-  factory TaskFinishResponse.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory TaskFinishResponse.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
+  factory WorkReportResponse.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
+  factory WorkReportResponse.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'TaskFinishResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WorkReportResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'ID', protoName: 'ID')
     ..aOB(2, _omitFieldNames ? '' : 'IsError', protoName: 'IsError')
-    ..m<$core.String, $core.String>(3, _omitFieldNames ? '' : 'Meta', protoName: 'Meta', entryClassName: 'TaskFinishResponse.MetaEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OS, packageName: const $pb.PackageName('agentassistproto'))
+    ..m<$core.String, $core.String>(3, _omitFieldNames ? '' : 'Meta', protoName: 'Meta', entryClassName: 'WorkReportResponse.MetaEntry', keyFieldType: $pb.PbFieldType.OS, valueFieldType: $pb.PbFieldType.OS, packageName: const $pb.PackageName('agentassistproto'))
     ..pc<McpResultContent>(4, _omitFieldNames ? '' : 'contents', $pb.PbFieldType.PM, subBuilder: McpResultContent.create)
     ..hasRequiredFields = false
   ;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  TaskFinishResponse clone() => TaskFinishResponse()..mergeFromMessage(this);
+  WorkReportResponse clone() => WorkReportResponse()..mergeFromMessage(this);
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  TaskFinishResponse copyWith(void Function(TaskFinishResponse) updates) => super.copyWith((message) => updates(message as TaskFinishResponse)) as TaskFinishResponse;
+  WorkReportResponse copyWith(void Function(WorkReportResponse) updates) => super.copyWith((message) => updates(message as WorkReportResponse)) as WorkReportResponse;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static TaskFinishResponse create() => TaskFinishResponse._();
+  static WorkReportResponse create() => WorkReportResponse._();
   @$core.override
-  TaskFinishResponse createEmptyInstance() => create();
-  static $pb.PbList<TaskFinishResponse> createRepeated() => $pb.PbList<TaskFinishResponse>();
+  WorkReportResponse createEmptyInstance() => create();
+  static $pb.PbList<WorkReportResponse> createRepeated() => $pb.PbList<WorkReportResponse>();
   @$core.pragma('dart2js:noInline')
-  static TaskFinishResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<TaskFinishResponse>(create);
-  static TaskFinishResponse? _defaultInstance;
+  static WorkReportResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<WorkReportResponse>(create);
+  static WorkReportResponse? _defaultInstance;
 
   /// request id
   @$pb.TagNumber(1)
@@ -1020,14 +1020,14 @@ class PendingMessage extends $pb.GeneratedMessage {
   factory PendingMessage({
     $core.String? messageType,
     AskQuestionRequest? askQuestionRequest,
-    TaskFinishRequest? taskFinishRequest,
+    WorkReportRequest? workReportRequest,
     $fixnum.Int64? createdAt,
     $core.int? timeout,
   }) {
     final result = create();
     if (messageType != null) result.messageType = messageType;
     if (askQuestionRequest != null) result.askQuestionRequest = askQuestionRequest;
-    if (taskFinishRequest != null) result.taskFinishRequest = taskFinishRequest;
+    if (workReportRequest != null) result.workReportRequest = workReportRequest;
     if (createdAt != null) result.createdAt = createdAt;
     if (timeout != null) result.timeout = timeout;
     return result;
@@ -1041,7 +1041,7 @@ class PendingMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'PendingMessage', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'messageType')
     ..aOM<AskQuestionRequest>(2, _omitFieldNames ? '' : 'askQuestionRequest', subBuilder: AskQuestionRequest.create)
-    ..aOM<TaskFinishRequest>(3, _omitFieldNames ? '' : 'taskFinishRequest', subBuilder: TaskFinishRequest.create)
+    ..aOM<WorkReportRequest>(3, _omitFieldNames ? '' : 'workReportRequest', subBuilder: WorkReportRequest.create)
     ..aInt64(4, _omitFieldNames ? '' : 'createdAt')
     ..a<$core.int>(5, _omitFieldNames ? '' : 'timeout', $pb.PbFieldType.O3)
     ..hasRequiredFields = false
@@ -1064,7 +1064,7 @@ class PendingMessage extends $pb.GeneratedMessage {
   static PendingMessage getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<PendingMessage>(create);
   static PendingMessage? _defaultInstance;
 
-  /// message type: "AskQuestion" or "TaskFinish"
+  /// message type: "AskQuestion" or "WorkReport"
   @$pb.TagNumber(1)
   $core.String get messageType => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -1086,17 +1086,17 @@ class PendingMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   AskQuestionRequest ensureAskQuestionRequest() => $_ensure(1);
 
-  /// task finish request (if message_type is "TaskFinish")
+  /// work report request (if message_type is "WorkReport")
   @$pb.TagNumber(3)
-  TaskFinishRequest get taskFinishRequest => $_getN(2);
+  WorkReportRequest get workReportRequest => $_getN(2);
   @$pb.TagNumber(3)
-  set taskFinishRequest(TaskFinishRequest value) => $_setField(3, value);
+  set workReportRequest(WorkReportRequest value) => $_setField(3, value);
   @$pb.TagNumber(3)
-  $core.bool hasTaskFinishRequest() => $_has(2);
+  $core.bool hasWorkReportRequest() => $_has(2);
   @$pb.TagNumber(3)
-  void clearTaskFinishRequest() => $_clearField(3);
+  void clearWorkReportRequest() => $_clearField(3);
   @$pb.TagNumber(3)
-  TaskFinishRequest ensureTaskFinishRequest() => $_ensure(2);
+  WorkReportRequest ensureWorkReportRequest() => $_ensure(2);
 
   /// timestamp when the message was created
   @$pb.TagNumber(4)
@@ -1237,7 +1237,7 @@ class RequestCancelledNotification extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearReason() => $_clearField(2);
 
-  /// message type: "AskQuestion" or "TaskFinish"
+  /// message type: "AskQuestion" or "WorkReport"
   @$pb.TagNumber(3)
   $core.String get messageType => $_getSZ(2);
   @$pb.TagNumber(3)
@@ -1662,54 +1662,6 @@ class ChatMessageNotification extends $pb.GeneratedMessage {
   ChatMessage ensureChatMessage() => $_ensure(0);
 }
 
-/// SendBackspaceRequest represents a request to send a backspace command
-class SendBackspaceRequest extends $pb.GeneratedMessage {
-  factory SendBackspaceRequest({
-    $core.String? receiverClientId,
-  }) {
-    final result = create();
-    if (receiverClientId != null) result.receiverClientId = receiverClientId;
-    return result;
-  }
-
-  SendBackspaceRequest._();
-
-  factory SendBackspaceRequest.fromBuffer($core.List<$core.int> data, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(data, registry);
-  factory SendBackspaceRequest.fromJson($core.String json, [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(json, registry);
-
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SendBackspaceRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'receiverClientId')
-    ..hasRequiredFields = false
-  ;
-
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  SendBackspaceRequest clone() => SendBackspaceRequest()..mergeFromMessage(this);
-  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  SendBackspaceRequest copyWith(void Function(SendBackspaceRequest) updates) => super.copyWith((message) => updates(message as SendBackspaceRequest)) as SendBackspaceRequest;
-
-  @$core.override
-  $pb.BuilderInfo get info_ => _i;
-
-  @$core.pragma('dart2js:noInline')
-  static SendBackspaceRequest create() => SendBackspaceRequest._();
-  @$core.override
-  SendBackspaceRequest createEmptyInstance() => create();
-  static $pb.PbList<SendBackspaceRequest> createRepeated() => $pb.PbList<SendBackspaceRequest>();
-  @$core.pragma('dart2js:noInline')
-  static SendBackspaceRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<SendBackspaceRequest>(create);
-  static SendBackspaceRequest? _defaultInstance;
-
-  /// receiver client id
-  @$pb.TagNumber(1)
-  $core.String get receiverClientId => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set receiverClientId($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasReceiverClientId() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearReceiverClientId() => $_clearField(1);
-}
-
 /// UserLoginResponse represents the response to a user login
 class UserLoginResponse extends $pb.GeneratedMessage {
   factory UserLoginResponse({
@@ -1864,9 +1816,9 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   factory WebsocketMessage({
     $core.String? cmd,
     AskQuestionRequest? askQuestionRequest,
-    TaskFinishRequest? taskFinishRequest,
+    WorkReportRequest? workReportRequest,
     AskQuestionResponse? askQuestionResponse,
-    TaskFinishResponse? taskFinishResponse,
+    WorkReportResponse? workReportResponse,
     $core.String? strParam,
     CheckMessageValidityRequest? checkMessageValidityRequest,
     CheckMessageValidityResponse? checkMessageValidityResponse,
@@ -1880,14 +1832,13 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ChatMessageNotification? chatMessageNotification,
     UserLoginResponse? userLoginResponse,
     UserConnectionStatusNotification? userConnectionStatusNotification,
-    SendBackspaceRequest? sendBackspaceRequest,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
     if (askQuestionRequest != null) result.askQuestionRequest = askQuestionRequest;
-    if (taskFinishRequest != null) result.taskFinishRequest = taskFinishRequest;
+    if (workReportRequest != null) result.workReportRequest = workReportRequest;
     if (askQuestionResponse != null) result.askQuestionResponse = askQuestionResponse;
-    if (taskFinishResponse != null) result.taskFinishResponse = taskFinishResponse;
+    if (workReportResponse != null) result.workReportResponse = workReportResponse;
     if (strParam != null) result.strParam = strParam;
     if (checkMessageValidityRequest != null) result.checkMessageValidityRequest = checkMessageValidityRequest;
     if (checkMessageValidityResponse != null) result.checkMessageValidityResponse = checkMessageValidityResponse;
@@ -1901,7 +1852,6 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (chatMessageNotification != null) result.chatMessageNotification = chatMessageNotification;
     if (userLoginResponse != null) result.userLoginResponse = userLoginResponse;
     if (userConnectionStatusNotification != null) result.userConnectionStatusNotification = userConnectionStatusNotification;
-    if (sendBackspaceRequest != null) result.sendBackspaceRequest = sendBackspaceRequest;
     return result;
   }
 
@@ -1913,9 +1863,9 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'WebsocketMessage', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'Cmd', protoName: 'Cmd')
     ..aOM<AskQuestionRequest>(2, _omitFieldNames ? '' : 'AskQuestionRequest', protoName: 'AskQuestionRequest', subBuilder: AskQuestionRequest.create)
-    ..aOM<TaskFinishRequest>(3, _omitFieldNames ? '' : 'TaskFinishRequest', protoName: 'TaskFinishRequest', subBuilder: TaskFinishRequest.create)
+    ..aOM<WorkReportRequest>(3, _omitFieldNames ? '' : 'WorkReportRequest', protoName: 'WorkReportRequest', subBuilder: WorkReportRequest.create)
     ..aOM<AskQuestionResponse>(4, _omitFieldNames ? '' : 'AskQuestionResponse', protoName: 'AskQuestionResponse', subBuilder: AskQuestionResponse.create)
-    ..aOM<TaskFinishResponse>(5, _omitFieldNames ? '' : 'TaskFinishResponse', protoName: 'TaskFinishResponse', subBuilder: TaskFinishResponse.create)
+    ..aOM<WorkReportResponse>(5, _omitFieldNames ? '' : 'WorkReportResponse', protoName: 'WorkReportResponse', subBuilder: WorkReportResponse.create)
     ..aOS(12, _omitFieldNames ? '' : 'StrParam', protoName: 'StrParam')
     ..aOM<CheckMessageValidityRequest>(13, _omitFieldNames ? '' : 'CheckMessageValidityRequest', protoName: 'CheckMessageValidityRequest', subBuilder: CheckMessageValidityRequest.create)
     ..aOM<CheckMessageValidityResponse>(14, _omitFieldNames ? '' : 'CheckMessageValidityResponse', protoName: 'CheckMessageValidityResponse', subBuilder: CheckMessageValidityResponse.create)
@@ -1929,7 +1879,6 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<ChatMessageNotification>(22, _omitFieldNames ? '' : 'ChatMessageNotification', protoName: 'ChatMessageNotification', subBuilder: ChatMessageNotification.create)
     ..aOM<UserLoginResponse>(23, _omitFieldNames ? '' : 'UserLoginResponse', protoName: 'UserLoginResponse', subBuilder: UserLoginResponse.create)
     ..aOM<UserConnectionStatusNotification>(24, _omitFieldNames ? '' : 'UserConnectionStatusNotification', protoName: 'UserConnectionStatusNotification', subBuilder: UserConnectionStatusNotification.create)
-    ..aOM<SendBackspaceRequest>(25, _omitFieldNames ? '' : 'SendBackspaceRequest', protoName: 'SendBackspaceRequest', subBuilder: SendBackspaceRequest.create)
     ..hasRequiredFields = false
   ;
 
@@ -1952,19 +1901,18 @@ class WebsocketMessage extends $pb.GeneratedMessage {
 
   /// WebsocketMessage cmd
   /// AskQuestion: mcp ask_question
-  /// TaskFinish: mcp task_finish
+  /// WorkReport: mcp work_report
   /// AskQuestionReply: user ask_question reply
-  /// TaskFinishReply: user task_finish reply
+  /// WorkReportReply: user work_report reply
   /// UserLogin: user login, str param is user token, nickname is user nickname
   /// AskQuestionReplyNotification: notification of an AskQuestionReply
-  /// TaskFinishReplyNotification: notification of a TaskFinishReply
+  /// WorkReportReplyNotification: notification of a WorkReportReply
   /// CheckMessageValidity: check if messages are still valid
   /// GetPendingMessages: get all pending messages for a user
   /// RequestCancelled: notification that a request has been cancelled
   /// GetOnlineUsers: get online users with the same token
   /// SendChatMessage: send a chat message to another user
   /// ChatMessageNotification: notification of a new chat message
-  /// SendBackspace: send a backspace command to another user
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -1986,17 +1934,17 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   AskQuestionRequest ensureAskQuestionRequest() => $_ensure(1);
 
-  /// task finish
+  /// work report
   @$pb.TagNumber(3)
-  TaskFinishRequest get taskFinishRequest => $_getN(2);
+  WorkReportRequest get workReportRequest => $_getN(2);
   @$pb.TagNumber(3)
-  set taskFinishRequest(TaskFinishRequest value) => $_setField(3, value);
+  set workReportRequest(WorkReportRequest value) => $_setField(3, value);
   @$pb.TagNumber(3)
-  $core.bool hasTaskFinishRequest() => $_has(2);
+  $core.bool hasWorkReportRequest() => $_has(2);
   @$pb.TagNumber(3)
-  void clearTaskFinishRequest() => $_clearField(3);
+  void clearWorkReportRequest() => $_clearField(3);
   @$pb.TagNumber(3)
-  TaskFinishRequest ensureTaskFinishRequest() => $_ensure(2);
+  WorkReportRequest ensureWorkReportRequest() => $_ensure(2);
 
   /// ask question reply
   @$pb.TagNumber(4)
@@ -2010,17 +1958,17 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   AskQuestionResponse ensureAskQuestionResponse() => $_ensure(3);
 
-  /// task finish reply
+  /// work report reply
   @$pb.TagNumber(5)
-  TaskFinishResponse get taskFinishResponse => $_getN(4);
+  WorkReportResponse get workReportResponse => $_getN(4);
   @$pb.TagNumber(5)
-  set taskFinishResponse(TaskFinishResponse value) => $_setField(5, value);
+  set workReportResponse(WorkReportResponse value) => $_setField(5, value);
   @$pb.TagNumber(5)
-  $core.bool hasTaskFinishResponse() => $_has(4);
+  $core.bool hasWorkReportResponse() => $_has(4);
   @$pb.TagNumber(5)
-  void clearTaskFinishResponse() => $_clearField(5);
+  void clearWorkReportResponse() => $_clearField(5);
   @$pb.TagNumber(5)
-  TaskFinishResponse ensureTaskFinishResponse() => $_ensure(4);
+  WorkReportResponse ensureWorkReportResponse() => $_ensure(4);
 
   /// str param
   @$pb.TagNumber(12)
@@ -2173,18 +2121,6 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearUserConnectionStatusNotification() => $_clearField(24);
   @$pb.TagNumber(24)
   UserConnectionStatusNotification ensureUserConnectionStatusNotification() => $_ensure(17);
-
-  /// send backspace request
-  @$pb.TagNumber(25)
-  SendBackspaceRequest get sendBackspaceRequest => $_getN(18);
-  @$pb.TagNumber(25)
-  set sendBackspaceRequest(SendBackspaceRequest value) => $_setField(25, value);
-  @$pb.TagNumber(25)
-  $core.bool hasSendBackspaceRequest() => $_has(18);
-  @$pb.TagNumber(25)
-  void clearSendBackspaceRequest() => $_clearField(25);
-  @$pb.TagNumber(25)
-  SendBackspaceRequest ensureSendBackspaceRequest() => $_ensure(18);
 }
 
 class SrvAgentAssistApi {
@@ -2195,8 +2131,8 @@ class SrvAgentAssistApi {
   $async.Future<AskQuestionResponse> askQuestion($pb.ClientContext? ctx, AskQuestionRequest request) =>
     _client.invoke<AskQuestionResponse>(ctx, 'SrvAgentAssist', 'AskQuestion', request, AskQuestionResponse())
   ;
-  $async.Future<TaskFinishResponse> taskFinish($pb.ClientContext? ctx, TaskFinishRequest request) =>
-    _client.invoke<TaskFinishResponse>(ctx, 'SrvAgentAssist', 'TaskFinish', request, TaskFinishResponse())
+  $async.Future<WorkReportResponse> workReport($pb.ClientContext? ctx, WorkReportRequest request) =>
+    _client.invoke<WorkReportResponse>(ctx, 'SrvAgentAssist', 'WorkReport', request, WorkReportResponse())
   ;
 }
 

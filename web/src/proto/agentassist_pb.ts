@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file agentassist.proto.
  */
 export const file_agentassist: GenFile = /*@__PURE__*/
-  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSJUChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIQCghRdWVzdGlvbhgCIAEoCRIPCgdUaW1lb3V0GAMgASgFIm0KEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0ItQBChNBc2tRdWVzdGlvblJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPQoETWV0YRgDIAMoCzIvLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiUgoUTWNwVGFza0ZpbmlzaFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUiawoRVGFza0ZpbmlzaFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFRhc2tGaW5pc2hSZXF1ZXN0ItIBChJUYXNrRmluaXNoUmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI8CgRNZXRhGAMgAygLMi4uYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIjIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBITCgtyZXF1ZXN0X2lkcxgBIAMoCSKfAQocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOCgh2YWxpZGl0eRgBIAMoCzI8LmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZS5WYWxpZGl0eUVudHJ5Gi8KDVZhbGlkaXR5RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgIOgI4ASIvChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAki0QEKDlBlbmRpbmdNZXNzYWdlEhQKDG1lc3NhZ2VfdHlwZRgBIAEoCRJCChRhc2tfcXVlc3Rpb25fcmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0EkAKE3Rhc2tfZmluaXNoX3JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXF1ZXN0EhIKCmNyZWF0ZWRfYXQYBCABKAMSDwoHdGltZW91dBgFIAEoBSJtChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRI6ChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMiAuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZRITCgt0b3RhbF9jb3VudBgCIAEoBSJYChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEhIKCnJlcXVlc3RfaWQYASABKAkSDgoGcmVhc29uGAIgASgJEhQKDG1lc3NhZ2VfdHlwZRgDIAEoCSJHCgpPbmxpbmVVc2VyEhEKCWNsaWVudF9pZBgBIAEoCRIQCghuaWNrbmFtZRgCIAEoCRIUCgxjb25uZWN0ZWRfYXQYAyABKAMiKwoVR2V0T25saW5lVXNlcnNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAkiYQoWR2V0T25saW5lVXNlcnNSZXNwb25zZRIyCgxvbmxpbmVfdXNlcnMYASADKAsyHC5hZ2VudGFzc2lzdHByb3RvLk9ubGluZVVzZXISEwoLdG90YWxfY291bnQYAiABKAUirQEKC0NoYXRNZXNzYWdlEhIKCm1lc3NhZ2VfaWQYASABKAkSGAoQc2VuZGVyX2NsaWVudF9pZBgCIAEoCRIXCg9zZW5kZXJfbmlja25hbWUYAyABKAkSGgoScmVjZWl2ZXJfY2xpZW50X2lkGAQgASgJEhkKEXJlY2VpdmVyX25pY2tuYW1lGAUgASgJEg8KB2NvbnRlbnQYBiABKAkSDwoHc2VudF9hdBgHIAEoAyJFChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EhoKEnJlY2VpdmVyX2NsaWVudF9pZBgBIAEoCRIPCgdjb250ZW50GAIgASgJIk4KF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uEjMKDGNoYXRfbWVzc2FnZRgBIAEoCzIdLmFnZW50YXNzaXN0cHJvdG8uQ2hhdE1lc3NhZ2UiMgoUU2VuZEJhY2tzcGFjZVJlcXVlc3QSGgoScmVjZWl2ZXJfY2xpZW50X2lkGAEgASgJIk4KEVVzZXJMb2dpblJlc3BvbnNlEhEKCWNsaWVudF9pZBgBIAEoCRIPCgdzdWNjZXNzGAIgASgIEhUKDWVycm9yX21lc3NhZ2UYAyABKAkicQogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24SKgoEdXNlchgBIAEoCzIcLmFnZW50YXNzaXN0cHJvdG8uT25saW5lVXNlchIOCgZzdGF0dXMYAiABKAkSEQoJdGltZXN0YW1wGAMgASgDIvkJChBXZWJzb2NrZXRNZXNzYWdlEgsKA0NtZBgBIAEoCRJAChJBc2tRdWVzdGlvblJlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBI+ChFUYXNrRmluaXNoUmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uVGFza0ZpbmlzaFJlcXVlc3QSQgoTQXNrUXVlc3Rpb25SZXNwb25zZRgEIAEoCzIlLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJAChJUYXNrRmluaXNoUmVzcG9uc2UYBSABKAsyJC5hZ2VudGFzc2lzdHByb3RvLlRhc2tGaW5pc2hSZXNwb25zZRJSChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QYDSABKAsyLS5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBJUChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlGA4gASgLMi4uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEk4KGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QYDyABKAsyKy5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSUAoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2UYECABKAsyLC5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlElQKHFJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24YESABKAsyLi5hZ2VudGFzc2lzdHByb3RvLlJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24SRgoVR2V0T25saW5lVXNlcnNSZXF1ZXN0GBMgASgLMicuYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1JlcXVlc3QSSAoWR2V0T25saW5lVXNlcnNSZXNwb25zZRgUIAEoCzIoLmFnZW50YXNzaXN0cHJvdG8uR2V0T25saW5lVXNlcnNSZXNwb25zZRJIChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0GBUgASgLMiguYWdlbnRhc3Npc3Rwcm90by5TZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EkoKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhI+ChFVc2VyTG9naW5SZXNwb25zZRgXIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uVXNlckxvZ2luUmVzcG9uc2USXAogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24YGCABKAsyMi5hZ2VudGFzc2lzdHByb3RvLlVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEkQKFFNlbmRCYWNrc3BhY2VSZXF1ZXN0GBkgASgLMiYuYWdlbnRhc3Npc3Rwcm90by5TZW5kQmFja3NwYWNlUmVxdWVzdBIQCghTdHJQYXJhbRgMIAEoCRIQCghOaWNrbmFtZRgSIAEoCTLFAQoOU3J2QWdlbnRBc3Npc3QSWgoLQXNrUXVlc3Rpb24SJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBolLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJXCgpUYXNrRmluaXNoEiMuYWdlbnRhc3Npc3Rwcm90by5UYXNrRmluaXNoUmVxdWVzdBokLmFnZW50YXNzaXN0cHJvdG8uVGFza0ZpbmlzaFJlc3BvbnNlQjhaNmdpdGh1Yi5jb20veWFuZ2p1bmNvZGUvYWdlbnRhc3Npc3RhbnQvYWdlbnRhc3Npc3Rwcm90b2IGcHJvdG8z");
+  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSJUChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIQCghRdWVzdGlvbhgCIAEoCRIPCgdUaW1lb3V0GAMgASgFIm0KEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0ItQBChNBc2tRdWVzdGlvblJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPQoETWV0YRgDIAMoCzIvLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEiUgoUTWNwV29ya1JlcG9ydFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUiawoRV29ya1JlcG9ydFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFdvcmtSZXBvcnRSZXF1ZXN0ItIBChJXb3JrUmVwb3J0UmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI8CgRNZXRhGAMgAygLMi4uYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIjIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBITCgtyZXF1ZXN0X2lkcxgBIAMoCSKfAQocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOCgh2YWxpZGl0eRgBIAMoCzI8LmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZS5WYWxpZGl0eUVudHJ5Gi8KDVZhbGlkaXR5RW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgIOgI4ASIvChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAki0QEKDlBlbmRpbmdNZXNzYWdlEhQKDG1lc3NhZ2VfdHlwZRgBIAEoCRJCChRhc2tfcXVlc3Rpb25fcmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0EkAKE3dvcmtfcmVwb3J0X3JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0EhIKCmNyZWF0ZWRfYXQYBCABKAMSDwoHdGltZW91dBgFIAEoBSJtChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRI6ChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMiAuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZRITCgt0b3RhbF9jb3VudBgCIAEoBSJYChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEhIKCnJlcXVlc3RfaWQYASABKAkSDgoGcmVhc29uGAIgASgJEhQKDG1lc3NhZ2VfdHlwZRgDIAEoCSJHCgpPbmxpbmVVc2VyEhEKCWNsaWVudF9pZBgBIAEoCRIQCghuaWNrbmFtZRgCIAEoCRIUCgxjb25uZWN0ZWRfYXQYAyABKAMiKwoVR2V0T25saW5lVXNlcnNSZXF1ZXN0EhIKCnVzZXJfdG9rZW4YASABKAkiYQoWR2V0T25saW5lVXNlcnNSZXNwb25zZRIyCgxvbmxpbmVfdXNlcnMYASADKAsyHC5hZ2VudGFzc2lzdHByb3RvLk9ubGluZVVzZXISEwoLdG90YWxfY291bnQYAiABKAUirQEKC0NoYXRNZXNzYWdlEhIKCm1lc3NhZ2VfaWQYASABKAkSGAoQc2VuZGVyX2NsaWVudF9pZBgCIAEoCRIXCg9zZW5kZXJfbmlja25hbWUYAyABKAkSGgoScmVjZWl2ZXJfY2xpZW50X2lkGAQgASgJEhkKEXJlY2VpdmVyX25pY2tuYW1lGAUgASgJEg8KB2NvbnRlbnQYBiABKAkSDwoHc2VudF9hdBgHIAEoAyJFChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EhoKEnJlY2VpdmVyX2NsaWVudF9pZBgBIAEoCRIPCgdjb250ZW50GAIgASgJIk4KF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uEjMKDGNoYXRfbWVzc2FnZRgBIAEoCzIdLmFnZW50YXNzaXN0cHJvdG8uQ2hhdE1lc3NhZ2UiTgoRVXNlckxvZ2luUmVzcG9uc2USEQoJY2xpZW50X2lkGAEgASgJEg8KB3N1Y2Nlc3MYAiABKAgSFQoNZXJyb3JfbWVzc2FnZRgDIAEoCSJxCiBVc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhIqCgR1c2VyGAEgASgLMhwuYWdlbnRhc3Npc3Rwcm90by5PbmxpbmVVc2VyEg4KBnN0YXR1cxgCIAEoCRIRCgl0aW1lc3RhbXAYAyABKAMiswkKEFdlYnNvY2tldE1lc3NhZ2USCwoDQ21kGAEgASgJEkAKEkFza1F1ZXN0aW9uUmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0Ej4KEVdvcmtSZXBvcnRSZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBJCChNBc2tRdWVzdGlvblJlc3BvbnNlGAQgASgLMiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlEkAKEldvcmtSZXBvcnRSZXNwb25zZRgFIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlElIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBgNIAEoCzItLmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0ElQKHENoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2UYDiABKAsyLi5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2USTgoZR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBgPIAEoCzIrLmFnZW50YXNzaXN0cHJvdG8uR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBJQChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRgQIAEoCzIsLmFnZW50YXNzaXN0cHJvdG8uR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2USVAocUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhgRIAEoCzIuLmFnZW50YXNzaXN0cHJvdG8uUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhJGChVHZXRPbmxpbmVVc2Vyc1JlcXVlc3QYEyABKAsyJy5hZ2VudGFzc2lzdHByb3RvLkdldE9ubGluZVVzZXJzUmVxdWVzdBJIChZHZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlGBQgASgLMiguYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlEkgKFlNlbmRDaGF0TWVzc2FnZVJlcXVlc3QYFSABKAsyKC5hZ2VudGFzc2lzdHByb3RvLlNlbmRDaGF0TWVzc2FnZVJlcXVlc3QSSgoXQ2hhdE1lc3NhZ2VOb3RpZmljYXRpb24YFiABKAsyKS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlTm90aWZpY2F0aW9uEj4KEVVzZXJMb2dpblJlc3BvbnNlGBcgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Vc2VyTG9naW5SZXNwb25zZRJcCiBVc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhgYIAEoCzIyLmFnZW50YXNzaXN0cHJvdG8uVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24SEAoIU3RyUGFyYW0YDCABKAkSEAoITmlja25hbWUYEiABKAkyxQEKDlNydkFnZW50QXNzaXN0EloKC0Fza1F1ZXN0aW9uEiQuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlcXVlc3QaJS5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2USVwoKV29ya1JlcG9ydBIjLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlcXVlc3QaJC5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXNwb25zZUI4WjZnaXRodWIuY29tL3lhbmdqdW5jb2RlL2FnZW50YXNzaXN0YW50L2FnZW50YXNzaXN0cHJvdG9iBnByb3RvMw");
 
 /**
  * TextContent represents text provided to or from an LLM.
@@ -321,9 +321,9 @@ export const AskQuestionResponseSchema: GenMessage<AskQuestionResponse> = /*@__P
   messageDesc(file_agentassist, 8);
 
 /**
- * @generated from message agentassistproto.McpTaskFinishRequest
+ * @generated from message agentassistproto.McpWorkReportRequest
  */
-export type McpTaskFinishRequest = Message<"agentassistproto.McpTaskFinishRequest"> & {
+export type McpWorkReportRequest = Message<"agentassistproto.McpWorkReportRequest"> & {
   /**
    * current project directory
    *
@@ -332,7 +332,7 @@ export type McpTaskFinishRequest = Message<"agentassistproto.McpTaskFinishReques
   ProjectDirectory: string;
 
   /**
-   * ai agent's summary
+   * ai agent's work report summary
    *
    * @generated from field: string Summary = 2;
    */
@@ -347,16 +347,16 @@ export type McpTaskFinishRequest = Message<"agentassistproto.McpTaskFinishReques
 };
 
 /**
- * Describes the message agentassistproto.McpTaskFinishRequest.
- * Use `create(McpTaskFinishRequestSchema)` to create a new message.
+ * Describes the message agentassistproto.McpWorkReportRequest.
+ * Use `create(McpWorkReportRequestSchema)` to create a new message.
  */
-export const McpTaskFinishRequestSchema: GenMessage<McpTaskFinishRequest> = /*@__PURE__*/
+export const McpWorkReportRequestSchema: GenMessage<McpWorkReportRequest> = /*@__PURE__*/
   messageDesc(file_agentassist, 9);
 
 /**
- * @generated from message agentassistproto.TaskFinishRequest
+ * @generated from message agentassistproto.WorkReportRequest
  */
-export type TaskFinishRequest = Message<"agentassistproto.TaskFinishRequest"> & {
+export type WorkReportRequest = Message<"agentassistproto.WorkReportRequest"> & {
   /**
    * request id
    *
@@ -372,24 +372,24 @@ export type TaskFinishRequest = Message<"agentassistproto.TaskFinishRequest"> & 
   UserToken: string;
 
   /**
-   * ai agent's summary
+   * ai agent's work report summary
    *
-   * @generated from field: agentassistproto.McpTaskFinishRequest Request = 3;
+   * @generated from field: agentassistproto.McpWorkReportRequest Request = 3;
    */
-  Request?: McpTaskFinishRequest;
+  Request?: McpWorkReportRequest;
 };
 
 /**
- * Describes the message agentassistproto.TaskFinishRequest.
- * Use `create(TaskFinishRequestSchema)` to create a new message.
+ * Describes the message agentassistproto.WorkReportRequest.
+ * Use `create(WorkReportRequestSchema)` to create a new message.
  */
-export const TaskFinishRequestSchema: GenMessage<TaskFinishRequest> = /*@__PURE__*/
+export const WorkReportRequestSchema: GenMessage<WorkReportRequest> = /*@__PURE__*/
   messageDesc(file_agentassist, 10);
 
 /**
- * @generated from message agentassistproto.TaskFinishResponse
+ * @generated from message agentassistproto.WorkReportResponse
  */
-export type TaskFinishResponse = Message<"agentassistproto.TaskFinishResponse"> & {
+export type WorkReportResponse = Message<"agentassistproto.WorkReportResponse"> & {
   /**
    * request id
    *
@@ -414,10 +414,10 @@ export type TaskFinishResponse = Message<"agentassistproto.TaskFinishResponse"> 
 };
 
 /**
- * Describes the message agentassistproto.TaskFinishResponse.
- * Use `create(TaskFinishResponseSchema)` to create a new message.
+ * Describes the message agentassistproto.WorkReportResponse.
+ * Use `create(WorkReportResponseSchema)` to create a new message.
  */
-export const TaskFinishResponseSchema: GenMessage<TaskFinishResponse> = /*@__PURE__*/
+export const WorkReportResponseSchema: GenMessage<WorkReportResponse> = /*@__PURE__*/
   messageDesc(file_agentassist, 11);
 
 /**
@@ -486,7 +486,7 @@ export const GetPendingMessagesRequestSchema: GenMessage<GetPendingMessagesReque
  */
 export type PendingMessage = Message<"agentassistproto.PendingMessage"> & {
   /**
-   * message type: "AskQuestion" or "TaskFinish"
+   * message type: "AskQuestion" or "WorkReport"
    *
    * @generated from field: string message_type = 1;
    */
@@ -500,11 +500,11 @@ export type PendingMessage = Message<"agentassistproto.PendingMessage"> & {
   askQuestionRequest?: AskQuestionRequest;
 
   /**
-   * task finish request (if message_type is "TaskFinish")
+   * work report request (if message_type is "WorkReport")
    *
-   * @generated from field: agentassistproto.TaskFinishRequest task_finish_request = 3;
+   * @generated from field: agentassistproto.WorkReportRequest work_report_request = 3;
    */
-  taskFinishRequest?: TaskFinishRequest;
+  workReportRequest?: WorkReportRequest;
 
   /**
    * timestamp when the message was created
@@ -577,7 +577,7 @@ export type RequestCancelledNotification = Message<"agentassistproto.RequestCanc
   reason: string;
 
   /**
-   * message type: "AskQuestion" or "TaskFinish"
+   * message type: "AskQuestion" or "WorkReport"
    *
    * @generated from field: string message_type = 3;
    */
@@ -788,27 +788,6 @@ export const ChatMessageNotificationSchema: GenMessage<ChatMessageNotification> 
   messageDesc(file_agentassist, 23);
 
 /**
- * SendBackspaceRequest represents a request to send a backspace command
- *
- * @generated from message agentassistproto.SendBackspaceRequest
- */
-export type SendBackspaceRequest = Message<"agentassistproto.SendBackspaceRequest"> & {
-  /**
-   * receiver client id
-   *
-   * @generated from field: string receiver_client_id = 1;
-   */
-  receiverClientId: string;
-};
-
-/**
- * Describes the message agentassistproto.SendBackspaceRequest.
- * Use `create(SendBackspaceRequestSchema)` to create a new message.
- */
-export const SendBackspaceRequestSchema: GenMessage<SendBackspaceRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 24);
-
-/**
  * UserLoginResponse represents the response to a user login
  *
  * @generated from message agentassistproto.UserLoginResponse
@@ -841,7 +820,7 @@ export type UserLoginResponse = Message<"agentassistproto.UserLoginResponse"> & 
  * Use `create(UserLoginResponseSchema)` to create a new message.
  */
 export const UserLoginResponseSchema: GenMessage<UserLoginResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 25);
+  messageDesc(file_agentassist, 24);
 
 /**
  * UserConnectionStatusNotification represents a notification when a user connects or disconnects
@@ -876,7 +855,7 @@ export type UserConnectionStatusNotification = Message<"agentassistproto.UserCon
  * Use `create(UserConnectionStatusNotificationSchema)` to create a new message.
  */
 export const UserConnectionStatusNotificationSchema: GenMessage<UserConnectionStatusNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 26);
+  messageDesc(file_agentassist, 25);
 
 /**
  * @generated from message agentassistproto.WebsocketMessage
@@ -885,19 +864,18 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
   /**
    * WebsocketMessage cmd
    * AskQuestion: mcp ask_question
-   * TaskFinish: mcp task_finish
+   * WorkReport: mcp work_report
    * AskQuestionReply: user ask_question reply
-   * TaskFinishReply: user task_finish reply
+   * WorkReportReply: user work_report reply
    * UserLogin: user login, str param is user token, nickname is user nickname
    * AskQuestionReplyNotification: notification of an AskQuestionReply
-   * TaskFinishReplyNotification: notification of a TaskFinishReply
+   * WorkReportReplyNotification: notification of a WorkReportReply
    * CheckMessageValidity: check if messages are still valid
    * GetPendingMessages: get all pending messages for a user
    * RequestCancelled: notification that a request has been cancelled
    * GetOnlineUsers: get online users with the same token
    * SendChatMessage: send a chat message to another user
    * ChatMessageNotification: notification of a new chat message
-   * SendBackspace: send a backspace command to another user
    *
    * @generated from field: string Cmd = 1;
    */
@@ -911,11 +889,11 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
   AskQuestionRequest?: AskQuestionRequest;
 
   /**
-   * task finish
+   * work report
    *
-   * @generated from field: agentassistproto.TaskFinishRequest TaskFinishRequest = 3;
+   * @generated from field: agentassistproto.WorkReportRequest WorkReportRequest = 3;
    */
-  TaskFinishRequest?: TaskFinishRequest;
+  WorkReportRequest?: WorkReportRequest;
 
   /**
    * ask question reply
@@ -925,11 +903,11 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
   AskQuestionResponse?: AskQuestionResponse;
 
   /**
-   * task finish reply
+   * work report reply
    *
-   * @generated from field: agentassistproto.TaskFinishResponse TaskFinishResponse = 5;
+   * @generated from field: agentassistproto.WorkReportResponse WorkReportResponse = 5;
    */
-  TaskFinishResponse?: TaskFinishResponse;
+  WorkReportResponse?: WorkReportResponse;
 
   /**
    * check message validity
@@ -1009,13 +987,6 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
   UserConnectionStatusNotification?: UserConnectionStatusNotification;
 
   /**
-   * send backspace request
-   *
-   * @generated from field: agentassistproto.SendBackspaceRequest SendBackspaceRequest = 25;
-   */
-  SendBackspaceRequest?: SendBackspaceRequest;
-
-  /**
    * str param
    *
    * @generated from field: string StrParam = 12;
@@ -1035,7 +1006,7 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
  * Use `create(WebsocketMessageSchema)` to create a new message.
  */
 export const WebsocketMessageSchema: GenMessage<WebsocketMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 27);
+  messageDesc(file_agentassist, 26);
 
 /**
  * @generated from service agentassistproto.SrvAgentAssist
@@ -1050,12 +1021,12 @@ export const SrvAgentAssist: GenService<{
     output: typeof AskQuestionResponseSchema;
   },
   /**
-   * @generated from rpc agentassistproto.SrvAgentAssist.TaskFinish
+   * @generated from rpc agentassistproto.SrvAgentAssist.WorkReport
    */
-  taskFinish: {
+  workReport: {
     methodKind: "unary";
-    input: typeof TaskFinishRequestSchema;
-    output: typeof TaskFinishResponseSchema;
+    input: typeof WorkReportRequestSchema;
+    output: typeof WorkReportResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_agentassist, 0);

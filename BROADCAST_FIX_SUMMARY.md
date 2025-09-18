@@ -2,7 +2,7 @@
 
 ## 问题描述
 
-Flutter客户端没有正确处理`AskQuestionReplyNotification`和`TaskFinishReplyNotification`广播消息，导致多用户协作时状态不同步。
+Flutter客户端没有正确处理`AskQuestionReplyNotification`和`WorkReportReplyNotification`广播消息，导致多用户协作时状态不同步。
 
 ## 发现的问题
 
@@ -16,10 +16,10 @@ void _handleAskQuestionReplyNotification(WebsocketMessage message) {
   _logger.d('Ask question reply notification received');
 }
 
-/// Handle task finish reply notification
-void _handleTaskFinishReplyNotification(WebsocketMessage message) {
+/// Handle work report reply notification
+void _handleWorkReportReplyNotification(WebsocketMessage message) {
   // Update message status if needed
-  _logger.d('Task finish reply notification received');
+  _logger.d('Work report reply notification received');
 }
 ```
 
@@ -72,21 +72,21 @@ void _handleAskQuestionReplyNotification(WebsocketMessage message) {
 }
 ```
 
-### 2. 完善TaskFinishReplyNotification处理
+### 2. 完善workReportReplyNotification处理
 
 **修复后：**
 ```dart
-/// Handle task finish reply notification
-void _handleTaskFinishReplyNotification(WebsocketMessage message) {
-  if (!message.hasTaskFinishRequest()) {
-    _logger.w('TaskFinishReplyNotification missing request data');
+/// Handle work report reply notification
+void _handleWorkReportReplyNotification(WebsocketMessage message) {
+  if (!message.hasWorkReportRequest()) {
+    _logger.w('WorkReportReplyNotification missing request data');
     return;
   }
 
-  final request = message.taskFinishRequest;
+  final request = message.workReportRequest;
   final requestId = request.iD;
   
-  _logger.i('Task finish reply notification received for request: $requestId');
+  _logger.i('Work report reply notification received for request: $requestId');
 
   // Find and update the existing message
   final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);

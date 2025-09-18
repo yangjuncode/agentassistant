@@ -11,7 +11,7 @@
 `agentassistant-mcp` 提供了两个主要工具：
 
 - `ask_question`
-- `task_finish`
+- `work_report`
 
 启动时，`agentassistant-mcp` 会加载 `agentassistant-mcp.toml` 配置文件。配置文件中包含以下信息：
 
@@ -76,9 +76,9 @@ agentassistant_server_token = "test-token"
 4. 当 `agentassistant-mcp` 发起 `ask_question` 时，`agentassistant-srv` 会向 web/flutter 界面发送 `WebsocketMessage.AskQuestion` 消息（包含 `AskQuestionRequest`）。
 5. web/flutter 界面接收到 `WebsocketMessage.AskQuestion` 消息后，将问题展示给用户。用户回复时，web/flutter 界面将使用 websocket 发送 `agentassistant-srv` 的 `WebsocketMessage.cmd=AskQuestionReply` 消息 ，并附带用户的回复内容。
 6. `agentassistant-srv` 接收到来自 web/flutter 界面的 `WebsocketMessage.cmd=AskQuestionReply` 后，将此回复转发给相应的 `agentassistant-mcp`。
-7. 当 `agentassistant-mcp` 发起 `task_finish` 时，`agentassistant-srv` 会向 web/flutter 界面发送 `WebsocketMessage.TaskFinish` 消息（包含 `TaskFinishRequest`）。
-8. web/flutter 界面接收到 `WebsocketMessage.TaskFinish` 消息后，通常会向用户展示任务已完成的通知。如果 `TaskFinishRequest` 中表明需要用户确认或有进一步的简单交互，用户通过界面操作后，web/flutter 界面将使用 websocket 发送 `agentassistant-srv`  `WebsocketMessage.cmd=TaskFinishReply` 消息。
-9. `agentassistant-srv` 接收到来自 web/flutter 界面的 `TaskFinishReply` 后（如果发生），将此回复转发给相应的 `agentassistant-mcp`。
+7. 当 `agentassistant-mcp` 发起 `work_report` 时，`agentassistant-srv` 会向 web/flutter 界面发送 `WebsocketMessage.WorkReport` 消息（包含 `WorkReportRequest`）。
+8. web/flutter 界面接收到 `WebsocketMessage.WorkReport` 消息后，通常会向用户展示任务已完成的通知。如果 `WorkReportRequest` 中表明需要用户确认或有进一步的简单交互，用户通过界面操作后，web/flutter 界面将使用 websocket 发送 `agentassistant-srv`  `WebsocketMessage.cmd=WorkReportReply` 消息。
+9. `agentassistant-srv` 接收到来自 web/flutter 界面的 `WorkReportReply` 后（如果发生），将此回复转发给相应的 `agentassistant-mcp`。
 
 ** 用户界面间的主动实时通信：**
 - 在多用户环境中，web/flutter 界面可以通过 WebSocket 实现主动通信。以方便使用不同的用户界面间的输入能力，比如手机端的语音输入，PC 端的文本输入等
@@ -96,9 +96,9 @@ agentassistant_server_token = "test-token"
 message WebsocketMessage {
   string Cmd = 1;                                    // 命令类型
   AskQuestionRequest AskQuestionRequest = 2;         // 问题请求
-  TaskFinishRequest TaskFinishRequest = 3;           // 任务完成请求
+  WorkReportRequest WorkReportRequest = 3;           // 任务完成请求
   AskQuestionResponse AskQuestionResponse = 4;       // 问题回复
-  TaskFinishResponse TaskFinishResponse = 5;         // 任务完成回复
+  WorkReportResponse WorkReportResponse = 5;         // 任务完成回复
   string StrParam = 12;                              // 字符串参数
 }
 ```
@@ -186,7 +186,7 @@ WebsocketMessage {
 3. `agentassistant-srv` 处理回复并转发给对应的 `agentassistant-mcp`
 4. 同时触发 `AskQuestionReplyNotification` 通知其他客户端
 
-#### 4. TaskFinish - 任务完成通知
+#### 4. WorkReport - 任务完成通知
 
 **用途：** `agentassistant-mcp` 通知用户任务已完成
 
@@ -194,8 +194,8 @@ WebsocketMessage {
 
 ```protobuf
 WebsocketMessage {
-  Cmd = "TaskFinish"
-  TaskFinishRequest = {
+  Cmd = "WorkReport"
+  WorkReportRequest = {
     ID = "<请求唯一标识符>"
     UserToken = "<用户令牌>"
     Request = {
@@ -209,12 +209,12 @@ WebsocketMessage {
 
 **工作流程：**
 
-1. `agentassistant-mcp` 调用 `task_finish` 工具
+1. `agentassistant-mcp` 调用 `work_report` 工具
 2. `agentassistant-srv` 接收 RPC 请求并转换为 WebSocket 消息
 3. 消息广播给所有匹配令牌的已连接客户端
 4. web/flutter 界面展示任务完成通知
 
-#### 5. TaskFinishReply - 任务完成确认
+#### 5. WorkReportReply - 任务完成确认
 
 **用途：** 用户确认任务完成或提供反馈
 
@@ -222,8 +222,8 @@ WebsocketMessage {
 
 ```protobuf
 WebsocketMessage {
-  Cmd = "TaskFinishReply"
-  TaskFinishRequest = {
+  Cmd = "WorkReportReply"
+  WorkReportRequest = {
     ID = "<原始请求的唯一标识符>"
     UserToken = "<用户令牌>"
     Request = {
@@ -232,7 +232,7 @@ WebsocketMessage {
       Timeout = <超时时间（秒）>
     }
   }
-  TaskFinishResponse = {
+  WorkReportResponse = {
     ID = "<请求唯一标识符>"
     IsError = <是否为错误响应>
     Meta = {<元数据键值对>}
@@ -244,9 +244,9 @@ WebsocketMessage {
 **工作流程：**
 
 1. 用户在 web/flutter 界面中确认任务完成或提供反馈
-2. web/flutter 界面发送 `TaskFinishReply` 消息
+2. web/flutter 界面发送 `WorkReportReply` 消息
 3. `agentassistant-srv` 处理回复并转发给对应的 `agentassistant-mcp`
-4. 同时触发 `TaskFinishReplyNotification` 通知其他客户端
+4. 同时触发 `WorkReportReplyNotification` 通知其他客户端
 
 #### 6. AskQuestionReplyNotification - 问题回复通知
 
@@ -305,7 +305,7 @@ websocket.onmessage = (event) => {
 };
 ```
 
-#### 7. TaskFinishReplyNotification - 任务完成回复通知
+#### 7. WorkReportReplyNotification - 任务完成回复通知
 
 **用途：** 通知所有其他已连接的客户端有用户已确认了某个任务完成
 
@@ -313,8 +313,8 @@ websocket.onmessage = (event) => {
 
 ```protobuf
 WebsocketMessage {
-  Cmd = "TaskFinishReplyNotification"
-  TaskFinishRequest = {
+  Cmd = "WorkReportReplyNotification"
+  WorkReportRequest = {
     ID = "<原始请求的唯一标识符>"
     UserToken = "<用户令牌>"
     Request = {
@@ -323,13 +323,13 @@ WebsocketMessage {
       Timeout = <超时时间（秒）>
     }
   }
-  TaskFinishResponse = {
+  WorkReportResponse = {
     ID = "<请求唯一标识符>"
     IsError = <是否为错误响应>
     Meta = {<元数据键值对>}
     Contents = [<确认内容列表>]
   }
-  StrParam = "Task completion confirmed by client <客户端ID>"
+  StrParam = "Work report confirmed by client <客户端ID>"
 }
 ```
 
@@ -341,9 +341,9 @@ WebsocketMessage {
 
 **工作流程：**
 
-1. 客户端 A 发送 `TaskFinishReply` 消息确认任务完成
+1. 客户端 A 发送 `WorkReportReply` 消息确认任务完成
 2. `agentassistant-srv` 处理该确认
-3. 服务器自动生成 `TaskFinishReplyNotification` 消息
+3. 服务器自动生成 `WorkReportReplyNotification` 消息
 4. 该通知广播给除客户端 A 之外的所有其他已连接客户端
 5. 其他客户端接收通知并更新界面状态（如标记任务已被确认）
 
@@ -354,9 +354,9 @@ WebsocketMessage {
 websocket.onmessage = (event) => {
   const message = parseProtobufMessage(event.data);
 
-  if (message.cmd === 'TaskFinishReplyNotification') {
+  if (message.cmd === 'WorkReportReplyNotification') {
     // 更新界面显示该任务已被其他用户确认
-    updateTaskStatus(message.taskFinishRequest.ID, 'confirmed');
+    updateTaskStatus(message.workReportRequest.ID, 'confirmed');
     showNotification(`任务完成已被确认: ${message.strParam}`);
   }
 };

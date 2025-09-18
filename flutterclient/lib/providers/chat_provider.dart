@@ -208,14 +208,14 @@ class ChatProvider extends ChangeNotifier {
       case WebSocketCommands.askQuestion:
         _handleAskQuestionMessage(message.askQuestionRequest);
         break;
-      case WebSocketCommands.taskFinish:
-        _handleTaskFinishMessage(message.taskFinishRequest);
+      case WebSocketCommands.workReport:
+        _handleWorkReportMessage(message.workReportRequest);
         break;
       case WebSocketCommands.askQuestionReplyNotification:
         _handleAskQuestionReplyNotification(message);
         break;
-      case WebSocketCommands.taskFinishReplyNotification:
-        _handleTaskFinishReplyNotification(message);
+      case WebSocketCommands.workReportReplyNotification:
+        _handleWorkReportReplyNotification(message);
         break;
       case WebSocketCommands.getPendingMessages:
         _handleGetPendingMessagesResponse(message);
@@ -247,11 +247,11 @@ class ChatProvider extends ChangeNotifier {
     _bringWindowToFrontIfNeeded();
   }
 
-  /// Handle task finish message
-  void _handleTaskFinishMessage(pb.TaskFinishRequest request) {
-    final chatMessage = ChatMessage.fromTaskFinishRequest(request);
+  /// Handle work report message
+  void _handleWorkReportMessage(pb.WorkReportRequest request) {
+    final chatMessage = ChatMessage.fromWorkReportRequest(request);
     _addMessage(chatMessage);
-    _logger.i('Received task finish: ${request.request.summary}');
+    _logger.i('Received work report: ${request.request.summary}');
 
     // Bring window to front when new message is received
     _bringWindowToFrontIfNeeded();
@@ -323,25 +323,25 @@ class ChatProvider extends ChangeNotifier {
     }
   }
 
-  /// Handle task finish reply notification
-  void _handleTaskFinishReplyNotification(pb.WebsocketMessage message) {
-    if (!message.hasTaskFinishRequest()) {
-      _logger.w('TaskFinishReplyNotification missing request data');
+  /// Handle work report reply notification
+  void _handleWorkReportReplyNotification(pb.WebsocketMessage message) {
+    if (!message.hasWorkReportRequest()) {
+      _logger.w('WorkReportReplyNotification missing request data');
       return;
     }
 
-    final request = message.taskFinishRequest;
+    final request = message.workReportRequest;
     final requestId = request.iD;
 
-    _logger
-        .i('Task finish reply notification received for request: $requestId');
+    _logger.i(
+        'Task work report reply notification received for request: $requestId');
 
     // Extract reply content from the response
     String? replyText;
     List<ContentItem> replyContents = [];
 
-    if (message.hasTaskFinishResponse()) {
-      final response = message.taskFinishResponse;
+    if (message.hasWorkReportResponse()) {
+      final response = message.workReportResponse;
 
       // Extract text content from response
       for (final content in response.contents) {
@@ -381,11 +381,11 @@ class ChatProvider extends ChangeNotifier {
 
         // Show notification to user
         _showReplyNotification(
-            '任务已被其他用户确认', replyText ?? existingMessage.summary ?? '');
+            '工作报告已被其他用户确认', replyText ?? existingMessage.summary ?? '');
       }
     } else {
       _logger.w(
-          'Message with request ID $requestId not found for task finish notification');
+          'Message with request ID $requestId not found for work report notification');
     }
   }
 
@@ -441,10 +441,10 @@ class ChatProvider extends ChangeNotifier {
         chatMessage = ChatMessage.fromAskQuestionRequest(
           pendingMessage.askQuestionRequest,
         );
-      } else if (pendingMessage.messageType == 'TaskFinish' &&
-          pendingMessage.hasTaskFinishRequest()) {
-        chatMessage = ChatMessage.fromTaskFinishRequest(
-          pendingMessage.taskFinishRequest,
+      } else if (pendingMessage.messageType == 'WorkReport' &&
+          pendingMessage.hasWorkReportRequest()) {
+        chatMessage = ChatMessage.fromWorkReportRequest(
+          pendingMessage.workReportRequest,
         );
       }
 
@@ -518,7 +518,7 @@ class ChatProvider extends ChangeNotifier {
 
     try {
       // Create response
-      final response = pb.TaskFinishResponse()
+      final response = pb.WorkReportResponse()
         ..iD = message.requestId
         ..isError = false;
 
@@ -533,15 +533,15 @@ class ChatProvider extends ChangeNotifier {
       }
 
       // Create original request for reply
-      final originalRequest = pb.TaskFinishRequest()
+      final originalRequest = pb.WorkReportRequest()
         ..iD = message.requestId
         ..userToken = _currentToken ?? ''
-        ..request = (pb.McpTaskFinishRequest()
+        ..request = (pb.McpWorkReportRequest()
           ..projectDirectory = message.projectDirectory ?? ''
           ..summary = message.summary ?? '');
 
       // Send reply
-      await _webSocketService.sendTaskFinishReply(originalRequest, response);
+      await _webSocketService.sendWorkReportReply(originalRequest, response);
 
       // Update message status
       final updatedMessage = message.copyWith(

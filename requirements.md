@@ -24,12 +24,12 @@ Agent Assistant 是一个基于 MCP (Model Context Protocol) 协议的 AI 助手
 ### 2.1 核心组件
 
 1. **agentassistant-mcp**：MCP 协议接口层，负责与 AI agent 通信，使用golang实现
-   - 提供两个主要工具：`ask_question` 和 `task_finish`
+   - 提供两个主要工具：`ask_question` 和 `work_report`
    - 支持项目目录、超时设置等参数配置
    - 通过 RPC 与服务层通信
 
 2. **agentassistant-srv**：核心服务层，处理请求路由和消息转发，使用golang实现
-   - 实现 `SrvAgentAssist` 服务，包含 `AskQuestion` 和 `TaskFinish` RPC 方法
+   - 实现 `SrvAgentAssist` 服务，包含 `AskQuestion` 和 `WorkReport` RPC 方法
    - 处理多种内容类型的消息转发和响应
 
 3. **Web/flutter 界面**：用户交互界面，展示请求并收集反馈
@@ -54,7 +54,7 @@ Agent Assistant 是一个基于 MCP (Model Context Protocol) 协议的 AI 助手
    - 请求参数：项目目录、问题内容、超时时间（默认600秒）
    - 响应：错误状态、元数据、多种类型的内容列表
 
-2. **TaskFinish**：AI agent 完成任务并请求用户确认
+2. **WorkReport**：AI agent 完成任务并请求用户确认（工作报告）
    - 请求参数：项目目录、任务摘要、超时时间（默认600秒）
    - 响应：错误状态、元数据、多种类型的内容列表
 
@@ -62,8 +62,8 @@ Agent Assistant 是一个基于 MCP (Model Context Protocol) 协议的 AI 助手
 
 ```mermaid
 flowchart LR
-    A[AI Agent] -->|MCP ask_question/task_finish| B[agentassistant-mcp]
-    B -->|AskQuestion/TaskFinish RPC| C[agentassistant-srv]
+    A[AI Agent] -->|MCP ask_question/work_report| B[agentassistant-mcp]
+    B -->|AskQuestion/WorkReport RPC| C[agentassistant-srv]
     C -->|消息广播| D[Web User Interface]
     D -->|用户反馈<br/>TextContent/ImageContent<br/>AudioContent/EmbeddedResource| C
     C -->|McpResultContent 响应| B
@@ -83,14 +83,14 @@ flowchart LR
 5. **结果返回**：用户反馈通过 `AskQuestionResponse` 返回给 `agentassistant-srv`
 6. **响应处理**：`agentassistant-srv` 将包含 `McpResultContent` 的响应返回给 AI agent
 
-### 3.2 任务完成流程 (task_finish)
+### 3.2 任务完成流程 (work_report)
 
-1. **任务完成通知**：AI agent 通过 MCP 协议调用 `task_finish` 工具
+1. **任务完成通知**：AI agent 通过 MCP 协议调用 `work_report` 工具
    - 参数：项目目录 (project_directory)、任务摘要 (summary)、超时时间 (timeout，默认600秒)
-2. **请求转发**：`agentassistant-mcp` 通过 `TaskFinish` RPC 将请求转发至 `agentassistant-srv` 服务
+2. **请求转发**：`agentassistant-mcp` 通过 `WorkReport` RPC 将请求转发至 `agentassistant-srv` 服务
 3. **消息广播**：`agentassistant-srv` 将任务完成信息广播给所有在线的 Web 用户
 4. **用户确认**：Web 用户界面展示任务摘要，等待用户确认或提供额外反馈
-5. **结果返回**：用户确认信息通过 `TaskFinishResponse` 返回给 `agentassistant-srv`
+5. **结果返回**：用户确认信息通过 `WorkReportResponse` 返回给 `agentassistant-srv`
 6. **响应处理**：`agentassistant-srv` 将包含 `McpResultContent` 的响应返回给 AI agent
 
 ## 4. 集成指南
@@ -113,7 +113,7 @@ Agent Assistant 提供两个主要的 MCP 工具：
 
 - 包含 TextContent、ImageContent、AudioContent 或 EmbeddedResource 的内容列表
 
-#### 4.1.2 task_finish 工具
+#### 4.1.2 work_report 工具
 
 用于 AI agent 完成任务时请求用户确认。
 
@@ -136,11 +136,11 @@ Agent Assistant 提供两个主要的 MCP 工具：
 
 1. 在任何流程、任务、对话进行时，无论是询问、回复、或完成阶段性任务，皆必须调用相应的 MCP 工具：
    - 需要用户反馈时使用 `ask_question` 工具
-   - 完成任务时使用 `task_finish` 工具
+   - 完成任务时使用 `work_report` 工具
 2. 每当收到用户反馈，若反馈内容非空，必须根据反馈内容调整行为，并在需要时再次调用相应工具。
 3. 仅当用户明确表示「结束」或「不再需要交互」时，才可停止调用 MCP 工具，流程才算结束。
 4. 除非收到结束指令，否则所有关键步骤都必须通过 MCP 工具与用户确认。
-5. 完成任务前，必须使用 `task_finish` 工具向用户报告任务完成情况并请求确认。
+5. 完成任务前，必须使用 `work_report` 工具向用户报告任务完成情况并请求确认。
 6. 调用工具时务必提供正确的 `project_directory` 参数，确保上下文准确性。
 ```
 

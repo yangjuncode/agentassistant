@@ -146,16 +146,16 @@ func (s *AgentAssistService) AskQuestion(
 	}
 }
 
-// TaskFinish implements the TaskFinish RPC method
-func (s *AgentAssistService) TaskFinish(
+// WorkReport implements the WorkReport RPC method
+func (s *AgentAssistService) WorkReport(
 	ctx context.Context,
-	req *connect.Request[agentassistproto.TaskFinishRequest],
-) (*connect.Response[agentassistproto.TaskFinishResponse], error) {
+	req *connect.Request[agentassistproto.WorkReportRequest],
+) (*connect.Response[agentassistproto.WorkReportResponse], error) {
 	// Check if the nested Request field is nil
 	if req.Msg.Request == nil {
-		log.Printf("Received TaskFinish request with nil Request field")
-		return &connect.Response[agentassistproto.TaskFinishResponse]{
-			Msg: &agentassistproto.TaskFinishResponse{
+		log.Printf("Received WorkReport request with nil Request field")
+		return &connect.Response[agentassistproto.WorkReportResponse]{
+			Msg: &agentassistproto.WorkReportResponse{
 				IsError: true,
 				Meta: map[string]string{
 					"error":   "invalid_request",
@@ -166,7 +166,7 @@ func (s *AgentAssistService) TaskFinish(
 		}, nil
 	}
 
-	log.Printf("Received TaskFinish request: ProjectDirectory=%s, Summary=%s, Timeout=%d",
+	log.Printf("Received WorkReport request: ProjectDirectory=%s, Summary=%s, Timeout=%d",
 		req.Msg.Request.ProjectDirectory, req.Msg.Request.Summary, req.Msg.Request.Timeout)
 
 	// Set default timeout if not provided
@@ -182,8 +182,8 @@ func (s *AgentAssistService) TaskFinish(
 	// Create WebsocketMessage for web users
 	requestID := req.Msg.ID
 	websocketMessage := &agentassistproto.WebsocketMessage{
-		Cmd:               "TaskFinish",
-		TaskFinishRequest: req.Msg,
+		Cmd:               "WorkReport",
+		WorkReportRequest: req.Msg,
 	}
 
 	// Create response channel
@@ -196,8 +196,8 @@ func (s *AgentAssistService) TaskFinish(
 	select {
 	case response := <-responseChan:
 		if response.IsError {
-			return &connect.Response[agentassistproto.TaskFinishResponse]{
-				Msg: &agentassistproto.TaskFinishResponse{
+			return &connect.Response[agentassistproto.WorkReportResponse]{
+				Msg: &agentassistproto.WorkReportResponse{
 					ID:       requestID,
 					IsError:  true,
 					Meta:     response.Meta,
@@ -206,8 +206,8 @@ func (s *AgentAssistService) TaskFinish(
 			}, nil
 		}
 
-		return &connect.Response[agentassistproto.TaskFinishResponse]{
-			Msg: &agentassistproto.TaskFinishResponse{
+		return &connect.Response[agentassistproto.WorkReportResponse]{
+			Msg: &agentassistproto.WorkReportResponse{
 				ID:       requestID,
 				IsError:  false,
 				Meta:     response.Meta,
@@ -217,11 +217,11 @@ func (s *AgentAssistService) TaskFinish(
 
 	case <-timeoutCtx.Done():
 		if timeoutCtx.Err() == context.DeadlineExceeded {
-			log.Printf("TaskFinish request timed out after %d seconds", timeout)
+			log.Printf("WorkReport request timed out after %d seconds", timeout)
 			// Cancel the request in broadcaster and notify clients
-			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "TaskFinish")
-			return &connect.Response[agentassistproto.TaskFinishResponse]{
-				Msg: &agentassistproto.TaskFinishResponse{
+			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "WorkReport")
+			return &connect.Response[agentassistproto.WorkReportResponse]{
+				Msg: &agentassistproto.WorkReportResponse{
 					ID:      requestID,
 					IsError: true,
 					Meta: map[string]string{
@@ -233,11 +233,11 @@ func (s *AgentAssistService) TaskFinish(
 			}, nil
 		}
 		// Context was cancelled (not timeout)
-		log.Printf("TaskFinish request was cancelled: %s", requestID)
+		log.Printf("WorkReport request was cancelled: %s", requestID)
 		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "TaskFinish")
-		return &connect.Response[agentassistproto.TaskFinishResponse]{
-			Msg: &agentassistproto.TaskFinishResponse{
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "WorkReport")
+		return &connect.Response[agentassistproto.WorkReportResponse]{
+			Msg: &agentassistproto.WorkReportResponse{
 				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{
@@ -250,11 +250,11 @@ func (s *AgentAssistService) TaskFinish(
 
 	case <-ctx.Done():
 		// Original context was cancelled
-		log.Printf("TaskFinish request was cancelled by original context: %s", requestID)
+		log.Printf("WorkReport request was cancelled by original context: %s", requestID)
 		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "TaskFinish")
-		return &connect.Response[agentassistproto.TaskFinishResponse]{
-			Msg: &agentassistproto.TaskFinishResponse{
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "WorkReport")
+		return &connect.Response[agentassistproto.WorkReportResponse]{
+			Msg: &agentassistproto.WorkReportResponse{
 				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{

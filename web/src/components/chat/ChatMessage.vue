@@ -107,7 +107,7 @@
       </q-card-section>
     </q-card>
 
-    <!-- Agent Task Finish -->
+    <!-- Agent Work Report -->
     <q-card v-else-if="message.type === 'task'" class="agent-message">
       <q-card-section class="bg-green-1">
         <div class="row items-center q-mb-sm">

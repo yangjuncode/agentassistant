@@ -1,4 +1,4 @@
-import type { WebsocketMessage, AskQuestionRequest, TaskFinishRequest, AskQuestionResponse, TaskFinishResponse } from '../proto/agentassist_pb';
+import type { WebsocketMessage, AskQuestionRequest, WorkReportRequest, AskQuestionResponse, WorkReportResponse } from '../proto/agentassist_pb';
 import { WebsocketMessageSchema } from '../proto/agentassist_pb';
 import { create,fromBinary, toBinary } from '@bufbuild/protobuf';
 import { WebSocketCommands } from '../types/websocket';
@@ -180,11 +180,11 @@ export class WebSocketService {
     this.sendMessage(message);
   }
 
-  sendTaskFinishReply(originalRequest: TaskFinishRequest, response: TaskFinishResponse): void {
+  sendWorkReportReply(originalRequest: WorkReportRequest, response: WorkReportResponse): void {
     const message = create(WebsocketMessageSchema, {
-      Cmd: WebSocketCommands.TASK_FINISH_REPLY,
-      TaskFinishRequest: originalRequest,
-      TaskFinishResponse: response
+      Cmd: WebSocketCommands.WORK_REPORT_REPLY,
+      WorkReportRequest: originalRequest,
+      WorkReportResponse: response
     });
     this.sendMessage(message);
   }

@@ -85,7 +85,7 @@ func main() {
 
 	// Create a new MCP server
 	s := server.NewMCPServer(
-		"Agent Assistant ",
+		"Agent-Assistant ",
 		version,
 		server.WithToolCapabilities(false),
 	)
@@ -93,9 +93,9 @@ func main() {
 	// ask_question tool
 	tool := mcp.NewTool("ask_question",
 		mcp.WithDescription(`
-Ask a question to the Agent Assistant
+Ask a question to the Agent-Assistant
 
-This tool allows you to ask a question to the Agent Assistant. The Agent Assistant will then ask the user for feedback and return the result to you.
+This tool allows you to ask a question to the Agent-Assistant. The Agent-Assistant/User will send the answer/feedback to you.
 
 Args:
 - project_directory: The current project directory
@@ -103,7 +103,7 @@ Args:
 - timeout: The timeout in seconds, default is 3600s (1 hour)
 
 Returns:
-- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent Assistant
+- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent-Assistant
 `),
 		//ProjectDirectory
 		mcp.WithString("project_directory",
@@ -122,19 +122,19 @@ Returns:
 		),
 	)
 
-	taskFinishTool := mcp.NewTool("task_finish",
+	workReportTool := mcp.NewTool("work_report",
 		mcp.WithDescription(`
-Finish a task and ask for feedback from the Agent Assistant
+before finish task/work, send a work report to Agent-Assistant/User asking for confirmation/approval.
 
-This tool allows you to finish a task and ask for feedback from the Agent Assistant. The Agent Assistant will then ask the user for feedback and return the result to you.
+This tool allows you to ask for confirmation/approval from Agent-Assistant/User by sending a work report.
 
 Args:
 - project_directory: The current project directory
-- summary: The summary of the task
+- summary: The summary of the task/work report
 - timeout: The timeout in seconds, default is 3600s (1 hour)
 
 Returns:
-- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent Assistant
+- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent-Assistant
 `),
 		//ProjectDirectory
 		mcp.WithString("project_directory",
@@ -144,7 +144,7 @@ Returns:
 		//summary
 		mcp.WithString("summary",
 			mcp.Required(),
-			mcp.Description("Summary of the task"),
+			mcp.Description("Summary of the task/work report"),
 		),
 		//timeout
 		mcp.WithNumber("timeout",
@@ -155,7 +155,7 @@ Returns:
 
 	// Add tool handler
 	s.AddTool(tool, askQuestionHandler)
-	s.AddTool(taskFinishTool, taskFinishHandler)
+	s.AddTool(workReportTool, workReportHandler)
 
 	// Start the stdio server
 	if err := server.ServeStdio(s); err != nil {
@@ -229,8 +229,8 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	return convertToMCPResult(resp.Msg), nil
 }
 
-// taskFinishHandler handles the task_finish tool
-func taskFinishHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+// workReportHandler handles the work_report tool
+func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	projectDirectory, err := request.RequireString("project_directory")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -247,18 +247,18 @@ func taskFinishHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	}
 
 	// Create RPC request
-	req := &agentassistproto.TaskFinishRequest{
+	req := &agentassistproto.WorkReportRequest{
 		ID:        generateRequestID(),
 		UserToken: config.AgentAssistantServerToken,
-		Request: &agentassistproto.McpTaskFinishRequest{
+		Request: &agentassistproto.McpWorkReportRequest{
 			ProjectDirectory: projectDirectory,
 			Summary:          summary,
 			Timeout:          int32(timeout),
 		},
 	}
 
-	// Call the TaskFinish RPC
-	resp, err := client.TaskFinish(context.Background(), connect.NewRequest(req))
+	// Call the WorkReport RPC
+	resp, err := client.WorkReport(context.Background(), connect.NewRequest(req))
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("RPC call failed: %v", err)), nil
 	}
@@ -281,7 +281,7 @@ func convertToMCPResult(resp interface{}) *mcp.CallToolResult {
 	case *agentassistproto.AskQuestionResponse:
 		isError = r.IsError
 		contents = r.Contents
-	case *agentassistproto.TaskFinishResponse:
+	case *agentassistproto.WorkReportResponse:
 		isError = r.IsError
 		contents = r.Contents
 	default:

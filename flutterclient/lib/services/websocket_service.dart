@@ -130,18 +130,18 @@ class WebSocketService {
     _logger.d('Ask question reply sent: ${response.iD}');
   }
 
-  /// Send task finish reply
-  Future<void> sendTaskFinishReply(
-    TaskFinishRequest originalRequest,
-    TaskFinishResponse response,
+  /// Send work report reply
+  Future<void> sendWorkReportReply(
+    WorkReportRequest originalRequest,
+    WorkReportResponse response,
   ) async {
     final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.taskFinishReply
-      ..taskFinishRequest = originalRequest
-      ..taskFinishResponse = response;
+      ..cmd = WebSocketCommands.workReportReply
+      ..workReportRequest = originalRequest
+      ..workReportResponse = response;
 
     await _sendMessage(message);
-    _logger.d('Task finish reply sent: ${response.iD}');
+    _logger.d('Work report reply sent: ${response.iD}');
   }
 
   /// Update nickname and send to server

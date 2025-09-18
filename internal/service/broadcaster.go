@@ -166,8 +166,8 @@ func (b *Broadcaster) run() {
 			var requestID string
 			if request.Message.AskQuestionRequest != nil {
 				requestID = request.Message.AskQuestionRequest.ID
-			} else if request.Message.TaskFinishRequest != nil {
-				requestID = request.Message.TaskFinishRequest.ID
+			} else if request.Message.WorkReportRequest != nil {
+				requestID = request.Message.WorkReportRequest.ID
 			} else {
 				log.Printf("Invalid request: no ID found")
 				continue
@@ -538,11 +538,11 @@ func (b *Broadcaster) GetPendingMessages(userToken string) []*agentassistproto.P
 			if request.Message.AskQuestionRequest.Request != nil {
 				pendingMessage.Timeout = request.Message.AskQuestionRequest.Request.Timeout
 			}
-		} else if request.Message.TaskFinishRequest != nil {
-			pendingMessage.MessageType = "TaskFinish"
-			pendingMessage.TaskFinishRequest = request.Message.TaskFinishRequest
-			if request.Message.TaskFinishRequest.Request != nil {
-				pendingMessage.Timeout = request.Message.TaskFinishRequest.Request.Timeout
+		} else if request.Message.WorkReportRequest != nil {
+			pendingMessage.MessageType = "WorkReport"
+			pendingMessage.WorkReportRequest = request.Message.WorkReportRequest
+			if request.Message.WorkReportRequest.Request != nil {
+				pendingMessage.Timeout = request.Message.WorkReportRequest.Request.Timeout
 			}
 		} else {
 			// Skip unknown message types

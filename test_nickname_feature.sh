@@ -50,10 +50,10 @@ echo "The OTHER client should see: '[Nickname]的回复' instead of '其他用�
 
 read -p "Press Enter after testing question reply with nickname display..."
 
-# Send a TaskFinish message
-echo "=== Test 2: TaskFinish with Nickname Display ==="
-echo "Sending TaskFinish message..."
-curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/TaskFinish \
+# Send a work_report message
+echo "=== Test 2: WorkReport with Nickname Display ==="
+echo "Sending WorkReport message..."
+curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/WorkReport \
   -H "Content-Type: application/connect+proto" \
   -H "Connect-Protocol-Version: 1" \
   -d '{
@@ -65,9 +65,9 @@ curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/TaskFinish \
     }
   }' &
 
-TASK_CURL_PID=$!
+WORK_REPORT_CURL_PID=$!
 
-echo "TaskFinish message sent. Both clients should see the task."
+echo "WorkReport message sent. Both clients should see the task."
 echo "Now confirm the task from ONE client (Alice or Bob)."
 echo "The OTHER client should see: '[Nickname]的确认' instead of '其他用户的确认'."
 

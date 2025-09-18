@@ -2,7 +2,7 @@
 
 ## 功能概述
 
-当Flutter桌面客户端在后台运行或被其他窗口遮挡时，如果收到新的消息（AskQuestion或TaskFinish），窗口会自动弹出到前台并获得焦点，确保用户能够及时看到新消息。
+当Flutter桌面客户端在后台运行或被其他窗口遮挡时，如果收到新的消息（AskQuestion或WorkReport），窗口会自动弹出到前台并获得焦点，确保用户能够及时看到新消息。
 
 ## 实现细节
 
@@ -82,11 +82,11 @@ void _handleAskQuestionMessage(AskQuestionRequest request) {
   _bringWindowToFrontIfNeeded();
 }
 
-// 处理TaskFinish消息时
-void _handleTaskFinishMessage(TaskFinishRequest request) {
-  final chatMessage = ChatMessage.fromTaskFinishRequest(request);
+// 处理WorkReport消息时
+void _handleWorkReportMessage(WorkReportRequest request) {
+  final chatMessage = ChatMessage.fromWorkReportRequest(request);
   _addMessage(chatMessage);
-  _logger.i('Received task finish: ${request.request.summary}');
+  _logger.i('Received task report: ${request.request.summary}');
   
   // 收到新消息时弹出窗口
   _bringWindowToFrontIfNeeded();

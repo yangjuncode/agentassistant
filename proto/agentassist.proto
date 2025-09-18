@@ -83,25 +83,25 @@ message AskQuestionResponse {
   repeated McpResultContent contents = 4;
 }
 
-message McpTaskFinishRequest {
+message McpWorkReportRequest {
   // current project directory
   string ProjectDirectory = 1;
-  // ai agent's summary
+  // ai agent's work report summary
   string Summary = 2;
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
 }
 
-message TaskFinishRequest {
+message WorkReportRequest {
   // request id
   string ID = 1;
   // user token
   string UserToken = 2;
-  // ai agent's summary
-  McpTaskFinishRequest Request = 3;
+  // ai agent's work report summary
+  McpWorkReportRequest Request = 3;
 }
 
-message TaskFinishResponse {
+message WorkReportResponse {
   // request id
   string ID = 1;
   bool IsError = 2;
@@ -127,12 +127,12 @@ message GetPendingMessagesRequest {
 
 // PendingMessage represents a single pending message
 message PendingMessage {
-  // message type: "AskQuestion" or "TaskFinish"
+  // message type: "AskQuestion" or "WorkReport"
   string message_type = 1;
   // ask question request (if message_type is "AskQuestion")
   AskQuestionRequest ask_question_request = 2;
-  // task finish request (if message_type is "TaskFinish")
-  TaskFinishRequest task_finish_request = 3;
+  // work report request (if message_type is "WorkReport")
+  WorkReportRequest work_report_request = 3;
   // timestamp when the message was created
   int64 created_at = 4;
   // timeout in seconds
@@ -153,7 +153,7 @@ message RequestCancelledNotification {
   string request_id = 1;
   // reason for cancellation
   string reason = 2;
-  // message type: "AskQuestion" or "TaskFinish"
+  // message type: "AskQuestion" or "WorkReport"
   string message_type = 3;
 }
 
@@ -238,12 +238,12 @@ message UserConnectionStatusNotification {
 message WebsocketMessage {
   // WebsocketMessage cmd
   // AskQuestion: mcp ask_question
-  // TaskFinish: mcp task_finish
+  // WorkReport: mcp work_report
   // AskQuestionReply: user ask_question reply
-  // TaskFinishReply: user task_finish reply
+  // WorkReportReply: user work_report reply
   // UserLogin: user login, str param is user token, nickname is user nickname
   // AskQuestionReplyNotification: notification of an AskQuestionReply
-  // TaskFinishReplyNotification: notification of a TaskFinishReply
+  // WorkReportReplyNotification: notification of a WorkReportReply
   // CheckMessageValidity: check if messages are still valid
   // GetPendingMessages: get all pending messages for a user
   // RequestCancelled: notification that a request has been cancelled
@@ -255,14 +255,14 @@ message WebsocketMessage {
   //ask question
   AskQuestionRequest AskQuestionRequest = 2;
 
-  //task finish
-  TaskFinishRequest TaskFinishRequest = 3;
+  //work report
+  WorkReportRequest WorkReportRequest = 3;
 
   // ask question reply
   AskQuestionResponse AskQuestionResponse = 4;
 
-  // task finish reply
-  TaskFinishResponse TaskFinishResponse = 5;
+  // work report reply
+  WorkReportResponse WorkReportResponse = 5;
 
   // check message validity
   CheckMessageValidityRequest CheckMessageValidityRequest = 13;
@@ -306,7 +306,7 @@ message WebsocketMessage {
 
 service SrvAgentAssist {
   rpc AskQuestion(AskQuestionRequest) returns (AskQuestionResponse);
-  rpc TaskFinish(TaskFinishRequest) returns (TaskFinishResponse);
+  rpc WorkReport(WorkReportRequest) returns (WorkReportResponse);
 }
 
 // WebsocketMessage defines the message structure for WebSocket communication

@@ -9,71 +9,70 @@ import 'package:flutterclient/services/websocket_service.dart';
 void main() async {
   final logger = Logger();
   final webSocketService = WebSocketService();
-  
+
   // Test server URL (replace with actual server)
   const serverUrl = 'ws://localhost:8080/ws';
   const token = 'test-token-123';
-  
+
   logger.i('Starting WebSocket reconnection example');
-  
+
   // Listen to connection events
   webSocketService.connectionStream.listen((connected) {
-    logger.i('Connection status changed: ${connected ? 'Connected' : 'Disconnected'}');
+    logger.i(
+        'Connection status changed: ${connected ? 'Connected' : 'Disconnected'}');
   });
-  
+
   // Listen to error events
   webSocketService.errorStream.listen((error) {
     logger.e('WebSocket error: $error');
   });
-  
+
   // Listen to messages
   webSocketService.messageStream.listen((message) {
     logger.i('Received message: ${message.cmd}');
   });
-  
+
   try {
     // Demonstrate multiple connection attempts
     logger.i('Attempting first connection...');
     await webSocketService.connect(serverUrl, token);
-    
+
     // Wait a bit
     await Future.delayed(const Duration(seconds: 2));
-    
+
     // Simulate connection loss and reconnection
     logger.i('Disconnecting manually...');
     webSocketService.disconnect();
-    
+
     // Wait a bit
     await Future.delayed(const Duration(seconds: 1));
-    
+
     // Reconnect - this should properly clean up the old connection
     logger.i('Attempting reconnection...');
     await webSocketService.connect(serverUrl, token);
-    
+
     // Wait a bit more
     await Future.delayed(const Duration(seconds: 2));
-    
+
     // Try connecting again while already connected
     // This should be handled gracefully without creating duplicate connections
     logger.i('Attempting connection while already connected...');
     await webSocketService.connect(serverUrl, token);
-    
+
     logger.i('Example completed successfully');
-    
   } catch (error) {
     logger.e('Connection failed (expected in example): $error');
   } finally {
     // Clean up
-    logger.i('Cleaning up resources...');
+    //logger.i('Cleaning up resources...');
     webSocketService.dispose();
-    logger.i('Example finished');
   }
 }
 
 /// Helper function to demonstrate the fix
 void demonstrateConnectionCleanup() {
   final logger = Logger();
-  
+
   logger.i('=== WebSocket Connection Cleanup Fix ===');
   logger.i('');
   logger.i('BEFORE FIX:');
@@ -85,7 +84,8 @@ void demonstrateConnectionCleanup() {
   logger.i('AFTER FIX:');
   logger.i('- Old connections are cleaned up before creating new ones');
   logger.i('- Only one active connection exists at any time');
-  logger.i('- All resources (timers, subscriptions, channels) are properly disposed');
+  logger.i(
+      '- All resources (timers, subscriptions, channels) are properly disposed');
   logger.i('- Memory usage remains stable during reconnections');
   logger.i('');
   logger.i('KEY CHANGES:');

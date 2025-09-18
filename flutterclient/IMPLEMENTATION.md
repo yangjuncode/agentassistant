@@ -9,7 +9,7 @@
 ### 1. 核心功能
 - ✅ 用户登录验证（基于 token）
 - ✅ 接收 AI Agent 发送的问题（AskQuestion）
-- ✅ 接收任务完成通知（TaskFinish）
+- ✅ 接收任务完成通知（WorkReport）
 - ✅ 用户回复问题和确认任务
 - ✅ 保存并显示历史对话记录
 - ✅ 类似 IM 的聊天界面
@@ -141,10 +141,10 @@ final delay = Duration(
 1. **UserLogin**: 用户登录验证
 2. **AskQuestion**: 接收 AI Agent 问题
 3. **AskQuestionReply**: 发送问题回复
-4. **TaskFinish**: 接收任务完成通知
-5. **TaskFinishReply**: 发送任务确认
+4. **WorkReport**: 接收任务完成通知
+5. **WorkReportReply**: 发送任务确认
 6. **AskQuestionReplyNotification**: 问题回复通知
-7. **TaskFinishReplyNotification**: 任务确认通知
+7. **WorkReportReplyNotification**: 任务确认通知
 
 ### 消息流程
 

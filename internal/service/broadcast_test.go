@@ -136,7 +136,7 @@ func TestBroadcastAskQuestionReply(t *testing.T) {
 	broadcaster.UnregisterClient(receiver)
 }
 
-func TestBroadcastTaskFinishReply(t *testing.T) {
+func TestBroadcastWorkReportReply(t *testing.T) {
 	broadcaster := NewBroadcaster()
 	handler := NewWebSocketHandler(broadcaster)
 
@@ -151,19 +151,19 @@ func TestBroadcastTaskFinishReply(t *testing.T) {
 	// Give some time for registration
 	time.Sleep(100 * time.Millisecond)
 
-	// Create a test TaskFinishReply message
+	// Create a test WorkReportReply message
 	testMessage := &agentassistproto.WebsocketMessage{
-		Cmd: "TaskFinishReply",
-		TaskFinishRequest: &agentassistproto.TaskFinishRequest{
+		Cmd: "WorkReportReply",
+		WorkReportRequest: &agentassistproto.WorkReportRequest{
 			ID:        "test-task-456",
 			UserToken: "test-token",
-			Request: &agentassistproto.McpTaskFinishRequest{
+			Request: &agentassistproto.McpWorkReportRequest{
 				ProjectDirectory: "/test/project",
 				Summary:          "Task completed successfully",
 				Timeout:          30,
 			},
 		},
-		TaskFinishResponse: &agentassistproto.TaskFinishResponse{
+		WorkReportResponse: &agentassistproto.WorkReportResponse{
 			ID:       "test-task-456",
 			IsError:  false,
 			Meta:     map[string]string{"source": "test"},
@@ -172,7 +172,7 @@ func TestBroadcastTaskFinishReply(t *testing.T) {
 	}
 
 	// Call the broadcast method
-	handler.broadcastTaskFinishReply(sender, testMessage)
+	handler.broadcastWorkReportReply(sender, testMessage)
 
 	// Give some time for message delivery
 	time.Sleep(100 * time.Millisecond)
@@ -188,10 +188,10 @@ func TestBroadcastTaskFinishReply(t *testing.T) {
 	// Check that receiver received the notification
 	select {
 	case msg := <-receiver.SendChan:
-		if msg.Cmd != "TaskFinishReplyNotification" {
+		if msg.Cmd != "WorkReportReplyNotification" {
 			t.Errorf("receiver received wrong message type: %s", msg.Cmd)
 		}
-		if msg.TaskFinishRequest == nil || msg.TaskFinishRequest.ID != "test-task-456" {
+		if msg.WorkReportRequest == nil || msg.WorkReportRequest.ID != "test-task-456" {
 			t.Error("receiver did not receive correct request data")
 		}
 	default:

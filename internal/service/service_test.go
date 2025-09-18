@@ -44,16 +44,16 @@ func TestAgentAssistService_AskQuestion(t *testing.T) {
 	}
 }
 
-func TestAgentAssistService_TaskFinish(t *testing.T) {
+func TestAgentAssistService_WorkReport(t *testing.T) {
 	// Create service
 	svc := NewAgentAssistService()
 
 	// Create test request
-	req := &connect.Request[agentassistproto.TaskFinishRequest]{
-		Msg: &agentassistproto.TaskFinishRequest{
+	req := &connect.Request[agentassistproto.WorkReportRequest]{
+		Msg: &agentassistproto.WorkReportRequest{
 			ID:        "test-request-2",
 			UserToken: "test-token",
-			Request: &agentassistproto.McpTaskFinishRequest{
+			Request: &agentassistproto.McpWorkReportRequest{
 				ProjectDirectory: "/test/project",
 				Summary:          "Task completed successfully",
 				Timeout:          5, // Short timeout for test
@@ -65,7 +65,7 @@ func TestAgentAssistService_TaskFinish(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
 	defer cancel()
 
-	resp, err := svc.TaskFinish(ctx, req)
+	resp, err := svc.WorkReport(ctx, req)
 	if err != nil {
 		t.Fatalf("Expected no error, got: %v", err)
 	}

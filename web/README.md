@@ -96,9 +96,9 @@ web/src/
 
 - `UserLogin`: 用户登录验证
 - `AskQuestion`: 接收 AI Agent 的问题
-- `TaskFinish`: 接收任务完成通知
+- `WorkReport`: 接收任务完成通知
 - `AskQuestionReply`: 发送问题回复
-- `TaskFinishReply`: 发送任务确认
+- `WorkReportReply`: 发送任务确认
 - 各种通知消息
 
 ## 自定义配置

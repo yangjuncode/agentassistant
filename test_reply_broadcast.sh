@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Test script to verify AskQuestionReply and TaskFinishReply broadcast handling
+# Test script to verify AskQuestionReply and WorkReportReply broadcast handling
 
 echo "Testing Flutter client AskQuestionReply broadcast handling..."
 
@@ -44,10 +44,10 @@ echo "The OTHER client should automatically update to show 'already replied'."
 
 read -p "Press Enter after testing question reply broadcast..."
 
-# Send a TaskFinish message
-echo "=== Test 2: TaskFinish Broadcast ==="
-echo "Sending TaskFinish message..."
-curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/TaskFinish \
+# Send a work_report message
+echo "=== Test 2: WorkReport Broadcast ==="
+echo "Sending WorkReport message..."
+curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/WorkReport \
   -H "Content-Type: application/connect+proto" \
   -H "Connect-Protocol-Version: 1" \
   -d '{
@@ -59,9 +59,9 @@ curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/TaskFinish \
     }
   }' &
 
-TASK_CURL_PID=$!
+WORK_REPORT_CURL_PID=$!
 
-echo "TaskFinish message sent. Both clients should see the task."
+echo "WorkReport message sent. Both clients should see the task."
 echo "Now confirm the task from ONE client (using OK, Continue, or custom text)."
 echo "The OTHER client should automatically update to show 'already confirmed'."
 
@@ -81,7 +81,7 @@ cat server.log | grep -E "(broadcast|notification|reply)" | tail -10 || echo "No
 # Cleanup
 echo "=== Cleanup ==="
 kill $CURL_PID1 2>/dev/null
-kill $TASK_CURL_PID 2>/dev/null
+kill $WORK_REPORT_CURL_PID 2>/dev/null
 kill $SERVER_PID 2>/dev/null
 
 echo "Test completed!"

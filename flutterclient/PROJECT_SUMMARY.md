@@ -21,9 +21,9 @@
 
 3. **消息处理**
    - 接收 AI Agent 问题（AskQuestion）
-   - 接收任务完成通知（TaskFinish）
+   - 接收任务完成通知（WorkReport）
    - 发送问题回复（AskQuestionReply）
-   - 发送任务确认（TaskFinishReply）
+   - 发送任务确认（WorkReportReply）
 
 4. **用户界面**
    - 现代化的 Material Design 3 界面
@@ -103,7 +103,7 @@ class WebSocketService {
   
   // 消息发送
   Future<void> sendAskQuestionReply(request, response);
-  Future<void> sendTaskFinishReply(request, response);
+  Future<void> sendWorkReportReply(request, response);
   
   // 事件流
   Stream<WebsocketMessage> get messageStream;
@@ -142,7 +142,7 @@ class ChatMessage {
   
   // 工厂方法
   factory ChatMessage.fromAskQuestionRequest(request);
-  factory ChatMessage.fromTaskFinishRequest(request);
+  factory ChatMessage.fromWorkReportRequest(request);
 }
 ```
 
@@ -153,10 +153,10 @@ class ChatMessage {
 - ✅ `UserLogin` - 用户登录
 - ✅ `AskQuestion` - 接收问题
 - ✅ `AskQuestionReply` - 回复问题
-- ✅ `TaskFinish` - 接收任务通知
-- ✅ `TaskFinishReply` - 确认任务
+- ✅ `WorkReport` - 接收任务通知
+- ✅ `WorkReportReply` - 确认任务
 - ✅ `AskQuestionReplyNotification` - 问题回复通知
-- ✅ `TaskFinishReplyNotification` - 任务确认通知
+- ✅ `WorkReportReplyNotification` - 任务确认通知
 
 ### 内容类型支持
 

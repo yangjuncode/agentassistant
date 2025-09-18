@@ -3,15 +3,15 @@ import { ref, computed } from 'vue';
 import type {
   WebsocketMessage,
   AskQuestionRequest,
-  TaskFinishRequest,
+  WorkReportRequest,
   AskQuestionResponse,
-  TaskFinishResponse,
+  WorkReportResponse,
   OnlineUser,
   ChatMessage as ProtoChatMessage
 } from '../proto/agentassist_pb';
 import {
   AskQuestionResponseSchema,
-  TaskFinishResponseSchema,
+  WorkReportResponseSchema,
   McpResultContentSchema,
   TextContentSchema,
   ChatMessageSchema
@@ -31,8 +31,8 @@ export interface ChatMessage {
   isFromAgent: boolean;
   isAnswered?: boolean;
   isCancelled?: boolean;
-  originalRequest?: AskQuestionRequest | TaskFinishRequest;
-  response?: AskQuestionResponse | TaskFinishResponse;
+  originalRequest?: AskQuestionRequest | WorkReportRequest;
+  response?: AskQuestionResponse | WorkReportResponse;
   timeout: number | undefined;
   replyText?: string;
   repliedAt?: Date;
@@ -136,14 +136,14 @@ export const useChatStore = defineStore('chat', () => {
       case WebSocketCommands.ASK_QUESTION:
         handleAskQuestion(message.AskQuestionRequest!);
         break;
-      case WebSocketCommands.TASK_FINISH:
-        handleTaskFinish(message.TaskFinishRequest!);
+      case WebSocketCommands.WORK_REPORT:
+        handleWorkReport(message.WorkReportRequest!);
         break;
       case WebSocketCommands.ASK_QUESTION_REPLY_NOTIFICATION:
         handleAskQuestionReplyNotification(message);
         break;
-      case WebSocketCommands.TASK_FINISH_REPLY_NOTIFICATION:
-        handleTaskFinishReplyNotification(message);
+      case WebSocketCommands.WORK_REPORT_REPLY_NOTIFICATION:
+        handleWorkReportReplyNotification(message);
         break;
       case WebSocketCommands.REQUEST_CANCELLED:
         handleRequestCancelled(message);
@@ -182,7 +182,7 @@ export const useChatStore = defineStore('chat', () => {
     NotificationService.questionReceived();
   }
 
-  function handleTaskFinish(request: TaskFinishRequest) {
+  function handleWorkReport(request: WorkReportRequest) {
     const chatMessage: ChatMessage = {
       id: request.ID,
       type: 'task',
@@ -233,17 +233,17 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
-  function handleTaskFinishReplyNotification(message: WebsocketMessage) {
-    const requestId = message.TaskFinishRequest?.ID;
+  function handleWorkReportReplyNotification(message: WebsocketMessage) {
+    const requestId = message.WorkReportRequest?.ID;
     if (!requestId) {
-      console.warn('TaskFinishReplyNotification missing request ID');
+      console.warn('WorkReportReplyNotification missing request ID');
       return;
     }
 
     // Extract reply content from the response
     let replyText = '';
-    if (message.TaskFinishResponse?.contents && message.TaskFinishResponse.contents.length > 0) {
-      const firstContent = message.TaskFinishResponse.contents[0];
+    if (message.WorkReportResponse?.contents && message.WorkReportResponse.contents.length > 0) {
+      const firstContent = message.WorkReportResponse.contents[0];
       if (firstContent && firstContent.text?.text) {
         replyText = firstContent.text.text;
       }
@@ -257,13 +257,13 @@ export const useChatStore = defineStore('chat', () => {
       existingMessage.repliedAt = new Date();
       existingMessage.repliedByCurrentUser = false;
       existingMessage.repliedByNickname = message.Nickname || '其他用户';
-      if (message.TaskFinishResponse) {
-        existingMessage.response = message.TaskFinishResponse;
+      if (message.WorkReportResponse) {
+        existingMessage.response = message.WorkReportResponse;
       }
 
       console.log(`Updated task ${requestId} with confirmation from ${existingMessage.repliedByNickname}: ${replyText}`);
     } else if (!existingMessage) {
-      console.warn(`Message with request ID ${requestId} not found for task finish notification`);
+      console.warn(`Message with request ID ${requestId} not found for work report notification`);
     }
   }
 
@@ -350,7 +350,7 @@ export const useChatStore = defineStore('chat', () => {
       return;
     }
 
-    const originalRequest = taskMessage.originalRequest as TaskFinishRequest;
+    const originalRequest = taskMessage.originalRequest as WorkReportRequest;
 
     // Create response with text content
     const textContent = create(TextContentSchema, {
@@ -363,7 +363,7 @@ export const useChatStore = defineStore('chat', () => {
       text: textContent
     });
 
-    const response = create(TaskFinishResponseSchema, {
+    const response = create(WorkReportResponseSchema, {
       ID: taskId,
       IsError: false,
       Meta: {},
@@ -372,7 +372,7 @@ export const useChatStore = defineStore('chat', () => {
 
     // Send reply via WebSocket
     if (wsService.value) {
-      wsService.value.sendTaskFinishReply(originalRequest, response);
+      wsService.value.sendWorkReportReply(originalRequest, response);
     }
 
     // Mark task as answered and store confirmation info

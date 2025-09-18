@@ -1,14 +1,14 @@
 /// WebSocket command constants for Agent Assistant communication
 class WebSocketCommands {
   static const String askQuestion = 'AskQuestion';
-  static const String taskFinish = 'TaskFinish';
+  static const String workReport = 'WorkReport';
   static const String askQuestionReply = 'AskQuestionReply';
-  static const String taskFinishReply = 'TaskFinishReply';
+  static const String workReportReply = 'WorkReportReply';
   static const String userLogin = 'UserLogin';
   static const String askQuestionReplyNotification =
       'AskQuestionReplyNotification';
-  static const String taskFinishReplyNotification =
-      'TaskFinishReplyNotification';
+  static const String workReportReplyNotification =
+      'WorkReportReplyNotification';
   static const String checkMessageValidity = 'CheckMessageValidity';
   static const String getPendingMessages = 'GetPendingMessages';
   static const String requestCancelled = 'RequestCancelled';

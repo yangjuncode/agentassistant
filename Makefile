@@ -50,7 +50,7 @@ proto-gen:
 	cd web && pnpm run proto:gen
 	cd -
 	#cd flutter client
-	cd flutter_client && ./generate_proto.sh
+	cd flutterclient && ./generate_proto.sh
 	cd -
 	@echo "Protobuf generation complete!"
 

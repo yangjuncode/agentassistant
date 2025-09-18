@@ -175,9 +175,9 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 		case "AskQuestionReply":
 			h.handleAskQuestionReply(client, &message)
 			h.broadcastAskQuestionReply(client, &message)
-		case "TaskFinishReply":
-			h.handleTaskFinishReply(client, &message)
-			h.broadcastTaskFinishReply(client, &message)
+		case "WorkReportReply":
+			h.handleWorkReportReply(client, &message)
+			h.broadcastWorkReportReply(client, &message)
 		case "CheckMessageValidity":
 			h.handleCheckMessageValidity(client, &message)
 		case "GetPendingMessages":
@@ -221,26 +221,26 @@ func (h *WebSocketHandler) handleAskQuestionReply(client *WebClient, message *ag
 	h.broadcaster.HandleResponse(request.ID, webResponse)
 }
 
-// handleTaskFinishReply processes a TaskFinishReply from the web client
-func (h *WebSocketHandler) handleTaskFinishReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
-	// For now, we expect the response data to be in the TaskFinishRequest field
+// handleWorkReportReply processes a WorkReportReply from the web client
+func (h *WebSocketHandler) handleWorkReportReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	// For now, we expect the response data to be in the WorkReportRequest field
 	// This is a workaround until the protobuf generation includes response fields
-	if message.TaskFinishRequest == nil {
-		log.Printf("Received TaskFinishReply from client %s with no request data", client.ID)
+	if message.WorkReportRequest == nil {
+		log.Printf("Received WorkReportReply from client %s with no request data", client.ID)
 		return
 	}
 
-	request := message.TaskFinishRequest
+	request := message.WorkReportRequest
 
 	// Create a simple success response for now
 	// In a full implementation, the web client would send actual response data
 	webResponse := &WebResponse{
-		IsError:  message.TaskFinishResponse.IsError,
-		Meta:     message.TaskFinishResponse.Meta,
-		Contents: message.TaskFinishResponse.Contents,
+		IsError:  message.WorkReportResponse.IsError,
+		Meta:     message.WorkReportResponse.Meta,
+		Contents: message.WorkReportResponse.Contents,
 	}
 
-	log.Printf("Received TaskFinishReply from client %s for request %s", client.ID, request.ID)
+	log.Printf("Received WorkReportReply from client %s for request %s", client.ID, request.ID)
 
 	// Send the response to the broadcaster for proper request matching
 	h.broadcaster.HandleResponse(request.ID, webResponse)
@@ -274,29 +274,29 @@ func (h *WebSocketHandler) broadcastAskQuestionReply(client *WebClient, message 
 	h.broadcaster.BroadcastToAllExcept(notificationMessage, client.ID)
 }
 
-// broadcastTaskFinishReply broadcasts a TaskFinishReply to all connected clients except the sender
-func (h *WebSocketHandler) broadcastTaskFinishReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
-	if message.TaskFinishRequest == nil {
-		log.Printf("Cannot broadcast TaskFinishReply: missing TaskFinishRequest data")
+// broadcastWorkReportReply broadcasts a WorkReportReply to all connected clients except the sender
+func (h *WebSocketHandler) broadcastWorkReportReply(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.WorkReportRequest == nil {
+		log.Printf("Cannot broadcast WorkReportReply: missing WorkReportRequest data")
 		return
 	}
 
 	// Create a notification message for other clients
 	notificationMessage := &agentassistproto.WebsocketMessage{
-		Cmd: "TaskFinishReplyNotification",
-		TaskFinishRequest: &agentassistproto.TaskFinishRequest{
-			ID:        message.TaskFinishRequest.ID,
-			UserToken: message.TaskFinishRequest.UserToken,
-			Request:   message.TaskFinishRequest.Request,
+		Cmd: "WorkReportReplyNotification",
+		WorkReportRequest: &agentassistproto.WorkReportRequest{
+			ID:        message.WorkReportRequest.ID,
+			UserToken: message.WorkReportRequest.UserToken,
+			Request:   message.WorkReportRequest.Request,
 		},
 		// Include response data if available
-		TaskFinishResponse: message.TaskFinishResponse,
-		StrParam:           fmt.Sprintf("Task completion confirmed by %s", client.GetNickname()),
+		WorkReportResponse: message.WorkReportResponse,
+		StrParam:           fmt.Sprintf("Work report confirmed by %s", client.GetNickname()),
 		Nickname:           client.GetNickname(),
 	}
 
-	log.Printf("Broadcasting TaskFinishReply notification for request %s from client %s",
-		message.TaskFinishRequest.ID, client.ID)
+	log.Printf("Broadcasting WorkReportReply notification for request %s from client %s",
+		message.WorkReportRequest.ID, client.ID)
 
 	// Broadcast to all clients except the sender
 	h.broadcaster.BroadcastToAllExcept(notificationMessage, client.ID)

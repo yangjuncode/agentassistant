@@ -35,15 +35,15 @@ const (
 	// SrvAgentAssistAskQuestionProcedure is the fully-qualified name of the SrvAgentAssist's
 	// AskQuestion RPC.
 	SrvAgentAssistAskQuestionProcedure = "/agentassistproto.SrvAgentAssist/AskQuestion"
-	// SrvAgentAssistTaskFinishProcedure is the fully-qualified name of the SrvAgentAssist's TaskFinish
+	// SrvAgentAssistWorkReportProcedure is the fully-qualified name of the SrvAgentAssist's WorkReport
 	// RPC.
-	SrvAgentAssistTaskFinishProcedure = "/agentassistproto.SrvAgentAssist/TaskFinish"
+	SrvAgentAssistWorkReportProcedure = "/agentassistproto.SrvAgentAssist/WorkReport"
 )
 
 // SrvAgentAssistClient is a client for the agentassistproto.SrvAgentAssist service.
 type SrvAgentAssistClient interface {
 	AskQuestion(context.Context, *connect.Request[AskQuestionRequest]) (*connect.Response[AskQuestionResponse], error)
-	TaskFinish(context.Context, *connect.Request[TaskFinishRequest]) (*connect.Response[TaskFinishResponse], error)
+	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
 }
 
 // NewSrvAgentAssistClient constructs a client for the agentassistproto.SrvAgentAssist service. By
@@ -63,10 +63,10 @@ func NewSrvAgentAssistClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(srvAgentAssistMethods.ByName("AskQuestion")),
 			connect.WithClientOptions(opts...),
 		),
-		taskFinish: connect.NewClient[TaskFinishRequest, TaskFinishResponse](
+		workReport: connect.NewClient[WorkReportRequest, WorkReportResponse](
 			httpClient,
-			baseURL+SrvAgentAssistTaskFinishProcedure,
-			connect.WithSchema(srvAgentAssistMethods.ByName("TaskFinish")),
+			baseURL+SrvAgentAssistWorkReportProcedure,
+			connect.WithSchema(srvAgentAssistMethods.ByName("WorkReport")),
 			connect.WithClientOptions(opts...),
 		),
 	}
@@ -75,7 +75,7 @@ func NewSrvAgentAssistClient(httpClient connect.HTTPClient, baseURL string, opts
 // srvAgentAssistClient implements SrvAgentAssistClient.
 type srvAgentAssistClient struct {
 	askQuestion *connect.Client[AskQuestionRequest, AskQuestionResponse]
-	taskFinish  *connect.Client[TaskFinishRequest, TaskFinishResponse]
+	workReport  *connect.Client[WorkReportRequest, WorkReportResponse]
 }
 
 // AskQuestion calls agentassistproto.SrvAgentAssist.AskQuestion.
@@ -83,15 +83,15 @@ func (c *srvAgentAssistClient) AskQuestion(ctx context.Context, req *connect.Req
 	return c.askQuestion.CallUnary(ctx, req)
 }
 
-// TaskFinish calls agentassistproto.SrvAgentAssist.TaskFinish.
-func (c *srvAgentAssistClient) TaskFinish(ctx context.Context, req *connect.Request[TaskFinishRequest]) (*connect.Response[TaskFinishResponse], error) {
-	return c.taskFinish.CallUnary(ctx, req)
+// WorkReport calls agentassistproto.SrvAgentAssist.WorkReport.
+func (c *srvAgentAssistClient) WorkReport(ctx context.Context, req *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error) {
+	return c.workReport.CallUnary(ctx, req)
 }
 
 // SrvAgentAssistHandler is an implementation of the agentassistproto.SrvAgentAssist service.
 type SrvAgentAssistHandler interface {
 	AskQuestion(context.Context, *connect.Request[AskQuestionRequest]) (*connect.Response[AskQuestionResponse], error)
-	TaskFinish(context.Context, *connect.Request[TaskFinishRequest]) (*connect.Response[TaskFinishResponse], error)
+	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
 }
 
 // NewSrvAgentAssistHandler builds an HTTP handler from the service implementation. It returns the
@@ -107,18 +107,18 @@ func NewSrvAgentAssistHandler(svc SrvAgentAssistHandler, opts ...connect.Handler
 		connect.WithSchema(srvAgentAssistMethods.ByName("AskQuestion")),
 		connect.WithHandlerOptions(opts...),
 	)
-	srvAgentAssistTaskFinishHandler := connect.NewUnaryHandler(
-		SrvAgentAssistTaskFinishProcedure,
-		svc.TaskFinish,
-		connect.WithSchema(srvAgentAssistMethods.ByName("TaskFinish")),
+	srvAgentAssistWorkReportHandler := connect.NewUnaryHandler(
+		SrvAgentAssistWorkReportProcedure,
+		svc.WorkReport,
+		connect.WithSchema(srvAgentAssistMethods.ByName("WorkReport")),
 		connect.WithHandlerOptions(opts...),
 	)
 	return "/agentassistproto.SrvAgentAssist/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SrvAgentAssistAskQuestionProcedure:
 			srvAgentAssistAskQuestionHandler.ServeHTTP(w, r)
-		case SrvAgentAssistTaskFinishProcedure:
-			srvAgentAssistTaskFinishHandler.ServeHTTP(w, r)
+		case SrvAgentAssistWorkReportProcedure:
+			srvAgentAssistWorkReportHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -132,6 +132,6 @@ func (UnimplementedSrvAgentAssistHandler) AskQuestion(context.Context, *connect.
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.AskQuestion is not implemented"))
 }
 
-func (UnimplementedSrvAgentAssistHandler) TaskFinish(context.Context, *connect.Request[TaskFinishRequest]) (*connect.Response[TaskFinishResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.TaskFinish is not implemented"))
+func (UnimplementedSrvAgentAssistHandler) WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.WorkReport is not implemented"))
 }

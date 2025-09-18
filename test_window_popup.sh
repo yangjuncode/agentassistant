@@ -48,10 +48,10 @@ CURL_PID=$!
 echo "Test message sent. The Flutter window should now come to the front."
 echo "Check if the window appeared on top of other windows."
 
-read -p "Press Enter to send another test message (TaskFinish)..."
+read -p "Press Enter to send another test message (WorkReport)..."
 
-# Send a TaskFinish message
-curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/TaskFinish \
+# Send a work_report message
+curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/WorkReport \
   -H "Content-Type: application/connect+proto" \
   -H "Connect-Protocol-Version: 1" \
   -d '{
@@ -63,16 +63,16 @@ curl -X POST http://localhost:8081/agentassistproto.SrvAgentAssist/TaskFinish \
     }
   }' &
 
-TASK_CURL_PID=$!
+WORK_REPORT_CURL_PID=$!
 
-echo "TaskFinish message sent. The Flutter window should come to front again."
+echo "WorkReport message sent. The Flutter window should come to front again."
 
 read -p "Press Enter to cleanup and exit..."
 
 # Cleanup
 echo "Cleaning up..."
 kill $CURL_PID 2>/dev/null
-kill $TASK_CURL_PID 2>/dev/null
+kill $WORK_REPORT_CURL_PID 2>/dev/null
 kill $FLUTTER_PID 2>/dev/null
 kill $SERVER_PID 2>/dev/null
 

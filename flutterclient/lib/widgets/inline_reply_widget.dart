@@ -195,6 +195,24 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: _isSubmitting
+                                ? null
+                                : () => _handleSubmit("ok, let's do it"),
+                            icon: const Icon(Icons.play_arrow, size: 16),
+                            label: const Text("OK, let's do it"),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.deepPurple,
+                              side: BorderSide(
+                                  color:
+                                      Colors.deepPurple.withValues(alpha: 0.5)),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 8),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -255,6 +273,21 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                             foregroundColor: Colors.blue,
                             side: BorderSide(
                                 color: Colors.blue.withValues(alpha: 0.5)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton.icon(
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _handleSubmit("ok, let's do it"),
+                          icon: const Icon(Icons.play_arrow, size: 16),
+                          label: const Text("OK, let's do it"),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.deepPurple,
+                            side: BorderSide(
+                                color: Colors.deepPurple.withValues(alpha: 0.5)),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                           ),

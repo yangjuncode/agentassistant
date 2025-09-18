@@ -49,8 +49,8 @@ class ChatMessage {
     );
   }
 
-  /// Create from TaskFinishRequest
-  factory ChatMessage.fromTaskFinishRequest(TaskFinishRequest request) {
+  /// Create from WorkReportRequest
+  factory ChatMessage.fromWorkReportRequest(WorkReportRequest request) {
     return ChatMessage(
       requestId: request.iD,
       type: MessageType.task,
