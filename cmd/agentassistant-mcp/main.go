@@ -113,7 +113,7 @@ Returns:
 		//question
 		mcp.WithString("question",
 			mcp.Required(),
-			mcp.Description("AI agent's question"),
+			mcp.Description("The question to ask"),
 		),
 		//timeout
 		mcp.WithNumber("timeout",
