@@ -23,6 +23,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
   bool _isSubmitting = false;
+  // -1 means no history selection (blank beyond newest)
+  int _historyIndex = -1;
 
   @override
   void initState() {
@@ -77,6 +79,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       }
       // Clear saved draft after successful send
       chatProvider.clearDraft(widget.message.id);
+      // Reset history index after sending
+      _historyIndex = -1;
     } catch (error) {
       // Error handling is done in ChatProvider
       if (mounted) {
@@ -126,19 +130,87 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                 _handleSubmit();
                 return KeyEventResult.handled;
               }
+
+              // Bash-like history navigation (cyclic) with blank sentinels at both ends
+              if (event is KeyDownEvent &&
+                  (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+                      event.logicalKey == LogicalKeyboardKey.arrowDown)) {
+                final chatProvider = context.read<ChatProvider>();
+                final history = chatProvider.replyHistory;
+                // Allow cycling even if history is empty: toggles between blanks
+                if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                  setState(() {
+                    if (history.isEmpty) {
+                      // Toggle blanks: -1 -> 0(blank) -> -1 ...
+                      _historyIndex = (_historyIndex == -1) ? 0 : -1;
+                      _controller.clear();
+                    } else {
+                      if (_historyIndex < history.length - 1) {
+                        // Move to older item or from blank-newest to first item
+                        _historyIndex += 1;
+                        _controller.text = history[_historyIndex];
+                      } else if (_historyIndex == history.length - 1) {
+                        // Move to blank-oldest sentinel
+                        _historyIndex = history.length;
+                        _controller.clear();
+                      } else if (_historyIndex == history.length) {
+                        // Wrap to blank-newest sentinel
+                        _historyIndex = -1;
+                        _controller.clear();
+                      } else { // _historyIndex == -1 and history not empty
+                        _historyIndex = 0;
+                        _controller.text = history[_historyIndex];
+                      }
+                    }
+                    _controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _controller.text.length),
+                    );
+                  });
+                  return KeyEventResult.handled;
+                } else {
+                  // Arrow Down: towards newer; includes blank sentinels
+                  setState(() {
+                    if (history.isEmpty) {
+                      // Toggle blanks: -1 <-> 0(blank)
+                      _historyIndex = (_historyIndex == -1) ? 0 : -1;
+                      _controller.clear();
+                    } else {
+                      if (_historyIndex > 0) {
+                        _historyIndex -= 1; // newer item
+                        _controller.text = history[_historyIndex];
+                      } else if (_historyIndex == 0) {
+                        // Move to blank-newest
+                        _historyIndex = -1;
+                        _controller.clear();
+                      } else if (_historyIndex == -1) {
+                        // From blank-newest to blank-oldest (wrap via blank)
+                        _historyIndex = history.length;
+                        _controller.clear();
+                      } else if (_historyIndex == history.length) {
+                        // From blank-oldest to last (oldest) item
+                        _historyIndex = history.length - 1;
+                        _controller.text = history[_historyIndex];
+                      }
+                    }
+                    _controller.selection = TextSelection.fromPosition(
+                      TextPosition(offset: _controller.text.length),
+                    );
+                  });
+                  return KeyEventResult.handled;
+                }
+              }
               return KeyEventResult.ignored;
             },
             child: TextField(
               controller: _controller,
               focusNode: _focusNode,
               decoration: InputDecoration(
-                labelText: _getInputLabel(),
                 hintText: _getInputHint(),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
                 contentPadding: const EdgeInsets.all(12),
-                helperText: '按 Ctrl+Enter 快速发送',
+                helperText: '按 Ctrl+Enter 快速发送 · ↑/↓ 浏览历史',
                 helperStyle: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -397,17 +469,6 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       return widget.message.summary;
     }
     return null;
-  }
-
-  String _getInputLabel() {
-    switch (widget.message.type) {
-      case MessageType.question:
-        return '您的回复';
-      case MessageType.task:
-        return '确认备注（可选）';
-      case MessageType.reply:
-        return '回复内容';
-    }
   }
 
   String _getInputHint() {

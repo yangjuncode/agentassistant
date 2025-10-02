@@ -90,11 +90,9 @@ class MessageBubble extends StatelessWidget {
                     onPressed: () async {
                       final text = _composeMainMessageCopyText();
                       await Clipboard.setData(ClipboardData(text: text));
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('消息已复制到剪贴板')),
-                        );
-                      }
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('消息已复制到剪贴板')),
+                      );
                     },
                   ),
                 ],
@@ -214,11 +212,9 @@ class MessageBubble extends StatelessWidget {
                 onPressed: () async {
                   final text = _composeReplyCopyText();
                   await Clipboard.setData(ClipboardData(text: text));
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('回复已复制到剪贴板')),
-                    );
-                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('回复已复制到剪贴板')),
+                  );
                 },
               ),
               const Spacer(),
@@ -326,31 +322,13 @@ class MessageBubble extends StatelessWidget {
 
   /// Compose text to copy for the main message (received question/task or generic reply message)
   String _composeMainMessageCopyText() {
-    final buffer = StringBuffer();
-    buffer.writeln('[${message.displayTitle}]');
-    buffer.writeln(message.displayContent);
-
-    // Append extra text contents if present
-    final extraTexts = message.contents
-        .where((c) => c.isText && (c.text?.isNotEmpty ?? false))
-        .map((c) => c.text!.trim())
-        .toList();
-    if (extraTexts.isNotEmpty) {
-      buffer.writeln();
-      buffer.writeln(extraTexts.join('\n'));
-    }
-
-    if (message.projectDirectory != null && message.projectDirectory!.isNotEmpty) {
-      buffer.writeln();
-      buffer.writeln('项目目录: ${message.projectDirectory}');
-    }
-    return buffer.toString().trim();
+    // Only original text body
+    return message.displayContent.trim();
   }
 
   /// Compose text to copy for the reply section
   String _composeReplyCopyText() {
-    final title = _getReplyTitle();
-    final reply = message.replyText ?? '';
-    return '[$title]\n$reply'.trim();
+    // Only reply text
+    return (message.replyText ?? '').trim();
   }
 }

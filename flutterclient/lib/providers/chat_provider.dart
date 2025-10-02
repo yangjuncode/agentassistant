@@ -23,6 +23,8 @@ class ChatProvider extends ChangeNotifier {
   final Map<String, List<pb.ChatMessage>> _chatMessages = {};
   // Per-message reply/confirm drafts to persist inline editor content
   final Map<String, String> _replyDrafts = {};
+  // In-memory history of reply/confirm texts (newest first)
+  final List<String> _replyHistory = [];
 
   bool _isConnected = false;
   bool _isConnecting = false;
@@ -47,6 +49,7 @@ class ChatProvider extends ChangeNotifier {
   // Expose read-only view of drafts if needed
   Map<String, String> get replyDrafts => Map.unmodifiable(_replyDrafts);
   bool get hasAnyDraft => _replyDrafts.values.any((t) => t.trim().isNotEmpty);
+  List<String> get replyHistory => List.unmodifiable(_replyHistory);
 
   List<ChatMessage> get pendingQuestions => _messages
       .where((m) => m.type == MessageType.question && m.needsUserAction)
@@ -74,6 +77,17 @@ class ChatProvider extends ChangeNotifier {
   /// Clear draft for a message
   void clearDraft(String messageId) {
     _replyDrafts.remove(messageId);
+  }
+
+  /// Add an entry to reply history (deduplicate, newest first, cap to 50)
+  void _addReplyHistory(String text) {
+    final t = text.trim();
+    if (t.isEmpty) return;
+    _replyHistory.remove(t);
+    _replyHistory.insert(0, t);
+    if (_replyHistory.length > 50) {
+      _replyHistory.removeLast();
+    }
   }
 
   /// Initialize WebSocket event listeners
@@ -501,6 +515,9 @@ class ChatProvider extends ChangeNotifier {
       );
       _updateMessage(updatedMessage);
 
+      // Save to in-memory history
+      _addReplyHistory(replyText);
+
       _logger.i('Question reply sent: $messageId');
       // Clear draft after successful send
       _replyDrafts.remove(messageId);
@@ -551,6 +568,11 @@ class ChatProvider extends ChangeNotifier {
         repliedByCurrentUser: true,
       );
       _updateMessage(updatedMessage);
+
+      // Save to in-memory history if provided
+      if (confirmText != null && confirmText.trim().isNotEmpty) {
+        _addReplyHistory(confirmText);
+      }
 
       _logger.i('Task confirmed: $messageId');
       // Clear draft after successful confirm
