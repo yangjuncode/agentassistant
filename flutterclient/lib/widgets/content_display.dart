@@ -38,7 +38,10 @@ class ContentDisplay extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: SelectableText(
@@ -96,9 +99,12 @@ class ContentDisplay extends StatelessWidget {
   Widget _buildEmbeddedResourceContent(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
@@ -124,7 +130,7 @@ class ContentDisplay extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           if (content.uri != null) ...[
             Text(
               'URI: ${content.uri}',
@@ -137,7 +143,7 @@ class ContentDisplay extends StatelessWidget {
               'MIME Type: ${content.mimeType}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
           ],
           if (content.uri != null)
             ElevatedButton.icon(
@@ -307,7 +313,10 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withOpacity(0.3),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
@@ -339,7 +348,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
               ],
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 2),
           Row(
             children: [
               IconButton(

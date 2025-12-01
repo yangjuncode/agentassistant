@@ -21,13 +21,13 @@ class MessageBubble extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(1),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Message header
             _buildHeader(context),
-            const SizedBox(height: 12),
+            const SizedBox(height: 2),
 
             // Message content
             _buildContent(context),
@@ -35,13 +35,13 @@ class MessageBubble extends StatelessWidget {
             // Inline reply widget (if needs user action and not expired)
             if (message.needsUserAction &&
                 message.status != MessageStatus.expired) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 2),
               InlineReplyWidget(message: message),
             ],
 
             // Reply content (if replied)
             if (message.replyText != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: 2),
               _buildReplyContent(context),
             ],
           ],
@@ -56,7 +56,7 @@ class MessageBubble extends StatelessWidget {
       children: [
         // Message type icon
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             color: _getTypeColor(context).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
@@ -101,13 +101,33 @@ class MessageBubble extends StatelessWidget {
               Row(
                 children: [
                   _buildStatusChip(context),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 4),
                   Text(
                     DateFormat('MM/dd HH:mm').format(message.timestamp),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                   ),
+                  if (message.projectDirectory != null) ...[
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.folder,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        '${message.projectDirectory}',
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ],
@@ -143,34 +163,11 @@ class MessageBubble extends StatelessWidget {
 
         // Additional content items
         if (message.contents.isNotEmpty) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 2),
           ...message.contents.map((content) => Padding(
                 padding: const EdgeInsets.only(bottom: 8),
                 child: ContentDisplay(content: content),
               )),
-        ],
-
-        // Project directory info
-        if (message.projectDirectory != null) ...[
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(
-                Icons.folder,
-                size: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  '项目目录: ${message.projectDirectory}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-              ),
-            ],
-          ),
         ],
       ],
     );
@@ -180,7 +177,7 @@ class MessageBubble extends StatelessWidget {
   Widget _buildReplyContent(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -227,7 +224,7 @@ class MessageBubble extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 2),
           Text(
             message.replyText!,
             style: Theme.of(context).textTheme.bodyMedium,

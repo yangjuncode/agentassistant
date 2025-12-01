@@ -103,8 +103,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 12),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(top: 1),
+      padding: const EdgeInsets.all(1),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
@@ -117,7 +117,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
         children: [
           // Header with question/task info
           _buildHeader(context),
-          const SizedBox(height: 12),
+          const SizedBox(height: 1),
 
           // Text input field with keyboard shortcut
           Focus(
@@ -157,7 +157,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         // Wrap to blank-newest sentinel
                         _historyIndex = -1;
                         _controller.clear();
-                      } else { // _historyIndex == -1 and history not empty
+                      } else {
+                        // _historyIndex == -1 and history not empty
                         _historyIndex = 0;
                         _controller.text = history[_historyIndex];
                       }
@@ -223,7 +224,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
               enabled: !_isSubmitting,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
 
           // Action buttons
           LayoutBuilder(
@@ -280,14 +281,13 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                               side: BorderSide(
                                   color:
                                       Colors.deepPurple.withValues(alpha: 0.5)),
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 8),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     // Send button
                     ElevatedButton.icon(
                       onPressed: _isSubmitting ? null : () => _handleSubmit(),
@@ -359,7 +359,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.deepPurple,
                             side: BorderSide(
-                                color: Colors.deepPurple.withValues(alpha: 0.5)),
+                                color:
+                                    Colors.deepPurple.withValues(alpha: 0.5)),
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 8),
                           ),

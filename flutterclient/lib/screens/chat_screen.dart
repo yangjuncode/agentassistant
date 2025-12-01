@@ -370,7 +370,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
         return Padding(
           key: _messageKeys[message.id],
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.only(bottom: 8),
           child: MessageBubble(
             message: message,
           ),
