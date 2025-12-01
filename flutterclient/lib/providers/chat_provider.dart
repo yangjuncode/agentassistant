@@ -32,6 +32,7 @@ class ChatProvider extends ChangeNotifier {
   String? _currentToken;
   String? _activeChatUserId;
   bool _autoForwardToSystemInput = false;
+  bool _showOnlyPendingMessages = false;
 
   StreamSubscription? _messageSubscription;
   StreamSubscription? _connectionSubscription;
@@ -39,6 +40,10 @@ class ChatProvider extends ChangeNotifier {
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
+  List<ChatMessage> get visibleMessages => _showOnlyPendingMessages
+      ? List.unmodifiable(_messages
+          .where((m) => m.needsUserAction && m.status != MessageStatus.expired))
+      : List.unmodifiable(_messages);
   bool get isConnected => _isConnected;
   bool get isConnecting => _isConnecting;
   String? get connectionError => _connectionError;
@@ -58,6 +63,13 @@ class ChatProvider extends ChangeNotifier {
   List<ChatMessage> get pendingTasks => _messages
       .where((m) => m.type == MessageType.task && m.needsUserAction)
       .toList();
+
+  bool get showOnlyPendingMessages => _showOnlyPendingMessages;
+
+  void toggleShowOnlyPendingMessages() {
+    _showOnlyPendingMessages = !_showOnlyPendingMessages;
+    notifyListeners();
+  }
 
   ChatProvider() {
     _initializeWebSocketListeners();
@@ -156,19 +168,14 @@ class ChatProvider extends ChangeNotifier {
       if (serverUrl != null && token != null) {
         _logger.i('Attempting auto-connection to: $serverUrl');
         await connect(serverUrl, token);
-
-        // Wait a bit to see if connection succeeds
-        await Future.delayed(const Duration(seconds: 2));
-
-        if (_isConnected) {
+        if (_webSocketService.isConnected) {
           _logger.i('Auto-connection successful');
-          // Fetch pending messages after successful connection
-          await fetchPendingMessages();
-          // Request online users after successful connection
-          await requestOnlineUsers();
+          // Fire-and-forget data refresh to keep behavior consistent with previous implementation
+          fetchPendingMessages();
+          requestOnlineUsers();
           return true;
         } else {
-          _logger.w('Auto-connection failed: not connected after timeout');
+          _logger.w('Auto-connection failed: not connected after connect()');
           return false;
         }
       } else {
@@ -427,6 +434,7 @@ class ChatProvider extends ChangeNotifier {
       _messages[messageIndex] = updatedMessage;
       notifyListeners();
       _logger.d('Updated message $requestId status to cancelled');
+      _updateTrayPendingCount();
     } else {
       _logger
           .w('Message with request ID $requestId not found for cancellation');
@@ -474,7 +482,7 @@ class ChatProvider extends ChangeNotifier {
 
     _logger.i('Successfully loaded ${_messages.length} pending messages');
     notifyListeners();
-    _updateTrayPendingCount();
+    _updatePendingState();
   }
 
   /// Reply to a question
@@ -588,7 +596,7 @@ class ChatProvider extends ChangeNotifier {
   void _addMessage(ChatMessage message) {
     _messages.add(message);
     notifyListeners();
-    _updateTrayPendingCount();
+    _updatePendingState();
   }
 
   /// Update existing message
@@ -597,7 +605,7 @@ class ChatProvider extends ChangeNotifier {
     if (index != -1) {
       _messages[index] = updatedMessage;
       notifyListeners();
-      _updateTrayPendingCount();
+      _updatePendingState();
     }
   }
 
@@ -605,7 +613,7 @@ class ChatProvider extends ChangeNotifier {
   void clearMessages() {
     _messages.clear();
     notifyListeners();
-    _updateTrayPendingCount();
+    _updatePendingState();
   }
 
   /// Find the earliest replyable message
@@ -970,5 +978,24 @@ class ChatProvider extends ChangeNotifier {
       final int count = pendingQuestions.length + pendingTasks.length;
       TrayService().setPendingCount(count);
     } catch (_) {}
+  }
+
+  // Update pending-related UI state: tray count + auto-toggle of pending filter
+  void _updatePendingState() {
+    _updateTrayPendingCount();
+
+    final int totalPending = pendingQuestions.length + pendingTasks.length;
+
+    // Auto-enable filter only when there are multiple pending items
+    if (totalPending > 1 && !_showOnlyPendingMessages) {
+      _showOnlyPendingMessages = true;
+      notifyListeners();
+    }
+
+    // Auto-disable filter when there are no pending items
+    if (totalPending == 0 && _showOnlyPendingMessages) {
+      _showOnlyPendingMessages = false;
+      notifyListeners();
+    }
   }
 }

@@ -72,10 +72,6 @@ class _SplashScreenState extends State<SplashScreen>
       // Start progress animation
       _progressController.forward();
 
-      // Wait for logo animation to complete
-      await _logoController.forward();
-      await Future.delayed(const Duration(milliseconds: 500));
-
       // Try auto-connection
       setState(() {
         _statusMessage = '正在连接服务器...';
@@ -88,7 +84,6 @@ class _SplashScreenState extends State<SplashScreen>
         setState(() {
           _statusMessage = '连接成功！';
         });
-        await Future.delayed(const Duration(milliseconds: 500));
 
         // Navigate to chat screen
         if (mounted) {
@@ -100,7 +95,6 @@ class _SplashScreenState extends State<SplashScreen>
         setState(() {
           _statusMessage = '需要手动连接';
         });
-        await Future.delayed(const Duration(milliseconds: 1000));
 
         // Navigate to login screen
         if (mounted) {

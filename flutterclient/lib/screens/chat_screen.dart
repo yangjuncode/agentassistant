@@ -99,7 +99,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _scrollToMessageByIndex(String messageId) async {
     // Get current messages from the provider
     final chatProvider = context.read<ChatProvider>();
-    final messages = chatProvider.messages;
+    final messages = chatProvider.visibleMessages;
 
     // Find the index of the target message
     final messageIndex = messages.indexWhere((m) => m.id == messageId);
@@ -201,26 +201,26 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (newReplyableMessages.isNotEmpty) {
-        // Find the earliest new replyable message
-        newReplyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-        final earliestNewMessage = newReplyableMessages.first;
+      // Find the earliest new replyable message
+      newReplyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+      final earliestNewMessage = newReplyableMessages.first;
 
-        print(
-            '🎯 Earliest new message: ${earliestNewMessage.id} (${earliestNewMessage.type})');
-        print(
-            '🗝️ Key exists for message: ${_messageKeys.containsKey(earliestNewMessage.id)}');
+      print(
+          '🎯 Earliest new message: ${earliestNewMessage.id} (${earliestNewMessage.type})');
+      print(
+          '🗝️ Key exists for message: ${_messageKeys.containsKey(earliestNewMessage.id)}');
 
-        // Always scroll to new replyable messages to ensure input is visible
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Always scroll to new replyable messages to ensure input is visible
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        print(
+            '⏰ Post-frame callback triggered for message: ${earliestNewMessage.id}');
+        // Add a small delay to ensure the ListView has been built
+        Future.delayed(const Duration(milliseconds: 100), () {
           print(
-              '⏰ Post-frame callback triggered for message: ${earliestNewMessage.id}');
-          // Add a small delay to ensure the ListView has been built
-          Future.delayed(const Duration(milliseconds: 100), () {
-            print(
-                '⏰ Delayed scroll triggered for message: ${earliestNewMessage.id}');
-            _scrollToMessage(earliestNewMessage.id);
-          });
+              '⏰ Delayed scroll triggered for message: ${earliestNewMessage.id}');
+          _scrollToMessage(earliestNewMessage.id);
         });
+      });
     }
 
     // Update previous messages
@@ -323,7 +323,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
 
-    if (chatProvider.messages.isEmpty) {
+    if (chatProvider.visibleMessages.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -352,21 +352,21 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     // Pre-create GlobalKeys for all messages
-    for (final message in chatProvider.messages) {
+    for (final message in chatProvider.visibleMessages) {
       _messageKeys[message.id] ??= GlobalKey();
     }
 
     // Check for new replyable messages after ensuring all keys are created
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkForNewReplyableMessages(chatProvider.messages);
+      _checkForNewReplyableMessages(chatProvider.visibleMessages);
     });
 
     return ListView.builder(
       controller: _scrollController,
       padding: const EdgeInsets.all(16),
-      itemCount: chatProvider.messages.length,
+      itemCount: chatProvider.visibleMessages.length,
       itemBuilder: (context, index) {
-        final message = chatProvider.messages[index];
+        final message = chatProvider.visibleMessages[index];
 
         return Padding(
           key: _messageKeys[message.id],

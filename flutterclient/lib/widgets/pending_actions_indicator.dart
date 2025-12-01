@@ -14,7 +14,7 @@ class PendingActionsIndicator extends StatelessWidget {
         final pendingQuestions = chatProvider.pendingQuestions;
         final pendingTasks = chatProvider.pendingTasks;
         final totalPending = pendingQuestions.length + pendingTasks.length;
-        
+
         // Don't show if no pending actions
         if (totalPending == 0) {
           return const SizedBox.shrink();
@@ -26,9 +26,14 @@ class PendingActionsIndicator extends StatelessWidget {
             color: Colors.transparent,
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () => _showPendingActionsDialog(context, pendingQuestions, pendingTasks),
+              onTap: () {
+                chatProvider.toggleShowOnlyPendingMessages();
+                _showPendingActionsDialog(
+                    context, pendingQuestions, pendingTasks);
+              },
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade100,
                   borderRadius: BorderRadius.circular(20),
