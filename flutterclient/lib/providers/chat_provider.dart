@@ -144,6 +144,10 @@ class ChatProvider extends ChangeNotifier {
     _isConnecting = true;
     _connectionError = null;
     _currentToken = token;
+
+    // Clear messages on new connection to avoid stale data
+    // We do this here instead of in fetchPendingMessages to avoid race conditions
+    _messages.clear();
     notifyListeners();
 
     try {
@@ -198,8 +202,9 @@ class ChatProvider extends ChangeNotifier {
     try {
       _logger.i('Fetching pending messages from server...');
 
-      // Clear existing messages since we're getting fresh data from server
-      _messages.clear();
+      // Don't clear existing messages here to avoid race condition with real-time messages
+      // received while waiting for response.
+      // _messages.clear();
 
       // Send request to get pending messages
       await _webSocketService.sendGetPendingMessages();
@@ -451,10 +456,11 @@ class ChatProvider extends ChangeNotifier {
     final response = message.getPendingMessagesResponse;
     _logger.i('Received ${response.totalCount} pending messages from server');
 
-    // Clear existing messages
-    _messages.clear();
+    // Create a set of existing request IDs for fast lookup
+    final existingRequestIds = _messages.map((m) => m.requestId).toSet();
+    int addedCount = 0;
 
-    // Convert pending messages to ChatMessage objects
+    // Convert pending messages to ChatMessage objects and merge
     for (final pendingMessage in response.pendingMessages) {
       ChatMessage? chatMessage;
 
@@ -471,16 +477,25 @@ class ChatProvider extends ChangeNotifier {
       }
 
       if (chatMessage != null) {
-        _messages.add(chatMessage);
-        _logger.d(
-            'Added pending message: ${chatMessage.id} (${chatMessage.type})');
+        // Only add if not already present
+        if (!existingRequestIds.contains(chatMessage.requestId)) {
+          _messages.add(chatMessage);
+          existingRequestIds.add(chatMessage.requestId);
+          addedCount++;
+          _logger.d(
+              'Added pending message: ${chatMessage.id} (${chatMessage.type})');
+        } else {
+          _logger
+              .d('Skipped existing pending message: ${chatMessage.requestId}');
+        }
       } else {
         _logger.w(
             'Failed to convert pending message: ${pendingMessage.messageType}');
       }
     }
 
-    _logger.i('Successfully loaded ${_messages.length} pending messages');
+    _logger.i(
+        'Successfully loaded $addedCount new pending messages. Total: ${_messages.length}');
     notifyListeners();
     _updatePendingState();
   }
