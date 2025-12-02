@@ -156,7 +156,7 @@ class ChatProvider extends ChangeNotifier {
       await _webSocketService.connect(serverUrl, token, nickname: nickname);
       await _saveConnectionInfo(serverUrl, token);
     } catch (error) {
-      _connectionError = '连接失败: $error';
+      _connectionError = 'Connection failed: $error';
       _isConnecting = false;
       notifyListeners();
     }
@@ -212,7 +212,7 @@ class ChatProvider extends ChangeNotifier {
       _logger.i('Pending messages request sent');
     } catch (error) {
       _logger.e('Failed to fetch pending messages: $error');
-      _connectionError = '获取消息失败: $error';
+      _connectionError = 'Failed to fetch messages: $error';
       notifyListeners();
     }
   }
@@ -325,10 +325,10 @@ class ChatProvider extends ChangeNotifier {
       // Only update if the message is still pending (not already replied by this client)
       if (existingMessage.status == MessageStatus.pending) {
         final repliedByNickname =
-            message.nickname.isNotEmpty ? message.nickname : '其他用户';
+            message.nickname.isNotEmpty ? message.nickname : 'Other user';
         final updatedMessage = existingMessage.copyWith(
           status: MessageStatus.replied,
-          replyText: replyText ?? '已回复',
+          replyText: replyText ?? 'Replied',
           contents: replyContents,
           repliedAt: DateTime.now(),
           repliedByCurrentUser: false,
@@ -340,8 +340,8 @@ class ChatProvider extends ChangeNotifier {
             'Updated message $requestId status to replied (by another user) with content: $replyText');
 
         // Show notification to user
-        _showReplyNotification(
-            '问题已被其他用户回复', replyText ?? existingMessage.question ?? '');
+        _showReplyNotification('Question has been replied by another user',
+            replyText ?? existingMessage.question ?? '');
       }
     } else {
       _logger.w(
@@ -391,10 +391,10 @@ class ChatProvider extends ChangeNotifier {
       // Only update if the message is still pending (not already confirmed by this client)
       if (existingMessage.status == MessageStatus.pending) {
         final repliedByNickname =
-            message.nickname.isNotEmpty ? message.nickname : '其他用户';
+            message.nickname.isNotEmpty ? message.nickname : 'Other user';
         final updatedMessage = existingMessage.copyWith(
           status: MessageStatus.confirmed,
-          replyText: replyText ?? '已确认',
+          replyText: replyText ?? 'Confirmed',
           contents: replyContents,
           repliedAt: DateTime.now(),
           repliedByCurrentUser: false,
@@ -406,8 +406,8 @@ class ChatProvider extends ChangeNotifier {
             'Updated message $requestId status to confirmed (by another user) with content: $replyText');
 
         // Show notification to user
-        _showReplyNotification(
-            '工作报告已被其他用户确认', replyText ?? existingMessage.summary ?? '');
+        _showReplyNotification('Work report has been confirmed by another user',
+            replyText ?? existingMessage.summary ?? '');
       }
     } else {
       _logger.w(
@@ -546,7 +546,7 @@ class ChatProvider extends ChangeNotifier {
       _replyDrafts.remove(messageId);
     } catch (error) {
       _logger.e('Failed to reply to question: $error');
-      _connectionError = '回复失败: $error';
+      _connectionError = 'Reply failed: $error';
       notifyListeners();
     }
   }
@@ -602,7 +602,7 @@ class ChatProvider extends ChangeNotifier {
       _replyDrafts.remove(messageId);
     } catch (error) {
       _logger.e('Failed to confirm task: $error');
-      _connectionError = '确认失败: $error';
+      _connectionError = 'Confirm failed: $error';
       notifyListeners();
     }
   }
@@ -681,8 +681,22 @@ class ChatProvider extends ChangeNotifier {
 
   /// Generate a default nickname
   String _generateDefaultNickname() {
-    final adjectives = ['聪明的', '勤奋的', '友善的', '活跃的', '创新的', '专业的'];
-    final nouns = ['开发者', '用户', '助手', '伙伴', '同事', '朋友'];
+    final adjectives = [
+      'Smart',
+      'Diligent',
+      'Friendly',
+      'Active',
+      'Creative',
+      'Professional'
+    ];
+    final nouns = [
+      'Developer',
+      'User',
+      'Assistant',
+      'Partner',
+      'Colleague',
+      'Friend'
+    ];
 
     final now = DateTime.now();
     final adjective = adjectives[now.millisecond % adjectives.length];

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../l10n/app_localizations.dart';
 import '../../providers/chat_provider.dart';
 
 /// Nickname settings widget for configuring user display name
@@ -52,8 +54,9 @@ class _NicknameSettingsState extends State<NicknameSettings> {
         });
       }
     } catch (e) {
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
-        _errorMessage = '加载昵称失败: $e';
+        _errorMessage = l10n.nicknameLoadFailed(e.toString());
       });
     }
   }
@@ -63,21 +66,21 @@ class _NicknameSettingsState extends State<NicknameSettings> {
 
     if (nickname.isEmpty) {
       setState(() {
-        _errorMessage = '昵称不能为空';
+        _errorMessage = AppLocalizations.of(context)!.nicknameEmptyError;
       });
       return;
     }
 
     if (nickname.length < 2) {
       setState(() {
-        _errorMessage = '昵称至少需要2个字符';
+        _errorMessage = AppLocalizations.of(context)!.nicknameTooShortError;
       });
       return;
     }
 
     if (nickname.length > 20) {
       setState(() {
-        _errorMessage = '昵称不能超过20个字符';
+        _errorMessage = AppLocalizations.of(context)!.nicknameTooLongError;
       });
       return;
     }
@@ -96,16 +99,18 @@ class _NicknameSettingsState extends State<NicknameSettings> {
       widget.onNicknameChanged?.call(nickname);
 
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('昵称已保存并同步到服务器'),
+          SnackBar(
+            content: Text(l10n.nicknameSaved),
             backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
-        _errorMessage = '保存昵称失败: $e';
+        _errorMessage = l10n.nicknameSaveFailed(e.toString());
       });
     } finally {
       setState(() {
@@ -123,8 +128,22 @@ class _NicknameSettingsState extends State<NicknameSettings> {
   }
 
   String _generateDefaultNickname() {
-    final adjectives = ['聪明的', '勤奋的', '友善的', '活跃的', '创新的', '专业的'];
-    final nouns = ['开发者', '用户', '助手', '伙伴', '同事', '朋友'];
+    final adjectives = [
+      'Smart',
+      'Diligent',
+      'Friendly',
+      'Active',
+      'Creative',
+      'Professional'
+    ];
+    final nouns = [
+      'Developer',
+      'User',
+      'Assistant',
+      'Partner',
+      'Colleague',
+      'Friend'
+    ];
 
     final adjective =
         adjectives[DateTime.now().millisecond % adjectives.length];
@@ -136,6 +155,7 @@ class _NicknameSettingsState extends State<NicknameSettings> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -153,14 +173,14 @@ class _NicknameSettingsState extends State<NicknameSettings> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '昵称设置',
+                  l10n.nicknameSettingsTitle,
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              '设置您在聊天中显示的昵称',
+              l10n.nicknameSettingsSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -171,8 +191,8 @@ class _NicknameSettingsState extends State<NicknameSettings> {
             TextField(
               controller: _controller,
               decoration: InputDecoration(
-                labelText: '昵称',
-                hintText: '请输入您的昵称',
+                labelText: l10n.nicknameLabel,
+                hintText: l10n.nicknameHint,
                 border: const OutlineInputBorder(),
                 prefixIcon: const Icon(Icons.badge),
                 errorText: _errorMessage,
@@ -195,7 +215,7 @@ class _NicknameSettingsState extends State<NicknameSettings> {
                 TextButton.icon(
                   onPressed: _isLoading ? null : _resetNickname,
                   icon: const Icon(Icons.refresh),
-                  label: const Text('重新生成'),
+                  label: Text(l10n.nicknameRegenerate),
                 ),
                 Row(
                   children: [
@@ -208,7 +228,7 @@ class _NicknameSettingsState extends State<NicknameSettings> {
                                 _errorMessage = null;
                               });
                             },
-                      child: const Text('清空'),
+                      child: Text(l10n.nicknameClear),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
@@ -220,7 +240,8 @@ class _NicknameSettingsState extends State<NicknameSettings> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.save),
-                      label: Text(_isLoading ? '保存中...' : '保存'),
+                      label: Text(
+                          _isLoading ? l10n.nicknameSaving : l10n.nicknameSave),
                     ),
                   ],
                 ),
@@ -242,17 +263,15 @@ class _NicknameSettingsState extends State<NicknameSettings> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '提示：',
+                    l10n.nicknameTipsTitle,
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    '• 昵称长度为2-20个字符\n'
-                    '• 昵称将显示在您的回复中\n'
-                    '• 其他用户可以看到您的昵称',
-                    style: TextStyle(fontSize: 12),
+                  Text(
+                    l10n.nicknameTipsBody,
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ],
               ),
@@ -290,8 +309,22 @@ class NicknameHelper {
 
   /// Generate a default nickname
   static String generateDefaultNickname() {
-    final adjectives = ['聪明的', '勤奋的', '友善的', '活跃的', '创新的', '专业的'];
-    final nouns = ['开发者', '用户', '助手', '伙伴', '同事', '朋友'];
+    final adjectives = [
+      'Smart',
+      'Diligent',
+      'Friendly',
+      'Active',
+      'Creative',
+      'Professional'
+    ];
+    final nouns = [
+      'Developer',
+      'User',
+      'Assistant',
+      'Partner',
+      'Colleague',
+      'Friend'
+    ];
 
     final now = DateTime.now();
     final adjective = adjectives[now.millisecond % adjectives.length];

@@ -1,0 +1,90 @@
+{
+  "@@locale": "en",
+  "appTitle": "Agent Assistant",
+  "settings": "Settings",
+  "connection": "Connection",
+  "connected": "Connected",
+  "disconnected": "Disconnected",
+  "connectedToServer": "Connected to server",
+  "connectionClosed": "Connection closed",
+  "serverAddress": "Server Address",
+  "notSet": "Not set",
+  "clientId": "Client ID",
+  "accessToken": "Access Token",
+  "disconnect": "Disconnect",
+  "disconnectFromServer": "Disconnect from server",
+  "disconnectConfirmTitle": "Disconnect",
+  "disconnectConfirmMessage": "Are you sure you want to disconnect from the server?",
+  "cancel": "Cancel",
+  "userSettings": "User Settings",
+  "systemInput": "System Input",
+  "autoForwardMessages": "Auto Forward Chat Messages",
+  "autoForwardMessagesDesc": "Automatically send received chat messages to system input",
+  "autoForwardEnabled": "Auto forward enabled",
+  "autoForwardDisabled": "Auto forward disabled",
+  "messages": "Messages",
+  "messageStats": "Message Statistics",
+  "totalMessages": "Total {count} messages",
+  "@totalMessages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingQuestions": "Pending questions: {count}",
+  "@pendingQuestions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingTasks": "Pending tasks: {count}",
+  "@pendingTasks": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "clearMessages": "Clear Messages",
+  "clearMessagesDesc": "Delete all chat history",
+  "clearMessagesConfirmTitle": "Clear Messages",
+  "clearMessagesConfirmMessage": "Are you sure you want to clear all chat history? This action cannot be undone.",
+  "clear": "Clear",
+  "messagesCleared": "Chat history cleared",
+  "app": "App",
+  "about": "About",
+  "version": "Version {version}",
+  "@version": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "feedback": "Feedback",
+  "feedbackDesc": "Report bugs or suggest features",
+  "feedbackMessage": "Please contact your system administrator to report issues",
+  "aboutAppDescription": "Agent Assistant is a mobile client application for real-time communication with AI Agents.",
+  "features": "Features:",
+  "featureWebSocket": "Real-time WebSocket communication",
+  "featureMultiContent": "Support for multiple content types",
+  "featureAutoReconnect": "Auto reconnection mechanism",
+  "featureLocalStorage": "Local message storage",
+  "language": "Language",
+  "languageSettings": "Language Settings",
+  "selectLanguage": "Select Language",
+  "languageAuto": "System Default",
+  "languageEnglish": "English",
+  "languageChinese": "简体中文",
+  "nicknameUpdated": "Nickname updated to: {nickname}",
+  "@nicknameUpdated": {
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
+  }
+}

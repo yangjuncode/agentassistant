@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   # UI and Material Design
   cupertino_icons: ^1.0.8
@@ -33,7 +35,7 @@ dependencies:
 
   # Utilities
   uuid: ^4.5.1
-  intl: ^0.19.0
+  intl: any
   url_launcher: ^6.3.1
 
   # Media and Content

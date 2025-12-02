@@ -85,7 +85,7 @@ class WebSocketService {
     } catch (error) {
       _isConnecting = false;
       _logger.e('WebSocket connection failed: $error');
-      _errorController.add('连接失败: $error');
+      _errorController.add('Connection failed: $error');
       _connectionController.add(false);
 
       if (!_isManuallyDisconnected) {
@@ -235,7 +235,7 @@ class WebSocketService {
       _channel!.sink.add(data);
     } catch (error) {
       _logger.e('Failed to send message: $error');
-      _errorController.add('发送消息失败: $error');
+      _errorController.add('Failed to send message: $error');
       rethrow;
     }
   }
@@ -271,7 +271,7 @@ class WebSocketService {
       _logger.d('Received message: ${message.cmd}');
     } catch (error) {
       _logger.e('Failed to parse message: $error');
-      _errorController.add('消息解析失败: $error');
+      _errorController.add('Failed to parse message: $error');
     }
   }
 
@@ -299,14 +299,14 @@ class WebSocketService {
       _logger.i('User login successful, client ID: $_clientId');
     } else {
       _logger.e('User login failed: ${response.errorMessage}');
-      _errorController.add('登录失败: ${response.errorMessage}');
+      _errorController.add('Login failed: ${response.errorMessage}');
     }
   }
 
   /// Handle WebSocket errors
   void _handleError(error) {
     _logger.e('WebSocket error: $error');
-    _errorController.add('连接错误: $error');
+    _errorController.add('Connection error: $error');
     _connectionController.add(false);
 
     // Clean up current connection resources
@@ -334,7 +334,7 @@ class WebSocketService {
   void _scheduleReconnect() {
     if (_reconnectAttempts >= AppConfig.maxReconnectAttempts) {
       _logger.e('Max reconnect attempts reached');
-      _errorController.add('连接失败，已达到最大重试次数');
+      _errorController.add('Connection failed: maximum retry attempts reached');
       return;
     }
 

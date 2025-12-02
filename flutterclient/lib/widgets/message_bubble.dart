@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/chat_message.dart';
 import '../constants/websocket_commands.dart';
 import 'content_display.dart';
@@ -52,6 +53,7 @@ class MessageBubble extends StatelessWidget {
 
   /// Build message header with type, status, and timestamp
   Widget _buildHeader(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Row(
       children: [
         // Message type icon
@@ -85,13 +87,13 @@ class MessageBubble extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    tooltip: '复制',
+                    tooltip: l10n.copyTooltip,
                     icon: const Icon(Icons.copy, size: 18),
                     onPressed: () async {
                       final text = _composeMainMessageCopyText();
                       await Clipboard.setData(ClipboardData(text: text));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('消息已复制到剪贴板')),
+                        SnackBar(content: Text(l10n.messageCopied)),
                       );
                     },
                   ),
@@ -175,6 +177,7 @@ class MessageBubble extends StatelessWidget {
 
   /// Build reply content section
   Widget _buildReplyContent(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(2),
@@ -197,20 +200,20 @@ class MessageBubble extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                _getReplyTitle(),
+                _getReplyTitle(context),
                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
                     ),
               ),
               IconButton(
-                tooltip: '复制',
+                tooltip: l10n.copyTooltip,
                 icon: const Icon(Icons.copy, size: 16),
                 onPressed: () async {
                   final text = _composeReplyCopyText();
                   await Clipboard.setData(ClipboardData(text: text));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('回复已复制到剪贴板')),
+                    SnackBar(content: Text(l10n.replyCopied)),
                   );
                 },
               ),
@@ -239,30 +242,31 @@ class MessageBubble extends StatelessWidget {
     Color chipColor;
     String statusText;
 
+    final l10n = AppLocalizations.of(context)!;
     switch (message.status) {
       case MessageStatus.pending:
         chipColor = Theme.of(context).colorScheme.error;
-        statusText = '待处理';
+        statusText = l10n.statusPending;
         break;
       case MessageStatus.replied:
         chipColor = Theme.of(context).colorScheme.primary;
-        statusText = '已回复';
+        statusText = l10n.statusReplied;
         break;
       case MessageStatus.confirmed:
         chipColor = Colors.green;
-        statusText = '已确认';
+        statusText = l10n.statusConfirmed;
         break;
       case MessageStatus.error:
         chipColor = Theme.of(context).colorScheme.error;
-        statusText = '错误';
+        statusText = l10n.statusError;
         break;
       case MessageStatus.expired:
         chipColor = Colors.grey;
-        statusText = '已过期';
+        statusText = l10n.statusExpired;
         break;
       case MessageStatus.cancelled:
         chipColor = Colors.orange;
-        statusText = '已取消';
+        statusText = l10n.statusCancelled;
         break;
     }
 
@@ -308,12 +312,13 @@ class MessageBubble extends StatelessWidget {
   }
 
   /// Get reply title based on who replied
-  String _getReplyTitle() {
+  String _getReplyTitle(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (message.repliedByCurrentUser) {
-      return '您的回复';
+      return l10n.yourReply;
     } else {
-      final nickname = message.repliedByNickname ?? '其他用户';
-      return '$nickname的回复';
+      final nickname = message.repliedByNickname ?? l10n.otherUser;
+      return l10n.replyFrom(nickname);
     }
   }
 

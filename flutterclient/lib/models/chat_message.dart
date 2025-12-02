@@ -150,11 +150,11 @@ class ChatMessage {
   String get displayTitle {
     switch (type) {
       case MessageType.question:
-        return 'AI Agent 问题';
+        return 'AI Agent Question';
       case MessageType.task:
-        return '任务完成通知';
+        return 'Task Completion Notification';
       case MessageType.reply:
-        return '回复';
+        return 'Reply';
     }
   }
 
@@ -163,7 +163,7 @@ class ChatMessage {
     if (question != null) return question!;
     if (summary != null) return summary!;
     if (replyText != null) return replyText!;
-    return '无内容';
+    return 'No content';
   }
 
   /// Check if message needs user action

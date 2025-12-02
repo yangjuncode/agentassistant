@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/chat_provider.dart';
 import '../models/chat_message.dart';
 import '../constants/websocket_commands.dart';
@@ -238,6 +239,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: const Text(AppConfig.appName),
@@ -246,7 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: _showSettings,
-            tooltip: '设置',
+            tooltip: l10n.settings,
           ),
         ],
       ),
@@ -262,7 +264,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
               // Messages list
               Expanded(
-                child: _buildMessagesList(chatProvider),
+                child: _buildMessagesList(context, chatProvider),
               ),
             ],
           );
@@ -272,15 +274,16 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   /// Build messages list widget
-  Widget _buildMessagesList(ChatProvider chatProvider) {
+  Widget _buildMessagesList(BuildContext context, ChatProvider chatProvider) {
+    final l10n = AppLocalizations.of(context)!;
     if (chatProvider.isConnecting) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('正在连接到 Agent Assistant 服务器...'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(l10n.chatConnecting),
           ],
         ),
       );
@@ -298,12 +301,12 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '连接已断开',
+              l10n.chatConnectionLost,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             Text(
-              chatProvider.connectionError ?? '无法连接到服务器',
+              chatProvider.connectionError ?? l10n.chatUnableConnect,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -316,7 +319,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 Navigator.of(context).pushReplacementNamed('/login');
               },
               icon: const Icon(Icons.refresh),
-              label: const Text('重新连接'),
+              label: Text(l10n.chatReconnect),
             ),
           ],
         ),
@@ -335,12 +338,12 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              '等待 AI Agent 的消息...',
+              l10n.chatEmptyTitle,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
             Text(
-              '连接成功后，AI Agent 的问题和任务将在这里显示',
+              l10n.chatEmptySubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),

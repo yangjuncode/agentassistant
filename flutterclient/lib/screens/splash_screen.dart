@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/chat_provider.dart';
 import '../config/app_config.dart';
 import 'login_screen.dart';
@@ -21,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _logoAnimation;
   late Animation<double> _progressAnimation;
 
-  String _statusMessage = '正在初始化...';
+  String _statusMessage = '';
   bool _hasError = false;
   String? _errorMessage;
 
@@ -33,6 +34,10 @@ class _SplashScreenState extends State<SplashScreen>
     // calling provider notifiers during the build phase.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        setState(() {
+          _statusMessage = l10n.splashInitializing;
+        });
         _initializeApp();
       }
     });
@@ -73,8 +78,9 @@ class _SplashScreenState extends State<SplashScreen>
       _progressController.forward();
 
       // Try auto-connection
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
-        _statusMessage = '正在连接服务器...';
+        _statusMessage = l10n.splashConnecting;
       });
 
       final chatProvider = context.read<ChatProvider>();
@@ -82,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen>
 
       if (success) {
         setState(() {
-          _statusMessage = '连接成功！';
+          _statusMessage = l10n.splashConnected;
         });
 
         // Navigate to chat screen
@@ -93,7 +99,7 @@ class _SplashScreenState extends State<SplashScreen>
         }
       } else {
         setState(() {
-          _statusMessage = '需要手动连接';
+          _statusMessage = l10n.splashManualConnect;
         });
 
         // Navigate to login screen
@@ -104,19 +110,21 @@ class _SplashScreenState extends State<SplashScreen>
         }
       }
     } catch (error) {
+      final l10n = AppLocalizations.of(context)!;
       setState(() {
         _hasError = true;
         _errorMessage = error.toString();
-        _statusMessage = '初始化失败';
+        _statusMessage = l10n.splashInitFailed;
       });
     }
   }
 
   void _retry() {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _hasError = false;
       _errorMessage = null;
-      _statusMessage = '正在重试...';
+      _statusMessage = l10n.splashRetrying;
     });
     _progressController.reset();
     _initializeApp();
@@ -187,7 +195,7 @@ class _SplashScreenState extends State<SplashScreen>
                 const SizedBox(height: 8),
 
                 Text(
-                  '智能助手客户端',
+                  AppLocalizations.of(context)!.splashTitle,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context)
                             .colorScheme
@@ -273,7 +281,8 @@ class _SplashScreenState extends State<SplashScreen>
                   ElevatedButton.icon(
                     onPressed: _retry,
                     icon: const Icon(Icons.refresh),
-                    label: const Text('重试'),
+                    label:
+                        Text(AppLocalizations.of(context)!.splashRetryButton),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.onPrimary,
                       foregroundColor: Theme.of(context).colorScheme.primary,

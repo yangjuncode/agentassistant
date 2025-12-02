@@ -109,8 +109,8 @@ class TrayService with TrayListener {
 
   // Internal helpers
   String _tooltipText() {
-    final status = _connected ? '已连接' : '未连接';
-    final pending = _pendingCount > 0 ? ' | 待处理: $_pendingCount' : '';
+    final status = _connected ? 'Connected' : 'Disconnected';
+    final pending = _pendingCount > 0 ? ' | Pending: $_pendingCount' : '';
     return 'AgentAssistant-flutter ($status)$pending';
   }
 
