@@ -76,6 +76,7 @@ func main() {
 	client = agentassistproto.NewSrvAgentAssistClient(
 		httpClient,
 		serverURL,
+		connect.WithReadMaxBytes(50*1024*1024),
 	)
 
 	// Open web interface if requested
@@ -292,7 +293,7 @@ func convertToMCPResult(resp interface{}) *mcp.CallToolResult {
 
 	// Convert contents to MCP format
 	var mcpContents []mcp.Content
-	for _, content := range contents {
+	for i, content := range contents {
 		switch content.Type {
 		case 1: // Text content
 			if content.Text != nil {
@@ -301,16 +302,37 @@ func convertToMCPResult(resp interface{}) *mcp.CallToolResult {
 		case 2: // Image content
 			if content.Image != nil {
 				mcpContents = append(mcpContents, mcp.NewImageContent(content.Image.Data, content.Image.MimeType))
+				mcpContents = append(mcpContents, mcp.NewEmbeddedResource(mcp.BlobResourceContents{
+					URI:      fmt.Sprintf("attachment://image/%d", i),
+					MIMEType: content.Image.MimeType,
+					Blob:     content.Image.Data,
+				}))
 			}
 		case 3: // Audio content
 			if content.Audio != nil {
 				mcpContents = append(mcpContents, mcp.NewAudioContent(content.Audio.Data, content.Audio.MimeType))
+				mcpContents = append(mcpContents, mcp.NewEmbeddedResource(mcp.BlobResourceContents{
+					URI:      fmt.Sprintf("attachment://audio/%d", i),
+					MIMEType: content.Audio.MimeType,
+					Blob:     content.Audio.Data,
+				}))
 			}
 		case 4: // Embedded resource
 			if content.EmbeddedResource != nil {
 				// Prefer returning the embedded bytes to the MCP client.
 				// MCP-Go expects embedded resources as EmbeddedResource{type:"resource", resource: BlobResourceContents/TextResourceContents}.
 				if len(content.EmbeddedResource.Data) > 0 {
+					// if strings.HasPrefix(strings.ToLower(content.EmbeddedResource.MimeType), "image/") {
+					// 	mcpContents = append(
+					// 		mcpContents,
+					// 		mcp.NewImageContent(
+					// 			base64.StdEncoding.EncodeToString(content.EmbeddedResource.Data),
+					// 			content.EmbeddedResource.MimeType,
+					// 		),
+					// 	)
+						
+					// }
+
 					mcpContents = append(mcpContents, mcp.NewEmbeddedResource(mcp.BlobResourceContents{
 						URI:      content.EmbeddedResource.Uri,
 						MIMEType: content.EmbeddedResource.MimeType,

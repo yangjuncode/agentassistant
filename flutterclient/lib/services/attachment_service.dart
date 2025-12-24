@@ -47,12 +47,15 @@ class AttachmentItem {
   /// Convert to McpResultContent for protobuf
   pb.McpResultContent toMcpResultContent() {
     if (isImage) {
+      // Use embedded resource for images to maximize compatibility with agents
+      // that expect file-like attachments for saving.
       return pb.McpResultContent()
-        ..type = 2 // image
-        ..image = (pb.ImageContent()
-          ..type = 'image'
-          ..data = base64Data
-          ..mimeType = mimeType);
+        ..type = 4 // embedded resource
+        ..embeddedResource = (pb.EmbeddedResource()
+          ..type = 'embedded_resource'
+          ..uri = 'file://${fileName ?? "image"}'
+          ..mimeType = mimeType
+          ..data = base64Decode(base64Data));
     } else if (isAudio) {
       return pb.McpResultContent()
         ..type = 3 // audio

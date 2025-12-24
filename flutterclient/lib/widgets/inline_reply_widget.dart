@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -58,13 +60,86 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   }
 
   /// Handle paste from clipboard
-  Future<void> _handlePaste() async {
+  /// Returns true if an attachment was successfully pasted, false otherwise
+  Future<bool> _handlePaste() async {
     final attachment = await AttachmentService.loadFromClipboard();
     if (attachment != null && mounted) {
       setState(() {
         _attachments.add(attachment);
       });
+      return true;
     }
+    return false;
+  }
+
+  Future<void> _pasteTextFromClipboard() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text;
+    if (text == null || text.isEmpty) return;
+
+    final value = _controller.value;
+    final selection = value.selection;
+
+    final start = selection.isValid ? selection.start : value.text.length;
+    final end = selection.isValid ? selection.end : value.text.length;
+    final safeStart = start.clamp(0, value.text.length);
+    final safeEnd = end.clamp(0, value.text.length);
+
+    final newText = value.text.replaceRange(safeStart, safeEnd, text);
+    _controller.value = value.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(offset: safeStart + text.length),
+      composing: TextRange.empty,
+    );
+  }
+
+  Future<bool> _handleFileUriTextPasteAsAttachment() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final text = data?.text;
+    if (text == null || text.trim().isEmpty) return false;
+
+    final lines = text
+        .split(RegExp(r'\r?\n'))
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    if (lines.isEmpty) return false;
+
+    final filePaths = <String>[];
+    for (final line in lines) {
+      if (!line.startsWith('file://')) continue;
+      try {
+        final uri = Uri.parse(line);
+        final path = uri.toFilePath();
+        if (File(path).existsSync()) {
+          filePaths.add(path);
+        }
+      } catch (_) {}
+    }
+
+    if (filePaths.isEmpty) return false;
+
+    var anyAdded = false;
+    for (final path in filePaths) {
+      final attachment = await AttachmentService.loadFromFile(path);
+      if (attachment != null && mounted) {
+        setState(() {
+          _attachments.add(attachment);
+        });
+        anyAdded = true;
+      }
+    }
+    return anyAdded;
+  }
+
+  Future<void> _handlePasteOrText() async {
+    final handled = await _handlePaste();
+    if (handled) return;
+
+    final handledFileUriText = await _handleFileUriTextPasteAsAttachment();
+    if (handledFileUriText) return;
+
+    await _pasteTextFromClipboard();
   }
 
   /// Handle file drop using desktop_drop
@@ -213,10 +288,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                     event.logicalKey == LogicalKeyboardKey.keyV &&
                     (HardwareKeyboard.instance.isControlPressed ||
                         HardwareKeyboard.instance.isMetaPressed)) {
-                  // Try to paste image/file; if nothing found, let default text paste happen
-                  _handlePaste();
-                  // Return ignored to allow normal text paste to work
-                  return KeyEventResult.ignored;
+                  _handlePasteOrText();
+                  return KeyEventResult.handled;
                 }
 
                 // Check for Ctrl+Enter key combination
@@ -299,31 +372,41 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                 }
                 return KeyEventResult.ignored;
               },
-              child: TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                decoration: InputDecoration(
-                  hintText: _getInputHint(),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+              child: Actions(
+                actions: <Type, Action<Intent>>{
+                  PasteTextIntent: CallbackAction<PasteTextIntent>(
+                    onInvoke: (intent) {
+                      _handlePasteOrText();
+                      return null;
+                    },
                   ),
-                  contentPadding: const EdgeInsets.all(12),
-                  helperText: '按 Ctrl+Enter 快速发送 · ↑/↓ 浏览历史 · Ctrl+V 粘贴图片',
-                  helperStyle: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                },
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  decoration: InputDecoration(
+                    hintText: _getInputHint(),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                    helperText: '按 Ctrl+Enter 快速发送 · ↑/↓ 浏览历史 · Ctrl+V 粘贴图片',
+                    helperStyle: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.attach_file),
+                      tooltip: '添加附件',
+                      onPressed: _isSubmitting ? null : _pickFiles,
+                    ),
                   ),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.attach_file),
-                    tooltip: '添加附件',
-                    onPressed: _isSubmitting ? null : _pickFiles,
-                  ),
+                  maxLines: 3,
+                  minLines: 2,
+                  // Don't steal focus if any draft exists (user is likely editing elsewhere)
+                  autofocus: !context.read<ChatProvider>().hasAnyDraft,
+                  enabled: !_isSubmitting,
                 ),
-                maxLines: 3,
-                minLines: 2,
-                // Don't steal focus if any draft exists (user is likely editing elsewhere)
-                autofocus: !context.read<ChatProvider>().hasAnyDraft,
-                enabled: !_isSubmitting,
               ),
             ),
             const SizedBox(height: 4),
