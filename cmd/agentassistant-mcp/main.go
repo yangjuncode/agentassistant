@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	_ "embed"
 	"flag"
 	"fmt"
@@ -10,6 +11,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
+	"unicode/utf8"
 
 	"connectrpc.com/connect"
 	"github.com/BurntSushi/toml"
@@ -302,12 +305,22 @@ func convertToMCPResult(resp interface{}) *mcp.CallToolResult {
 			}
 		case 3: // Audio content
 			if content.Audio != nil {
-				// MCP doesn't have direct audio support, convert to text description
-				mcpContents = append(mcpContents, mcp.NewTextContent(fmt.Sprintf("Audio content: %s", content.Audio.MimeType)))
+				mcpContents = append(mcpContents, mcp.NewAudioContent(content.Audio.Data, content.Audio.MimeType))
 			}
 		case 4: // Embedded resource
 			if content.EmbeddedResource != nil {
-				mcpContents = append(mcpContents, mcp.NewTextContent(fmt.Sprintf("Resource: %s", content.EmbeddedResource.Uri)))
+				// Prefer returning the embedded bytes to the MCP client.
+				// MCP-Go expects embedded resources as EmbeddedResource{type:"resource", resource: BlobResourceContents/TextResourceContents}.
+				if len(content.EmbeddedResource.Data) > 0 {
+					mcpContents = append(mcpContents, mcp.NewEmbeddedResource(mcp.BlobResourceContents{
+						URI:      content.EmbeddedResource.Uri,
+						MIMEType: content.EmbeddedResource.MimeType,
+						Blob:     base64.StdEncoding.EncodeToString(content.EmbeddedResource.Data),
+					}))
+				} else {
+					// If there is no inline data, fall back to a text description.
+					mcpContents = append(mcpContents, mcp.NewTextContent(fmt.Sprintf("Resource: %s", content.EmbeddedResource.Uri)))
+				}
 			}
 		}
 	}
@@ -328,4 +341,17 @@ func convertToMCPResult(resp interface{}) *mcp.CallToolResult {
 		Content: mcpContents,
 	}
 	return result
+}
+
+func isTextMimeType(mimeType string) bool {
+	m := strings.ToLower(strings.TrimSpace(mimeType))
+	if strings.HasPrefix(m, "text/") {
+		return true
+	}
+	switch m {
+	case "application/json", "application/xml", "application/javascript", "application/x-yaml", "application/yaml":
+		return true
+	default:
+		return false
+	}
 }

@@ -9,6 +9,7 @@ import '../services/websocket_service.dart';
 import '../services/window_service.dart';
 import '../services/system_input_service.dart';
 import '../services/tray_service.dart';
+import '../services/attachment_service.dart';
 import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
 import '../proto/agentassist.pb.dart' as pb;
@@ -501,7 +502,11 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Reply to a question
-  Future<void> replyToQuestion(String messageId, String replyText) async {
+  Future<void> replyToQuestion(
+    String messageId,
+    String replyText, {
+    List<AttachmentItem>? attachments,
+  }) async {
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.question) return;
 
@@ -509,14 +514,25 @@ class ChatProvider extends ChangeNotifier {
       // Create response
       final response = pb.AskQuestionResponse()
         ..iD = message.requestId
-        ..isError = false
-        ..contents.addAll([
+        ..isError = false;
+
+      // Add text content if not empty
+      if (replyText.isNotEmpty) {
+        response.contents.add(
           pb.McpResultContent()
             ..type = 1 // text content type
             ..text = (pb.TextContent()
               ..type = 'text'
               ..text = replyText),
-        ]);
+        );
+      }
+
+      // Add attachments
+      if (attachments != null) {
+        for (final attachment in attachments) {
+          response.contents.add(attachment.toMcpResultContent());
+        }
+      }
 
       // Create original request for reply
       final originalRequest = pb.AskQuestionRequest()
@@ -552,7 +568,11 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Confirm a task
-  Future<void> confirmTask(String messageId, [String? confirmText]) async {
+  Future<void> confirmTask(
+    String messageId,
+    String? confirmText, {
+    List<AttachmentItem>? attachments,
+  }) async {
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.task) return;
 
@@ -570,6 +590,13 @@ class ChatProvider extends ChangeNotifier {
               ..type = 'text'
               ..text = confirmText),
         );
+      }
+
+      // Add attachments
+      if (attachments != null) {
+        for (final attachment in attachments) {
+          response.contents.add(attachment.toMcpResultContent());
+        }
       }
 
       // Create original request for reply
