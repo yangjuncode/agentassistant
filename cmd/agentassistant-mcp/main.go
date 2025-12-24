@@ -12,7 +12,6 @@ import (
 	"os/exec"
 	"runtime"
 	"strings"
-	"unicode/utf8"
 
 	"connectrpc.com/connect"
 	"github.com/BurntSushi/toml"

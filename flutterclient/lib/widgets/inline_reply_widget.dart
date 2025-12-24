@@ -208,13 +208,15 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
             // Text input field with keyboard shortcut
             Focus(
               onKeyEvent: (FocusNode node, KeyEvent event) {
-                // Check for Ctrl+V paste
+                // Check for Ctrl+V paste (for images/files only, let text paste through)
                 if (event is KeyDownEvent &&
                     event.logicalKey == LogicalKeyboardKey.keyV &&
                     (HardwareKeyboard.instance.isControlPressed ||
                         HardwareKeyboard.instance.isMetaPressed)) {
+                  // Try to paste image/file; if nothing found, let default text paste happen
                   _handlePaste();
-                  return KeyEventResult.handled;
+                  // Return ignored to allow normal text paste to work
+                  return KeyEventResult.ignored;
                 }
 
                 // Check for Ctrl+Enter key combination
