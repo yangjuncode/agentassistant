@@ -1053,5 +1053,14 @@ class ChatProvider extends ChangeNotifier {
       _showOnlyPendingMessages = false;
       notifyListeners();
     }
+
+    // Reset always on top when there are no pending messages
+    if (totalPending == 0) {
+      final windowService = WindowService();
+      if (windowService.isDesktop) {
+        windowService.resetAlwaysOnTop();
+        _logger.d('Reset window always on top: no pending messages');
+      }
+    }
   }
 }

@@ -182,16 +182,9 @@ class WindowService {
         await Future.delayed(const Duration(milliseconds: 100));
       }
 
-      // Keep always on top for configured duration to ensure user sees it
-      Future.delayed(_linuxAlwaysOnTopDuration, () async {
-        try {
-          await windowManager.setAlwaysOnTop(false);
-          _logger.d(
-              'Removed always on top after ${_linuxAlwaysOnTopDuration.inSeconds} seconds on Linux');
-        } catch (e) {
-          _logger.w('Failed to remove always on top on Linux: $e');
-        }
-      });
+      // Keep always on top permanently on Linux X11 to ensure window stays visible
+      // Note: Always on top is NOT disabled automatically anymore, so the window stays visible
+      _logger.d('Window set to always on top permanently on Linux X11');
 
       _logger.i('Successfully forced window to front on Linux');
     } catch (e) {
@@ -249,13 +242,30 @@ class WindowService {
     }
   }
 
+  /// Reset the always on top state (used when no pending messages)
+  Future<void> resetAlwaysOnTop() async {
+    if (!_isDesktop() || !_isInitialized) {
+      _logger.d('Cannot reset always on top: not desktop or not initialized');
+      return;
+    }
+
+    try {
+      await windowManager.setAlwaysOnTop(false);
+      _logger.i('Window always on top disabled');
+    } catch (e) {
+      _logger.e('Failed to reset always on top: $e');
+    }
+  }
+
   /// Check if running on desktop platform
   bool _isDesktop() {
     return Platform.isWindows || Platform.isLinux || Platform.isMacOS;
   }
 
   /// Configure Linux X11 behavior
+  /// Note: alwaysOnTopDuration is deprecated since window now stays always on top permanently
   void configureLinuxBehavior({
+    @Deprecated('No longer used - window stays always on top permanently')
     Duration? alwaysOnTopDuration,
     bool? useAggressiveMode,
   }) {
@@ -265,8 +275,7 @@ class WindowService {
     if (useAggressiveMode != null) {
       _useAggressiveLinuxMode = useAggressiveMode;
     }
-    _logger.i(
-        'Linux behavior configured: aggressive=$_useAggressiveLinuxMode, duration=${_linuxAlwaysOnTopDuration.inSeconds}s');
+    _logger.i('Linux behavior configured: aggressive=$_useAggressiveLinuxMode');
   }
 
   /// Get platform-specific window behavior
