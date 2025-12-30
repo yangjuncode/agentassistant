@@ -254,16 +254,22 @@ class _ChatDialogState extends State<_ChatDialog> {
     try {
       _clearAutoSendTimer();
       _autoSendTimer = Timer(const Duration(seconds: 2), () {
+        _logger.d('Auto-send timer fired, mounted: $mounted');
         if (mounted) {
           _sendMessage(isAutoSend: true);
+        } else {
+          _logger.w('Auto-send timer fired but widget not mounted, skipping');
         }
       });
+      _logger.d('Auto-send timer scheduled for 2 seconds');
     } catch (e, stack) {
       _logger.e('Error scheduling auto-send', error: e, stackTrace: stack);
     }
   }
 
   void _onInputChanged(String value) {
+    _logger.d(
+        'Input changed: length=${value.length}, lastSent=$_lastSentTextLength');
     if (value.isNotEmpty) {
       _scheduleAutoSend();
     } else {
@@ -277,9 +283,13 @@ class _ChatDialogState extends State<_ChatDialog> {
 
   void _sendMessage({bool isAutoSend = false}) {
     try {
+      _logger.d('_sendMessage called: isAutoSend=$isAutoSend');
       _clearAutoSendTimer();
       final content = _messageController.text;
+      _logger.d(
+          'Content length: ${content.length}, lastSentLength: $_lastSentTextLength');
       if (content.trim().isEmpty) {
+        _logger.d('Content is empty after trim, returning');
         if (!isAutoSend) {
           _messageController.clear();
           _lastSentTextLength = 0;
@@ -289,17 +299,27 @@ class _ChatDialogState extends State<_ChatDialog> {
 
       if (isAutoSend) {
         // Auto-send only the new text since the last send
+        _logger.d(
+            'Checking auto-send condition: content.length(${content.length}) > lastSent($_lastSentTextLength) = ${content.length > _lastSentTextLength}');
         if (content.length > _lastSentTextLength) {
           final newText = content.substring(_lastSentTextLength).trim();
+          _logger.d('New text to send: "$newText" (length: ${newText.length})');
           if (newText.isNotEmpty) {
             final messageToSend = newText.endsWith(',') ? newText : '$newText,';
+            _logger.i(
+                'Auto-sending message: "$messageToSend" to ${widget.user.clientId}');
             widget.chatProvider
                 .sendChatMessageSilent(widget.user.clientId, messageToSend);
             // Update the length of sent text, but don't clear the controller
             _lastSentTextLength = content.length;
             _logger.d(
                 'Auto-sent new text: "$newText", total length now: $_lastSentTextLength');
+          } else {
+            _logger.d('New text is empty after trim, skipping auto-send');
           }
+        } else {
+          _logger
+              .d('No new text to auto-send (content.length <= lastSentLength)');
         }
       } else {
         // Manual send should only send the part not already auto-sent

@@ -812,16 +812,24 @@ class ChatProvider extends ChangeNotifier {
 
   /// Handle chat message notification
   void _handleChatMessageNotification(pb.WebsocketMessage message) {
+    // Use print for debug output in all modes
+    print('[ChatNotification] Received ChatMessageNotification');
+
     if (!message.hasChatMessageNotification()) {
-      _logger.w('ChatMessageNotification missing notification data');
+      print(
+          '[ChatNotification] ⚠️ ChatMessageNotification missing notification data');
       return;
     }
 
     final notification = message.chatMessageNotification;
     final chatMessage = notification.chatMessage;
 
-    _logger.i(
-        'Received chat message from ${chatMessage.senderNickname}: ${chatMessage.content}');
+    print(
+        '[ChatNotification] Message from ${chatMessage.senderNickname} (${chatMessage.senderClientId})');
+    print(
+        '[ChatNotification] Message content length: ${chatMessage.content.length}');
+    print(
+        '[ChatNotification] Message content: ${chatMessage.content.length > 100 ? chatMessage.content.substring(0, 100) + "..." : chatMessage.content}');
 
     // Add to chat messages map
     final senderId = chatMessage.senderClientId;
@@ -833,13 +841,34 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     // Auto forward to system input if enabled and message is from another user
+    print(
+        '[ChatNotification] Auto forward setting: $_autoForwardToSystemInput');
+    print(
+        '[ChatNotification] Current client ID: ${_webSocketService.clientId}');
+    print('[ChatNotification] Sender ID: $senderId');
+    print(
+        '[ChatNotification] Is from other user: ${senderId != _webSocketService.clientId}');
+
     if (_autoForwardToSystemInput && senderId != _webSocketService.clientId) {
+      print(
+          '[ChatNotification] ✅ Conditions met for auto-forwarding, scheduling microtask...');
       // Use microtask to defer auto-forwarding until after the current build cycle
-      Future.microtask(
-          () => _autoForwardMessageToSystemInput(chatMessage.content));
+      Future.microtask(() {
+        print(
+            '[ChatNotification] Microtask executing, calling _autoForwardMessageToSystemInput...');
+        _autoForwardMessageToSystemInput(chatMessage.content);
+      });
       // Don't bring window to front when auto-forwarding is enabled
-      _logger.i('Auto-forwarding enabled, not bringing window to front');
+      print(
+          '[ChatNotification] Auto-forwarding enabled, not bringing window to front');
     } else {
+      print('[ChatNotification] ❌ Auto-forwarding conditions not met');
+      if (!_autoForwardToSystemInput) {
+        print('[ChatNotification] Reason: Auto-forward is disabled');
+      }
+      if (senderId == _webSocketService.clientId) {
+        print('[ChatNotification] Reason: Message is from current user');
+      }
       // Only bring window to front if auto-forwarding is disabled
       _bringWindowToFrontIfNeeded();
     }
@@ -1005,16 +1034,31 @@ class ChatProvider extends ChangeNotifier {
 
   /// Auto forward message to system input
   Future<void> _autoForwardMessageToSystemInput(String content) async {
+    // Use print for debug output in all modes
+    print('[AutoForward] Starting auto forward to system input');
+    print('[AutoForward] Content length: ${content.length}');
+    print(
+        '[AutoForward] Content preview: ${content.length > 100 ? content.substring(0, 100) + "..." : content}');
+
     try {
+      print('[AutoForward] Calling SystemInputService.sendToSystemInput...');
+      final stopwatch = Stopwatch()..start();
       final success = await SystemInputService.sendToSystemInput(content);
+      stopwatch.stop();
+      print(
+          '[AutoForward] SystemInputService.sendToSystemInput returned in ${stopwatch.elapsedMilliseconds}ms');
+
       if (success) {
-        _logger.i(
-            'Auto forwarded message to system input: ${content.length} characters');
+        print(
+            '[AutoForward] ✅ Successfully auto forwarded message to system input: ${content.length} characters');
       } else {
-        _logger.w('Failed to auto forward message to system input');
+        print(
+            '[AutoForward] ❌ Failed to auto forward message to system input (returned false)');
       }
-    } catch (error) {
-      _logger.e('Exception during auto forward to system input: $error');
+    } catch (error, stackTrace) {
+      print(
+          '[AutoForward] ❌ Exception during auto forward to system input: $error');
+      print('[AutoForward] Stack trace: $stackTrace');
     }
   }
 
