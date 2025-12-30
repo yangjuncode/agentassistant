@@ -37,6 +37,18 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+ 
+
+    applicationVariants.all {
+        outputs.all {
+            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
+            val abiFilter = output.getFilter(com.android.build.OutputFile.ABI)
+            val arch = abiFilter ?: "universal"
+            val minApi = defaultConfig.minSdk ?: "unknown"
+            output.outputFileName = "agent-assistant-${arch}-api${minApi}-${buildType.name}.apk"
+        }
+    }
 }
 
 flutter {

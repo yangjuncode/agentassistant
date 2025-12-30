@@ -55,7 +55,7 @@ dependencies:
   # Clipboard and Drag-Drop
   pasteboard: ^0.3.0
   desktop_drop: ^0.4.4
-  file_picker: ^6.1.0
+  file_picker: ^10.3.8
   mime: ^1.0.0
 
 
