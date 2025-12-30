@@ -105,9 +105,10 @@ void main() async {
     // Start frame timing monitor
     FrameTimingMonitor.startMonitoring();
 
-    // Enable additional debug information in debug mode
-    debugPrintMarkNeedsLayoutStacks = true;
-    debugPrintLayouts = true;
+    // Disable verbose debug output to reduce console noise
+    // Only enable these when debugging layout issues
+    debugPrintMarkNeedsLayoutStacks = false;
+    debugPrintLayouts = false;
 
     // Run the app with error zone
     runZonedGuarded(
