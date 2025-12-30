@@ -14,9 +14,7 @@ import (
 func main() {
 	// Log startup
 	log.Printf("[DEBUG] agentassistant-input started")
-	log.Printf("[DEBUG] Process ID: %d", os.Getpid())
 	log.Printf("[DEBUG] Args: %v", os.Args)
-	log.Printf("[DEBUG] Working directory: %s", getCurrentDir())
 
 	// Define string flags for plaintext and base64 encoded input
 	inputPtr := flag.String("input", "", "plaintext string")
@@ -55,11 +53,6 @@ func main() {
 
 	// Log before typing
 	log.Printf("[DEBUG] About to type string, length: %d, first 100 chars: '%s'", len(stringToType), truncateForLog(stringToType))
-	log.Printf("[DEBUG] String contains %d runes", len([]rune(stringToType)))
-
-	// Add a small delay to ensure the target window is ready
-	log.Printf("[DEBUG] Waiting 100ms before typing...")
-	time.Sleep(100 * time.Millisecond)
 
 	// Type the determined string
 	log.Printf("[DEBUG] Calling robotgo.TypeStr()...")
