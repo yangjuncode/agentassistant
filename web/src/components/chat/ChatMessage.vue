@@ -5,7 +5,7 @@
       <q-card-section class="bg-blue-1">
         <div class="row items-center q-mb-sm">
           <q-icon name="smart_toy" color="blue" class="q-mr-sm" />
-          <span class="text-subtitle2 text-blue-8">AI Agent 提问</span>
+          <span class="text-subtitle2 text-blue-8">AI Agent 提问<template v-if="message.modelName"> from {{ message.modelName }}</template></span>
           <q-space />
           <q-chip
             v-if="message.isAnswered"
@@ -112,7 +112,7 @@
       <q-card-section class="bg-green-1">
         <div class="row items-center q-mb-sm">
           <q-icon name="task_alt" color="green" class="q-mr-sm" />
-          <span class="text-subtitle2 text-green-8">任务完成</span>
+          <span class="text-subtitle2 text-green-8">任务完成<template v-if="message.modelName"> from {{ message.modelName }}</template></span>
           <q-space />
           <q-chip
             v-if="message.isAnswered"

@@ -64,6 +64,8 @@ message McpAskQuestionRequest {
   string Question = 2;
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
+  // the AI model name that is calling this tool
+  string ModelName = 4;
 }
 
 message AskQuestionRequest {
@@ -90,6 +92,8 @@ message McpWorkReportRequest {
   string Summary = 2;
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
+  // the AI model name that is calling this tool
+  string ModelName = 4;
 }
 
 message WorkReportRequest {

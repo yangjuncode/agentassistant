@@ -2,13 +2,12 @@
 //  Generated code. Do not modify.
 //  source: agentassist.proto
 //
-// @dart = 3.3
+// @dart = 2.12
 
 // ignore_for_file: annotate_overrides, camel_case_types, comment_references
-// ignore_for_file: constant_identifier_names
-// ignore_for_file: curly_braces_in_flow_control_structures
-// ignore_for_file: deprecated_member_use_from_same_package, library_prefixes
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: constant_identifier_names, library_prefixes
+// ignore_for_file: non_constant_identifier_names, prefer_final_fields
+// ignore_for_file: unnecessary_import, unnecessary_this, unused_import
 
 import 'dart:convert' as $convert;
 import 'dart:core' as $core;
@@ -110,6 +109,7 @@ const McpAskQuestionRequest$json = {
     {'1': 'ProjectDirectory', '3': 1, '4': 1, '5': 9, '10': 'ProjectDirectory'},
     {'1': 'Question', '3': 2, '4': 1, '5': 9, '10': 'Question'},
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
+    {'1': 'ModelName', '3': 4, '4': 1, '5': 9, '10': 'ModelName'},
   ],
 };
 
@@ -117,7 +117,7 @@ const McpAskQuestionRequest$json = {
 final $typed_data.Uint8List mcpAskQuestionRequestDescriptor = $convert.base64Decode(
     'ChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSKgoQUHJvamVjdERpcmVjdG9yeRgBIAEoCVIQUHJvam'
     'VjdERpcmVjdG9yeRIaCghRdWVzdGlvbhgCIAEoCVIIUXVlc3Rpb24SGAoHVGltZW91dBgDIAEo'
-    'BVIHVGltZW91dA==');
+    'BVIHVGltZW91dBIcCglNb2RlbE5hbWUYBCABKAlSCU1vZGVsTmFtZQ==');
 
 @$core.Deprecated('Use askQuestionRequestDescriptor instead')
 const AskQuestionRequest$json = {
@@ -172,6 +172,7 @@ const McpWorkReportRequest$json = {
     {'1': 'ProjectDirectory', '3': 1, '4': 1, '5': 9, '10': 'ProjectDirectory'},
     {'1': 'Summary', '3': 2, '4': 1, '5': 9, '10': 'Summary'},
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
+    {'1': 'ModelName', '3': 4, '4': 1, '5': 9, '10': 'ModelName'},
   ],
 };
 
@@ -179,7 +180,7 @@ const McpWorkReportRequest$json = {
 final $typed_data.Uint8List mcpWorkReportRequestDescriptor = $convert.base64Decode(
     'ChRNY3BXb3JrUmVwb3J0UmVxdWVzdBIqChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJUhBQcm9qZW'
     'N0RGlyZWN0b3J5EhgKB1N1bW1hcnkYAiABKAlSB1N1bW1hcnkSGAoHVGltZW91dBgDIAEoBVIH'
-    'VGltZW91dA==');
+    'VGltZW91dBIcCglNb2RlbE5hbWUYBCABKAlSCU1vZGVsTmFtZQ==');
 
 @$core.Deprecated('Use workReportRequestDescriptor instead')
 const WorkReportRequest$json = {

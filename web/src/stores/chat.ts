@@ -38,6 +38,7 @@ export interface ChatMessage {
   repliedAt?: Date;
   repliedByCurrentUser?: boolean;
   repliedByNickname?: string;
+  modelName?: string;
 }
 
 export const useChatStore = defineStore('chat', () => {
@@ -175,7 +176,8 @@ export const useChatStore = defineStore('chat', () => {
       isFromAgent: true,
       isAnswered: false,
       originalRequest: request,
-      timeout: request.Request?.Timeout
+      timeout: request.Request?.Timeout,
+      ...(request.Request?.ModelName ? { modelName: request.Request.ModelName } : {})
     };
 
     messages.value.push(chatMessage);
@@ -192,7 +194,8 @@ export const useChatStore = defineStore('chat', () => {
       isFromAgent: true,
       isAnswered: false,
       originalRequest: request,
-      timeout: request.Request?.Timeout
+      timeout: request.Request?.Timeout,
+      ...(request.Request?.ModelName ? { modelName: request.Request.ModelName } : {})
     };
 
     messages.value.push(chatMessage);

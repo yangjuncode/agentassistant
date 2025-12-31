@@ -19,6 +19,7 @@ class ChatMessage {
   final DateTime? repliedAt;
   final bool repliedByCurrentUser;
   final String? repliedByNickname;
+  final String? modelName;
 
   ChatMessage({
     String? id,
@@ -36,6 +37,7 @@ class ChatMessage {
     this.repliedAt,
     this.repliedByCurrentUser = false,
     this.repliedByNickname,
+    this.modelName,
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
@@ -46,6 +48,9 @@ class ChatMessage {
       type: MessageType.question,
       question: request.request.question,
       projectDirectory: request.request.projectDirectory,
+      modelName: request.request.modelName.isNotEmpty
+          ? request.request.modelName
+          : null,
     );
   }
 
@@ -56,6 +61,9 @@ class ChatMessage {
       type: MessageType.task,
       summary: request.request.summary,
       projectDirectory: request.request.projectDirectory,
+      modelName: request.request.modelName.isNotEmpty
+          ? request.request.modelName
+          : null,
     );
   }
 
@@ -97,6 +105,7 @@ class ChatMessage {
       repliedAt: repliedAt ?? this.repliedAt,
       repliedByCurrentUser: repliedByCurrentUser ?? this.repliedByCurrentUser,
       repliedByNickname: repliedByNickname ?? this.repliedByNickname,
+      modelName: modelName,
     );
   }
 
@@ -118,6 +127,7 @@ class ChatMessage {
       'repliedAt': repliedAt?.toIso8601String(),
       'repliedByCurrentUser': repliedByCurrentUser,
       'repliedByNickname': repliedByNickname,
+      'modelName': modelName,
     };
   }
 
@@ -143,19 +153,28 @@ class ChatMessage {
           json['repliedAt'] != null ? DateTime.parse(json['repliedAt']) : null,
       repliedByCurrentUser: json['repliedByCurrentUser'] ?? false,
       repliedByNickname: json['repliedByNickname'],
+      modelName: json['modelName'],
     );
   }
 
   /// Get display title
   String get displayTitle {
+    String baseTitle;
     switch (type) {
       case MessageType.question:
-        return 'AI Agent Question';
+        baseTitle = 'AI Agent Question';
+        break;
       case MessageType.task:
-        return 'Task Completion Notification';
+        baseTitle = 'Task Completion Notification';
+        break;
       case MessageType.reply:
-        return 'Reply';
+        baseTitle = 'Reply';
+        break;
     }
+    if (modelName != null && modelName!.isNotEmpty) {
+      return '$baseTitle from $modelName';
+    }
+    return baseTitle;
   }
 
   /// Get display content

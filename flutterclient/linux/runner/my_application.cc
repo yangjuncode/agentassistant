@@ -4,6 +4,9 @@
 #ifdef GDK_WINDOWING_X11
 #include <gdk/gdkx.h>
 #endif
+#include <unistd.h>
+#include <libgen.h>
+#include <limits.h>
 
 #include "flutter/generated_plugin_registrant.h"
 
@@ -48,6 +51,46 @@ static void my_application_activate(GApplication* application) {
   }
 
   gtk_window_set_default_size(window, 1280, 720);
+  
+  // Set window icon - try current directory first, then executable directory
+  const char* icon_filename = "agent-assistant-icon.png";
+  GError* error = nullptr;
+  GdkPixbuf* icon = nullptr;
+  
+  // Try loading from current directory first
+  icon = gdk_pixbuf_new_from_file(icon_filename, &error);
+  
+  if (!icon && error) {
+    g_clear_error(&error);
+    
+    // If failed, try loading from executable directory
+    char exe_path[PATH_MAX];
+    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
+    if (len != -1) {
+      exe_path[len] = '\0';
+      char* exe_dir = dirname(exe_path);
+      
+      // Build full path to icon
+      char icon_path[PATH_MAX];
+      snprintf(icon_path, sizeof(icon_path), "%s/%s", exe_dir, icon_filename);
+      
+      icon = gdk_pixbuf_new_from_file(icon_path, &error);
+      if (icon) {
+        g_message("Loaded window icon from: %s", icon_path);
+      }
+    }
+  }
+  
+  if (icon) {
+    gtk_window_set_icon(window, icon);
+    g_object_unref(icon);
+  } else if (error) {
+    g_warning("Failed to load window icon: %s", error->message);
+    //print current working directory
+    g_warning("Current working directory: %s", getcwd(NULL, 0));
+    g_error_free(error);
+  }
+  
   gtk_widget_show(GTK_WIDGET(window));
 
   g_autoptr(FlDartProject) project = fl_dart_project_new();

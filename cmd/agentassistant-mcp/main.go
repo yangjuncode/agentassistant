@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"encoding/base64"
 	_ "embed"
+	"encoding/base64"
 	"flag"
 	"fmt"
 	"log"
@@ -104,6 +104,7 @@ Args:
 - project_directory: The current project directory
 - question: The question to ask
 - timeout: The timeout in seconds, default is 3600s (1 hour)
+- model_name: The name of the AI model calling this tool
 
 Returns:
 - List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent-Assistant
@@ -123,6 +124,11 @@ Returns:
 			mcp.DefaultNumber(3600),
 			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
 		),
+		//model_name
+		mcp.WithString("model_name",
+			mcp.Required(),
+			mcp.Description("The name of the AI model calling this tool"),
+		),
 	)
 
 	workReportTool := mcp.NewTool("work_report",
@@ -135,7 +141,7 @@ Args:
 - project_directory: The current project directory
 - summary: The summary of the task/work report
 - timeout: The timeout in seconds, default is 3600s (1 hour)
-
+- model_name: The name of the AI model calling this tool
 Returns:
 - List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent-Assistant
 `),
@@ -153,6 +159,11 @@ Returns:
 		mcp.WithNumber("timeout",
 			mcp.DefaultNumber(3600),
 			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
+		),
+		//model_name
+		mcp.WithString("model_name",
+			mcp.Required(),
+			mcp.Description("The name of the AI model calling this tool"),
 		),
 	)
 
@@ -211,6 +222,9 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		timeout = 3600 // Default timeout (1 hour)
 	}
 
+	// Get optional model_name
+	modelName, _ := request.RequireString("model_name")
+
 	// Create RPC request
 	req := &agentassistproto.AskQuestionRequest{
 		ID:        generateRequestID(),
@@ -219,6 +233,7 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 			ProjectDirectory: projectDirectory,
 			Question:         question,
 			Timeout:          int32(timeout),
+			ModelName:        modelName,
 		},
 	}
 
@@ -249,6 +264,9 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 		timeout = 3600 // Default timeout (1 hour)
 	}
 
+	// Get optional model_name
+	modelName, _ := request.RequireString("model_name")
+
 	// Create RPC request
 	req := &agentassistproto.WorkReportRequest{
 		ID:        generateRequestID(),
@@ -257,6 +275,7 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 			ProjectDirectory: projectDirectory,
 			Summary:          summary,
 			Timeout:          int32(timeout),
+			ModelName:        modelName,
 		},
 	}
 
@@ -330,7 +349,7 @@ func convertToMCPResult(resp interface{}) *mcp.CallToolResult {
 					// 			content.EmbeddedResource.MimeType,
 					// 		),
 					// 	)
-						
+
 					// }
 
 					mcpContents = append(mcpContents, mcp.NewEmbeddedResource(mcp.BlobResourceContents{

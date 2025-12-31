@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Agent Assistant
+Comment=Agent Assistant Flutter Client
+Exec=agentassistant-flutter
+Icon=agentassistant-flutter
+Terminal=false
+Categories=Utility;Development;
+StartupWMClass=agentassistant-flutter
