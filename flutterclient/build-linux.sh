@@ -23,3 +23,9 @@ else
 fi
 
 flutter build linux --release
+
+# Copy build output to root bin directory
+echo "Copying build output to ../bin..."
+mkdir -p ../bin
+cp -rv build/linux/x64/release/bundle/* ../bin/
+echo "Build and export to bin/ complete!"
