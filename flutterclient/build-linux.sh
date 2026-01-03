@@ -22,10 +22,13 @@ else
     echo "Icon already exists: $ICON_FILE"
 fi
 
-flutter build linux --release
-
-# Copy build output to root bin directory
-echo "Copying build output to ../bin..."
-mkdir -p ../bin
-cp -rv build/linux/x64/release/bundle/* ../bin/
-echo "Build and export to bin/ complete!"
+if flutter build linux --release; then
+    # Copy build output to root bin directory
+    echo "Build successful. Copying build output to ../bin..."
+    mkdir -p ../bin
+    cp -rv build/linux/x64/release/bundle/* ../bin/
+    echo "Build and export to bin/ complete!"
+else
+    echo "Error: Flutter build failed. Output was not copied."
+    exit 1
+fi
