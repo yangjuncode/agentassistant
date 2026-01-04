@@ -64,8 +64,10 @@ message McpAskQuestionRequest {
   string Question = 2;
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
-  // the AI model name that is calling this tool
-  string ModelName = 4;
+  // the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+  string AgentName = 4;
+  // the actual LLM/inference model name being used (e.g., GPT-4, Gemini 3 Pro)
+  string ReasoningModelName = 5;
 }
 
 message AskQuestionRequest {
@@ -92,8 +94,10 @@ message McpWorkReportRequest {
   string Summary = 2;
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
-  // the AI model name that is calling this tool
-  string ModelName = 4;
+  // the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+  string AgentName = 4;
+  // the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
+  string ReasoningModelName = 5;
 }
 
 message WorkReportRequest {

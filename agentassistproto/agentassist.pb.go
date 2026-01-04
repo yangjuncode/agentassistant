@@ -398,10 +398,12 @@ type McpAskQuestionRequest struct {
 	Question string `protobuf:"bytes,2,opt,name=Question,proto3" json:"Question,omitempty"`
 	// timeout in seconds, default is 600s
 	Timeout int32 `protobuf:"varint,3,opt,name=Timeout,proto3" json:"Timeout,omitempty"`
-	// the AI model name that is calling this tool
-	ModelName     string `protobuf:"bytes,4,opt,name=ModelName,proto3" json:"ModelName,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+	AgentName string `protobuf:"bytes,4,opt,name=AgentName,proto3" json:"AgentName,omitempty"`
+	// the actual LLM/inference model name being used (e.g., GPT-4, Gemini 3 Pro)
+	ReasoningModelName string `protobuf:"bytes,5,opt,name=ReasoningModelName,proto3" json:"ReasoningModelName,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *McpAskQuestionRequest) Reset() {
@@ -455,9 +457,16 @@ func (x *McpAskQuestionRequest) GetTimeout() int32 {
 	return 0
 }
 
-func (x *McpAskQuestionRequest) GetModelName() string {
+func (x *McpAskQuestionRequest) GetAgentName() string {
 	if x != nil {
-		return x.ModelName
+		return x.AgentName
+	}
+	return ""
+}
+
+func (x *McpAskQuestionRequest) GetReasoningModelName() string {
+	if x != nil {
+		return x.ReasoningModelName
 	}
 	return ""
 }
@@ -602,10 +611,12 @@ type McpWorkReportRequest struct {
 	Summary string `protobuf:"bytes,2,opt,name=Summary,proto3" json:"Summary,omitempty"`
 	// timeout in seconds, default is 600s
 	Timeout int32 `protobuf:"varint,3,opt,name=Timeout,proto3" json:"Timeout,omitempty"`
-	// the AI model name that is calling this tool
-	ModelName     string `protobuf:"bytes,4,opt,name=ModelName,proto3" json:"ModelName,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+	AgentName string `protobuf:"bytes,4,opt,name=AgentName,proto3" json:"AgentName,omitempty"`
+	// the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
+	ReasoningModelName string `protobuf:"bytes,5,opt,name=ReasoningModelName,proto3" json:"ReasoningModelName,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
 }
 
 func (x *McpWorkReportRequest) Reset() {
@@ -659,9 +670,16 @@ func (x *McpWorkReportRequest) GetTimeout() int32 {
 	return 0
 }
 
-func (x *McpWorkReportRequest) GetModelName() string {
+func (x *McpWorkReportRequest) GetAgentName() string {
 	if x != nil {
-		return x.ModelName
+		return x.AgentName
+	}
+	return ""
+}
+
+func (x *McpWorkReportRequest) GetReasoningModelName() string {
+	if x != nil {
+		return x.ReasoningModelName
 	}
 	return ""
 }
@@ -1868,12 +1886,13 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x05audio\x18\x04 \x01(\v2\x1e.agentassistproto.AudioContentR\x05audio\x12O\n" +
 	"\x11embedded_resource\x18\x05 \x01(\v2\".agentassistproto.EmbeddedResourceR\x10embeddedResource\"\n" +
 	"\n" +
-	"\bMsgEmpty\"\x97\x01\n" +
+	"\bMsgEmpty\"\xc7\x01\n" +
 	"\x15McpAskQuestionRequest\x12*\n" +
 	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x12\x1a\n" +
 	"\bQuestion\x18\x02 \x01(\tR\bQuestion\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
-	"\tModelName\x18\x04 \x01(\tR\tModelName\"\x85\x01\n" +
+	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
+	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\x85\x01\n" +
 	"\x12AskQuestionRequest\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x1c\n" +
 	"\tUserToken\x18\x02 \x01(\tR\tUserToken\x12A\n" +
@@ -1885,12 +1904,13 @@ const file_agentassist_proto_rawDesc = "" +
 	"\bcontents\x18\x04 \x03(\v2\".agentassistproto.McpResultContentR\bcontents\x1a7\n" +
 	"\tMetaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x94\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc4\x01\n" +
 	"\x14McpWorkReportRequest\x12*\n" +
 	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x12\x18\n" +
 	"\aSummary\x18\x02 \x01(\tR\aSummary\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
-	"\tModelName\x18\x04 \x01(\tR\tModelName\"\x83\x01\n" +
+	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
+	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\x83\x01\n" +
 	"\x11WorkReportRequest\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x1c\n" +
 	"\tUserToken\x18\x02 \x01(\tR\tUserToken\x12@\n" +

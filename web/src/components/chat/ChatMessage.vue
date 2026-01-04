@@ -5,7 +5,7 @@
       <q-card-section class="bg-blue-1">
         <div class="row items-center q-mb-sm">
           <q-icon name="smart_toy" color="blue" class="q-mr-sm" />
-          <span class="text-subtitle2 text-blue-8">AI Agent 提问<template v-if="message.modelName"> from {{ message.modelName }}</template></span>
+          <span class="text-subtitle2 text-blue-8">AI Agent 提问<template v-if="message.agentName || message.reasoningModelName"> from {{ formatModelInfo(message) }}</template></span>
           <q-space />
           <q-chip
             v-if="message.isAnswered"
@@ -112,7 +112,7 @@
       <q-card-section class="bg-green-1">
         <div class="row items-center q-mb-sm">
           <q-icon name="task_alt" color="green" class="q-mr-sm" />
-          <span class="text-subtitle2 text-green-8">任务完成<template v-if="message.modelName"> from {{ message.modelName }}</template></span>
+          <span class="text-subtitle2 text-green-8">任务完成<template v-if="message.agentName || message.reasoningModelName"> from {{ formatModelInfo(message) }}</template></span>
           <q-space />
           <q-chip
             v-if="message.isAnswered"
@@ -290,6 +290,17 @@ function formatTime(date: Date): string {
     minute: '2-digit',
     second: '2-digit'
   });
+}
+
+function formatModelInfo(message: ChatMessage): string {
+  if (message.agentName && message.reasoningModelName) {
+    return `${message.agentName}[${message.reasoningModelName}]`;
+  } else if (message.agentName) {
+    return message.agentName;
+  } else if (message.reasoningModelName) {
+    return `[${message.reasoningModelName}]`;
+  }
+  return '';
 }
 </script>
 

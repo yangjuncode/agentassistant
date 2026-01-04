@@ -19,7 +19,8 @@ class ChatMessage {
   final DateTime? repliedAt;
   final bool repliedByCurrentUser;
   final String? repliedByNickname;
-  final String? modelName;
+  final String? agentName;
+  final String? reasoningModelName;
 
   ChatMessage({
     String? id,
@@ -37,7 +38,8 @@ class ChatMessage {
     this.repliedAt,
     this.repliedByCurrentUser = false,
     this.repliedByNickname,
-    this.modelName,
+    this.agentName,
+    this.reasoningModelName,
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
@@ -48,8 +50,11 @@ class ChatMessage {
       type: MessageType.question,
       question: request.request.question,
       projectDirectory: request.request.projectDirectory,
-      modelName: request.request.modelName.isNotEmpty
-          ? request.request.modelName
+      agentName: request.request.agentName.isNotEmpty
+          ? request.request.agentName
+          : null,
+      reasoningModelName: request.request.reasoningModelName.isNotEmpty
+          ? request.request.reasoningModelName
           : null,
     );
   }
@@ -61,8 +66,11 @@ class ChatMessage {
       type: MessageType.task,
       summary: request.request.summary,
       projectDirectory: request.request.projectDirectory,
-      modelName: request.request.modelName.isNotEmpty
-          ? request.request.modelName
+      agentName: request.request.agentName.isNotEmpty
+          ? request.request.agentName
+          : null,
+      reasoningModelName: request.request.reasoningModelName.isNotEmpty
+          ? request.request.reasoningModelName
           : null,
     );
   }
@@ -105,7 +113,8 @@ class ChatMessage {
       repliedAt: repliedAt ?? this.repliedAt,
       repliedByCurrentUser: repliedByCurrentUser ?? this.repliedByCurrentUser,
       repliedByNickname: repliedByNickname ?? this.repliedByNickname,
-      modelName: modelName,
+      agentName: agentName,
+      reasoningModelName: reasoningModelName,
     );
   }
 
@@ -127,7 +136,8 @@ class ChatMessage {
       'repliedAt': repliedAt?.toIso8601String(),
       'repliedByCurrentUser': repliedByCurrentUser,
       'repliedByNickname': repliedByNickname,
-      'modelName': modelName,
+      'agentName': agentName,
+      'reasoningModelName': reasoningModelName,
     };
   }
 
@@ -153,7 +163,8 @@ class ChatMessage {
           json['repliedAt'] != null ? DateTime.parse(json['repliedAt']) : null,
       repliedByCurrentUser: json['repliedByCurrentUser'] ?? false,
       repliedByNickname: json['repliedByNickname'],
-      modelName: json['modelName'],
+      agentName: json['agentName'],
+      reasoningModelName: json['reasoningModelName'],
     );
   }
 
@@ -171,8 +182,14 @@ class ChatMessage {
         baseTitle = 'Reply';
         break;
     }
-    if (modelName != null && modelName!.isNotEmpty) {
-      return '$baseTitle from $modelName';
+    // Build the "from" suffix with model info
+    if (agentName != null && agentName!.isNotEmpty) {
+      if (reasoningModelName != null && reasoningModelName!.isNotEmpty) {
+        return '$baseTitle from $agentName[$reasoningModelName]';
+      }
+      return '$baseTitle from $agentName';
+    } else if (reasoningModelName != null && reasoningModelName!.isNotEmpty) {
+      return '$baseTitle from [$reasoningModelName]';
     }
     return baseTitle;
   }

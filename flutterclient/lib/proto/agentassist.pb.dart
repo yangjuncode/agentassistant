@@ -495,7 +495,8 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     $core.String? projectDirectory,
     $core.String? question,
     $core.int? timeout,
-    $core.String? modelName,
+    $core.String? agentName,
+    $core.String? reasoningModelName,
   }) {
     final $result = create();
     if (projectDirectory != null) {
@@ -507,8 +508,11 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     if (timeout != null) {
       $result.timeout = timeout;
     }
-    if (modelName != null) {
-      $result.modelName = modelName;
+    if (agentName != null) {
+      $result.agentName = agentName;
+    }
+    if (reasoningModelName != null) {
+      $result.reasoningModelName = reasoningModelName;
     }
     return $result;
   }
@@ -520,7 +524,8 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'ProjectDirectory', protoName: 'ProjectDirectory')
     ..aOS(2, _omitFieldNames ? '' : 'Question', protoName: 'Question')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'Timeout', $pb.PbFieldType.O3, protoName: 'Timeout')
-    ..aOS(4, _omitFieldNames ? '' : 'ModelName', protoName: 'ModelName')
+    ..aOS(4, _omitFieldNames ? '' : 'AgentName', protoName: 'AgentName')
+    ..aOS(5, _omitFieldNames ? '' : 'ReasoningModelName', protoName: 'ReasoningModelName')
     ..hasRequiredFields = false
   ;
 
@@ -575,15 +580,25 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearTimeout() => clearField(3);
 
-  /// the AI model name that is calling this tool
+  /// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
   @$pb.TagNumber(4)
-  $core.String get modelName => $_getSZ(3);
+  $core.String get agentName => $_getSZ(3);
   @$pb.TagNumber(4)
-  set modelName($core.String v) { $_setString(3, v); }
+  set agentName($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasModelName() => $_has(3);
+  $core.bool hasAgentName() => $_has(3);
   @$pb.TagNumber(4)
-  void clearModelName() => clearField(4);
+  void clearAgentName() => clearField(4);
+
+  /// the actual LLM/inference model name being used (e.g., GPT-4, Gemini 3 Pro)
+  @$pb.TagNumber(5)
+  $core.String get reasoningModelName => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set reasoningModelName($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasReasoningModelName() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearReasoningModelName() => clearField(5);
 }
 
 class AskQuestionRequest extends $pb.GeneratedMessage {
@@ -755,7 +770,8 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
     $core.String? projectDirectory,
     $core.String? summary,
     $core.int? timeout,
-    $core.String? modelName,
+    $core.String? agentName,
+    $core.String? reasoningModelName,
   }) {
     final $result = create();
     if (projectDirectory != null) {
@@ -767,8 +783,11 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
     if (timeout != null) {
       $result.timeout = timeout;
     }
-    if (modelName != null) {
-      $result.modelName = modelName;
+    if (agentName != null) {
+      $result.agentName = agentName;
+    }
+    if (reasoningModelName != null) {
+      $result.reasoningModelName = reasoningModelName;
     }
     return $result;
   }
@@ -780,7 +799,8 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'ProjectDirectory', protoName: 'ProjectDirectory')
     ..aOS(2, _omitFieldNames ? '' : 'Summary', protoName: 'Summary')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'Timeout', $pb.PbFieldType.O3, protoName: 'Timeout')
-    ..aOS(4, _omitFieldNames ? '' : 'ModelName', protoName: 'ModelName')
+    ..aOS(4, _omitFieldNames ? '' : 'AgentName', protoName: 'AgentName')
+    ..aOS(5, _omitFieldNames ? '' : 'ReasoningModelName', protoName: 'ReasoningModelName')
     ..hasRequiredFields = false
   ;
 
@@ -835,15 +855,25 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearTimeout() => clearField(3);
 
-  /// the AI model name that is calling this tool
+  /// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
   @$pb.TagNumber(4)
-  $core.String get modelName => $_getSZ(3);
+  $core.String get agentName => $_getSZ(3);
   @$pb.TagNumber(4)
-  set modelName($core.String v) { $_setString(3, v); }
+  set agentName($core.String v) { $_setString(3, v); }
   @$pb.TagNumber(4)
-  $core.bool hasModelName() => $_has(3);
+  $core.bool hasAgentName() => $_has(3);
   @$pb.TagNumber(4)
-  void clearModelName() => clearField(4);
+  void clearAgentName() => clearField(4);
+
+  /// the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
+  @$pb.TagNumber(5)
+  $core.String get reasoningModelName => $_getSZ(4);
+  @$pb.TagNumber(5)
+  set reasoningModelName($core.String v) { $_setString(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasReasoningModelName() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearReasoningModelName() => clearField(5);
 }
 
 class WorkReportRequest extends $pb.GeneratedMessage {

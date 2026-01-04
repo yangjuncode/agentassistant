@@ -104,10 +104,11 @@ Args:
 - project_directory: The current project directory
 - question: The question to ask
 - timeout: The timeout in seconds, default is 3600s (1 hour)
-- model_name: The name of the AI model calling this tool
+- agent_name: The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)
+- reasoning_model_name: The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)
 
 Returns:
-- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent-Assistant
+- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from Agent-Assistant
 `),
 		//ProjectDirectory
 		mcp.WithString("project_directory",
@@ -124,10 +125,15 @@ Returns:
 			mcp.DefaultNumber(3600),
 			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
 		),
-		//model_name
-		mcp.WithString("model_name",
+		//agent_name
+		mcp.WithString("agent_name",
 			mcp.Required(),
-			mcp.Description("The name of the AI model calling this tool"),
+			mcp.Description("The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)"),
+		),
+		//reasoning_model_name
+		mcp.WithString("reasoning_model_name",
+			mcp.Required(),
+			mcp.Description("The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)"),
 		),
 	)
 
@@ -141,9 +147,11 @@ Args:
 - project_directory: The current project directory
 - summary: The summary of the task/work report
 - timeout: The timeout in seconds, default is 3600s (1 hour)
-- model_name: The name of the AI model calling this tool
+- agent_name: The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)
+- reasoning_model_name: The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)
+
 Returns:
-- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from  Agent-Assistant
+- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from Agent-Assistant
 `),
 		//ProjectDirectory
 		mcp.WithString("project_directory",
@@ -160,10 +168,15 @@ Returns:
 			mcp.DefaultNumber(3600),
 			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
 		),
-		//model_name
-		mcp.WithString("model_name",
+		//agent_name
+		mcp.WithString("agent_name",
 			mcp.Required(),
-			mcp.Description("The name of the AI model calling this tool"),
+			mcp.Description("The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)"),
+		),
+		//reasoning_model_name
+		mcp.WithString("reasoning_model_name",
+			mcp.Required(),
+			mcp.Description("The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)"),
 		),
 	)
 
@@ -222,18 +235,20 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		timeout = 3600 // Default timeout (1 hour)
 	}
 
-	// Get optional model_name
-	modelName, _ := request.RequireString("model_name")
+	// Get optional agent_name and reasoning_model_name
+	agentName, _ := request.RequireString("agent_name")
+	reasoningModelName, _ := request.RequireString("reasoning_model_name")
 
 	// Create RPC request
 	req := &agentassistproto.AskQuestionRequest{
 		ID:        generateRequestID(),
 		UserToken: config.AgentAssistantServerToken,
 		Request: &agentassistproto.McpAskQuestionRequest{
-			ProjectDirectory: projectDirectory,
-			Question:         question,
-			Timeout:          int32(timeout),
-			ModelName:        modelName,
+			ProjectDirectory:   projectDirectory,
+			Question:           question,
+			Timeout:            int32(timeout),
+			AgentName:          agentName,
+			ReasoningModelName: reasoningModelName,
 		},
 	}
 
@@ -264,18 +279,20 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 		timeout = 3600 // Default timeout (1 hour)
 	}
 
-	// Get optional model_name
-	modelName, _ := request.RequireString("model_name")
+	// Get optional agent_name and reasoning_model_name
+	agentName, _ := request.RequireString("agent_name")
+	reasoningModelName, _ := request.RequireString("reasoning_model_name")
 
 	// Create RPC request
 	req := &agentassistproto.WorkReportRequest{
 		ID:        generateRequestID(),
 		UserToken: config.AgentAssistantServerToken,
 		Request: &agentassistproto.McpWorkReportRequest{
-			ProjectDirectory: projectDirectory,
-			Summary:          summary,
-			Timeout:          int32(timeout),
-			ModelName:        modelName,
+			ProjectDirectory:   projectDirectory,
+			Summary:            summary,
+			Timeout:            int32(timeout),
+			AgentName:          agentName,
+			ReasoningModelName: reasoningModelName,
 		},
 	}
 

@@ -38,7 +38,8 @@ export interface ChatMessage {
   repliedAt?: Date;
   repliedByCurrentUser?: boolean;
   repliedByNickname?: string;
-  modelName?: string;
+  agentName?: string;
+  reasoningModelName?: string;
 }
 
 export const useChatStore = defineStore('chat', () => {
@@ -177,7 +178,8 @@ export const useChatStore = defineStore('chat', () => {
       isAnswered: false,
       originalRequest: request,
       timeout: request.Request?.Timeout,
-      ...(request.Request?.ModelName ? { modelName: request.Request.ModelName } : {})
+      ...(request.Request?.AgentName ? { agentName: request.Request.AgentName } : {}),
+      ...(request.Request?.ReasoningModelName ? { reasoningModelName: request.Request.ReasoningModelName } : {})
     };
 
     messages.value.push(chatMessage);
@@ -195,7 +197,8 @@ export const useChatStore = defineStore('chat', () => {
       isAnswered: false,
       originalRequest: request,
       timeout: request.Request?.Timeout,
-      ...(request.Request?.ModelName ? { modelName: request.Request.ModelName } : {})
+      ...(request.Request?.AgentName ? { agentName: request.Request.AgentName } : {}),
+      ...(request.Request?.ReasoningModelName ? { reasoningModelName: request.Request.ReasoningModelName } : {})
     };
 
     messages.value.push(chatMessage);
