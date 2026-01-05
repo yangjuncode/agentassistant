@@ -133,7 +133,7 @@ Returns:
 		//reasoning_model_name
 		mcp.WithString("reasoning_model_name",
 			mcp.Required(),
-			mcp.Description("The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)"),
+			mcp.Description("The specific identifier of the LLM/inference model being used (e.g., 'gpt-4o', 'claude-3-5-sonnet', 'gemini-1.5-pro'). Do NOT use generic agent names like 'cascade' or 'windsurf'."),
 		),
 	)
 
@@ -176,7 +176,7 @@ Returns:
 		//reasoning_model_name
 		mcp.WithString("reasoning_model_name",
 			mcp.Required(),
-			mcp.Description("The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)"),
+			mcp.Description("The specific identifier of the LLM/inference model being used (e.g., 'gpt-4o', 'claude-3-5-sonnet', 'gemini-1.5-pro'). Do NOT use generic agent names like 'cascade' or 'windsurf'."),
 		),
 	)
 
