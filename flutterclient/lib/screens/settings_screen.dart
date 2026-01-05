@@ -5,8 +5,11 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../providers/chat_provider.dart';
+import '../models/server_config.dart';
+
 import '../config/app_config.dart';
 import '../widgets/settings/nickname_settings.dart';
+import '../widgets/server_status_icon.dart';
 import '../widgets/settings/language_settings.dart';
 import 'login_screen.dart';
 
@@ -99,6 +102,85 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Future<void> _showAddEditServerDialog(ChatProvider chatProvider,
+      {ServerConfig? existing}) async {
+    final nameController = TextEditingController(text: existing?.name ?? '');
+    final urlController = TextEditingController(text: existing?.url ?? '');
+    bool enabled = existing?.isEnabled ?? true;
+
+    await showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(existing == null ? 'Add Server' : 'Edit Server'),
+              content: SizedBox(
+                width: 520,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Alias (optional)',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: urlController,
+                      decoration: const InputDecoration(
+                        labelText: 'WebSocket URL',
+                        hintText: 'ws://host:port/ws',
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SwitchListTile(
+                      value: enabled,
+                      onChanged: (v) => setState(() => enabled = v),
+                      title: const Text('Enabled'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final url = urlController.text.trim();
+                    if (!url.startsWith('ws://') && !url.startsWith('wss://')) {
+                      return;
+                    }
+                    final cfg = (existing ??
+                            ServerConfig(
+                              name: '',
+                              url: '',
+                              isEnabled: true,
+                            ))
+                        .copyWith(
+                      name: nameController.text,
+                      url: url,
+                      isEnabled: enabled,
+                    );
+                    await chatProvider.upsertServerConfig(cfg);
+                    if (mounted) Navigator.of(context).pop();
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    nameController.dispose();
+    urlController.dispose();
+  }
+
   /// Show clear messages confirmation dialog
   void _showClearMessagesDialog() {
     final l10n = AppLocalizations.of(context)!;
@@ -167,11 +249,64 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.settings),
+        actions: [
+          const ServerStatusIcon(),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
           return ListView(
             children: [
+              _buildSectionHeader('Servers'),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Column(
+                  children: [
+                    for (final server in chatProvider.serverConfigs) ...[
+                      ListTile(
+                        leading: const Icon(Icons.dns),
+                        title: Text(server.displayName),
+                        subtitle: Text(server.url),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Switch(
+                              value: server.isEnabled,
+                              onChanged: (value) {
+                                chatProvider.upsertServerConfig(
+                                    server.copyWith(isEnabled: value));
+                              },
+                            ),
+                            IconButton(
+                              tooltip: 'Edit',
+                              onPressed: () => _showAddEditServerDialog(
+                                  chatProvider,
+                                  existing: server),
+                              icon: const Icon(Icons.edit),
+                            ),
+                            IconButton(
+                              tooltip: 'Delete',
+                              onPressed: () async {
+                                await chatProvider
+                                    .deleteServerConfig(server.id);
+                              },
+                              icon: const Icon(Icons.delete_outline),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 1),
+                    ],
+                    ListTile(
+                      leading: const Icon(Icons.add),
+                      title: const Text('Add server'),
+                      onTap: () => _showAddEditServerDialog(chatProvider),
+                    ),
+                  ],
+                ),
+              ),
+
               // Connection section
               _buildSectionHeader(l10n.connection),
               Card(

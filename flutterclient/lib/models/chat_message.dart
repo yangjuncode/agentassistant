@@ -6,6 +6,8 @@ import '../proto/agentassist.pb.dart';
 class ChatMessage {
   final String id;
   final String requestId;
+  final String? serverId;
+  final String? serverName;
   final MessageType type;
   final MessageStatus status;
   final DateTime timestamp;
@@ -25,6 +27,8 @@ class ChatMessage {
   ChatMessage({
     String? id,
     required this.requestId,
+    this.serverId,
+    this.serverName,
     required this.type,
     this.status = MessageStatus.pending,
     DateTime? timestamp,
@@ -44,9 +48,15 @@ class ChatMessage {
         timestamp = timestamp ?? DateTime.now();
 
   /// Create from AskQuestionRequest
-  factory ChatMessage.fromAskQuestionRequest(AskQuestionRequest request) {
+  factory ChatMessage.fromAskQuestionRequest(
+    AskQuestionRequest request, {
+    String? serverId,
+    String? serverName,
+  }) {
     return ChatMessage(
       requestId: request.iD,
+      serverId: serverId,
+      serverName: serverName,
       type: MessageType.question,
       question: request.request.question,
       projectDirectory: request.request.projectDirectory,
@@ -60,9 +70,15 @@ class ChatMessage {
   }
 
   /// Create from WorkReportRequest
-  factory ChatMessage.fromWorkReportRequest(WorkReportRequest request) {
+  factory ChatMessage.fromWorkReportRequest(
+    WorkReportRequest request, {
+    String? serverId,
+    String? serverName,
+  }) {
     return ChatMessage(
       requestId: request.iD,
+      serverId: serverId,
+      serverName: serverName,
       type: MessageType.task,
       summary: request.request.summary,
       projectDirectory: request.request.projectDirectory,
@@ -79,6 +95,8 @@ class ChatMessage {
   ChatMessage createReply(String replyText, List<ContentItem> contents) {
     return ChatMessage(
       requestId: requestId,
+      serverId: serverId,
+      serverName: serverName,
       type: MessageType.reply,
       status: MessageStatus.replied,
       replyText: replyText,
@@ -96,10 +114,14 @@ class ChatMessage {
     bool? isError,
     bool? repliedByCurrentUser,
     String? repliedByNickname,
+    String? serverId,
+    String? serverName,
   }) {
     return ChatMessage(
       id: id,
       requestId: requestId,
+      serverId: serverId ?? this.serverId,
+      serverName: serverName ?? this.serverName,
       type: type,
       status: status ?? this.status,
       timestamp: timestamp,
@@ -123,6 +145,8 @@ class ChatMessage {
     return {
       'id': id,
       'requestId': requestId,
+      'serverId': serverId,
+      'serverName': serverName,
       'type': type.index,
       'status': status.index,
       'timestamp': timestamp.toIso8601String(),
@@ -146,6 +170,8 @@ class ChatMessage {
     return ChatMessage(
       id: json['id'],
       requestId: json['requestId'],
+      serverId: json['serverId'],
+      serverName: json['serverName'],
       type: MessageType.values[json['type']],
       status: MessageStatus.values[json['status']],
       timestamp: DateTime.parse(json['timestamp']),
@@ -182,6 +208,11 @@ class ChatMessage {
         baseTitle = 'Reply';
         break;
     }
+
+    if (serverName != null && serverName!.trim().isNotEmpty) {
+      baseTitle = '$baseTitle [$serverName]';
+    }
+
     // Build the "from" suffix with model info
     if (agentName != null && agentName!.isNotEmpty) {
       if (reasoningModelName != null && reasoningModelName!.isNotEmpty) {

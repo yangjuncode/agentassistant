@@ -6,13 +6,19 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutterclient/main.dart';
+import 'package:agentassistant/main.dart';
 
 void main() {
   testWidgets('App starts with login screen', (WidgetTester tester) async {
+    SharedPreferences.setMockInitialValues({});
+
     // Build our app and trigger a frame.
     await tester.pumpWidget(const AgentAssistantApp());
+
+    // Let splash screen complete navigation.
+    await tester.pumpAndSettle(const Duration(seconds: 3));
 
     // Verify that we start with the login screen
     expect(find.text('Agent Assistant'), findsOneWidget);

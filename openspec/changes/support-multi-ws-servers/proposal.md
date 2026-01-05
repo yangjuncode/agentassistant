@@ -27,7 +27,8 @@ The Flutter client currently supports only one WebSocket server connection. User
     - Otherwise default to `host:port` derived from the server URL
   - Online user list shows server origin via a tip/tag for each user.
   - The chat page title MUST include server origin as `nickname@server`.
-  - In the Settings left navigation, add an indicator icon (similar to unread badge) showing how many servers are currently connected. Clicking it opens a popup listing all server connection statuses.
+  - In the Settings screen (AppBar actions), add an indicator icon showing how many servers are currently connected. Clicking it opens a popup listing all server connection statuses.
+  - This status icon is ALSO displayed in the Main Chat Screen (AppBar actions) to provide immediate feedback on connection state.
 
 ## Impact
 

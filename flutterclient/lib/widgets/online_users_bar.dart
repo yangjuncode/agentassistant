@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:fixnum/fixnum.dart';
 
 import '../providers/chat_provider.dart';
-import '../proto/agentassist.pb.dart' as pb;
+import '../models/display_online_user.dart';
 
 /// Widget that displays online users in a horizontal bar below the app bar
 class OnlineUsersBar extends StatelessWidget {
@@ -18,11 +18,12 @@ class OnlineUsersBar extends StatelessWidget {
     return Consumer<ChatProvider>(
       builder: (context, chatProvider, child) {
         final allOnlineUsers = chatProvider.onlineUsers;
-        final currentClientId = chatProvider.currentClientId;
 
-        // Filter out current user
+        // Filter out current user per server
         final onlineUsers = allOnlineUsers
-            .where((user) => user.clientId != currentClientId)
+            .where((u) =>
+                u.user.clientId !=
+                chatProvider.currentClientIdForServer(u.serverId))
             .toList();
 
         if (!chatProvider.isConnected || onlineUsers.isEmpty) {
@@ -65,7 +66,7 @@ class OnlineUsersBar extends StatelessWidget {
                   ),
                   const Spacer(),
                   IconButton(
-                    onPressed: () => chatProvider.requestOnlineUsers(),
+                    onPressed: () => chatProvider.requestOnlineUsersAll(),
                     icon: const Icon(Icons.refresh),
                     iconSize: 16,
                     tooltip: '刷新在线用户',
@@ -93,70 +94,73 @@ class OnlineUsersBar extends StatelessWidget {
   }
 
   Widget _buildUserChip(
-      BuildContext context, ChatProvider chatProvider, pb.OnlineUser user) {
-    final isActive = chatProvider.activeChatUserId == user.clientId;
-    final hasUnreadMessages =
-        chatProvider.getChatMessages(user.clientId).isNotEmpty;
+      BuildContext context, ChatProvider chatProvider, DisplayOnlineUser user) {
+    final isActive = chatProvider.activeChatUserKey == user.key;
+    final hasUnreadMessages = chatProvider
+        .getChatMessages(user.serverId, user.user.clientId)
+        .isNotEmpty;
 
-    return InkWell(
-      onTap: () => _showChatDialog(context, chatProvider, user),
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isActive
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
+    return Tooltip(
+      message: user.serverName,
+      child: InkWell(
+        onTap: () => _showChatDialog(context, chatProvider, user),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
             color: isActive
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outline.withOpacity(0.3),
-            width: isActive ? 2 : 1,
+                ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+                : Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isActive
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outline.withOpacity(0.3),
+              width: isActive ? 2 : 1,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 8,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                shape: BoxShape.circle,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              user.nickname.isNotEmpty
-                  ? user.nickname
-                  : 'User_${user.clientId.substring(0, 8)}',
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: isActive
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurface,
-                    fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                  ),
-            ),
-            if (hasUnreadMessages) ...[
-              const SizedBox(width: 4),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Container(
-                width: 6,
-                height: 6,
+                width: 8,
+                height: 8,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.error,
+                  color: Theme.of(context).colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
               ),
+              const SizedBox(width: 8),
+              Text(
+                user.displayNickname,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: isActive
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface,
+                      fontWeight:
+                          isActive ? FontWeight.w600 : FontWeight.normal,
+                    ),
+              ),
+              if (hasUnreadMessages) ...[
+                const SizedBox(width: 4),
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.error,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
   void _showChatDialog(
-      BuildContext context, ChatProvider chatProvider, pb.OnlineUser user) {
+      BuildContext context, ChatProvider chatProvider, DisplayOnlineUser user) {
     showDialog(
       context: context,
       builder: (context) => _ChatDialog(
@@ -169,7 +173,7 @@ class OnlineUsersBar extends StatelessWidget {
 
 class _ChatDialog extends StatefulWidget {
   final ChatProvider chatProvider;
-  final pb.OnlineUser user;
+  final DisplayOnlineUser user;
 
   const _ChatDialog({
     required this.chatProvider,
@@ -307,9 +311,10 @@ class _ChatDialogState extends State<_ChatDialog> {
           if (newText.isNotEmpty) {
             final messageToSend = newText.endsWith(',') ? newText : '$newText,';
             _logger.i(
-                'Auto-sending message: "$messageToSend" to ${widget.user.clientId}');
-            widget.chatProvider
-                .sendChatMessageSilent(widget.user.clientId, messageToSend);
+                'Auto-sending message: "$messageToSend" to ${widget.user.user.clientId}');
+            widget.chatProvider.sendChatMessageSilent(
+                widget.user.user.clientId, messageToSend,
+                serverId: widget.user.serverId);
             // Update the length of sent text, but don't clear the controller
             _lastSentTextLength = content.length;
             _logger.d(
@@ -333,8 +338,9 @@ class _ChatDialogState extends State<_ChatDialog> {
           return;
         }
         final messageToSend = newText.endsWith(',') ? newText : '$newText,';
-        widget.chatProvider
-            .sendChatMessage(widget.user.clientId, messageToSend);
+        widget.chatProvider.sendChatMessage(
+            widget.user.user.clientId, messageToSend,
+            serverId: widget.user.serverId);
         _messageController.clear();
         _lastSentTextLength = 0; // Reset tracker
         _logger.d('Manual send: sent only new text and cleared input');
@@ -378,9 +384,7 @@ class _ChatDialogState extends State<_ChatDialog> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              widget.user.nickname.isNotEmpty
-                  ? widget.user.nickname
-                  : 'User_${widget.user.clientId.substring(0, 8)}',
+              widget.user.displayTitle,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -396,7 +400,8 @@ class _ChatDialogState extends State<_ChatDialog> {
       final messagesSection = Expanded(
         child: Consumer<ChatProvider>(
           builder: (context, chatProvider, child) {
-            final messages = chatProvider.getChatMessages(widget.user.clientId);
+            final messages = chatProvider.getChatMessages(
+                widget.user.serverId, widget.user.user.clientId);
             if (messages.isEmpty) {
               return const Center(child: Text('还没有聊天消息'));
             }
@@ -406,7 +411,8 @@ class _ChatDialogState extends State<_ChatDialog> {
               itemBuilder: (context, index) {
                 final message = messages[index];
                 final isFromMe = message.senderClientId ==
-                    widget.chatProvider.currentClientId;
+                    widget.chatProvider
+                        .currentClientIdForServer(widget.user.serverId);
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(

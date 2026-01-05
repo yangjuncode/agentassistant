@@ -56,7 +56,7 @@ Authentication token remains a single global setting (legacy `token` stays as-is
 - **Message List**: In the message title/header, display the `serverName` (alias or default host:port).
 - **Online Users**: Each entry shows server origin via a tag/tip.
 - **Chat Title**: The chat page title shows `UserNickname@ServerName`.
-- **Settings Status Entry**: Add a left-side icon in Settings to show number of connected servers; clicking opens a popup listing all servers and their connection statuses.
+- **Settings & Main Chat Status**: Add an indicator icon in the AppBar actions (right side) to show number of connected servers (green badge); clicking opens a popup listing all servers and their connection statuses.
 - **Input Handling**:
   - When replying to a message (Task/Question), the `ChatMessage` object already contains the `serverId`. The provider will look up the correct `WebSocketService` using `serverId` to send the reply.
   - When initiating a NEW chat (P2P), the user must select *which server* the target user belongs to (implicit if selecting from the Online User list).

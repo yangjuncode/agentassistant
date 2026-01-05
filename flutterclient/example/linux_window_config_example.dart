@@ -1,40 +1,40 @@
 import 'package:flutter/material.dart';
-import 'package:flutterclient/services/window_service.dart';
+import 'package:agentassistant/services/window_service.dart';
 
 /// Example showing how to configure Linux X11 window behavior
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize window service
   await WindowService().initialize();
-  
+
   // Configure Linux X11 behavior for different scenarios
   await configureForDifferentScenarios();
-  
+
   runApp(const LinuxWindowConfigExample());
 }
 
 /// Configure window behavior for different use cases
 Future<void> configureForDifferentScenarios() async {
   final windowService = WindowService();
-  
+
   // Scenario 1: Conservative mode (less intrusive)
   print('Configuring conservative mode...');
   windowService.configureLinuxBehavior(
     alwaysOnTopDuration: const Duration(seconds: 2),
     useAggressiveMode: false,
   );
-  
+
   // Wait a bit
   await Future.delayed(const Duration(seconds: 1));
-  
+
   // Scenario 2: Aggressive mode (ensures visibility)
   print('Configuring aggressive mode...');
   windowService.configureLinuxBehavior(
     alwaysOnTopDuration: const Duration(seconds: 5),
     useAggressiveMode: true,
   );
-  
+
   // Scenario 3: Very persistent mode (for critical notifications)
   print('Configuring persistent mode...');
   windowService.configureLinuxBehavior(
@@ -47,7 +47,8 @@ class LinuxWindowConfigExample extends StatefulWidget {
   const LinuxWindowConfigExample({super.key});
 
   @override
-  State<LinuxWindowConfigExample> createState() => _LinuxWindowConfigExampleState();
+  State<LinuxWindowConfigExample> createState() =>
+      _LinuxWindowConfigExampleState();
 }
 
 class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
@@ -78,7 +79,7 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              
+
               // Always on top duration configuration
               Card(
                 child: Padding(
@@ -88,7 +89,8 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                     children: [
                       const Text(
                         'Always On Top Duration',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 10),
                       Text('Current: ${_currentDuration.inSeconds} seconds'),
@@ -109,9 +111,9 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Aggressive mode toggle
               Card(
                 child: Padding(
@@ -121,7 +123,8 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                     children: [
                       const Text(
                         'Aggressive Mode',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 10),
                       const Text(
@@ -130,9 +133,9 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                       const SizedBox(height: 10),
                       SwitchListTile(
                         title: const Text('Enable Aggressive Mode'),
-                        subtitle: Text(_aggressiveMode 
-                          ? 'Multiple focus attempts, longer delays' 
-                          : 'Standard window operations'),
+                        subtitle: Text(_aggressiveMode
+                            ? 'Multiple focus attempts, longer delays'
+                            : 'Standard window operations'),
                         value: _aggressiveMode,
                         onChanged: (value) {
                           setState(() {
@@ -145,9 +148,9 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Test button
               Center(
                 child: ElevatedButton.icon(
@@ -155,13 +158,14 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                   icon: const Icon(Icons.launch),
                   label: const Text('Test Window Bring to Front'),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 20),
-              
+
               // Instructions
               const Card(
                 child: Padding(
@@ -171,7 +175,8 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
                     children: [
                       Text(
                         'Test Instructions',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600),
                       ),
                       SizedBox(height: 10),
                       Text(
@@ -201,18 +206,16 @@ class _LinuxWindowConfigExampleState extends State<LinuxWindowConfigExample> {
   Future<void> _testWindowBringToFront() async {
     // Simulate a delay as if this was triggered by a message
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     try {
       await _windowService.bringToFrontAndStay();
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Window bring to front triggered! '
-              'Duration: ${_currentDuration.inSeconds}s, '
-              'Aggressive: $_aggressiveMode'
-            ),
+            content: Text('Window bring to front triggered! '
+                'Duration: ${_currentDuration.inSeconds}s, '
+                'Aggressive: $_aggressiveMode'),
             duration: const Duration(seconds: 2),
           ),
         );

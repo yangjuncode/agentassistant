@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:logger/logger.dart';
@@ -6,6 +7,14 @@ import 'package:logger/logger.dart';
 import '../proto/agentassist.pb.dart';
 import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
+
+enum WebSocketServiceStatus {
+  disconnected,
+  connecting,
+  connected,
+  reconnecting,
+  error,
+}
 
 /// WebSocket service for Agent Assistant communication
 class WebSocketService {
@@ -31,6 +40,8 @@ class WebSocketService {
       StreamController<bool>.broadcast();
   final StreamController<String> _errorController =
       StreamController<String>.broadcast();
+  final StreamController<WebSocketServiceStatus> _statusController =
+      StreamController<WebSocketServiceStatus>.broadcast();
 
   // Pending validity check requests
   final Map<String, Completer<Map<String, bool>>> _pendingValidityChecks = {};
@@ -39,6 +50,7 @@ class WebSocketService {
   Stream<WebsocketMessage> get messageStream => _messageController.stream;
   Stream<bool> get connectionStream => _connectionController.stream;
   Stream<String> get errorStream => _errorController.stream;
+  Stream<WebSocketServiceStatus> get statusStream => _statusController.stream;
 
   /// Check if WebSocket is connected
   bool get isConnected => _channel != null && !_isConnecting;
@@ -58,6 +70,7 @@ class WebSocketService {
     _nickname = nickname;
     _isConnecting = true;
     _isManuallyDisconnected = false;
+    _statusController.add(WebSocketServiceStatus.connecting);
 
     try {
       _logger.i('Connecting to WebSocket: $url');
@@ -80,6 +93,7 @@ class WebSocketService {
       _isConnecting = false;
       _reconnectAttempts = 0;
       _connectionController.add(true);
+      _statusController.add(WebSocketServiceStatus.connected);
 
       _logger.i('WebSocket connected successfully');
     } catch (error) {
@@ -87,6 +101,7 @@ class WebSocketService {
       _logger.e('WebSocket connection failed: $error');
       _errorController.add('Connection failed: $error');
       _connectionController.add(false);
+      _statusController.add(WebSocketServiceStatus.error);
 
       if (!_isManuallyDisconnected) {
         _scheduleReconnect();
@@ -99,6 +114,7 @@ class WebSocketService {
     _isManuallyDisconnected = true;
     _cleanup();
     _connectionController.add(false);
+    _statusController.add(WebSocketServiceStatus.disconnected);
     _logger.i('WebSocket disconnected manually');
   }
 
@@ -308,6 +324,7 @@ class WebSocketService {
     _logger.e('WebSocket error: $error');
     _errorController.add('Connection error: $error');
     _connectionController.add(false);
+    _statusController.add(WebSocketServiceStatus.error);
 
     // Clean up current connection resources
     _isConnecting = false;
@@ -321,6 +338,7 @@ class WebSocketService {
   void _handleDisconnection() {
     _logger.w('WebSocket disconnected');
     _connectionController.add(false);
+    _statusController.add(WebSocketServiceStatus.disconnected);
 
     // Clean up current connection resources
     _isConnecting = false;
@@ -332,22 +350,19 @@ class WebSocketService {
 
   /// Schedule reconnection attempt
   void _scheduleReconnect() {
-    if (_reconnectAttempts >= AppConfig.maxReconnectAttempts) {
-      _logger.e('Max reconnect attempts reached');
-      _errorController.add('Connection failed: maximum retry attempts reached');
-      return;
-    }
-
     // Cancel any existing reconnect timer
     _reconnectTimer?.cancel();
 
     _reconnectAttempts++;
-    final delay = Duration(
-      milliseconds: AppConfig.reconnectDelayMs * _reconnectAttempts,
-    );
+    final backoffMs =
+        AppConfig.reconnectDelayMs * pow(2, _reconnectAttempts - 1);
+    final delayMs = min(300000, backoffMs.toInt());
+    final delay = Duration(milliseconds: delayMs);
 
     _logger.i(
         'Scheduling reconnect attempt $_reconnectAttempts in ${delay.inSeconds}s');
+
+    _statusController.add(WebSocketServiceStatus.reconnecting);
 
     _reconnectTimer = Timer(delay, () {
       if (!_isManuallyDisconnected && _url != null && _token != null) {
@@ -410,5 +425,6 @@ class WebSocketService {
     _messageController.close();
     _connectionController.close();
     _errorController.close();
+    _statusController.close();
   }
 }

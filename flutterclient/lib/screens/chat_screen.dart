@@ -11,6 +11,7 @@ import '../widgets/pending_actions_indicator.dart';
 import '../widgets/online_users_bar.dart';
 import '../config/app_config.dart';
 import 'settings_screen.dart';
+import '../widgets/server_status_icon.dart';
 
 /// Main chat screen for Agent Assistant
 class ChatScreen extends StatefulWidget {
@@ -250,6 +251,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: _showSettings,
             tooltip: l10n.settings,
           ),
+          const ServerStatusIcon(),
         ],
       ),
       body: Consumer<ChatProvider>(

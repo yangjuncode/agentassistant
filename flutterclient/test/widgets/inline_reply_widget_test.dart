@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutterclient/widgets/inline_reply_widget.dart';
-import 'package:flutterclient/models/chat_message.dart';
-import 'package:flutterclient/providers/chat_provider.dart';
-import 'package:flutterclient/constants/websocket_commands.dart';
+import 'package:agentassistant/widgets/inline_reply_widget.dart';
+import 'package:agentassistant/models/chat_message.dart';
+import 'package:agentassistant/providers/chat_provider.dart';
+import 'package:agentassistant/constants/websocket_commands.dart';
 
 void main() {
   group('InlineReplyWidget Tests', () {
@@ -13,6 +14,7 @@ void main() {
     late ChatMessage testMessage;
 
     setUp(() {
+      SharedPreferences.setMockInitialValues({});
       mockChatProvider = ChatProvider();
       testMessage = ChatMessage(
         requestId: 'test-request-id',

@@ -19,6 +19,7 @@ class AppConfig {
   // Storage keys
   static const String tokenStorageKey = 'user_token';
   static const String serverUrlStorageKey = 'server_url';
+  static const String serverConfigsStorageKey = 'server_configs';
   static const String settingsStorageKey = 'app_settings';
 
   // Default values
