@@ -278,7 +278,7 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Build messages list widget
   Widget _buildMessagesList(BuildContext context, ChatProvider chatProvider) {
     final l10n = AppLocalizations.of(context)!;
-    if (chatProvider.isConnecting) {
+    if (chatProvider.isConnecting && !chatProvider.isConnected) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
