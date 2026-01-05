@@ -72,9 +72,7 @@ class ServerStatusIcon extends StatelessWidget {
                 return ListTile(
                   title: Text(cfg.displayName),
                   subtitle: Text(subtitle),
-                  trailing: cfg.isEnabled
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : const Icon(Icons.pause_circle, color: Colors.grey),
+                  trailing: _buildStatusIcon(cfg.isEnabled, status),
                 );
               },
             ),
@@ -88,6 +86,28 @@ class ServerStatusIcon extends StatelessWidget {
         );
       },
     );
+  }
+
+  Widget _buildStatusIcon(bool isEnabled, WebSocketServiceStatus? status) {
+    if (!isEnabled) {
+      return const Icon(Icons.pause_circle, color: Colors.grey);
+    }
+    switch (status) {
+      case WebSocketServiceStatus.connected:
+        return const Icon(Icons.check_circle, color: Colors.green);
+      case WebSocketServiceStatus.connecting:
+      case WebSocketServiceStatus.reconnecting:
+        return const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        );
+      case WebSocketServiceStatus.error:
+        return const Icon(Icons.error, color: Colors.red);
+      case WebSocketServiceStatus.disconnected:
+      default:
+        return const Icon(Icons.cloud_off, color: Colors.grey);
+    }
   }
 
   String _statusLabel(WebSocketServiceStatus? status) {
