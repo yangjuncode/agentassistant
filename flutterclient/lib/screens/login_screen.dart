@@ -56,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       setState(() {});
     } catch (error) {
-      debugPrint('Failed to load saved settings: $error');
+      // debugPrint('Failed to load saved settings: $error');
     }
   }
 
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await prefs.setString(AppConfig.tokenStorageKey, token);
       await prefs.setString(AppConfig.serverUrlStorageKey, serverUrl);
     } catch (error) {
-      debugPrint('Failed to save settings: $error');
+      // debugPrint('Failed to save settings: $error');
     }
   }
 

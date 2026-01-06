@@ -18,7 +18,7 @@ enum WebSocketServiceStatus {
 
 /// WebSocket service for Agent Assistant communication
 class WebSocketService {
-  static final Logger _logger = Logger();
+  static final Logger _logger = Logger(level: Level.nothing);
 
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
@@ -33,7 +33,6 @@ class WebSocketService {
   bool _isManuallyDisconnected = false;
   bool _isConnecting = false;
   WebSocketServiceStatus _currentStatus = WebSocketServiceStatus.disconnected;
-
 
   // Stream controllers
   final StreamController<WebsocketMessage> _messageController =
@@ -57,7 +56,6 @@ class WebSocketService {
   /// Check if WebSocket is connected
   bool get isConnected => _currentStatus == WebSocketServiceStatus.connected;
 
-
   /// Get current client ID
   String? get clientId => _clientId;
 
@@ -75,7 +73,6 @@ class WebSocketService {
     _isManuallyDisconnected = false;
     _currentStatus = WebSocketServiceStatus.connecting;
     _statusController.add(WebSocketServiceStatus.connecting);
-
 
     try {
       _logger.i('Connecting to WebSocket: $url');
@@ -101,7 +98,6 @@ class WebSocketService {
       _currentStatus = WebSocketServiceStatus.connected;
       _statusController.add(WebSocketServiceStatus.connected);
 
-
       _logger.i('WebSocket connected successfully');
     } catch (error) {
       _isConnecting = false;
@@ -110,7 +106,6 @@ class WebSocketService {
       _connectionController.add(false);
       _currentStatus = WebSocketServiceStatus.error;
       _statusController.add(WebSocketServiceStatus.error);
-
 
       if (!_isManuallyDisconnected) {
         _scheduleReconnect();
@@ -336,7 +331,6 @@ class WebSocketService {
     _currentStatus = WebSocketServiceStatus.error;
     _statusController.add(WebSocketServiceStatus.error);
 
-
     // Clean up current connection resources
     _isConnecting = false;
 
@@ -351,7 +345,6 @@ class WebSocketService {
     _connectionController.add(false);
     _currentStatus = WebSocketServiceStatus.disconnected;
     _statusController.add(WebSocketServiceStatus.disconnected);
-
 
     // Clean up current connection resources
     _isConnecting = false;
@@ -377,7 +370,6 @@ class WebSocketService {
 
     _currentStatus = WebSocketServiceStatus.reconnecting;
     _statusController.add(WebSocketServiceStatus.reconnecting);
-
 
     _reconnectTimer = Timer(delay, () {
       if (!_isManuallyDisconnected && _url != null && _token != null) {

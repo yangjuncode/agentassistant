@@ -86,7 +86,7 @@ class AttachmentService {
     try {
       final file = File(filePath);
       if (!await file.exists()) {
-        debugPrint('File does not exist: $filePath');
+        // debugPrint('File does not exist: $filePath');
         return null;
       }
 
@@ -109,7 +109,7 @@ class AttachmentService {
         thumbnailData: isImage ? bytes : null,
       );
     } catch (e) {
-      debugPrint('Error loading file: $e');
+      // debugPrint('Error loading file: $e');
       return null;
     }
   }
@@ -136,7 +136,7 @@ class AttachmentService {
         thumbnailData: isImage ? bytes : null,
       );
     } catch (e) {
-      debugPrint('Error loading from bytes: $e');
+      // debugPrint('Error loading from bytes: $e');
       return null;
     }
   }
@@ -155,7 +155,7 @@ class AttachmentService {
       }
 
       if (bytes == null) {
-        debugPrint('Could not read file bytes');
+        // debugPrint('Could not read file bytes');
         return null;
       }
 
@@ -178,7 +178,7 @@ class AttachmentService {
         thumbnailData: isImage ? bytes : null,
       );
     } catch (e) {
-      debugPrint('Error loading platform file: $e');
+      // debugPrint('Error loading platform file: $e');
       return null;
     }
   }
@@ -203,10 +203,10 @@ class AttachmentService {
         return await loadFromFile(filePath);
       }
 
-      debugPrint('No supported content found in clipboard');
+      // debugPrint('No supported content found in clipboard');
       return null;
     } catch (e) {
-      debugPrint('Error reading clipboard: $e');
+      // debugPrint('Error reading clipboard: $e');
       return null;
     }
   }
@@ -235,7 +235,7 @@ class AttachmentService {
 
       return attachments;
     } catch (e) {
-      debugPrint('Error picking files: $e');
+      // debugPrint('Error picking files: $e');
       return [];
     }
   }
@@ -264,7 +264,7 @@ class AttachmentService {
 
       return attachments;
     } catch (e) {
-      debugPrint('Error picking images: $e');
+      // debugPrint('Error picking images: $e');
       return [];
     }
   }

@@ -19,7 +19,7 @@ import '../proto/agentassist.pb.dart' as pb;
 
 /// Chat provider for managing chat state and WebSocket communication
 class ChatProvider extends ChangeNotifier {
-  static final Logger _logger = Logger();
+  static final Logger _logger = Logger(level: Level.nothing);
 
   final ServerStorageService _serverStorageService = ServerStorageService();
   final Map<String, WebSocketService> _services = {};
