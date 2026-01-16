@@ -606,6 +606,7 @@ class AskQuestionRequest extends $pb.GeneratedMessage {
     $core.String? iD,
     $core.String? userToken,
     McpAskQuestionRequest? request,
+    $fixnum.Int64? timestamp,
   }) {
     final $result = create();
     if (iD != null) {
@@ -617,6 +618,9 @@ class AskQuestionRequest extends $pb.GeneratedMessage {
     if (request != null) {
       $result.request = request;
     }
+    if (timestamp != null) {
+      $result.timestamp = timestamp;
+    }
     return $result;
   }
   AskQuestionRequest._() : super();
@@ -627,6 +631,7 @@ class AskQuestionRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'ID', protoName: 'ID')
     ..aOS(2, _omitFieldNames ? '' : 'UserToken', protoName: 'UserToken')
     ..aOM<McpAskQuestionRequest>(3, _omitFieldNames ? '' : 'Request', protoName: 'Request', subBuilder: McpAskQuestionRequest.create)
+    ..aInt64(4, _omitFieldNames ? '' : 'Timestamp', protoName: 'Timestamp')
     ..hasRequiredFields = false
   ;
 
@@ -682,6 +687,16 @@ class AskQuestionRequest extends $pb.GeneratedMessage {
   void clearRequest() => clearField(3);
   @$pb.TagNumber(3)
   McpAskQuestionRequest ensureRequest() => $_ensure(2);
+
+  /// timestamp (UTC)
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get timestamp => $_getI64(3);
+  @$pb.TagNumber(4)
+  set timestamp($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTimestamp() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTimestamp() => clearField(4);
 }
 
 class AskQuestionResponse extends $pb.GeneratedMessage {
@@ -881,6 +896,7 @@ class WorkReportRequest extends $pb.GeneratedMessage {
     $core.String? iD,
     $core.String? userToken,
     McpWorkReportRequest? request,
+    $fixnum.Int64? timestamp,
   }) {
     final $result = create();
     if (iD != null) {
@@ -892,6 +908,9 @@ class WorkReportRequest extends $pb.GeneratedMessage {
     if (request != null) {
       $result.request = request;
     }
+    if (timestamp != null) {
+      $result.timestamp = timestamp;
+    }
     return $result;
   }
   WorkReportRequest._() : super();
@@ -902,6 +921,7 @@ class WorkReportRequest extends $pb.GeneratedMessage {
     ..aOS(1, _omitFieldNames ? '' : 'ID', protoName: 'ID')
     ..aOS(2, _omitFieldNames ? '' : 'UserToken', protoName: 'UserToken')
     ..aOM<McpWorkReportRequest>(3, _omitFieldNames ? '' : 'Request', protoName: 'Request', subBuilder: McpWorkReportRequest.create)
+    ..aInt64(4, _omitFieldNames ? '' : 'Timestamp', protoName: 'Timestamp')
     ..hasRequiredFields = false
   ;
 
@@ -957,6 +977,16 @@ class WorkReportRequest extends $pb.GeneratedMessage {
   void clearRequest() => clearField(3);
   @$pb.TagNumber(3)
   McpWorkReportRequest ensureRequest() => $_ensure(2);
+
+  /// timestamp (UTC)
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get timestamp => $_getI64(3);
+  @$pb.TagNumber(4)
+  set timestamp($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTimestamp() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTimestamp() => clearField(4);
 }
 
 class WorkReportResponse extends $pb.GeneratedMessage {

@@ -60,6 +60,10 @@ func (s *AgentAssistService) AskQuestion(
 
 	// Create WebsocketMessage for web users
 	requestID := req.Msg.ID
+
+	// Set timestamp
+	req.Msg.Timestamp = time.Now().UnixMilli()
+
 	websocketMessage := &agentassistproto.WebsocketMessage{
 		Cmd:                "AskQuestion",
 		AskQuestionRequest: req.Msg,
@@ -181,6 +185,10 @@ func (s *AgentAssistService) WorkReport(
 
 	// Create WebsocketMessage for web users
 	requestID := req.Msg.ID
+
+	// Set timestamp
+	req.Msg.Timestamp = time.Now().UnixMilli()
+
 	websocketMessage := &agentassistproto.WebsocketMessage{
 		Cmd:               "WorkReport",
 		WorkReportRequest: req.Msg,
