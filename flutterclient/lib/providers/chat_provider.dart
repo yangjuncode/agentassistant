@@ -560,7 +560,7 @@ class ChatProvider extends ChangeNotifier {
           repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
-        notifyListeners();
+        _updatePendingState();
         _logger.i(
             'Updated message $requestId status to replied (by another user) with content: $replyText');
 
@@ -633,7 +633,7 @@ class ChatProvider extends ChangeNotifier {
           repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
-        notifyListeners();
+        _updatePendingState();
         _logger.i(
             'Updated message $requestId status to confirmed (by another user) with content: $replyText');
 
@@ -673,9 +673,9 @@ class ChatProvider extends ChangeNotifier {
         status: MessageStatus.cancelled,
       );
       _messages[messageIndex] = updatedMessage;
-      notifyListeners();
+
       _logger.d('Updated message $requestId status to cancelled');
-      _updateTrayPendingCount();
+      _updatePendingState();
     } else {
       _logger
           .w('Message with request ID $requestId not found for cancellation');
@@ -1030,6 +1030,15 @@ class ChatProvider extends ChangeNotifier {
   /// Bring window to front if needed (desktop only)
   Future<void> _bringWindowToFrontIfNeeded() async {
     final windowService = WindowService();
+
+    // Check if there are any pending items that actually need user attention
+    final hasPendingItems =
+        pendingQuestions.isNotEmpty || pendingTasks.isNotEmpty;
+
+    if (!hasPendingItems) {
+      _logger.d('No pending items, skipping bring window to front');
+      return;
+    }
 
     // Only proceed if running on desktop
     if (!windowService.isDesktop) {
