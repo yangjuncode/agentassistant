@@ -10,12 +10,20 @@
 
 #include "flutter/generated_plugin_registrant.h"
 
+#include <string.h>
+
 struct _MyApplication {
   GtkApplication parent_instance;
   char** dart_entrypoint_arguments;
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
+
+// Proactive exit handler to avoid Flutter engine cleanup crashes on Linux
+static gboolean window_delete_event_handler(GtkWidget* widget, GdkEvent* event, gpointer data) {
+  _exit(0);
+  return TRUE;
+}
 
 // Implements GApplication::activate.
 static void my_application_activate(GApplication* application) {
@@ -103,6 +111,11 @@ static void my_application_activate(GApplication* application) {
   fl_register_plugins(FL_PLUGIN_REGISTRY(view));
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
+
+  // Handle window closure proactively to ensure we exit cleanly without core dump.
+  // We use delete-event instead of destroy to exit BEFORE GTK starts tearing down
+  // the widget tree, which avoids the epoxy/OpenGL context crash.
+  g_signal_connect(window, "delete-event", G_CALLBACK(window_delete_event_handler), nullptr);
 }
 
 // Implements GApplication::local_command_line.

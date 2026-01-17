@@ -201,11 +201,11 @@ class TrayService with TrayListener {
   }
 
   void _exitApp() {
-    // Allow Flutter to handle shutdown
     _cancelBlink();
-    // On desktop, exiting via dart:io
+    // Use windowManager.close() to trigger the native window-close sequence,
+    // which we've hooked in C++ to exit cleanly without core dump.
     if (isDesktop) {
-      exit(0);
+      windowManager.close();
     }
   }
 }

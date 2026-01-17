@@ -77,6 +77,8 @@ message AskQuestionRequest {
   string UserToken = 2;
   // ai agent's question
   McpAskQuestionRequest Request = 3;
+  // timestamp (UTC)
+  int64 Timestamp = 4;
 }
 
 message AskQuestionResponse {
@@ -107,6 +109,8 @@ message WorkReportRequest {
   string UserToken = 2;
   // ai agent's work report summary
   McpWorkReportRequest Request = 3;
+  // timestamp (UTC)
+  int64 Timestamp = 4;
 }
 
 message WorkReportResponse {

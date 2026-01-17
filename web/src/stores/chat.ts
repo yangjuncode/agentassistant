@@ -171,7 +171,7 @@ export const useChatStore = defineStore('chat', () => {
     const chatMessage: ChatMessage = {
       id: request.ID,
       type: 'question',
-      timestamp: new Date(),
+      timestamp: request.Timestamp > 0n ? new Date(Number(request.Timestamp)) : new Date(),
       content: request.Request?.Question || '',
       projectDirectory: request.Request?.ProjectDirectory,
       isFromAgent: true,
@@ -190,7 +190,7 @@ export const useChatStore = defineStore('chat', () => {
     const chatMessage: ChatMessage = {
       id: request.ID,
       type: 'task',
-      timestamp: new Date(),
+      timestamp: request.Timestamp > 0n ? new Date(Number(request.Timestamp)) : new Date(),
       content: request.Request?.Summary || '',
       projectDirectory: request.Request?.ProjectDirectory,
       isFromAgent: true,

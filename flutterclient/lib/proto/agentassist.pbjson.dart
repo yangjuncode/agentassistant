@@ -128,6 +128,7 @@ const AskQuestionRequest$json = {
     {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
     {'1': 'UserToken', '3': 2, '4': 1, '5': 9, '10': 'UserToken'},
     {'1': 'Request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.McpAskQuestionRequest', '10': 'Request'},
+    {'1': 'Timestamp', '3': 4, '4': 1, '5': 3, '10': 'Timestamp'},
   ],
 };
 
@@ -135,7 +136,7 @@ const AskQuestionRequest$json = {
 final $typed_data.Uint8List askQuestionRequestDescriptor = $convert.base64Decode(
     'ChJBc2tRdWVzdGlvblJlcXVlc3QSDgoCSUQYASABKAlSAklEEhwKCVVzZXJUb2tlbhgCIAEoCV'
     'IJVXNlclRva2VuEkEKB1JlcXVlc3QYAyABKAsyJy5hZ2VudGFzc2lzdHByb3RvLk1jcEFza1F1'
-    'ZXN0aW9uUmVxdWVzdFIHUmVxdWVzdA==');
+    'ZXN0aW9uUmVxdWVzdFIHUmVxdWVzdBIcCglUaW1lc3RhbXAYBCABKANSCVRpbWVzdGFtcA==');
 
 @$core.Deprecated('Use askQuestionResponseDescriptor instead')
 const AskQuestionResponse$json = {
@@ -193,6 +194,7 @@ const WorkReportRequest$json = {
     {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
     {'1': 'UserToken', '3': 2, '4': 1, '5': 9, '10': 'UserToken'},
     {'1': 'Request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.McpWorkReportRequest', '10': 'Request'},
+    {'1': 'Timestamp', '3': 4, '4': 1, '5': 3, '10': 'Timestamp'},
   ],
 };
 
@@ -200,7 +202,7 @@ const WorkReportRequest$json = {
 final $typed_data.Uint8List workReportRequestDescriptor = $convert.base64Decode(
     'ChFXb3JrUmVwb3J0UmVxdWVzdBIOCgJJRBgBIAEoCVICSUQSHAoJVXNlclRva2VuGAIgASgJUg'
     'lVc2VyVG9rZW4SQAoHUmVxdWVzdBgDIAEoCzImLmFnZW50YXNzaXN0cHJvdG8uTWNwV29ya1Jl'
-    'cG9ydFJlcXVlc3RSB1JlcXVlc3Q=');
+    'cG9ydFJlcXVlc3RSB1JlcXVlc3QSHAoJVGltZXN0YW1wGAQgASgDUglUaW1lc3RhbXA=');
 
 @$core.Deprecated('Use workReportResponseDescriptor instead')
 const WorkReportResponse$json = {

@@ -206,7 +206,7 @@ class ContentDisplay extends StatelessWidget {
         await launchUrl(uri);
       }
     } catch (error) {
-      debugPrint('Failed to launch URL: $error');
+      // debugPrint('Failed to launch URL: $error');
     }
   }
 }
@@ -286,7 +286,7 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
         await _audioPlayer.play(BytesSource(audioBytes));
       }
     } catch (error) {
-      debugPrint('Audio playback error: $error');
+      // debugPrint('Audio playback error: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('音频播放失败: $error')),

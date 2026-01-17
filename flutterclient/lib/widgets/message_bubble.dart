@@ -156,7 +156,7 @@ class MessageBubble extends StatelessWidget {
                   .withOpacity(0.3),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Text(
+            child: SelectableText(
               message.displayContent,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
@@ -228,7 +228,7 @@ class MessageBubble extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 2),
-          Text(
+          SelectableText(
             message.replyText!,
             style: Theme.of(context).textTheme.bodyMedium,
           ),

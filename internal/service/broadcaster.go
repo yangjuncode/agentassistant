@@ -535,12 +535,14 @@ func (b *Broadcaster) GetPendingMessages(userToken string) []*agentassistproto.P
 		if request.Message.AskQuestionRequest != nil {
 			pendingMessage.MessageType = "AskQuestion"
 			pendingMessage.AskQuestionRequest = request.Message.AskQuestionRequest
+			pendingMessage.CreatedAt = request.Message.AskQuestionRequest.Timestamp
 			if request.Message.AskQuestionRequest.Request != nil {
 				pendingMessage.Timeout = request.Message.AskQuestionRequest.Request.Timeout
 			}
 		} else if request.Message.WorkReportRequest != nil {
 			pendingMessage.MessageType = "WorkReport"
 			pendingMessage.WorkReportRequest = request.Message.WorkReportRequest
+			pendingMessage.CreatedAt = request.Message.WorkReportRequest.Timestamp
 			if request.Message.WorkReportRequest.Request != nil {
 				pendingMessage.Timeout = request.Message.WorkReportRequest.Request.Timeout
 			}

@@ -1,3 +1,4 @@
+import 'package:fixnum/fixnum.dart';
 import 'package:uuid/uuid.dart';
 import '../constants/websocket_commands.dart';
 import '../proto/agentassist.pb.dart';
@@ -58,6 +59,9 @@ class ChatMessage {
       serverId: serverId,
       serverName: serverName,
       type: MessageType.question,
+      timestamp: request.timestamp > Int64(0)
+          ? DateTime.fromMillisecondsSinceEpoch(request.timestamp.toInt())
+          : DateTime.now(),
       question: request.request.question,
       projectDirectory: request.request.projectDirectory,
       agentName: request.request.agentName.isNotEmpty
@@ -80,6 +84,9 @@ class ChatMessage {
       serverId: serverId,
       serverName: serverName,
       type: MessageType.task,
+      timestamp: request.timestamp > Int64(0)
+          ? DateTime.fromMillisecondsSinceEpoch(request.timestamp.toInt())
+          : DateTime.now(),
       summary: request.request.summary,
       projectDirectory: request.request.projectDirectory,
       agentName: request.request.agentName.isNotEmpty

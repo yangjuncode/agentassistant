@@ -478,7 +478,9 @@ type AskQuestionRequest struct {
 	// user token
 	UserToken string `protobuf:"bytes,2,opt,name=UserToken,proto3" json:"UserToken,omitempty"`
 	// ai agent's question
-	Request       *McpAskQuestionRequest `protobuf:"bytes,3,opt,name=Request,proto3" json:"Request,omitempty"`
+	Request *McpAskQuestionRequest `protobuf:"bytes,3,opt,name=Request,proto3" json:"Request,omitempty"`
+	// timestamp (UTC)
+	Timestamp     int64 `protobuf:"varint,4,opt,name=Timestamp,proto3" json:"Timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -532,6 +534,13 @@ func (x *AskQuestionRequest) GetRequest() *McpAskQuestionRequest {
 		return x.Request
 	}
 	return nil
+}
+
+func (x *AskQuestionRequest) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
 }
 
 type AskQuestionResponse struct {
@@ -691,7 +700,9 @@ type WorkReportRequest struct {
 	// user token
 	UserToken string `protobuf:"bytes,2,opt,name=UserToken,proto3" json:"UserToken,omitempty"`
 	// ai agent's work report summary
-	Request       *McpWorkReportRequest `protobuf:"bytes,3,opt,name=Request,proto3" json:"Request,omitempty"`
+	Request *McpWorkReportRequest `protobuf:"bytes,3,opt,name=Request,proto3" json:"Request,omitempty"`
+	// timestamp (UTC)
+	Timestamp     int64 `protobuf:"varint,4,opt,name=Timestamp,proto3" json:"Timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -745,6 +756,13 @@ func (x *WorkReportRequest) GetRequest() *McpWorkReportRequest {
 		return x.Request
 	}
 	return nil
+}
+
+func (x *WorkReportRequest) GetTimestamp() int64 {
+	if x != nil {
+		return x.Timestamp
+	}
+	return 0
 }
 
 type WorkReportResponse struct {
@@ -1892,11 +1910,12 @@ const file_agentassist_proto_rawDesc = "" +
 	"\bQuestion\x18\x02 \x01(\tR\bQuestion\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
 	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
-	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\x85\x01\n" +
+	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\xa3\x01\n" +
 	"\x12AskQuestionRequest\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x1c\n" +
 	"\tUserToken\x18\x02 \x01(\tR\tUserToken\x12A\n" +
-	"\aRequest\x18\x03 \x01(\v2'.agentassistproto.McpAskQuestionRequestR\aRequest\"\xfd\x01\n" +
+	"\aRequest\x18\x03 \x01(\v2'.agentassistproto.McpAskQuestionRequestR\aRequest\x12\x1c\n" +
+	"\tTimestamp\x18\x04 \x01(\x03R\tTimestamp\"\xfd\x01\n" +
 	"\x13AskQuestionResponse\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x18\n" +
 	"\aIsError\x18\x02 \x01(\bR\aIsError\x12C\n" +
@@ -1910,11 +1929,12 @@ const file_agentassist_proto_rawDesc = "" +
 	"\aSummary\x18\x02 \x01(\tR\aSummary\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
 	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
-	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\x83\x01\n" +
+	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\xa1\x01\n" +
 	"\x11WorkReportRequest\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x1c\n" +
 	"\tUserToken\x18\x02 \x01(\tR\tUserToken\x12@\n" +
-	"\aRequest\x18\x03 \x01(\v2&.agentassistproto.McpWorkReportRequestR\aRequest\"\xfb\x01\n" +
+	"\aRequest\x18\x03 \x01(\v2&.agentassistproto.McpWorkReportRequestR\aRequest\x12\x1c\n" +
+	"\tTimestamp\x18\x04 \x01(\x03R\tTimestamp\"\xfb\x01\n" +
 	"\x12WorkReportResponse\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x18\n" +
 	"\aIsError\x18\x02 \x01(\bR\aIsError\x12B\n" +

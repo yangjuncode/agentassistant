@@ -18,12 +18,14 @@ enum WebSocketServiceStatus {
 
 /// WebSocket service for Agent Assistant communication
 class WebSocketService {
-  static final Logger _logger = Logger();
+  static final Logger _logger = Logger(level: Level.nothing);
 
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   Timer? _reconnectTimer;
   Timer? _heartbeatTimer;
+  Completer<void>? _loginCompleter;
+  Timer? _loginTimeoutTimer;
 
   String? _url;
   String? _token;
@@ -33,7 +35,6 @@ class WebSocketService {
   bool _isManuallyDisconnected = false;
   bool _isConnecting = false;
   WebSocketServiceStatus _currentStatus = WebSocketServiceStatus.disconnected;
-
 
   // Stream controllers
   final StreamController<WebsocketMessage> _messageController =
@@ -57,7 +58,6 @@ class WebSocketService {
   /// Check if WebSocket is connected
   bool get isConnected => _currentStatus == WebSocketServiceStatus.connected;
 
-
   /// Get current client ID
   String? get clientId => _clientId;
 
@@ -76,6 +76,16 @@ class WebSocketService {
     _currentStatus = WebSocketServiceStatus.connecting;
     _statusController.add(WebSocketServiceStatus.connecting);
 
+    // Reset login wait state
+    _loginCompleter = Completer<void>();
+    _loginTimeoutTimer?.cancel();
+    _loginTimeoutTimer = Timer(const Duration(seconds: 8), () {
+      if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
+        _loginCompleter!.completeError(
+          TimeoutException('Login timeout', const Duration(seconds: 8)),
+        );
+      }
+    });
 
     try {
       _logger.i('Connecting to WebSocket: $url');
@@ -92,6 +102,9 @@ class WebSocketService {
       // Send login message
       await _sendUserLogin();
 
+      // Wait for login response before marking as connected.
+      await _loginCompleter!.future;
+
       // Start heartbeat
       _startHeartbeat();
 
@@ -100,7 +113,6 @@ class WebSocketService {
       _connectionController.add(true);
       _currentStatus = WebSocketServiceStatus.connected;
       _statusController.add(WebSocketServiceStatus.connected);
-
 
       _logger.i('WebSocket connected successfully');
     } catch (error) {
@@ -111,16 +123,22 @@ class WebSocketService {
       _currentStatus = WebSocketServiceStatus.error;
       _statusController.add(WebSocketServiceStatus.error);
 
-
       if (!_isManuallyDisconnected) {
         _scheduleReconnect();
       }
     }
   }
 
+  void _failLoginIfPending(Object error) {
+    if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
+      _loginCompleter!.completeError(error);
+    }
+  }
+
   /// Disconnect from WebSocket server
   void disconnect() {
     _isManuallyDisconnected = true;
+    _failLoginIfPending(StateError('Disconnected'));
     _cleanup();
     _connectionController.add(false);
     _statusController.add(WebSocketServiceStatus.disconnected);
@@ -322,9 +340,13 @@ class WebSocketService {
     if (response.success) {
       _clientId = response.clientId;
       _logger.i('User login successful, client ID: $_clientId');
+      if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
+        _loginCompleter!.complete();
+      }
     } else {
       _logger.e('User login failed: ${response.errorMessage}');
       _errorController.add('Login failed: ${response.errorMessage}');
+      _failLoginIfPending(StateError('Login failed: ${response.errorMessage}'));
     }
   }
 
@@ -336,6 +358,7 @@ class WebSocketService {
     _currentStatus = WebSocketServiceStatus.error;
     _statusController.add(WebSocketServiceStatus.error);
 
+    _failLoginIfPending(StateError('WebSocket error: $error'));
 
     // Clean up current connection resources
     _isConnecting = false;
@@ -352,6 +375,7 @@ class WebSocketService {
     _currentStatus = WebSocketServiceStatus.disconnected;
     _statusController.add(WebSocketServiceStatus.disconnected);
 
+    _failLoginIfPending(StateError('WebSocket disconnected'));
 
     // Clean up current connection resources
     _isConnecting = false;
@@ -377,7 +401,6 @@ class WebSocketService {
 
     _currentStatus = WebSocketServiceStatus.reconnecting;
     _statusController.add(WebSocketServiceStatus.reconnecting);
-
 
     _reconnectTimer = Timer(delay, () {
       if (!_isManuallyDisconnected && _url != null && _token != null) {
@@ -408,6 +431,7 @@ class WebSocketService {
     // Cancel timers first
     _reconnectTimer?.cancel();
     _heartbeatTimer?.cancel();
+    _loginTimeoutTimer?.cancel();
 
     // Cancel subscription and close channel
     if (_subscription != null) {
@@ -429,7 +453,10 @@ class WebSocketService {
     _subscription = null;
     _reconnectTimer = null;
     _heartbeatTimer = null;
+    _loginTimeoutTimer = null;
     _isConnecting = false;
+
+    _loginCompleter = null;
 
     _logger.d('WebSocket resources cleaned up');
   }
