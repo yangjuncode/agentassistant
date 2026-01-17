@@ -190,6 +190,9 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     });
 
     try {
+      // Unfocus immediately to restore UI state (e.g. show Online Users bar)
+      _focusNode.unfocus();
+      
       final chatProvider = context.read<ChatProvider>();
 
       if (widget.message.type == MessageType.question) {
@@ -214,6 +217,13 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       _attachments.clear();
       // Clear saved draft after successful send
       chatProvider.clearDraft(widget.message.id);
+      
+      // Auto-show online users bar if no more pending actions
+      if (chatProvider.pendingQuestions.isEmpty && 
+          chatProvider.pendingTasks.isEmpty) {
+        chatProvider.setOnlineUsersVisible(true);
+      }
+
       // Reset history index after sending
       _historyIndex = -1;
     } catch (error) {

@@ -92,6 +92,8 @@ class ChatProvider extends ChangeNotifier {
 
   bool get showOnlyPendingMessages => _showOnlyPendingMessages;
   bool get isInputFocused => _isInputFocused;
+  bool _isOnlineUsersVisible = true;
+  bool get isOnlineUsersVisible => _isOnlineUsersVisible;
 
   void toggleShowOnlyPendingMessages() {
     _showOnlyPendingMessages = !_showOnlyPendingMessages;
@@ -101,6 +103,18 @@ class ChatProvider extends ChangeNotifier {
   void setInputFocused(bool focused) {
     if (_isInputFocused != focused) {
       _isInputFocused = focused;
+      notifyListeners();
+    }
+  }
+
+  void toggleOnlineUsersVisibility() {
+    _isOnlineUsersVisible = !_isOnlineUsersVisible;
+    notifyListeners();
+  }
+
+  void setOnlineUsersVisible(bool visible) {
+    if (_isOnlineUsersVisible != visible) {
+      _isOnlineUsersVisible = visible;
       notifyListeners();
     }
   }

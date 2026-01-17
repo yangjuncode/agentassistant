@@ -28,7 +28,8 @@ class OnlineUsersBar extends StatelessWidget {
 
         if (!chatProvider.isConnected ||
             onlineUsers.isEmpty ||
-            chatProvider.isInputFocused) {
+            chatProvider.isInputFocused ||
+            !chatProvider.isOnlineUsersVisible) {
           return const SizedBox.shrink();
         }
 

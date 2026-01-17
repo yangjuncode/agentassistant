@@ -241,6 +241,9 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    // Watch ChatProvider for AppBar updates
+    final chatProvider = context.watch<ChatProvider>();
+    
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 40,
@@ -256,27 +259,40 @@ class _ChatScreenState extends State<ChatScreen> {
             constraints: const BoxConstraints(),
           ),
           const SizedBox(width: 8),
+          IconButton(
+            icon: Badge(
+              label: Text('${chatProvider.onlineUsers.length}'),
+              isLabelVisible: chatProvider.onlineUsers.isNotEmpty,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(
+                chatProvider.isOnlineUsersVisible
+                    ? Icons.people
+                    : Icons.people_outline,
+              ),
+            ),
+            onPressed: () {
+              chatProvider.toggleOnlineUsersVisibility();
+            },
+            tooltip: '在线用户',
+          ),
+          const SizedBox(width: 8),
           const ServerStatusIcon(),
           const SizedBox(width: 8),
         ],
       ),
-      body: Consumer<ChatProvider>(
-        builder: (context, chatProvider, child) {
-          return Column(
-            children: [
-              // Connection status bar
-              const ConnectionStatusBar(),
+      body: Column(
+        children: [
+          // Connection status bar
+          const ConnectionStatusBar(),
 
-              // Online users bar
-              const OnlineUsersBar(),
+          // Online users bar
+          const OnlineUsersBar(),
 
-              // Messages list
-              Expanded(
-                child: _buildMessagesList(context, chatProvider),
-              ),
-            ],
-          );
-        },
+          // Messages list
+          Expanded(
+            child: _buildMessagesList(context, chatProvider),
+          ),
+        ],
       ),
     );
   }
