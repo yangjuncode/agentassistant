@@ -26,13 +26,16 @@ class OnlineUsersBar extends StatelessWidget {
                 chatProvider.currentClientIdForServer(u.serverId))
             .toList();
 
-        if (!chatProvider.isConnected || onlineUsers.isEmpty) {
+        if (!chatProvider.isConnected ||
+            onlineUsers.isEmpty ||
+            chatProvider.isInputFocused) {
           return const SizedBox.shrink();
         }
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          height: 48,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: Theme.of(context)
                 .colorScheme
@@ -45,46 +48,45 @@ class OnlineUsersBar extends StatelessWidget {
               ),
             ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.people,
-                    size: 16,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '在线用户 (${onlineUsers.length})',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    onPressed: () => chatProvider.requestOnlineUsersAll(),
-                    icon: const Icon(Icons.refresh),
-                    iconSize: 16,
-                    tooltip: '刷新在线用户',
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 24,
-                      minHeight: 24,
-                    ),
-                  ),
-                ],
+              Icon(
+                Icons.people,
+                size: 16,
+                color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: onlineUsers
-                    .map((user) => _buildUserChip(context, chatProvider, user))
-                    .toList(),
+              const SizedBox(width: 4),
+              Text(
+                '(${onlineUsers.length})',
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                    ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: onlineUsers.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
+                  itemBuilder: (context, index) => Center(
+                    child: _buildUserChip(
+                        context, chatProvider, onlineUsers[index]),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              IconButton(
+                onPressed: () => chatProvider.requestOnlineUsersAll(),
+                icon: const Icon(Icons.refresh),
+                iconSize: 16,
+                tooltip: '刷新在线用户',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(
+                  minWidth: 24,
+                  minHeight: 24,
+                ),
               ),
             ],
           ),

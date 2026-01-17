@@ -243,6 +243,8 @@ class _ChatScreenState extends State<ChatScreen> {
     final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 40,
+        titleSpacing: 0,
         title: const Text(AppConfig.appName),
         actions: [
           const PendingActionsIndicator(),
@@ -250,8 +252,12 @@ class _ChatScreenState extends State<ChatScreen> {
             icon: const Icon(Icons.settings),
             onPressed: _showSettings,
             tooltip: l10n.settings,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
           ),
+          const SizedBox(width: 8),
           const ServerStatusIcon(),
+          const SizedBox(width: 8),
         ],
       ),
       body: Consumer<ChatProvider>(

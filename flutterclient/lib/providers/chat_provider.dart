@@ -47,6 +47,7 @@ class ChatProvider extends ChangeNotifier {
   String? _activeChatUserKey;
   bool _autoForwardToSystemInput = false;
   bool _showOnlyPendingMessages = false;
+  bool _isInputFocused = false;
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
@@ -90,10 +91,18 @@ class ChatProvider extends ChangeNotifier {
       .toList();
 
   bool get showOnlyPendingMessages => _showOnlyPendingMessages;
+  bool get isInputFocused => _isInputFocused;
 
   void toggleShowOnlyPendingMessages() {
     _showOnlyPendingMessages = !_showOnlyPendingMessages;
     notifyListeners();
+  }
+
+  void setInputFocused(bool focused) {
+    if (_isInputFocused != focused) {
+      _isInputFocused = focused;
+      notifyListeners();
+    }
   }
 
   ChatProvider() {

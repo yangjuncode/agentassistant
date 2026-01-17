@@ -50,6 +50,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
         chatProvider.setDraft(widget.message.id, _controller.text);
       });
     });
+
+    _focusNode.addListener(() {
+      if (mounted) {
+        context.read<ChatProvider>().setInputFocused(_focusNode.hasFocus);
+      }
+    });
   }
 
   @override
@@ -231,280 +237,239 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return DropTarget(
-      onDragDone: _handleDrop,
-      onDragEntered: (details) {
-        setState(() => _isDragging = true);
-      },
-      onDragExited: (details) {
-        setState(() => _isDragging = false);
-      },
-      child: Container(
-        margin: const EdgeInsets.only(top: 1),
-        padding: const EdgeInsets.all(1),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: _isDragging
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
-            width: _isDragging ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with question/task info
-            _buildHeader(context),
-            const SizedBox(height: 1),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 500;
 
-            // Drag indicator
-            if (_isDragging)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    '拖放文件到此处',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-
-            // Attachment previews
-            if (_attachments.isNotEmpty) ...[
-              _buildAttachmentPreviews(context),
-              const SizedBox(height: 4),
-            ],
-
-            // Text input field with keyboard shortcut
-            Focus(
-              onKeyEvent: (FocusNode node, KeyEvent event) {
-                // Check for Ctrl+V paste (for images/files only, let text paste through)
-                if (event is KeyDownEvent &&
-                    event.logicalKey == LogicalKeyboardKey.keyV &&
-                    (HardwareKeyboard.instance.isControlPressed ||
-                        HardwareKeyboard.instance.isMetaPressed)) {
-                  _handlePasteOrText();
-                  return KeyEventResult.handled;
-                }
-
-                // Check for Ctrl+Enter key combination
-                if (event is KeyDownEvent &&
-                    event.logicalKey == LogicalKeyboardKey.enter &&
-                    (HardwareKeyboard.instance.isControlPressed ||
-                        HardwareKeyboard.instance.isMetaPressed)) {
-                  _handleSubmit();
-                  return KeyEventResult.handled;
-                }
-
-                // Bash-like history navigation (cyclic) with blank sentinels at both ends
-                if (event is KeyDownEvent &&
-                    (event.logicalKey == LogicalKeyboardKey.arrowUp ||
-                        event.logicalKey == LogicalKeyboardKey.arrowDown)) {
-                  final chatProvider = context.read<ChatProvider>();
-                  final history = chatProvider.replyHistory;
-                  // Allow cycling even if history is empty: toggles between blanks
-                  if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                    setState(() {
-                      if (history.isEmpty) {
-                        // Toggle blanks: -1 -> 0(blank) -> -1 ...
-                        _historyIndex = (_historyIndex == -1) ? 0 : -1;
-                        _controller.clear();
-                      } else {
-                        if (_historyIndex < history.length - 1) {
-                          // Move to older item or from blank-newest to first item
-                          _historyIndex += 1;
-                          _controller.text = history[_historyIndex];
-                        } else if (_historyIndex == history.length - 1) {
-                          // Move to blank-oldest sentinel
-                          _historyIndex = history.length;
-                          _controller.clear();
-                        } else if (_historyIndex == history.length) {
-                          // Wrap to blank-newest sentinel
-                          _historyIndex = -1;
-                          _controller.clear();
-                        } else {
-                          // _historyIndex == -1 and history not empty
-                          _historyIndex = 0;
-                          _controller.text = history[_historyIndex];
-                        }
-                      }
-                      _controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: _controller.text.length),
-                      );
-                    });
-                    return KeyEventResult.handled;
-                  } else {
-                    // Arrow Down: towards newer; includes blank sentinels
-                    setState(() {
-                      if (history.isEmpty) {
-                        // Toggle blanks: -1 <-> 0(blank)
-                        _historyIndex = (_historyIndex == -1) ? 0 : -1;
-                        _controller.clear();
-                      } else {
-                        if (_historyIndex > 0) {
-                          _historyIndex -= 1; // newer item
-                          _controller.text = history[_historyIndex];
-                        } else if (_historyIndex == 0) {
-                          // Move to blank-newest
-                          _historyIndex = -1;
-                          _controller.clear();
-                        } else if (_historyIndex == -1) {
-                          // From blank-newest to blank-oldest (wrap via blank)
-                          _historyIndex = history.length;
-                          _controller.clear();
-                        } else if (_historyIndex == history.length) {
-                          // From blank-oldest to last (oldest) item
-                          _historyIndex = history.length - 1;
-                          _controller.text = history[_historyIndex];
-                        }
-                      }
-                      _controller.selection = TextSelection.fromPosition(
-                        TextPosition(offset: _controller.text.length),
-                      );
-                    });
-                    return KeyEventResult.handled;
-                  }
-                }
-                return KeyEventResult.ignored;
-              },
-              child: Actions(
-                actions: <Type, Action<Intent>>{
-                  PasteTextIntent: CallbackAction<PasteTextIntent>(
-                    onInvoke: (intent) {
-                      _handlePasteOrText();
-                      return null;
-                    },
-                  ),
-                },
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  decoration: InputDecoration(
-                    hintText: _getInputHint(),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.all(12),
-                    helperText: '按 Ctrl+Enter 快速发送 · ↑/↓ 浏览历史 · Ctrl+V 粘贴图片',
-                    helperStyle: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.attach_file),
-                      tooltip: '添加附件',
-                      onPressed: _isSubmitting ? null : _pickFiles,
-                    ),
-                  ),
-                  maxLines: 3,
-                  minLines: 2,
-                  // Don't steal focus if any draft exists (user is likely editing elsewhere)
-                  autofocus: !context.read<ChatProvider>().hasAnyDraft,
-                  enabled: !_isSubmitting,
-                ),
+        return DropTarget(
+          onDragDone: _handleDrop,
+          onDragEntered: (details) {
+            setState(() => _isDragging = true);
+          },
+          onDragExited: (details) {
+            setState(() => _isDragging = false);
+          },
+          child: Container(
+            margin: const EdgeInsets.only(top: 1),
+            padding: const EdgeInsets.all(1),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _isDragging
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.2),
+                width: _isDragging ? 2 : 1,
               ),
             ),
-            const SizedBox(height: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with question/task info
+                _buildHeader(context, isCompact),
+                const SizedBox(height: 1),
 
-            // Action buttons
-            LayoutBuilder(
-              builder: (context, constraints) {
-                // Use vertical layout on small screens
-                if (constraints.maxWidth < 400) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Quick reply buttons row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _isSubmitting
-                                  ? null
-                                  : () => _handleSubmit('OK'),
-                              icon: const Icon(Icons.check, size: 16),
-                              label: const Text('OK'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.green,
-                                side: BorderSide(
-                                    color: Colors.green.withValues(alpha: 0.5)),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _isSubmitting
-                                  ? null
-                                  : () => _handleSubmit('Continue'),
-                              icon: const Icon(Icons.arrow_forward, size: 16),
-                              label: const Text('Continue'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.blue,
-                                side: BorderSide(
-                                    color: Colors.blue.withValues(alpha: 0.5)),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: _isSubmitting
-                                  ? null
-                                  : () => _handleSubmit("ok, let's do it"),
-                              icon: const Icon(Icons.play_arrow, size: 16),
-                              label: const Text("OK, let's do it"),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.deepPurple,
-                                side: BorderSide(
-                                    color: Colors.deepPurple
-                                        .withValues(alpha: 0.5)),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      // Send button
-                      ElevatedButton.icon(
-                        onPressed: _isSubmitting ? null : () => _handleSubmit(),
-                        icon: _isSubmitting
-                            ? SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Theme.of(context).colorScheme.onPrimary,
-                                  ),
-                                ),
-                              )
-                            : const Icon(Icons.send, size: 18),
-                        label: Text(_isSubmitting ? '发送中...' : '发送'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.primary,
-                          foregroundColor:
-                              Theme.of(context).colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                // Drag indicator
+                if (_isDragging)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        '拖放文件到此处',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ],
-                  );
-                } else {
-                  // Horizontal layout for larger screens
-                  return Row(
+                    ),
+                  ),
+
+                // Attachment previews
+                if (_attachments.isNotEmpty) ...[
+                  _buildAttachmentPreviews(context),
+                  const SizedBox(height: 4),
+                ],
+
+                // Text input field with keyboard shortcut
+                Focus(
+                  onKeyEvent: (FocusNode node, KeyEvent event) {
+                    // Check for Ctrl+V paste (for images/files only, let text paste through)
+                    if (event is KeyDownEvent &&
+                        event.logicalKey == LogicalKeyboardKey.keyV &&
+                        (HardwareKeyboard.instance.isControlPressed ||
+                            HardwareKeyboard.instance.isMetaPressed)) {
+                      _handlePasteOrText();
+                      return KeyEventResult.handled;
+                    }
+
+                    // Check for Ctrl+Enter key combination
+                    if (event is KeyDownEvent &&
+                        event.logicalKey == LogicalKeyboardKey.enter &&
+                        (HardwareKeyboard.instance.isControlPressed ||
+                            HardwareKeyboard.instance.isMetaPressed)) {
+                      _handleSubmit();
+                      return KeyEventResult.handled;
+                    }
+
+                    // Bash-like history navigation (cyclic) with blank sentinels at both ends
+                    if (event is KeyDownEvent &&
+                        (event.logicalKey == LogicalKeyboardKey.arrowUp ||
+                            event.logicalKey == LogicalKeyboardKey.arrowDown)) {
+                      final chatProvider = context.read<ChatProvider>();
+                      final history = chatProvider.replyHistory;
+                      // Allow cycling even if history is empty: toggles between blanks
+                      if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                        setState(() {
+                          if (history.isEmpty) {
+                            // Toggle blanks: -1 -> 0(blank) -> -1 ...
+                            _historyIndex = (_historyIndex == -1) ? 0 : -1;
+                            _controller.clear();
+                          } else {
+                            if (_historyIndex < history.length - 1) {
+                              _historyIndex += 1;
+                              _controller.text = history[_historyIndex];
+                            } else if (_historyIndex == history.length - 1) {
+                              // Move to blank-oldest sentinel
+                              _historyIndex = history.length;
+                              _controller.clear();
+                            } else if (_historyIndex == history.length) {
+                              // Wrap to blank-newest sentinel
+                              _historyIndex = -1;
+                              _controller.clear();
+                            } else {
+                              // _historyIndex == -1 and history not empty
+                              _historyIndex = 0;
+                              _controller.text = history[_historyIndex];
+                            }
+                          }
+                          _controller.selection = TextSelection.fromPosition(
+                            TextPosition(offset: _controller.text.length),
+                          );
+                        });
+                        return KeyEventResult.handled;
+                      } else {
+                        // Arrow Down: towards newer; includes blank sentinels
+                        setState(() {
+                          if (history.isEmpty) {
+                            // Toggle blanks: -1 <-> 0(blank)
+                            _historyIndex = (_historyIndex == -1) ? 0 : -1;
+                            _controller.clear();
+                          } else {
+                            if (_historyIndex > 0) {
+                              _historyIndex -= 1; // newer item
+                              _controller.text = history[_historyIndex];
+                            } else if (_historyIndex == 0) {
+                              // Move to blank-newest
+                              _historyIndex = -1;
+                              _controller.clear();
+                            } else if (_historyIndex == -1) {
+                              // From blank-newest to blank-oldest (wrap via blank)
+                              _historyIndex = history.length;
+                              _controller.clear();
+                            } else if (_historyIndex == history.length) {
+                              // From blank-oldest to last (oldest) item
+                              _historyIndex = history.length - 1;
+                              _controller.text = history[_historyIndex];
+                            }
+                          }
+                          _controller.selection = TextSelection.fromPosition(
+                            TextPosition(offset: _controller.text.length),
+                          );
+                        });
+                        return KeyEventResult.handled;
+                      }
+                    }
+                    return KeyEventResult.ignored;
+                  },
+                  child: Actions(
+                    actions: <Type, Action<Intent>>{
+                      PasteTextIntent: CallbackAction<PasteTextIntent>(
+                        onInvoke: (intent) {
+                          _handlePasteOrText();
+                          return null;
+                        },
+                      ),
+                    },
+                    child: TextField(
+                      controller: _controller,
+                      focusNode: _focusNode,
+                      decoration: InputDecoration(
+                        hintText: _getInputHint(),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.all(12),
+                        helperText: isCompact
+                            ? null
+                            : '按 Ctrl+Enter 快速发送 · ↑/↓ 浏览历史 · Ctrl+V 粘贴图片',
+                        helperStyle: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.attach_file),
+                          tooltip: '添加附件',
+                          onPressed: _isSubmitting ? null : _pickFiles,
+                        ),
+                      ),
+                      maxLines: 3,
+                      minLines: isCompact ? 1 : 2,
+                      autofocus: !context.read<ChatProvider>().hasAnyDraft,
+                      enabled: !_isSubmitting,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 4),
+
+                // Action buttons
+                if (isCompact) ...[
+                  const SizedBox(height: 4),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        OutlinedButton(
+                          onPressed:
+                              _isSubmitting ? null : () => _handleSubmit('OK'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            minimumSize: const Size(0, 32),
+                          ),
+                          child: const Text('OK'),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _handleSubmit('Continue'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            minimumSize: const Size(0, 32),
+                          ),
+                          child: const Text('Continue'),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _handleSubmit("ok, let's do it"),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            minimumSize: const Size(0, 32),
+                          ),
+                          child: const Text("Let's do it"),
+                        ),
+                      ],
+                    ),
+                  ),
+                ] else
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Quick reply buttons
@@ -584,13 +549,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         ),
                       ),
                     ],
-                  );
-                }
-              },
+                  ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -678,7 +642,50 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, bool isCompact) {
+    if (isCompact) {
+      return Row(
+        children: [
+          Icon(
+            _getHeaderIcon(),
+            size: 20,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              _getHeaderTitle(),
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            ),
+          ),
+          // Send button in header for compact mode
+          IconButton(
+            onPressed: _isSubmitting ? null : () => _handleSubmit(),
+            icon: _isSubmitting
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  )
+                : Icon(
+                    Icons.send,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+            tooltip: '发送',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+        ],
+      );
+    }
     return Row(
       children: [
         Icon(
