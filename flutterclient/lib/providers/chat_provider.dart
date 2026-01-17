@@ -48,6 +48,7 @@ class ChatProvider extends ChangeNotifier {
   bool _autoForwardToSystemInput = false;
   bool _showOnlyPendingMessages = false;
   bool _isInputFocused = false;
+  int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
@@ -92,6 +93,7 @@ class ChatProvider extends ChangeNotifier {
 
   bool get showOnlyPendingMessages => _showOnlyPendingMessages;
   bool get isInputFocused => _isInputFocused;
+  int get chatAutoSendInterval => _chatAutoSendInterval;
   bool _isOnlineUsersVisible = true;
   bool get isOnlineUsersVisible => _isOnlineUsersVisible;
 
@@ -123,6 +125,7 @@ class ChatProvider extends ChangeNotifier {
     Future.microtask(() async {
       await _loadServerConfigs();
       await _loadAutoForwardSetting();
+      await _loadChatSettings();
     });
     // Defer loading settings to avoid calling notifyListeners during build.
   }
@@ -1342,6 +1345,33 @@ class ChatProvider extends ChangeNotifier {
       _logger.i('Auto forward setting updated: $enabled');
     } catch (error) {
       _logger.e('Failed to save auto forward setting: $error');
+    }
+  }
+
+
+
+  /// Load chat settings
+  Future<void> _loadChatSettings() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _chatAutoSendInterval =
+          prefs.getInt(AppConfig.chatAutoSendIntervalStorageKey) ??
+              AppConfig.defaultChatAutoSendInterval;
+      notifyListeners();
+    } catch (error) {
+      _logger.e('Failed to load chat settings: $error');
+    }
+  }
+
+  /// Set chat auto send interval
+  Future<void> setChatAutoSendInterval(int seconds) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(AppConfig.chatAutoSendIntervalStorageKey, seconds);
+      _chatAutoSendInterval = seconds;
+      notifyListeners();
+    } catch (error) {
+      _logger.e('Failed to save chat auto send interval: $error');
     }
   }
 

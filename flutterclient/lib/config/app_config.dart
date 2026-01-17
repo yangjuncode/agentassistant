@@ -21,10 +21,12 @@ class AppConfig {
   static const String serverUrlStorageKey = 'server_url';
   static const String serverConfigsStorageKey = 'server_configs';
   static const String settingsStorageKey = 'app_settings';
+  static const String chatAutoSendIntervalStorageKey = 'chat_auto_send_interval';
 
   // Default values
   static const String appName = 'Agent Assistant';
   static const String appVersion = '1.0.0';
+  static const int defaultChatAutoSendInterval = 5;
 
   // Build WebSocket URL
   static String buildWebSocketUrl({

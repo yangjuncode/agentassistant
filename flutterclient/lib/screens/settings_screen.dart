@@ -415,6 +415,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 child: Column(
                   children: [
                     ListTile(
+                      leading: const Icon(Icons.timer),
+                      title: const Text('Chat Auto Send Interval'),
+                      subtitle: Text(
+                          '${chatProvider.chatAutoSendInterval} seconds'),
+                    ),
+                    Slider(
+                      value: chatProvider.chatAutoSendInterval.toDouble(),
+                      min: 1,
+                      max: 30,
+                      divisions: 29,
+                      label: '${chatProvider.chatAutoSendInterval} seconds',
+                      onChanged: (value) {
+                         chatProvider.setChatAutoSendInterval(value.toInt());
+                      },
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
                       leading: const Icon(Icons.message),
                       title: Text(l10n.messageStats),
                       subtitle: Text(

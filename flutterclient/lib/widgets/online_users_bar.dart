@@ -257,10 +257,11 @@ class _ChatDialogState extends State<_ChatDialog> {
     }
   }
 
-  void _scheduleAutoSend() {
+    void _scheduleAutoSend() {
     try {
       _clearAutoSendTimer();
-      _autoSendTimer = Timer(const Duration(seconds: 2), () {
+      final interval = widget.chatProvider.chatAutoSendInterval;
+      _autoSendTimer = Timer(Duration(seconds: interval), () {
         _logger.d('Auto-send timer fired, mounted: $mounted');
         if (mounted) {
           _sendMessage(isAutoSend: true);
@@ -492,9 +493,9 @@ class _ChatDialogState extends State<_ChatDialog> {
               child: TextField(
                 controller: _messageController,
                 focusNode: _inputFocusNode,
-                decoration: const InputDecoration(
-                  hintText: '输入消息... (2秒后自动发送或Ctrl+Enter)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  hintText: '输入消息... (${widget.chatProvider.chatAutoSendInterval}秒后自动发送或Ctrl+Enter)',
+                  border: const OutlineInputBorder(),
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
