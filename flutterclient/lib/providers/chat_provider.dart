@@ -527,14 +527,17 @@ class ChatProvider extends ChangeNotifier {
       // Extract text content from response
       for (final content in response.contents) {
         final contentItem = ContentItem.fromMcpResultContent(content);
-        replyContents.add(contentItem);
 
         // Get the first text content as reply text
         if (replyText == null &&
             contentItem.isText &&
             contentItem.text != null) {
           replyText = contentItem.text!;
+          // Do not add this text item to replyContents to avoid duplication
+          continue;
         }
+
+        replyContents.add(contentItem);
       }
     }
 
@@ -598,14 +601,17 @@ class ChatProvider extends ChangeNotifier {
       // Extract text content from response
       for (final content in response.contents) {
         final contentItem = ContentItem.fromMcpResultContent(content);
-        replyContents.add(contentItem);
 
         // Get the first text content as reply text
         if (replyText == null &&
             contentItem.isText &&
             contentItem.text != null) {
           replyText = contentItem.text!;
+          // Do not add this text item to replyContents to avoid duplication
+          continue;
         }
+
+        replyContents.add(contentItem);
       }
     }
 
