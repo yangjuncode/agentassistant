@@ -563,6 +563,7 @@ class ChatProvider extends ChangeNotifier {
           repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
+        notifyListeners();
         _updatePendingState();
         _logger.i(
             'Updated message $requestId status to replied (by another user) with content: $replyText');
@@ -636,6 +637,7 @@ class ChatProvider extends ChangeNotifier {
           repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
+        notifyListeners();
         _updatePendingState();
         _logger.i(
             'Updated message $requestId status to confirmed (by another user) with content: $replyText');
@@ -677,7 +679,9 @@ class ChatProvider extends ChangeNotifier {
       );
       _messages[messageIndex] = updatedMessage;
 
+
       _logger.d('Updated message $requestId status to cancelled');
+      notifyListeners();
       _updatePendingState();
     } else {
       _logger
