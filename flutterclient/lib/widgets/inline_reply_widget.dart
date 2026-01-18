@@ -58,8 +58,27 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     });
   }
 
+  ChatProvider? _chatProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _chatProvider = context.read<ChatProvider>();
+  }
+
   @override
   void dispose() {
+    // If the widget is being disposed while it has focus (e.g. message was replied by someone else),
+    // we need to reset the focus state in ChatProvider so the OnlineUsersBar can be shown again.
+    if (_focusNode.hasFocus) {
+      final provider = _chatProvider;
+      if (provider != null) {
+        // Use scheduleMicrotask to avoid notifying listeners during build
+        Future.microtask(() {
+          provider.setInputFocused(false);
+        });
+      }
+    }
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -192,7 +211,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     try {
       // Unfocus immediately to restore UI state (e.g. show Online Users bar)
       _focusNode.unfocus();
-      
+
       final chatProvider = context.read<ChatProvider>();
 
       if (widget.message.type == MessageType.question) {
@@ -217,9 +236,9 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       _attachments.clear();
       // Clear saved draft after successful send
       chatProvider.clearDraft(widget.message.id);
-      
+
       // Auto-show online users bar if no more pending actions
-      if (chatProvider.pendingQuestions.isEmpty && 
+      if (chatProvider.pendingQuestions.isEmpty &&
           chatProvider.pendingTasks.isEmpty) {
         chatProvider.setOnlineUsersVisible(true);
       }

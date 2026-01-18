@@ -258,9 +258,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         builder: (context, chatProvider, child) {
           return ListView(
             children: [
+              _buildCurrentProfile(context, chatProvider),
+
               _buildSectionHeader('Servers'),
               Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
                     for (final server in chatProvider.serverConfigs) ...[
@@ -310,7 +312,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Connection section
               _buildSectionHeader(l10n.connection),
               Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
                     ListTile(
@@ -362,7 +364,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // User section
               _buildSectionHeader(l10n.userSettings),
               Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
                     NicknameSettings(
@@ -384,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // System Input section
               _buildSectionHeader(l10n.systemInput),
               Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
                     SwitchListTile(
@@ -411,14 +413,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Messages section
               _buildSectionHeader(l10n.messages),
               Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
                     ListTile(
                       leading: const Icon(Icons.timer),
                       title: const Text('Chat Auto Send Interval'),
-                      subtitle: Text(
-                          '${chatProvider.chatAutoSendInterval} seconds'),
+                      subtitle:
+                          Text('${chatProvider.chatAutoSendInterval} seconds'),
                     ),
                     Slider(
                       value: chatProvider.chatAutoSendInterval.toDouble(),
@@ -427,7 +429,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       divisions: 29,
                       label: '${chatProvider.chatAutoSendInterval} seconds',
                       onChanged: (value) {
-                         chatProvider.setChatAutoSendInterval(value.toInt());
+                        chatProvider.setChatAutoSendInterval(value.toInt());
                       },
                     ),
                     const Divider(height: 1),
@@ -453,7 +455,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // App section
               _buildSectionHeader(l10n.app),
               Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
                     ListTile(
@@ -486,10 +488,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Widget _buildCurrentProfile(BuildContext context, ChatProvider chatProvider) {
+    final l10n = AppLocalizations.of(context)!;
+    final nickname = chatProvider.nickname ?? '...';
+    final clientId = chatProvider.currentClientId ?? 'Not connected';
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(8, 16, 8, 0),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 24,
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Text(
+                nickname.isNotEmpty ? nickname[0].toUpperCase() : '?',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nickname,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Client ID: $clientId',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            if (chatProvider.isConnected)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green.withOpacity(0.5)),
+                ),
+                child: const Text(
+                  'Online',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Build section header
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      padding: const EdgeInsets.fromLTRB(8, 24, 8, 8),
       child: Text(
         title,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(

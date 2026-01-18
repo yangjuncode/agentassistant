@@ -147,16 +147,19 @@ class WebSocketService {
 
   /// Send user login message
   Future<void> _sendUserLogin() async {
-    if (_token == null) return;
+    if (_token == null) {
+      _logger.w('Cannot send UserLogin: token is null');
+      return;
+    }
 
     final message = WebsocketMessage()
       ..cmd = WebSocketCommands.userLogin
       ..strParam = _token!
       ..nickname = _nickname ?? '';
 
-    await _sendMessage(message);
     _logger
-        .d('User login message sent with nickname: ${_nickname ?? "default"}');
+        .i('Sending UserLogin command - Nickname: "${_nickname ?? "[empty]"}"');
+    await _sendMessage(message);
   }
 
   /// Send ask question reply
@@ -189,10 +192,22 @@ class WebSocketService {
 
   /// Update nickname and send to server
   Future<void> updateNickname(String nickname) async {
+    final oldNickname = _nickname;
     _nickname = nickname;
-    // Send updated login message to server
-    await _sendUserLogin();
-    _logger.d('Nickname updated and sent to server: $nickname');
+
+    if (isConnected) {
+      try {
+        _logger.i(
+            'Sending nickname update to server: "$oldNickname" -> "$nickname"');
+        // Send updated login message to server
+        await _sendUserLogin();
+      } catch (error) {
+        _logger.e('Failed to send nickname update to server: $error');
+      }
+    } else {
+      _logger.i(
+          'Nickname updated locally while disconnected: "$oldNickname" -> "$nickname"');
+    }
   }
 
   /// Send get pending messages request

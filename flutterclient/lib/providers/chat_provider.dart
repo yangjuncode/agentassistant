@@ -49,6 +49,7 @@ class ChatProvider extends ChangeNotifier {
   bool _showOnlyPendingMessages = false;
   bool _isInputFocused = false;
   int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
+  String? _nickname;
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
@@ -94,6 +95,8 @@ class ChatProvider extends ChangeNotifier {
   bool get showOnlyPendingMessages => _showOnlyPendingMessages;
   bool get isInputFocused => _isInputFocused;
   int get chatAutoSendInterval => _chatAutoSendInterval;
+  String? get nickname => _nickname;
+
   bool _isOnlineUsersVisible = true;
   bool get isOnlineUsersVisible => _isOnlineUsersVisible;
 
@@ -123,6 +126,7 @@ class ChatProvider extends ChangeNotifier {
 
   ChatProvider() {
     Future.microtask(() async {
+      await _loadNickname(); // Load nickname first
       await _loadServerConfigs();
       await _loadAutoForwardSetting();
       await _loadChatSettings();
@@ -326,7 +330,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   Future<void> _connectServer(ServerConfig config, String token) async {
-    final nickname = await _loadNickname();
+    final nickname = _nickname ?? await _loadNickname();
     final service = _services.putIfAbsent(config.id, () => WebSocketService());
     _attachServiceListeners(config, service);
     _serverStatuses[config.id] = WebSocketServiceStatus.connecting;
@@ -679,7 +683,6 @@ class ChatProvider extends ChangeNotifier {
       );
       _messages[messageIndex] = updatedMessage;
 
-
       _logger.d('Updated message $requestId status to cancelled');
       notifyListeners();
       _updatePendingState();
@@ -959,15 +962,22 @@ class ChatProvider extends ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final nickname = prefs.getString('user_nickname');
       if (nickname != null && nickname.isNotEmpty) {
+        _nickname = nickname;
+        notifyListeners();
         return nickname;
       }
       // Generate and save default nickname if none exists
       final defaultNickname = _generateDefaultNickname();
       await prefs.setString('user_nickname', defaultNickname);
+      _nickname = defaultNickname;
+      notifyListeners();
       return defaultNickname;
     } catch (error) {
       _logger.e('Failed to load nickname: $error');
-      return _generateDefaultNickname();
+      final def = _generateDefaultNickname();
+      _nickname = def;
+      notifyListeners();
+      return def;
     }
   }
 
@@ -1001,17 +1011,21 @@ class ChatProvider extends ChangeNotifier {
   /// Update nickname and send to server
   Future<void> updateNickname(String nickname) async {
     try {
+      // Save locally
+      _nickname = nickname;
+      notifyListeners();
+
       // Save to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_nickname', nickname);
 
-      // If connected, update nickname on server immediately
+      // Update all services (even if not connected, so it's used on reconnect)
+      for (final svc in _services.values) {
+        await svc.updateNickname(nickname);
+      }
+
       if (_isConnected) {
-        for (final svc in _services.values) {
-          if (!svc.isConnected) continue;
-          await svc.updateNickname(nickname);
-        }
-        _logger.i('Nickname updated and sent to server: $nickname');
+        _logger.i('Nickname updated and sent to connected servers: $nickname');
       } else {
         _logger.i(
             'Nickname saved locally, will be sent on next connection: $nickname');
@@ -1188,21 +1202,31 @@ class ChatProvider extends ChangeNotifier {
         'Processing user connection status: $status for user: ${user.nickname} (${user.clientId})');
 
     if (status == 'connected') {
-      // Add user to online users list if not already present
+      // Add or update user in online users list
       final existingIndex = _onlineUsers.indexWhere(
           (u) => u.serverId == serverId && u.user.clientId == user.clientId);
-      if (existingIndex == -1 &&
-          user.clientId != currentClientIdForServer(serverId)) {
-        _onlineUsers.add(DisplayOnlineUser(
-          serverId: serverId,
-          serverName: serverName,
-          user: user,
-        ));
-        _logger.i(
-            '✅ User ${user.nickname} (${user.clientId}) added to online users list');
+
+      if (user.clientId != currentClientIdForServer(serverId)) {
+        if (existingIndex == -1) {
+          _onlineUsers.add(DisplayOnlineUser(
+            serverId: serverId,
+            serverName: serverName,
+            user: user,
+          ));
+          _logger.i(
+              '✅ User ${user.nickname} (${user.clientId}) added to online users list');
+        } else {
+          // Update existing user info (nickname might have changed)
+          _onlineUsers[existingIndex] = DisplayOnlineUser(
+            serverId: serverId,
+            serverName: serverName,
+            user: user,
+          );
+          _logger.i(
+              '✅ User ${user.nickname} (${user.clientId}) info updated in online users list');
+        }
       } else {
-        _logger.w(
-            '⚠️ User ${user.nickname} (${user.clientId}) already in list or is current user');
+        _logger.d('Ignoring connection status for current user');
       }
     } else if (status == 'disconnected') {
       // Remove user from online users list
@@ -1295,7 +1319,7 @@ class ChatProvider extends ChangeNotifier {
       final localMessage = pb.ChatMessage()
         ..messageId = 'local-${DateTime.now().millisecondsSinceEpoch}'
         ..senderClientId = svc.clientId ?? ''
-        ..senderNickname = await _loadNickname() ?? 'Me'
+        ..senderNickname = _nickname ?? 'Me'
         ..receiverClientId = receiverClientId
         ..receiverNickname = ''
         ..content = content
@@ -1351,8 +1375,6 @@ class ChatProvider extends ChangeNotifier {
       _logger.e('Failed to save auto forward setting: $error');
     }
   }
-
-
 
   /// Load chat settings
   Future<void> _loadChatSettings() async {

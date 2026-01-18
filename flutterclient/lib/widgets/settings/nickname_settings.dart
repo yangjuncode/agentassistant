@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers/chat_provider.dart';
@@ -29,7 +28,8 @@ class _NicknameSettingsState extends State<NicknameSettings> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialNickname ?? '');
-    _loadNickname();
+    // Schedule loading current nickname after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadCurrentNickname());
   }
 
   @override
@@ -38,25 +38,20 @@ class _NicknameSettingsState extends State<NicknameSettings> {
     super.dispose();
   }
 
-  Future<void> _loadNickname() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedNickname = prefs.getString('user_nickname');
-      if (savedNickname != null && savedNickname.isNotEmpty) {
-        setState(() {
-          _controller.text = savedNickname;
-        });
-      } else if (_controller.text.isEmpty) {
-        // Generate default nickname if none exists
-        final defaultNickname = _generateDefaultNickname();
-        setState(() {
-          _controller.text = defaultNickname;
-        });
-      }
-    } catch (e) {
-      final l10n = AppLocalizations.of(context)!;
+  void _loadCurrentNickname() {
+    if (!mounted) return;
+    final chatProvider = context.read<ChatProvider>();
+    final nickname = chatProvider.nickname;
+
+    if (nickname != null) {
       setState(() {
-        _errorMessage = l10n.nicknameLoadFailed(e.toString());
+        _controller.text = nickname;
+      });
+    } else if (_controller.text.isEmpty) {
+      // Generate default nickname if none exists
+      final defaultNickname = NicknameHelper.generateDefaultNickname();
+      setState(() {
+        _controller.text = defaultNickname;
       });
     }
   }
@@ -108,64 +103,42 @@ class _NicknameSettingsState extends State<NicknameSettings> {
         );
       }
     } catch (e) {
-      final l10n = AppLocalizations.of(context)!;
-      setState(() {
-        _errorMessage = l10n.nicknameSaveFailed(e.toString());
-      });
+      if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
+        setState(() {
+          _errorMessage = l10n.nicknameSaveFailed(e.toString());
+        });
+      }
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
   void _resetNickname() {
-    final defaultNickname = _generateDefaultNickname();
+    final defaultNickname = NicknameHelper.generateDefaultNickname();
     setState(() {
       _controller.text = defaultNickname;
       _errorMessage = null;
     });
   }
 
-  String _generateDefaultNickname() {
-    final adjectives = [
-      'Smart',
-      'Diligent',
-      'Friendly',
-      'Active',
-      'Creative',
-      'Professional'
-    ];
-    final nouns = [
-      'Developer',
-      'User',
-      'Assistant',
-      'Partner',
-      'Colleague',
-      'Friend'
-    ];
-
-    final adjective =
-        adjectives[DateTime.now().millisecond % adjectives.length];
-    final noun = nouns[DateTime.now().second % nouns.length];
-    final number = DateTime.now().millisecond % 1000;
-
-    return '$adjective$noun$number';
-  }
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Card(
-      margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header
-            Row(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
               children: [
                 Icon(
                   Icons.person,
@@ -178,106 +151,124 @@ class _NicknameSettingsState extends State<NicknameSettings> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
               l10n.nicknameSettingsSubtitle,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
-            const SizedBox(height: 16),
+          ),
+          const SizedBox(height: 16),
 
-            // Nickname input
-            TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                labelText: l10n.nicknameLabel,
-                hintText: l10n.nicknameHint,
-                border: const OutlineInputBorder(),
-                prefixIcon: const Icon(Icons.badge),
-                errorText: _errorMessage,
-                counterText: '${_controller.text.length}/20',
-              ),
-              maxLength: 20,
-              onChanged: (value) {
-                setState(() {
-                  _errorMessage = null;
-                });
-              },
-              onSubmitted: (_) => _saveNickname(),
+          // Nickname input
+          TextField(
+            controller: _controller,
+            decoration: InputDecoration(
+              labelText: l10n.nicknameLabel,
+              hintText: l10n.nicknameHint,
+              border: const OutlineInputBorder(),
+              prefixIcon: const Icon(Icons.badge),
+              errorText: _errorMessage,
+              counterText: '${_controller.text.length}/20',
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
             ),
-            const SizedBox(height: 16),
+            maxLength: 20,
+            onChanged: (value) {
+              setState(() {
+                _errorMessage = null;
+              });
+            },
+            onSubmitted: (_) => _saveNickname(),
+          ),
+          const SizedBox(height: 12),
 
-            // Action buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton.icon(
-                  onPressed: _isLoading ? null : _resetNickname,
-                  icon: const Icon(Icons.refresh),
-                  label: Text(l10n.nicknameRegenerate),
+          // Action buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton.icon(
+                onPressed: _isLoading ? null : _resetNickname,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  visualDensity: VisualDensity.compact,
                 ),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () {
-                              _controller.clear();
-                              setState(() {
-                                _errorMessage = null;
-                              });
-                            },
-                      child: Text(l10n.nicknameClear),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _saveNickname,
-                      icon: _isLoading
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.save),
-                      label: Text(
-                          _isLoading ? l10n.nicknameSaving : l10n.nicknameSave),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            // Help text
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .surfaceContainerHighest
-                    .withOpacity(0.3),
-                borderRadius: BorderRadius.circular(8),
+                icon: const Icon(Icons.refresh, size: 20),
+                label: Text(l10n.nicknameRegenerate),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  Text(
-                    l10n.nicknameTipsTitle,
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                  TextButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () {
+                            _controller.clear();
+                            setState(() {
+                              _errorMessage = null;
+                            });
+                          },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    child: Text(l10n.nicknameClear),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.nicknameTipsBody,
-                    style: const TextStyle(fontSize: 12),
+                  const SizedBox(width: 4),
+                  ElevatedButton.icon(
+                    onPressed: _isLoading ? null : _saveNickname,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    icon: _isLoading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.save, size: 20),
+                    label: Text(
+                        _isLoading ? l10n.nicknameSaving : l10n.nicknameSave),
                   ),
                 ],
               ),
+            ],
+          ),
+
+          // Help text
+          const SizedBox(height: 12),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withOpacity(0.3),
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l10n.nicknameTipsTitle,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  l10n.nicknameTipsBody,
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -285,28 +276,6 @@ class _NicknameSettingsState extends State<NicknameSettings> {
 
 /// Static helper methods for nickname management
 class NicknameHelper {
-  static const String _nicknameKey = 'user_nickname';
-
-  /// Get saved nickname from SharedPreferences
-  static Future<String?> getSavedNickname() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(_nicknameKey);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  /// Save nickname to SharedPreferences
-  static Future<bool> saveNickname(String nickname) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      return await prefs.setString(_nicknameKey, nickname);
-    } catch (e) {
-      return false;
-    }
-  }
-
   /// Generate a default nickname
   static String generateDefaultNickname() {
     final adjectives = [
