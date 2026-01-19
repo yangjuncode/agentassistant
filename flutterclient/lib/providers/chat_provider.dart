@@ -114,12 +114,21 @@ class ChatProvider extends ChangeNotifier {
 
   void toggleOnlineUsersVisibility() {
     _isOnlineUsersVisible = !_isOnlineUsersVisible;
+    // When explicitly showing the bar, also reset input focus state
+    // so the bar is guaranteed to be visible
+    if (_isOnlineUsersVisible) {
+      _isInputFocused = false;
+    }
     notifyListeners();
   }
 
   void setOnlineUsersVisible(bool visible) {
     if (_isOnlineUsersVisible != visible) {
       _isOnlineUsersVisible = visible;
+      // When explicitly showing the bar, also reset input focus state
+      if (visible) {
+        _isInputFocused = false;
+      }
       notifyListeners();
     }
   }
@@ -1347,7 +1356,12 @@ class ChatProvider extends ChangeNotifier {
 
   /// Get chat messages for a specific user
   List<pb.ChatMessage> getChatMessages(String serverId, String userId) {
-    return _chatMessages[_chatKey(serverId, userId)] ?? [];
+    final key = _chatKey(serverId, userId);
+    final messages = _chatMessages[key] ?? [];
+    print(
+        '[getChatMessages] serverId=$serverId, userId=$userId, key=$key, count=${messages.length}');
+    print('[getChatMessages] Available keys: ${_chatMessages.keys.toList()}');
+    return messages;
   }
 
   /// Load auto forward to system input setting
