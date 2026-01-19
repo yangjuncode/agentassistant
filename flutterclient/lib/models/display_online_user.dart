@@ -15,8 +15,9 @@ class DisplayOnlineUser {
 
   String get displayNickname {
     if (user.nickname.isNotEmpty) return user.nickname;
-    if (user.clientId.length >= 8)
+    if (user.clientId.length >= 8) {
       return 'User_${user.clientId.substring(0, 8)}';
+    }
     return 'User_${user.clientId}';
   }
 

@@ -1143,7 +1143,7 @@ class ChatProvider extends ChangeNotifier {
     print(
         '[ChatNotification] Message content length: ${chatMessage.content.length}');
     print(
-        '[ChatNotification] Message content: ${chatMessage.content.length > 100 ? chatMessage.content.substring(0, 100) + "..." : chatMessage.content}');
+        '[ChatNotification] Message content: ${chatMessage.content.length > 100 ? "${chatMessage.content.substring(0, 100)}..." : chatMessage.content}');
 
     // Add to chat messages map
     final senderId = chatMessage.senderClientId;
@@ -1421,7 +1421,7 @@ class ChatProvider extends ChangeNotifier {
     print('[AutoForward] Starting auto forward to system input');
     print('[AutoForward] Content length: ${content.length}');
     print(
-        '[AutoForward] Content preview: ${content.length > 100 ? content.substring(0, 100) + "..." : content}');
+        '[AutoForward] Content preview: ${content.length > 100 ? "${content.substring(0, 100)}..." : content}');
 
     try {
       print('[AutoForward] Calling SystemInputService.sendToSystemInput...');
