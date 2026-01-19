@@ -257,7 +257,7 @@ class _ChatDialogState extends State<_ChatDialog> {
     }
   }
 
-    void _scheduleAutoSend() {
+  void _scheduleAutoSend() {
     try {
       _clearAutoSendTimer();
       final interval = widget.chatProvider.chatAutoSendInterval;
@@ -366,6 +366,56 @@ class _ChatDialogState extends State<_ChatDialog> {
       }
     } catch (e, stack) {
       _logger.e('Error sending message', error: e, stackTrace: stack);
+    }
+  }
+
+  /// Sends unsent text + newline, or just newline if no unsent text.
+  /// Always clears the input field after sending.
+  void _sendEnterKey() {
+    try {
+      _logger.d('_sendEnterKey called');
+      _clearAutoSendTimer();
+
+      final content = _messageController.text;
+      String messageToSend;
+
+      if (content.length > _lastSentTextLength) {
+        // There is unsent text: send [unsent text] + newline
+        final unsentText = content.substring(_lastSentTextLength);
+        messageToSend = '$unsentText\n';
+        _logger.d('Sending unsent text + newline: "$messageToSend"');
+      } else {
+        // No unsent text: send just newline
+        messageToSend = '\n';
+        _logger.d('Sending just newline');
+      }
+
+      widget.chatProvider.sendChatMessage(
+        widget.user.user.clientId,
+        messageToSend,
+        serverId: widget.user.serverId,
+      );
+
+      // Clear input and reset tracker
+      _messageController.clear();
+      _lastSentTextLength = 0;
+
+      // Handle UI updates
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          try {
+            _scrollToBottom();
+            if (!_inputFocusNode.hasFocus) {
+              _inputFocusNode.requestFocus();
+            }
+          } catch (e, stack) {
+            _logger.e('Error in post-sendEnterKey UI updates',
+                error: e, stackTrace: stack);
+          }
+        }
+      });
+    } catch (e, stack) {
+      _logger.e('Error sending enter key', error: e, stackTrace: stack);
     }
   }
 
@@ -494,7 +544,8 @@ class _ChatDialogState extends State<_ChatDialog> {
                 controller: _messageController,
                 focusNode: _inputFocusNode,
                 decoration: InputDecoration(
-                  hintText: '输入消息... (${widget.chatProvider.chatAutoSendInterval}秒后自动发送或Ctrl+Enter)',
+                  hintText:
+                      '输入消息... (${widget.chatProvider.chatAutoSendInterval}秒后自动发送或Ctrl+Enter)',
                   border: const OutlineInputBorder(),
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -510,9 +561,30 @@ class _ChatDialogState extends State<_ChatDialog> {
             ),
           ),
           const SizedBox(width: 8),
-          IconButton(
-            onPressed: () => _sendMessage(),
-            icon: const Icon(Icons.send),
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Tooltip(
+                message: '发送回车键',
+                child: IconButton(
+                  onPressed: () => _sendEnterKey(),
+                  icon: const Icon(Icons.keyboard_return),
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
+                ),
+              ),
+              Tooltip(
+                message: '快速发送',
+                child: IconButton(
+                  onPressed: () => _sendMessage(),
+                  icon: const Icon(Icons.send),
+                ),
+              ),
+            ],
           ),
         ],
       );
