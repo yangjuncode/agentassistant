@@ -51,18 +51,69 @@ func main() {
 		fmt.Println("Using base64 decoded input.")
 	}
 
-	// Log before typing
-	log.Printf("[DEBUG] About to type string, length: %d, first 100 chars: '%s'", len(stringToType), truncateForLog(stringToType))
-
-	// Type the determined string
-	log.Printf("[DEBUG] Calling robotgo.TypeStr()...")
+	// Type the determined string with newline handling
+	log.Printf("[DEBUG] Calling typeWithNewlines()...")
 	startTime := time.Now()
-	robotgo.TypeStr(stringToType)
+	typeWithNewlines(stringToType)
 	elapsed := time.Since(startTime)
-	log.Printf("[DEBUG] robotgo.TypeStr() completed in %v", elapsed)
+	log.Printf("[DEBUG] typeWithNewlines() completed in %v", elapsed)
 
 	fmt.Println("Successfully typed the string.")
 	log.Printf("[DEBUG] agentassistant-input completed successfully")
+}
+
+// typeWithNewlines types a string, handling newline characters by pressing Enter
+func typeWithNewlines(s string) {
+	segments := splitByNewlines(s)
+	for i, segment := range segments {
+		if segment.isNewline {
+			// Press Enter key for newline
+			robotgo.KeyTap("enter")
+		} else if segment.text != "" {
+			// Type the text segment
+			robotgo.TypeStr(segment.text)
+		}
+		if i < len(segments)-1 {
+			// Small delay between segments to ensure proper input order
+			time.Sleep(10 * time.Millisecond)
+		}
+	}
+}
+
+// textSegment represents a segment of text (either text or a newline marker)
+type textSegment struct {
+	text      string
+	isNewline bool
+}
+
+// splitByNewlines splits a string into segments, separating text from newlines
+func splitByNewlines(s string) []textSegment {
+	var segments []textSegment
+	currentText := ""
+
+	for _, r := range s {
+		if r == '\n' {
+			// Flush current text segment if any
+			if currentText != "" {
+				segments = append(segments, textSegment{text: currentText, isNewline: false})
+				currentText = ""
+			}
+			// Add newline segment
+			segments = append(segments, textSegment{isNewline: true})
+		} else if r == '\r' {
+			// Skip carriage return (Windows line endings)
+			continue
+		} else {
+			currentText += string(r)
+		}
+	}
+
+	// Flush remaining text
+	if currentText != "" {
+		segments = append(segments, textSegment{text: currentText, isNewline: false})
+	}
+
+	return segments
 }
 
 // truncateForLog truncates a string for logging, showing first 100 characters
