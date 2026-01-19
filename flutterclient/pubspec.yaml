@@ -41,6 +41,7 @@ dependencies:
   # Media and Content
   cached_network_image: ^3.4.1
   audioplayers: ^6.1.0
+  flutter_markdown: ^0.7.4+3
 
   # Logging and Development
   logger: ^2.4.0

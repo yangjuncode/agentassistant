@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 import '../models/chat_message.dart';
 import '../constants/websocket_commands.dart';
@@ -32,7 +33,7 @@ class ContentDisplay extends StatelessWidget {
     }
   }
 
-  /// Build text content widget
+  /// Build text content widget with markdown support
   Widget _buildTextContent(BuildContext context) {
     return Container(
       width: double.infinity,
@@ -44,9 +45,26 @@ class ContentDisplay extends StatelessWidget {
             .withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: SelectableText(
-        content.text ?? '',
-        style: Theme.of(context).textTheme.bodyMedium,
+      child: MarkdownBody(
+        data: content.text ?? '',
+        selectable: true,
+        styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+          p: Theme.of(context).textTheme.bodyMedium,
+          code: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontFamily: 'monospace',
+                backgroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+          codeblockDecoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        onTapLink: (text, href, title) {
+          if (href != null) {
+            launchUrl(Uri.parse(href));
+          }
+        },
       ),
     );
   }
