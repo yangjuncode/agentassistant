@@ -475,6 +475,21 @@ abstract class AppLocalizations {
   String get nicknameTooShortError;
   String get nicknameTooLongError;
   String get nicknameSaved;
+
+  // Server management
+  String get servers;
+  String get addServer;
+  String get editServer;
+  String get serverAlias;
+  String get webSocketUrl;
+  String get enabled;
+  String get save;
+  String get edit;
+  String get delete;
+  String get noServersConfigured;
+  String get noEnabledServers;
+  String get deleteServerConfirmTitle;
+  String deleteServerConfirmMessage(String serverName);
 }
 
 class _AppLocalizationsDelegate

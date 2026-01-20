@@ -366,4 +366,48 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get nicknameSaved => 'Nickname has been saved and synced to server';
+
+  // Server management
+  @override
+  String get servers => 'Servers';
+
+  @override
+  String get addServer => 'Add Server';
+
+  @override
+  String get editServer => 'Edit Server';
+
+  @override
+  String get serverAlias => 'Alias (optional)';
+
+  @override
+  String get webSocketUrl => 'WebSocket URL';
+
+  @override
+  String get enabled => 'Enabled';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get noServersConfigured =>
+      'No servers configured. Add a server to connect.';
+
+  @override
+  String get noEnabledServers =>
+      'No servers enabled. Please enable at least one server.';
+
+  @override
+  String get deleteServerConfirmTitle => 'Delete Server';
+
+  @override
+  String deleteServerConfirmMessage(String serverName) {
+    return 'Are you sure you want to delete server "$serverName"?';
+  }
 }

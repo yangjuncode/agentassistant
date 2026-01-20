@@ -357,4 +357,46 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get nicknameSaved => '昵称已保存并同步到服务器';
+
+  // Server management
+  @override
+  String get servers => '服务器';
+
+  @override
+  String get addServer => '添加服务器';
+
+  @override
+  String get editServer => '编辑服务器';
+
+  @override
+  String get serverAlias => '别名（可选）';
+
+  @override
+  String get webSocketUrl => 'WebSocket 地址';
+
+  @override
+  String get enabled => '已启用';
+
+  @override
+  String get save => '保存';
+
+  @override
+  String get edit => '编辑';
+
+  @override
+  String get delete => '删除';
+
+  @override
+  String get noServersConfigured => '未配置服务器，请添加服务器进行连接。';
+
+  @override
+  String get noEnabledServers => '没有启用的服务器，请至少启用一个服务器。';
+
+  @override
+  String get deleteServerConfirmTitle => '删除服务器';
+
+  @override
+  String deleteServerConfirmMessage(String serverName) {
+    return '确定要删除服务器 "$serverName" 吗？';
+  }
 }
