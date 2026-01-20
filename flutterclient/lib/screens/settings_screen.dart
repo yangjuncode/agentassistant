@@ -265,41 +265,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
-                    for (final server in chatProvider.serverConfigs) ...[
-                      ListTile(
-                        leading: const Icon(Icons.dns),
-                        title: Text(server.displayName),
-                        subtitle: Text(server.url),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Switch(
-                              value: server.isEnabled,
-                              onChanged: (value) {
-                                chatProvider.upsertServerConfig(
-                                    server.copyWith(isEnabled: value));
-                              },
-                            ),
-                            IconButton(
-                              tooltip: 'Edit',
-                              onPressed: () => _showAddEditServerDialog(
-                                  chatProvider,
-                                  existing: server),
-                              icon: const Icon(Icons.edit),
-                            ),
-                            IconButton(
-                              tooltip: 'Delete',
-                              onPressed: () async {
-                                await chatProvider
-                                    .deleteServerConfig(server.id);
-                              },
-                              icon: const Icon(Icons.delete_outline),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Divider(height: 1),
+                    for (int i = 0;
+                        i < chatProvider.serverConfigs.length;
+                        i++) ...[
+                      _buildServerTile(
+                          chatProvider, chatProvider.serverConfigs[i]),
+                      if (i < chatProvider.serverConfigs.length - 1)
+                        const Divider(height: 1),
                     ],
+                    if (chatProvider.serverConfigs.isNotEmpty)
+                      const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.add),
                       title: const Text('Add server'),
@@ -550,6 +525,102 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Build a single server tile
+  Widget _buildServerTile(ChatProvider chatProvider, ServerConfig server) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isEnabled = server.isEnabled;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // First row: icon, name, actions
+          Row(
+            children: [
+              // Server icon
+              Icon(
+                Icons.dns,
+                size: 20,
+                color: isEnabled ? colorScheme.primary : colorScheme.outline,
+              ),
+              const SizedBox(width: 12),
+              // Server name (expandable)
+              Expanded(
+                child: Text(
+                  server.displayName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: isEnabled ? null : colorScheme.outline,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              // Actions: enable switch, edit, delete
+              SizedBox(
+                height: 32,
+                child: Switch(
+                  value: isEnabled,
+                  onChanged: (value) {
+                    chatProvider.upsertServerConfig(
+                      server.copyWith(isEnabled: value),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 36,
+                height: 36,
+                child: IconButton(
+                  tooltip: 'Edit',
+                  padding: EdgeInsets.zero,
+                  onPressed: () =>
+                      _showAddEditServerDialog(chatProvider, existing: server),
+                  icon: Icon(
+                    Icons.edit,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 36,
+                height: 36,
+                child: IconButton(
+                  tooltip: 'Delete',
+                  padding: EdgeInsets.zero,
+                  onPressed: () async {
+                    await chatProvider.deleteServerConfig(server.id);
+                  },
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: colorScheme.error.withOpacity(0.7),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Second row: URL (indented to align with name)
+          Padding(
+            padding: const EdgeInsets.only(left: 32, top: 4),
+            child: Text(
+              server.url,
+              style: TextStyle(
+                fontSize: 12,
+                color: isEnabled
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.outline,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
       ),
     );
   }

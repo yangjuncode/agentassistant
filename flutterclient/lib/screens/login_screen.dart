@@ -395,55 +395,97 @@ class _LoginScreenState extends State<LoginScreen> {
 
   /// Build a single server tile
   Widget _buildServerTile(ChatProvider chatProvider, ServerConfig server) {
-    return ListTile(
-      leading: Icon(
-        Icons.dns,
-        color: server.isEnabled
-            ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.outline,
-      ),
-      title: Text(
-        server.displayName,
-        style: TextStyle(
-          color:
-              server.isEnabled ? null : Theme.of(context).colorScheme.outline,
-        ),
-      ),
-      subtitle: Text(
-        server.url,
-        style: TextStyle(
-          fontSize: 12,
-          color: server.isEnabled
-              ? Theme.of(context).colorScheme.onSurfaceVariant
-              : Theme.of(context).colorScheme.outline,
-        ),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
+    final colorScheme = Theme.of(context).colorScheme;
+    final isEnabled = server.isEnabled;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Switch(
-            value: server.isEnabled,
-            onChanged: (value) {
-              chatProvider.upsertServerConfig(
-                server.copyWith(isEnabled: value),
-              );
-            },
+          // First row: icon, name, actions
+          Row(
+            children: [
+              // Server icon
+              Icon(
+                Icons.dns,
+                size: 20,
+                color: isEnabled ? colorScheme.primary : colorScheme.outline,
+              ),
+              const SizedBox(width: 12),
+              // Server name (expandable)
+              Expanded(
+                child: Text(
+                  server.displayName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    color: isEnabled ? null : colorScheme.outline,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              // Actions: enable switch, edit, delete
+              SizedBox(
+                height: 32,
+                child: Switch(
+                  value: isEnabled,
+                  onChanged: (value) {
+                    chatProvider.upsertServerConfig(
+                      server.copyWith(isEnabled: value),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(
+                width: 36,
+                height: 36,
+                child: IconButton(
+                  tooltip: AppLocalizations.of(context)!.edit,
+                  padding: EdgeInsets.zero,
+                  onPressed: () =>
+                      _showAddEditServerDialog(chatProvider, existing: server),
+                  icon: Icon(
+                    Icons.edit,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 36,
+                height: 36,
+                child: IconButton(
+                  tooltip: AppLocalizations.of(context)!.delete,
+                  padding: EdgeInsets.zero,
+                  onPressed: () async {
+                    final confirm = await _showDeleteConfirmDialog(server);
+                    if (confirm == true) {
+                      await chatProvider.deleteServerConfig(server.id);
+                    }
+                  },
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: colorScheme.error.withOpacity(0.7),
+                  ),
+                ),
+              ),
+            ],
           ),
-          IconButton(
-            tooltip: AppLocalizations.of(context)!.edit,
-            onPressed: () =>
-                _showAddEditServerDialog(chatProvider, existing: server),
-            icon: const Icon(Icons.edit, size: 20),
-          ),
-          IconButton(
-            tooltip: AppLocalizations.of(context)!.delete,
-            onPressed: () async {
-              final confirm = await _showDeleteConfirmDialog(server);
-              if (confirm == true) {
-                await chatProvider.deleteServerConfig(server.id);
-              }
-            },
-            icon: const Icon(Icons.delete_outline, size: 20),
+          // Second row: URL (indented to align with name)
+          Padding(
+            padding: const EdgeInsets.only(left: 32, top: 4),
+            child: Text(
+              server.url,
+              style: TextStyle(
+                fontSize: 12,
+                color: isEnabled
+                    ? colorScheme.onSurfaceVariant
+                    : colorScheme.outline,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
