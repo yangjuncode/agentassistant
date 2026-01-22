@@ -169,6 +169,7 @@ class TrayService with TrayListener {
   }
 
   void _startBlink() {
+    if (!isDesktop) return;
     if (_blinkTimer != null) return;
     _blinkTimer = Timer.periodic(const Duration(milliseconds: 700), (_) async {
       _blinkOn = !_blinkOn;
