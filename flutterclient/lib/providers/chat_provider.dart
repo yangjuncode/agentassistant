@@ -39,6 +39,8 @@ class ChatProvider extends ChangeNotifier {
   final Map<String, String> _replyDrafts = {};
   // In-memory history of reply/confirm texts (newest first)
   final List<String> _replyHistory = [];
+  // Direct chat message error tracking
+  final Set<String> _failedChatMessageIds = {};
 
   bool _isConnected = false;
   bool _isConnecting = false;
@@ -834,6 +836,12 @@ class ChatProvider extends ChangeNotifier {
     } catch (error) {
       _logger.e('Failed to reply to question: $error');
       _connectionError = 'Reply failed: $error';
+      // Update message status to error
+      final index = _messages.indexWhere((m) => m.id == messageId);
+      if (index != -1) {
+        _messages[index] =
+            _messages[index].copyWith(status: MessageStatus.error);
+      }
       notifyListeners();
     }
   }
@@ -907,6 +915,12 @@ class ChatProvider extends ChangeNotifier {
     } catch (error) {
       _logger.e('Failed to confirm task: $error');
       _connectionError = 'Confirm failed: $error';
+      // Update message status to error
+      final index = _messages.indexWhere((m) => m.id == messageId);
+      if (index != -1) {
+        _messages[index] =
+            _messages[index].copyWith(status: MessageStatus.error);
+      }
       notifyListeners();
     }
   }
@@ -1306,46 +1320,57 @@ class ChatProvider extends ChangeNotifier {
     _updateTrayPendingCount();
   }
 
-  /// Internal method to send chat messages with optional UI notification
   Future<void> _sendChatMessageInternal(
       String serverId, String receiverClientId, String content,
       {required bool notifyUI}) async {
     final svc = _services[serverId];
+
+    // Create local message first to show it in UI immediately
+    final messageId = 'local-${DateTime.now().millisecondsSinceEpoch}';
+    final key = _chatKey(serverId, receiverClientId);
+    if (!_chatMessages.containsKey(key)) {
+      _chatMessages[key] = [];
+    }
+
+    final localMessage = pb.ChatMessage()
+      ..messageId = messageId
+      ..senderClientId = svc?.clientId ?? ''
+      ..senderNickname = _nickname ?? 'Me'
+      ..receiverClientId = receiverClientId
+      ..receiverNickname = ''
+      ..content = content
+      ..sentAt = Int64(DateTime.now().millisecondsSinceEpoch ~/ 1000);
+
+    _chatMessages[key]!.add(localMessage);
+    if (notifyUI) {
+      notifyListeners();
+    }
+
     if (svc == null || !svc.isConnected) {
       _logger.w('Cannot send chat message: not connected');
+      _failedChatMessageIds.add(messageId);
+      if (notifyUI) {
+        notifyListeners();
+      }
       return;
     }
 
     try {
       await svc.sendChatMessage(receiverClientId, content);
-
-      // Add message to local chat history
-      final key = _chatKey(serverId, receiverClientId);
-      if (!_chatMessages.containsKey(key)) {
-        _chatMessages[key] = [];
-      }
-
-      final localMessage = pb.ChatMessage()
-        ..messageId = 'local-${DateTime.now().millisecondsSinceEpoch}'
-        ..senderClientId = svc.clientId ?? ''
-        ..senderNickname = _nickname ?? 'Me'
-        ..receiverClientId = receiverClientId
-        ..receiverNickname = ''
-        ..content = content
-        ..sentAt = Int64(DateTime.now().millisecondsSinceEpoch ~/ 1000);
-
-      _chatMessages[key]!.add(localMessage);
-
-      // Only notify listeners if requested (for manual sends)
-      if (notifyUI) {
-        notifyListeners();
-      }
-
       _logger.i(
           'Chat message sent to $receiverClientId: $content (UI notify: $notifyUI)');
     } catch (error) {
       _logger.e('Failed to send chat message: $error');
+      _failedChatMessageIds.add(messageId);
+      if (notifyUI) {
+        notifyListeners();
+      }
     }
+  }
+
+  /// Check if a chat message failed to send
+  bool isChatMessageFailed(String messageId) {
+    return _failedChatMessageIds.contains(messageId);
   }
 
   /// Set active chat user

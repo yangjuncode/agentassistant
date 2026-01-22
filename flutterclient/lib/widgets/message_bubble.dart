@@ -158,27 +158,47 @@ class MessageBubble extends StatelessWidget {
                   .withOpacity(0.3),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: MarkdownBody(
-              data: message.displayContent,
-              selectable: true,
-              styleSheet:
-                  MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                p: Theme.of(context).textTheme.bodyMedium,
-                code: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontFamily: 'monospace',
-                      backgroundColor:
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MarkdownBody(
+                  data: message.displayContent,
+                  selectable: true,
+                  styleSheet:
+                      MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                    p: Theme.of(context).textTheme.bodyMedium,
+                    code: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontFamily: 'monospace',
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                        ),
+                    codeblockDecoration: BoxDecoration(
+                      color:
                           Theme.of(context).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(4),
                     ),
-                codeblockDecoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(4),
+                  ),
+                  onTapLink: (text, href, title) {
+                    if (href != null) {
+                      launchUrl(Uri.parse(href));
+                    }
+                  },
                 ),
-              ),
-              onTapLink: (text, href, title) {
-                if (href != null) {
-                  launchUrl(Uri.parse(href));
-                }
-              },
+                if (message.status == MessageStatus.error) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Icon(
+                        Icons.error,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 16,
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
         ],

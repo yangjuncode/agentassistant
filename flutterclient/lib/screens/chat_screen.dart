@@ -243,7 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final l10n = AppLocalizations.of(context)!;
     // Watch ChatProvider for AppBar updates
     final chatProvider = context.watch<ChatProvider>();
-    
+
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 40,
@@ -388,21 +388,23 @@ class _ChatScreenState extends State<ChatScreen> {
       _checkForNewReplyableMessages(chatProvider.visibleMessages);
     });
 
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(16),
-      itemCount: chatProvider.visibleMessages.length,
-      itemBuilder: (context, index) {
-        final message = chatProvider.visibleMessages[index];
+    return SelectionArea(
+      child: ListView.builder(
+        controller: _scrollController,
+        padding: const EdgeInsets.all(16),
+        itemCount: chatProvider.visibleMessages.length,
+        itemBuilder: (context, index) {
+          final message = chatProvider.visibleMessages[index];
 
-        return Padding(
-          key: _messageKeys[message.id],
-          padding: const EdgeInsets.only(bottom: 8),
-          child: MessageBubble(
-            message: message,
-          ),
-        );
-      },
+          return Padding(
+            key: _messageKeys[message.id],
+            padding: const EdgeInsets.only(bottom: 8),
+            child: MessageBubble(
+              message: message,
+            ),
+          );
+        },
+      ),
     );
   }
 }
