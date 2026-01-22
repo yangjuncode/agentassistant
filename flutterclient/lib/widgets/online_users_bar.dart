@@ -459,87 +459,85 @@ class _ChatDialogState extends State<_ChatDialog> {
             if (messages.isEmpty) {
               return const Center(child: Text('还没有聊天消息'));
             }
-            return SelectionArea(
-              child: ListView.builder(
-                controller: _scrollController,
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  final message = messages[index];
-                  final isFromMe = message.senderClientId ==
-                      widget.chatProvider
-                          .currentClientIdForServer(widget.user.serverId);
-                  final isFailed = widget.chatProvider
-                      .isChatMessageFailed(message.messageId);
+            return ListView.builder(
+              controller: _scrollController,
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                final isFromMe = message.senderClientId ==
+                    widget.chatProvider
+                        .currentClientIdForServer(widget.user.serverId);
+                final isFailed =
+                    widget.chatProvider.isChatMessageFailed(message.messageId);
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4),
-                    child: Row(
-                      mainAxisAlignment: isFromMe
-                          ? MainAxisAlignment.end
-                          : MainAxisAlignment.start,
-                      children: [
-                        Container(
-                          constraints: const BoxConstraints(maxWidth: 250),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isFromMe
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                message.content,
-                                style: TextStyle(
-                                  color: isFromMe
-                                      ? Theme.of(context).colorScheme.onPrimary
-                                      : Theme.of(context).colorScheme.onSurface,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    _formatMessageTime(message.sentAt),
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: isFromMe
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary
-                                              .withOpacity(0.7)
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant
-                                              .withOpacity(0.7),
-                                    ),
-                                  ),
-                                  if (isFailed) ...[
-                                    const SizedBox(width: 4),
-                                    Icon(
-                                      Icons.error,
-                                      color: isFromMe
-                                          ? Colors.white.withOpacity(
-                                              0.9) // Better visibility on primary color
-                                          : Theme.of(context).colorScheme.error,
-                                      size: 14,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ],
-                          ),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Row(
+                    mainAxisAlignment: isFromMe
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.start,
+                    children: [
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: 250),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isFromMe
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SelectableText(
+                              message.content,
+                              style: TextStyle(
+                                color: isFromMe
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  _formatMessageTime(message.sentAt),
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    color: isFromMe
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary
+                                            .withOpacity(0.7)
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant
+                                            .withOpacity(0.7),
+                                  ),
+                                ),
+                                if (isFailed) ...[
+                                  const SizedBox(width: 4),
+                                  Icon(
+                                    Icons.error,
+                                    color: isFromMe
+                                        ? Colors.white.withOpacity(
+                                            0.9) // Better visibility on primary color
+                                        : Theme.of(context).colorScheme.error,
+                                    size: 14,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             );
           },
         ),

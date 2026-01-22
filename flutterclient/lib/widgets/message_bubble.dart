@@ -163,7 +163,7 @@ class MessageBubble extends StatelessWidget {
               children: [
                 MarkdownBody(
                   data: message.displayContent,
-                  selectable: true,
+                  selectable: false,
                   styleSheet:
                       MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
                     p: Theme.of(context).textTheme.bodyMedium,
@@ -270,7 +270,7 @@ class MessageBubble extends StatelessWidget {
           const SizedBox(height: 2),
           MarkdownBody(
             data: message.replyText!,
-            selectable: true,
+            selectable: false,
             styleSheet:
                 MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
               p: Theme.of(context).textTheme.bodyMedium,
