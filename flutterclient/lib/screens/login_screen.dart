@@ -140,82 +140,41 @@ class _LoginScreenState extends State<LoginScreen> {
   /// Show add/edit server dialog
   Future<void> _showAddEditServerDialog(ChatProvider chatProvider,
       {ServerConfig? existing}) async {
-    final nameController = TextEditingController(text: existing?.name ?? '');
-    final urlController = TextEditingController(text: existing?.url ?? '');
-    bool enabled = existing?.isEnabled ?? true;
-
     await showDialog(
       context: context,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            final l10n = AppLocalizations.of(context)!;
-            return AlertDialog(
-              title: Text(existing == null ? l10n.addServer : l10n.editServer),
-              content: SizedBox(
-                width: 520,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        labelText: l10n.serverAlias,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: urlController,
-                      decoration: InputDecoration(
-                        labelText: l10n.webSocketUrl,
-                        hintText: 'ws://host:port/ws',
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SwitchListTile(
-                      value: enabled,
-                      onChanged: (v) => setState(() => enabled = v),
-                      title: Text(l10n.enabled),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(l10n.cancel),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final url = urlController.text.trim();
-                    if (!url.startsWith('ws://') && !url.startsWith('wss://')) {
-                      return;
-                    }
-                    final cfg = (existing ??
-                            ServerConfig(
-                              name: '',
-                              url: '',
-                              isEnabled: true,
-                            ))
-                        .copyWith(
-                      name: nameController.text,
-                      url: url,
-                      isEnabled: enabled,
-                    );
-                    await chatProvider.upsertServerConfig(cfg);
-                    if (mounted) Navigator.of(context).pop();
-                  },
-                  child: Text(l10n.save),
-                ),
-              ],
-            );
-          },
+        return _ServerConfigDialog(
+          chatProvider: chatProvider,
+          existing: existing,
         );
       },
     );
+  }
 
-    nameController.dispose();
-    urlController.dispose();
+  /// Show delete confirmation dialog
+  Future<bool?> _showDeleteConfirmDialog(ServerConfig server) {
+    final l10n = AppLocalizations.of(context)!;
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.deleteServerConfirmTitle),
+        content: Text(l10n.deleteServerConfirmMessage(server.displayName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -491,30 +450,103 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
 
-  /// Show delete confirmation dialog
-  Future<bool?> _showDeleteConfirmDialog(ServerConfig server) {
+class _ServerConfigDialog extends StatefulWidget {
+  final ChatProvider chatProvider;
+  final ServerConfig? existing;
+
+  const _ServerConfigDialog({
+    required this.chatProvider,
+    this.existing,
+  });
+
+  @override
+  State<_ServerConfigDialog> createState() => _ServerConfigDialogState();
+}
+
+class _ServerConfigDialogState extends State<_ServerConfigDialog> {
+  late TextEditingController _nameController;
+  late TextEditingController _urlController;
+  late bool _enabled;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.existing?.name ?? '');
+    _urlController = TextEditingController(text: widget.existing?.url ?? '');
+    _enabled = widget.existing?.isEnabled ?? true;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _urlController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.deleteServerConfirmTitle),
-        content: Text(l10n.deleteServerConfirmMessage(server.displayName)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+    return AlertDialog(
+      scrollable: true,
+      title: Text(widget.existing == null ? l10n.addServer : l10n.editServer),
+      content: SizedBox(
+        width: 520,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                labelText: l10n.serverAlias,
+              ),
             ),
-            child: Text(l10n.delete),
-          ),
-        ],
+            const SizedBox(height: 12),
+            TextField(
+              controller: _urlController,
+              decoration: InputDecoration(
+                labelText: l10n.webSocketUrl,
+                hintText: 'ws://host:port/ws',
+              ),
+            ),
+            const SizedBox(height: 12),
+            SwitchListTile(
+              value: _enabled,
+              onChanged: (v) => setState(() => _enabled = v),
+              title: Text(l10n.enabled),
+            ),
+          ],
+        ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            final url = _urlController.text.trim();
+            if (!url.startsWith('ws://') && !url.startsWith('wss://')) {
+              return;
+            }
+            final cfg = (widget.existing ??
+                    ServerConfig(
+                      name: '',
+                      url: '',
+                      isEnabled: true,
+                    ))
+                .copyWith(
+              name: _nameController.text,
+              url: url,
+              isEnabled: _enabled,
+            );
+            await widget.chatProvider.upsertServerConfig(cfg);
+            if (mounted) Navigator.of(context).pop();
+          },
+          child: Text(l10n.save),
+        ),
+      ],
     );
   }
 }

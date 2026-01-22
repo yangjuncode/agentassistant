@@ -435,9 +435,18 @@ class ChatProvider extends ChangeNotifier {
     _refreshGlobalConnectionState();
     notifyListeners();
 
-    for (final config in _serverConfigs.where((c) => c.isEnabled)) {
-      await _connectServer(config, token);
-    }
+    // Parallel connection to all enabled servers
+    final futures =
+        _serverConfigs.where((c) => c.isEnabled).map((config) async {
+      try {
+        await _connectServer(config, token);
+      } catch (e) {
+        _logger.e('Failed to connect to ${config.displayName}: $e');
+        // Don't rethrow, so other connections can succeed
+      }
+    });
+
+    await Future.wait(futures);
   }
 
   /// Try to auto-connect using saved connection info

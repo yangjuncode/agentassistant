@@ -228,6 +228,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
         );
       }
 
+      if (!mounted) return;
+
       // Clear the text field if it was a manual input (not quick reply)
       if (quickReply == null) {
         _controller.clear();

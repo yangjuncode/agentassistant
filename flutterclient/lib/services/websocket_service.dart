@@ -79,10 +79,10 @@ class WebSocketService {
     // Reset login wait state
     _loginCompleter = Completer<void>();
     _loginTimeoutTimer?.cancel();
-    _loginTimeoutTimer = Timer(const Duration(seconds: 8), () {
+    _loginTimeoutTimer = Timer(const Duration(seconds: 5), () {
       if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
         _loginCompleter!.completeError(
-          TimeoutException('Login timeout', const Duration(seconds: 8)),
+          TimeoutException('Login timeout', const Duration(seconds: 5)),
         );
       }
     });
