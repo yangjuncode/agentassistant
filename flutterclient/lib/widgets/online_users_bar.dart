@@ -477,61 +477,65 @@ class _ChatDialogState extends State<_ChatDialog> {
                         ? MainAxisAlignment.end
                         : MainAxisAlignment.start,
                     children: [
-                      Container(
-                        constraints: const BoxConstraints(maxWidth: 250),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: isFromMe
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SelectableText(
-                              message.content,
-                              style: TextStyle(
-                                color: isFromMe
-                                    ? Theme.of(context).colorScheme.onPrimary
-                                    : Theme.of(context).colorScheme.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  _formatMessageTime(message.sentAt),
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: isFromMe
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary
-                                            .withOpacity(0.7)
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant
-                                            .withOpacity(0.7),
-                                  ),
+                      Flexible(
+                        child: Container(
+                          constraints: BoxConstraints(
+                              maxWidth:
+                                  MediaQuery.of(context).size.width * 0.7),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: isFromMe
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SelectableText(
+                                message.content,
+                                style: TextStyle(
+                                  color: isFromMe
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context).colorScheme.onSurface,
                                 ),
-                                if (isFailed) ...[
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.error,
-                                    color: isFromMe
-                                        ? Colors.white.withOpacity(
-                                            0.9) // Better visibility on primary color
-                                        : Theme.of(context).colorScheme.error,
-                                    size: 14,
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    _formatMessageTime(message.sentAt),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      color: isFromMe
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary
+                                              .withOpacity(0.7)
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant
+                                              .withOpacity(0.7),
+                                    ),
                                   ),
+                                  if (isFailed) ...[
+                                    const SizedBox(width: 4),
+                                    Icon(
+                                      Icons.error,
+                                      color: isFromMe
+                                          ? Colors.white.withOpacity(
+                                              0.9) // Better visibility on primary color
+                                          : Theme.of(context).colorScheme.error,
+                                      size: 14,
+                                    ),
+                                  ],
                                 ],
-                              ],
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -610,9 +614,12 @@ class _ChatDialogState extends State<_ChatDialog> {
 
       // Build the layout based on the platform
       return Dialog(
+        insetPadding: isMobile
+            ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 24.0)
+            : const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
         child: Container(
-          width: 400,
-          height: 500,
+          width: isMobile ? MediaQuery.of(context).size.width : 400,
+          height: isMobile ? MediaQuery.of(context).size.height * 0.8 : 500,
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
