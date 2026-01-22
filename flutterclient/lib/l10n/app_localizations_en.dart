@@ -179,6 +179,50 @@ class AppLocalizationsEn extends AppLocalizations {
     return 'Nickname updated to: $nickname';
   }
 
+  @override
+  String get desktop => 'Desktop';
+
+  @override
+  String get mcpMessageAttention => 'MCP message attention';
+
+  @override
+  String get mcpAttentionModeNone => 'None';
+
+  @override
+  String get mcpAttentionModeTray => 'Systray info only';
+
+  @override
+  String get mcpAttentionModePopup => 'Popup only';
+
+  @override
+  String get mcpAttentionModePopupOnTop => 'Popup + Always on top';
+
+  @override
+  String get mcpAttentionModeTrayPopupOnTop =>
+      'Systray info + Popup + Always on top';
+
+  @override
+  String get webSocketUrlHint => 'ws://host:port/ws';
+
+  @override
+  String get chatAutoSendInterval => 'Chat Auto Send Interval';
+
+  @override
+  String chatAutoSendIntervalSeconds(int seconds) {
+    return '$seconds seconds';
+  }
+
+  @override
+  String profileClientIdLabel(String clientId) {
+    return 'Client ID: $clientId';
+  }
+
+  @override
+  String get online => 'Online';
+
+  @override
+  String get notConnected => 'Not connected';
+
   // Login screen
   @override
   String get loginSubtitle => 'Connect to your AI Agent assistant';
@@ -410,4 +454,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String deleteServerConfirmMessage(String serverName) {
     return 'Are you sure you want to delete server "$serverName"?';
   }
+
+  // Server connections
+  @override
+  String get close => 'Close';
+
+  @override
+  String get serverConnectionsTooltip => 'Server connections';
+
+  @override
+  String get serverConnectionsTitle => 'Server Connections';
+
+  @override
+  String serverStatusLine(String status) {
+    return 'status: $status';
+  }
+
+  @override
+  String serverErrorLine(String error) {
+    return 'error: $error';
+  }
+
+  @override
+  String get serverStatusConnected => 'connected';
+
+  @override
+  String get serverStatusConnecting => 'connecting';
+
+  @override
+  String get serverStatusReconnecting => 'reconnecting';
+
+  @override
+  String get serverStatusError => 'error';
+
+  @override
+  String get serverStatusDisconnected => 'disconnected';
 }

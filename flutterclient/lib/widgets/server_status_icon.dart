@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../providers/chat_provider.dart';
 import '../services/websocket_service.dart';
 
@@ -9,11 +10,12 @@ class ServerStatusIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<ChatProvider>(
       builder: (context, chatProvider, child) {
         final count = chatProvider.connectedServerCount;
         return IconButton(
-          tooltip: 'Server connections',
+          tooltip: l10n.serverConnectionsTooltip,
           onPressed: () => _showServerStatusPopup(context, chatProvider),
           icon: Stack(
             clipBehavior: Clip.none,
@@ -52,8 +54,9 @@ class ServerStatusIcon extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) {
+        final dialogL10n = AppLocalizations.of(context)!;
         return AlertDialog(
-          title: const Text('Server Connections'),
+          title: Text(dialogL10n.serverConnectionsTitle),
           content: SizedBox(
             width: 520,
             child: ListView.builder(
@@ -63,10 +66,12 @@ class ServerStatusIcon extends StatelessWidget {
                 final cfg = chatProvider.serverConfigs[index];
                 final status = chatProvider.serverStatuses[cfg.id];
                 final err = chatProvider.serverErrors[cfg.id];
+                final statusLabel = _statusLabel(dialogL10n, status);
                 final subtitle = <String>[
                   cfg.url,
-                  'status: ${_statusLabel(status)}',
-                  if (err != null && err.trim().isNotEmpty) 'error: $err',
+                  dialogL10n.serverStatusLine(statusLabel),
+                  if (err != null && err.trim().isNotEmpty)
+                    dialogL10n.serverErrorLine(err),
                 ].join('\n');
 
                 return ListTile(
@@ -80,7 +85,7 @@ class ServerStatusIcon extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Close'),
+              child: Text(dialogL10n.close),
             ),
           ],
         );
@@ -110,19 +115,19 @@ class ServerStatusIcon extends StatelessWidget {
     }
   }
 
-  String _statusLabel(WebSocketServiceStatus? status) {
+  String _statusLabel(AppLocalizations l10n, WebSocketServiceStatus? status) {
     switch (status) {
       case WebSocketServiceStatus.connected:
-        return 'connected';
+        return l10n.serverStatusConnected;
       case WebSocketServiceStatus.connecting:
-        return 'connecting';
+        return l10n.serverStatusConnecting;
       case WebSocketServiceStatus.reconnecting:
-        return 'reconnecting';
+        return l10n.serverStatusReconnecting;
       case WebSocketServiceStatus.error:
-        return 'error';
+        return l10n.serverStatusError;
       case WebSocketServiceStatus.disconnected:
       default:
-        return 'disconnected';
+        return l10n.serverStatusDisconnected;
     }
   }
 }

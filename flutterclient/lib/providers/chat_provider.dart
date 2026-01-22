@@ -17,6 +17,14 @@ import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
 import '../proto/agentassist.pb.dart' as pb;
 
+enum DesktopMcpAttentionMode {
+  none,
+  tray,
+  popup,
+  popupOnTop,
+  trayPopupOnTop,
+}
+
 /// Chat provider for managing chat state and WebSocket communication
 class ChatProvider extends ChangeNotifier {
   static final Logger _logger = Logger(level: Level.nothing);
@@ -48,8 +56,11 @@ class ChatProvider extends ChangeNotifier {
   String? _currentToken;
   String? _activeChatUserKey;
   bool _autoForwardToSystemInput = false;
+  DesktopMcpAttentionMode _desktopMcpAttentionMode =
+      DesktopMcpAttentionMode.popupOnTop;
   bool _showOnlyPendingMessages = false;
   bool _isInputFocused = false;
+  Timer? _inputFocusDebounceTimer;
   int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
   String? _nickname;
 
@@ -81,6 +92,8 @@ class ChatProvider extends ChangeNotifier {
   Map<String, String?> get serverErrors => Map.unmodifiable(_serverErrors);
 
   bool get autoForwardToSystemInput => _autoForwardToSystemInput;
+  DesktopMcpAttentionMode get desktopMcpAttentionMode =>
+      _desktopMcpAttentionMode;
   // Expose read-only view of drafts if needed
   Map<String, String> get replyDrafts => Map.unmodifiable(_replyDrafts);
   bool get hasAnyDraft => _replyDrafts.values.any((t) => t.trim().isNotEmpty);
@@ -108,10 +121,24 @@ class ChatProvider extends ChangeNotifier {
   }
 
   void setInputFocused(bool focused) {
-    if (_isInputFocused != focused) {
-      _isInputFocused = focused;
+    if (focused) {
+      _inputFocusDebounceTimer?.cancel();
+      _inputFocusDebounceTimer = null;
+      if (_isInputFocused) return;
+      _isInputFocused = true;
       notifyListeners();
+      return;
     }
+
+    if (!_isInputFocused) return;
+
+    _inputFocusDebounceTimer?.cancel();
+    _inputFocusDebounceTimer = Timer(const Duration(milliseconds: 120), () {
+      if (_isInputFocused) {
+        _isInputFocused = false;
+        notifyListeners();
+      }
+    });
   }
 
   void toggleOnlineUsersVisibility() {
@@ -119,6 +146,8 @@ class ChatProvider extends ChangeNotifier {
     // When explicitly showing the bar, also reset input focus state
     // so the bar is guaranteed to be visible
     if (_isOnlineUsersVisible) {
+      _inputFocusDebounceTimer?.cancel();
+      _inputFocusDebounceTimer = null;
       _isInputFocused = false;
     }
     notifyListeners();
@@ -129,6 +158,8 @@ class ChatProvider extends ChangeNotifier {
       _isOnlineUsersVisible = visible;
       // When explicitly showing the bar, also reset input focus state
       if (visible) {
+        _inputFocusDebounceTimer?.cancel();
+        _inputFocusDebounceTimer = null;
         _isInputFocused = false;
       }
       notifyListeners();
@@ -140,9 +171,47 @@ class ChatProvider extends ChangeNotifier {
       await _loadNickname(); // Load nickname first
       await _loadServerConfigs();
       await _loadAutoForwardSetting();
+      await _loadDesktopMcpAttentionMode();
       await _loadChatSettings();
     });
     // Defer loading settings to avoid calling notifyListeners during build.
+  }
+
+  Future<void> _loadDesktopMcpAttentionMode() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getInt(AppConfig.desktopMcpAttentionModeStorageKey) ??
+          DesktopMcpAttentionMode.popupOnTop.index;
+      if (raw >= 0 && raw < DesktopMcpAttentionMode.values.length) {
+        _desktopMcpAttentionMode = DesktopMcpAttentionMode.values[raw];
+      } else {
+        _desktopMcpAttentionMode = DesktopMcpAttentionMode.popupOnTop;
+      }
+      notifyListeners();
+    } catch (error) {
+      _logger.e('Failed to load desktop attention mode: $error');
+      _desktopMcpAttentionMode = DesktopMcpAttentionMode.popupOnTop;
+    }
+  }
+
+  Future<void> setDesktopMcpAttentionMode(DesktopMcpAttentionMode mode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(
+          AppConfig.desktopMcpAttentionModeStorageKey, mode.index);
+      _desktopMcpAttentionMode = mode;
+      notifyListeners();
+
+      if (mode != DesktopMcpAttentionMode.popupOnTop &&
+          mode != DesktopMcpAttentionMode.trayPopupOnTop) {
+        final windowService = WindowService();
+        if (windowService.isDesktop) {
+          await windowService.resetAlwaysOnTop();
+        }
+      }
+    } catch (error) {
+      _logger.e('Failed to save desktop attention mode: $error');
+    }
   }
 
   String? currentClientIdForServer(String serverId) {
@@ -496,8 +565,10 @@ class ChatProvider extends ChangeNotifier {
     _addMessage(chatMessage);
     _logger.i('Received question: ${request.request.question}');
 
-    // Bring window to front when new message is received
-    _bringWindowToFrontIfNeeded();
+    _handleDesktopAttentionOnNewPendingItem(
+      title: 'New question',
+      body: request.request.question,
+    );
   }
 
   /// Handle work report message
@@ -514,8 +585,78 @@ class ChatProvider extends ChangeNotifier {
     _addMessage(chatMessage);
     _logger.i('Received work report: ${request.request.summary}');
 
-    // Bring window to front when new message is received
-    _bringWindowToFrontIfNeeded();
+    _handleDesktopAttentionOnNewPendingItem(
+      title: 'New task',
+      body: request.request.summary,
+    );
+  }
+
+  Future<void> _handleDesktopAttentionOnNewPendingItem({
+    required String title,
+    required String body,
+  }) async {
+    final windowService = WindowService();
+
+    if (!windowService.isDesktop) {
+      return;
+    }
+
+    final hasPendingItems =
+        pendingQuestions.isNotEmpty || pendingTasks.isNotEmpty;
+    if (!hasPendingItems) {
+      return;
+    }
+
+    await _applyDesktopAttention(title: title, body: body);
+  }
+
+  Future<void> _applyDesktopAttention({
+    required String title,
+    required String body,
+  }) async {
+    if (_desktopMcpAttentionMode == DesktopMcpAttentionMode.none) {
+      return;
+    }
+
+    final windowService = WindowService();
+    if (!windowService.isDesktop) {
+      return;
+    }
+
+    try {
+      final isFocused = await windowService.isFocused();
+      final isVisible = await windowService.isVisible();
+      final shouldAttention = !isFocused || !isVisible;
+
+      if (!shouldAttention) {
+        return;
+      }
+
+      if (_desktopMcpAttentionMode == DesktopMcpAttentionMode.tray ||
+          _desktopMcpAttentionMode == DesktopMcpAttentionMode.trayPopupOnTop) {
+        await TrayService().showInfoNotification(title: title, body: body);
+      }
+
+      if (_desktopMcpAttentionMode == DesktopMcpAttentionMode.popup) {
+        await windowService.bringToFrontWithoutOnTop();
+      } else if (_desktopMcpAttentionMode ==
+              DesktopMcpAttentionMode.popupOnTop ||
+          _desktopMcpAttentionMode == DesktopMcpAttentionMode.trayPopupOnTop) {
+        await windowService.bringToFrontAndStay();
+
+        if (pendingQuestions.isEmpty && pendingTasks.isEmpty) {
+          Future.delayed(const Duration(seconds: 5), () async {
+            final hasPending =
+                pendingQuestions.isNotEmpty || pendingTasks.isNotEmpty;
+            if (!hasPending) {
+              await windowService.resetAlwaysOnTop();
+            }
+          });
+        }
+      }
+    } catch (error) {
+      _logger.e('Failed to apply desktop attention: $error');
+    }
   }
 
   /// Handle ask question reply notification
@@ -1071,41 +1212,6 @@ class ChatProvider extends ChangeNotifier {
     // when the message status is updated
   }
 
-  /// Bring window to front if needed (desktop only)
-  Future<void> _bringWindowToFrontIfNeeded() async {
-    final windowService = WindowService();
-
-    // Check if there are any pending items that actually need user attention
-    final hasPendingItems =
-        pendingQuestions.isNotEmpty || pendingTasks.isNotEmpty;
-
-    if (!hasPendingItems) {
-      _logger.d('No pending items, skipping bring window to front');
-      return;
-    }
-
-    // Only proceed if running on desktop
-    if (!windowService.isDesktop) {
-      return;
-    }
-
-    try {
-      // Check if window is currently focused
-      final isFocused = await windowService.isFocused();
-      final isVisible = await windowService.isVisible();
-
-      if (!isFocused || !isVisible) {
-        _logger.i('Window not focused or visible, bringing to front');
-        // Use the more aggressive method for Linux, standard for others
-        await windowService.bringToFrontAndStay();
-      } else {
-        _logger.d('Window already focused and visible');
-      }
-    } catch (error) {
-      _logger.e('Failed to bring window to front: $error');
-    }
-  }
-
   /// Handle get online users response
   void _handleGetOnlineUsersResponse(
     pb.WebsocketMessage message, {
@@ -1199,8 +1305,10 @@ class ChatProvider extends ChangeNotifier {
       if (senderId == _services[serverId]?.clientId) {
         print('[ChatNotification] Reason: Message is from current user');
       }
-      // Only bring window to front if auto-forwarding is disabled
-      _bringWindowToFrontIfNeeded();
+      _applyDesktopAttention(
+        title: 'New message',
+        body: chatMessage.content,
+      );
     }
   }
 
@@ -1383,9 +1491,6 @@ class ChatProvider extends ChangeNotifier {
   List<pb.ChatMessage> getChatMessages(String serverId, String userId) {
     final key = _chatKey(serverId, userId);
     final messages = _chatMessages[key] ?? [];
-    print(
-        '[getChatMessages] serverId=$serverId, userId=$userId, key=$key, count=${messages.length}');
-    print('[getChatMessages] Available keys: ${_chatMessages.keys.toList()}');
     return messages;
   }
 

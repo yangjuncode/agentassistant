@@ -410,6 +410,84 @@ abstract class AppLocalizations {
   /// **'Nickname updated to: {nickname}'**
   String nicknameUpdated(String nickname);
 
+  /// No description provided for @desktop.
+  ///
+  /// In en, this message translates to:
+  /// **'Desktop'**
+  String get desktop;
+
+  /// No description provided for @mcpMessageAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'MCP message attention'**
+  String get mcpMessageAttention;
+
+  /// No description provided for @mcpAttentionModeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get mcpAttentionModeNone;
+
+  /// No description provided for @mcpAttentionModeTray.
+  ///
+  /// In en, this message translates to:
+  /// **'Systray info only'**
+  String get mcpAttentionModeTray;
+
+  /// No description provided for @mcpAttentionModePopup.
+  ///
+  /// In en, this message translates to:
+  /// **'Popup only'**
+  String get mcpAttentionModePopup;
+
+  /// No description provided for @mcpAttentionModePopupOnTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Popup + Always on top'**
+  String get mcpAttentionModePopupOnTop;
+
+  /// No description provided for @mcpAttentionModeTrayPopupOnTop.
+  ///
+  /// In en, this message translates to:
+  /// **'Systray info + Popup + Always on top'**
+  String get mcpAttentionModeTrayPopupOnTop;
+
+  /// No description provided for @webSocketUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'ws://host:port/ws'**
+  String get webSocketUrlHint;
+
+  /// No description provided for @chatAutoSendInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat Auto Send Interval'**
+  String get chatAutoSendInterval;
+
+  /// No description provided for @chatAutoSendIntervalSeconds.
+  ///
+  /// In en, this message translates to:
+  /// **'{seconds} seconds'**
+  String chatAutoSendIntervalSeconds(int seconds);
+
+  /// No description provided for @profileClientIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Client ID: {clientId}'**
+  String profileClientIdLabel(String clientId);
+
+  /// No description provided for @online.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get online;
+
+  /// No description provided for @notConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not connected'**
+  String get notConnected;
+
   // Login screen
   String get loginSubtitle;
   String loginFailed(String error);
@@ -490,6 +568,18 @@ abstract class AppLocalizations {
   String get noEnabledServers;
   String get deleteServerConfirmTitle;
   String deleteServerConfirmMessage(String serverName);
+
+  // Server connections
+  String get close;
+  String get serverConnectionsTooltip;
+  String get serverConnectionsTitle;
+  String serverStatusLine(String status);
+  String serverErrorLine(String error);
+  String get serverStatusConnected;
+  String get serverStatusConnecting;
+  String get serverStatusReconnecting;
+  String get serverStatusError;
+  String get serverStatusDisconnected;
 }
 
 class _AppLocalizationsDelegate

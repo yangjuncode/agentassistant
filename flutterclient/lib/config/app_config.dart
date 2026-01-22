@@ -21,7 +21,10 @@ class AppConfig {
   static const String serverUrlStorageKey = 'server_url';
   static const String serverConfigsStorageKey = 'server_configs';
   static const String settingsStorageKey = 'app_settings';
-  static const String chatAutoSendIntervalStorageKey = 'chat_auto_send_interval';
+  static const String chatAutoSendIntervalStorageKey =
+      'chat_auto_send_interval';
+  static const String desktopMcpAttentionModeStorageKey =
+      'desktop_mcp_attention_mode';
 
   // Default values
   static const String appName = 'Agent Assistant';

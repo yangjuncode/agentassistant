@@ -155,6 +155,21 @@ class WindowService {
     }
   }
 
+  Future<void> bringToFrontWithoutOnTop() async {
+    if (!_isDesktop() || !_isInitialized) {
+      _logger.d('Cannot bring window to front: not desktop or not initialized');
+      return;
+    }
+
+    try {
+      await bringToFront();
+      await Future.delayed(const Duration(milliseconds: 500));
+      await resetAlwaysOnTop();
+    } catch (e) {
+      _logger.e('Failed to bring window to front without on-top: $e');
+    }
+  }
+
   /// Force window to front on Linux and keep it there
   Future<void> _forceToFrontLinux() async {
     try {

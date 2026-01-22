@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:logger/logger.dart';
+import 'package:local_notifier/local_notifier.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
@@ -14,6 +15,7 @@ class TrayService with TrayListener {
   final Logger _logger = Logger();
 
   bool _initialized = false;
+  bool _notifierReady = false;
   bool _connected = false;
   int _pendingCount = 0;
 
@@ -42,6 +44,14 @@ class TrayService with TrayListener {
     if (_initialized) return;
 
     try {
+      try {
+        await localNotifier.setup(appName: 'AgentAssistant-flutter');
+        _notifierReady = true;
+      } catch (e) {
+        _notifierReady = false;
+        _logger.w('Failed to setup local_notifier: $e');
+      }
+
       trayManager.addListener(this);
       await _applyIcon();
       await _setToolTip('AgentAssistant-flutter');
@@ -50,6 +60,27 @@ class TrayService with TrayListener {
       _logger.i('TrayService initialized');
     } catch (e) {
       _logger.w('Failed to initialize tray: $e');
+    }
+  }
+
+  Future<void> showInfoNotification({
+    required String title,
+    required String body,
+  }) async {
+    if (!isDesktop) return;
+    if (!_notifierReady) {
+      _logger.d('local_notifier not ready; skip info notification');
+      return;
+    }
+
+    try {
+      final notification = LocalNotification(
+        title: title,
+        body: body,
+      );
+      notification.show();
+    } catch (e) {
+      _logger.w('Failed to show info notification: $e');
     }
   }
 

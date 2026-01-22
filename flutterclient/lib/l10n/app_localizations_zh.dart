@@ -175,6 +175,49 @@ class AppLocalizationsZh extends AppLocalizations {
     return '昵称已更新为: $nickname';
   }
 
+  @override
+  String get desktop => '桌面端';
+
+  @override
+  String get mcpMessageAttention => 'MCP 消息提醒';
+
+  @override
+  String get mcpAttentionModeNone => '无';
+
+  @override
+  String get mcpAttentionModeTray => '仅系统托盘通知';
+
+  @override
+  String get mcpAttentionModePopup => '仅弹窗';
+
+  @override
+  String get mcpAttentionModePopupOnTop => '弹窗 + 置顶';
+
+  @override
+  String get mcpAttentionModeTrayPopupOnTop => '系统托盘通知 + 弹窗 + 置顶';
+
+  @override
+  String get webSocketUrlHint => 'ws://host:port/ws';
+
+  @override
+  String get chatAutoSendInterval => '聊天自动发送间隔';
+
+  @override
+  String chatAutoSendIntervalSeconds(int seconds) {
+    return '$seconds 秒';
+  }
+
+  @override
+  String profileClientIdLabel(String clientId) {
+    return '客户端 ID: $clientId';
+  }
+
+  @override
+  String get online => '在线';
+
+  @override
+  String get notConnected => '未连接';
+
   // Login screen
   @override
   String get loginSubtitle => '连接到您的 AI Agent 助手';
@@ -399,4 +442,39 @@ class AppLocalizationsZh extends AppLocalizations {
   String deleteServerConfirmMessage(String serverName) {
     return '确定要删除服务器 "$serverName" 吗？';
   }
+
+  // Server connections
+  @override
+  String get close => '关闭';
+
+  @override
+  String get serverConnectionsTooltip => '服务器连接';
+
+  @override
+  String get serverConnectionsTitle => '服务器连接';
+
+  @override
+  String serverStatusLine(String status) {
+    return '状态：$status';
+  }
+
+  @override
+  String serverErrorLine(String error) {
+    return '错误：$error';
+  }
+
+  @override
+  String get serverStatusConnected => '已连接';
+
+  @override
+  String get serverStatusConnecting => '连接中';
+
+  @override
+  String get serverStatusReconnecting => '重连中';
+
+  @override
+  String get serverStatusError => '错误';
+
+  @override
+  String get serverStatusDisconnected => '未连接';
 }

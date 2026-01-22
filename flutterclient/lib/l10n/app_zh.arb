@@ -52,4 +52,30 @@
   "languageEnglish": "English",
   "languageChinese": "简体中文",
   "nicknameUpdated": "昵称已更新为: {nickname}"
+  ,
+  "desktop": "桌面端",
+  "mcpMessageAttention": "MCP 消息提醒",
+  "mcpAttentionModeNone": "无",
+  "mcpAttentionModeTray": "仅系统托盘通知",
+  "mcpAttentionModePopup": "仅弹窗",
+  "mcpAttentionModePopupOnTop": "弹窗 + 置顶",
+  "mcpAttentionModeTrayPopupOnTop": "系统托盘通知 + 弹窗 + 置顶",
+
+  "webSocketUrlHint": "ws://host:port/ws",
+  "chatAutoSendInterval": "聊天自动发送间隔",
+  "chatAutoSendIntervalSeconds": "{seconds} 秒",
+  "profileClientIdLabel": "客户端 ID: {clientId}",
+  "online": "在线",
+  "notConnected": "未连接",
+
+  "close": "关闭",
+  "serverConnectionsTooltip": "服务器连接",
+  "serverConnectionsTitle": "服务器连接",
+  "serverStatusLine": "状态：{status}",
+  "serverErrorLine": "错误：{error}",
+  "serverStatusConnected": "已连接",
+  "serverStatusConnecting": "连接中",
+  "serverStatusReconnecting": "重连中",
+  "serverStatusError": "错误",
+  "serverStatusDisconnected": "未连接"
 }

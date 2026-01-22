@@ -8,6 +8,7 @@ import '../providers/chat_provider.dart';
 import '../models/server_config.dart';
 
 import '../config/app_config.dart';
+import '../services/window_service.dart';
 import '../widgets/settings/nickname_settings.dart';
 import '../widgets/server_status_icon.dart';
 import '../widgets/settings/language_settings.dart';
@@ -25,6 +26,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _appVersion = '';
   String? _serverUrl;
   String? _token;
+
+  String _desktopMcpAttentionModeLabel(
+      AppLocalizations l10n, DesktopMcpAttentionMode mode) {
+    switch (mode) {
+      case DesktopMcpAttentionMode.none:
+        return l10n.mcpAttentionModeNone;
+      case DesktopMcpAttentionMode.tray:
+        return l10n.mcpAttentionModeTray;
+      case DesktopMcpAttentionMode.popup:
+        return l10n.mcpAttentionModePopup;
+      case DesktopMcpAttentionMode.popupOnTop:
+        return l10n.mcpAttentionModePopupOnTop;
+      case DesktopMcpAttentionMode.trayPopupOnTop:
+        return l10n.mcpAttentionModeTrayPopupOnTop;
+    }
+  }
 
   @override
   void initState() {
@@ -104,6 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _showAddEditServerDialog(ChatProvider chatProvider,
       {ServerConfig? existing}) async {
+    final l10n = AppLocalizations.of(context)!;
     final nameController = TextEditingController(text: existing?.name ?? '');
     final urlController = TextEditingController(text: existing?.url ?? '');
     bool enabled = existing?.isEnabled ?? true;
@@ -114,7 +132,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text(existing == null ? 'Add Server' : 'Edit Server'),
+              title: Text(existing == null ? l10n.addServer : l10n.editServer),
               content: SizedBox(
                 width: 520,
                 child: Column(
@@ -122,23 +140,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     TextField(
                       controller: nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Alias (optional)',
-                      ),
+                      decoration: InputDecoration(labelText: l10n.serverAlias),
                     ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: urlController,
-                      decoration: const InputDecoration(
-                        labelText: 'WebSocket URL',
-                        hintText: 'ws://host:port/ws',
+                      decoration: InputDecoration(
+                        labelText: l10n.webSocketUrl,
+                        hintText: l10n.webSocketUrlHint,
                       ),
                     ),
                     const SizedBox(height: 12),
                     SwitchListTile(
                       value: enabled,
                       onChanged: (v) => setState(() => enabled = v),
-                      title: const Text('Enabled'),
+                      title: Text(l10n.enabled),
                     ),
                   ],
                 ),
@@ -146,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.cancel),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -168,7 +184,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     await chatProvider.upsertServerConfig(cfg);
                     if (mounted) Navigator.of(context).pop();
                   },
-                  child: const Text('Save'),
+                  child: Text(l10n.save),
                 ),
               ],
             );
@@ -260,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               _buildCurrentProfile(context, chatProvider),
 
-              _buildSectionHeader('Servers'),
+              _buildSectionHeader(l10n.servers),
               Card(
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
@@ -277,7 +293,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const Divider(height: 1),
                     ListTile(
                       leading: const Icon(Icons.add),
-                      title: const Text('Add server'),
+                      title: Text(l10n.addServer),
                       onTap: () => _showAddEditServerDialog(chatProvider),
                     ),
                   ],
@@ -318,7 +334,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       leading: const Icon(Icons.badge),
                       title: Text(l10n.clientId),
-                      subtitle: Text(chatProvider.currentClientId ?? '—'),
+                      subtitle:
+                          Text(chatProvider.currentClientId ?? l10n.notSet),
                     ),
                     ListTile(
                       leading: const Icon(Icons.vpn_key),
@@ -385,6 +402,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
+              if (WindowService().isDesktop) ...[
+                _buildSectionHeader(l10n.desktop),
+                Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.notifications_active),
+                        title: Text(l10n.mcpMessageAttention),
+                        subtitle: Text(
+                          _desktopMcpAttentionModeLabel(
+                            l10n,
+                            chatProvider.desktopMcpAttentionMode,
+                          ),
+                        ),
+                        trailing: SizedBox(
+                          width: 260,
+                          child: DropdownButton<DesktopMcpAttentionMode>(
+                            value: chatProvider.desktopMcpAttentionMode,
+                            isExpanded: true,
+                            onChanged: (mode) {
+                              if (mode == null) return;
+                              chatProvider.setDesktopMcpAttentionMode(mode);
+                            },
+                            items: DesktopMcpAttentionMode.values
+                                .map(
+                                  (m) => DropdownMenuItem(
+                                    value: m,
+                                    child: Text(
+                                      _desktopMcpAttentionModeLabel(l10n, m),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+
               // Messages section
               _buildSectionHeader(l10n.messages),
               Card(
@@ -393,16 +454,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     ListTile(
                       leading: const Icon(Icons.timer),
-                      title: const Text('Chat Auto Send Interval'),
-                      subtitle:
-                          Text('${chatProvider.chatAutoSendInterval} seconds'),
+                      title: Text(l10n.chatAutoSendInterval),
+                      subtitle: Text(
+                        l10n.chatAutoSendIntervalSeconds(
+                            chatProvider.chatAutoSendInterval),
+                      ),
                     ),
                     Slider(
                       value: chatProvider.chatAutoSendInterval.toDouble(),
                       min: 1,
                       max: 30,
                       divisions: 29,
-                      label: '${chatProvider.chatAutoSendInterval} seconds',
+                      label: l10n.chatAutoSendIntervalSeconds(
+                          chatProvider.chatAutoSendInterval),
                       onChanged: (value) {
                         chatProvider.setChatAutoSendInterval(value.toInt());
                       },
@@ -466,7 +530,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildCurrentProfile(BuildContext context, ChatProvider chatProvider) {
     final l10n = AppLocalizations.of(context)!;
     final nickname = chatProvider.nickname ?? '...';
-    final clientId = chatProvider.currentClientId ?? 'Not connected';
+    final clientId = chatProvider.currentClientId ?? l10n.notConnected;
 
     return Card(
       margin: const EdgeInsets.fromLTRB(8, 16, 8, 0),
@@ -498,7 +562,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Client ID: $clientId',
+                    l10n.profileClientIdLabel(clientId),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
@@ -514,8 +578,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.green.withOpacity(0.5)),
                 ),
-                child: const Text(
-                  'Online',
+                child: Text(
+                  l10n.online,
                   style: TextStyle(
                     color: Colors.green,
                     fontSize: 10,
@@ -531,6 +595,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Build a single server tile
   Widget _buildServerTile(ChatProvider chatProvider, ServerConfig server) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isEnabled = server.isEnabled;
 
@@ -576,7 +641,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: 36,
                 height: 36,
                 child: IconButton(
-                  tooltip: 'Edit',
+                  tooltip: l10n.edit,
                   padding: EdgeInsets.zero,
                   onPressed: () =>
                       _showAddEditServerDialog(chatProvider, existing: server),
@@ -591,7 +656,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: 36,
                 height: 36,
                 child: IconButton(
-                  tooltip: 'Delete',
+                  tooltip: l10n.delete,
                   padding: EdgeInsets.zero,
                   onPressed: () async {
                     await chatProvider.deleteServerConfig(server.id);

@@ -86,5 +86,59 @@
         "type": "String"
       }
     }
-  }
+  },
+
+  "desktop": "Desktop",
+  "mcpMessageAttention": "MCP message attention",
+  "mcpAttentionModeNone": "None",
+  "mcpAttentionModeTray": "Systray info only",
+  "mcpAttentionModePopup": "Popup only",
+  "mcpAttentionModePopupOnTop": "Popup + Always on top",
+  "mcpAttentionModeTrayPopupOnTop": "Systray info + Popup + Always on top",
+
+  "webSocketUrlHint": "ws://host:port/ws",
+  "chatAutoSendInterval": "Chat Auto Send Interval",
+  "chatAutoSendIntervalSeconds": "{seconds} seconds",
+  "@chatAutoSendIntervalSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "profileClientIdLabel": "Client ID: {clientId}",
+  "@profileClientIdLabel": {
+    "placeholders": {
+      "clientId": {
+        "type": "String"
+      }
+    }
+  },
+  "online": "Online",
+  "notConnected": "Not connected",
+
+  "close": "Close",
+  "serverConnectionsTooltip": "Server connections",
+  "serverConnectionsTitle": "Server Connections",
+  "serverStatusLine": "status: {status}",
+  "@serverStatusLine": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "serverErrorLine": "error: {error}",
+  "@serverErrorLine": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "serverStatusConnected": "connected",
+  "serverStatusConnecting": "connecting",
+  "serverStatusReconnecting": "reconnecting",
+  "serverStatusError": "error",
+  "serverStatusDisconnected": "disconnected"
 }

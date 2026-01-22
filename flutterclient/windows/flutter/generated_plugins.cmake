@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   desktop_drop
+  local_notifier
   pasteboard
   screen_retriever
   tray_manager
