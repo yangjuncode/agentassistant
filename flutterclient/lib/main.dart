@@ -85,44 +85,44 @@ class FrameTimingMonitor {
   }
 }
 
-void main() async {
-  // Catch errors during initialization
-  try {
-    // Initialize Flutter binding
-    WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  runZonedGuarded(
+    () async {
+      try {
+        // Initialize Flutter binding
+        WidgetsFlutterBinding.ensureInitialized();
 
-    // Set up error handling
-    FlutterError.onError = (FlutterErrorDetails details) {
-      FlutterError.presentError(details);
-      reportError(details);
-    };
+        // Set up error handling
+        FlutterError.onError = (FlutterErrorDetails details) {
+          FlutterError.presentError(details);
+          reportError(details);
+        };
 
-    // Initialize window service for desktop platforms
-    await WindowService().initialize();
-    // Initialize tray service for desktop platforms
-    await TrayService().initialize();
+        // Initialize window service for desktop platforms
+        await WindowService().initialize();
+        // Initialize tray service for desktop platforms
+        await TrayService().initialize();
 
-    // Start frame timing monitor
-    FrameTimingMonitor.startMonitoring();
+        // Start frame timing monitor
+        FrameTimingMonitor.startMonitoring();
 
-    // Disable verbose debug output to reduce console noise
-    // Only enable these when debugging layout issues
-    debugPrintMarkNeedsLayoutStacks = false;
-    debugPrintLayouts = false;
+        // Disable verbose debug output to reduce console noise
+        // Only enable these when debugging layout issues
+        debugPrintMarkNeedsLayoutStacks = false;
+        debugPrintLayouts = false;
 
-    // Run the app with error zone
-    runZonedGuarded(
-      () => runApp(const AgentAssistantApp()),
-      (error, stackTrace) {
-        logger.e('Uncaught error in zone',
-            error: error, stackTrace: stackTrace);
-      },
-    );
-  } catch (e, stack) {
-    logger.e('Error during app initialization', error: e, stackTrace: stack);
-    // Still try to run the app even if initialization failed
-    runApp(const AgentAssistantApp());
-  }
+        runApp(const AgentAssistantApp());
+      } catch (e, stack) {
+        logger.e('Error during app initialization',
+            error: e, stackTrace: stack);
+        // Still try to run the app even if initialization failed
+        runApp(const AgentAssistantApp());
+      }
+    },
+    (error, stackTrace) {
+      logger.e('Uncaught error in zone', error: error, stackTrace: stackTrace);
+    },
+  );
 }
 
 class AgentAssistantApp extends StatelessWidget {
