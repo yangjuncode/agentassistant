@@ -127,6 +127,116 @@
   "online": "Online",
   "notConnected": "Not connected",
 
+  "loginSubtitle": "Connect to your AI Agent assistant",
+  "loginFailed": "Login failed: {error}",
+  "@loginFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "loginTokenLabel": "Access token",
+  "loginTokenHint": "Please enter your access token",
+  "loginAdvancedSettings": "Advanced settings",
+  "loginServerLabel": "Server address",
+  "loginRememberSettingsTitle": "Remember settings",
+  "loginRememberSettingsSubtitle": "Auto fill on next launch",
+  "loginButton": "Connect",
+  "loginHelp": "Need help? Please contact your system administrator to get an access token.",
+  "errorTokenRequired": "Please enter access token",
+  "errorTokenInvalid": "Invalid token format (at least 1 character)",
+  "errorServerRequired": "Please enter server address",
+  "errorServerProtocol": "Server address must start with ws:// or wss://",
+
+  "chatConnecting": "Connecting to Agent Assistant server...",
+  "chatConnectionLost": "Connection lost",
+  "chatUnableConnect": "Unable to connect to server",
+  "chatReconnect": "Reconnect",
+  "chatEmptyTitle": "Waiting for messages from AI Agent...",
+  "chatEmptySubtitle": "Once connected, questions and tasks from the AI Agent will appear here.",
+
+  "splashInitializing": "Initializing...",
+  "splashConnecting": "Connecting to server...",
+  "splashConnected": "Connected!",
+  "splashManualConnect": "Manual connection required",
+  "splashInitFailed": "Initialization failed",
+  "splashRetrying": "Retrying...",
+  "splashTitle": "Agent Assistant Client",
+  "splashRetryButton": "Retry",
+
+  "copyTooltip": "Copy",
+  "messageCopied": "Message copied to clipboard",
+  "replyCopied": "Reply copied to clipboard",
+  "statusPending": "Pending",
+  "statusReplied": "Replied",
+  "statusConfirmed": "Confirmed",
+  "statusError": "Error",
+  "statusExpired": "Expired",
+  "statusCancelled": "Cancelled",
+  "yourReply": "Your reply",
+  "otherUser": "Other user",
+  "replyFrom": "Reply from {nickname}",
+  "@replyFrom": {
+    "placeholders": {
+      "nickname": {
+        "type": "String"
+      }
+    }
+  },
+
+  "nicknameSettingsTitle": "Nickname Settings",
+  "nicknameSettingsSubtitle": "Set the nickname that will be displayed in chat",
+  "nicknameLabel": "Nickname",
+  "nicknameHint": "Please enter your nickname",
+  "nicknameRegenerate": "Regenerate",
+  "nicknameClear": "Clear",
+  "nicknameSaving": "Saving...",
+  "nicknameSave": "Save",
+  "nicknameTipsTitle": "Tips:",
+  "nicknameTipsBody": "• Nickname length must be between 2 and 20 characters\n• Your nickname will be shown in your replies\n• Other users can see your nickname",
+  "nicknameLoadFailed": "Failed to load nickname: {error}",
+  "@nicknameLoadFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nicknameSaveFailed": "Failed to save nickname: {error}",
+  "@nicknameSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "nicknameEmptyError": "Nickname cannot be empty",
+  "nicknameTooShortError": "Nickname must be at least 2 characters",
+  "nicknameTooLongError": "Nickname cannot exceed 20 characters",
+  "nicknameSaved": "Nickname has been saved and synced to server",
+
+  "servers": "Servers",
+  "addServer": "Add Server",
+  "editServer": "Edit Server",
+  "serverAlias": "Alias (optional)",
+  "webSocketUrl": "WebSocket URL",
+  "enabled": "Enabled",
+  "save": "Save",
+  "edit": "Edit",
+  "delete": "Delete",
+  "noServersConfigured": "No servers configured. Add a server to connect.",
+  "noEnabledServers": "No servers enabled. Please enable at least one server.",
+  "deleteServerConfirmTitle": "Delete Server",
+  "deleteServerConfirmMessage": "Are you sure you want to delete server \"{serverName}\"?",
+  "@deleteServerConfirmMessage": {
+    "placeholders": {
+      "serverName": {
+        "type": "String"
+      }
+    }
+  },
+
   "close": "Close",
   "serverConnectionsTooltip": "Server connections",
   "serverConnectionsTitle": "Server Connections",

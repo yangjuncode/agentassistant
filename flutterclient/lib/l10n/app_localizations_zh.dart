@@ -125,6 +125,11 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String buildTime(String time) {
+    return '编译时间 $time';
+  }
+
+  @override
   String get feedback => '反馈问题';
 
   @override
@@ -134,8 +139,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackMessage => '请联系您的系统管理员反馈问题';
 
   @override
-  String get aboutAppDescription =>
-      'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
+  String get aboutAppDescription => 'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
 
   @override
   String get features => '功能特性：';
@@ -224,7 +228,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get notConnected => '未连接';
 
-  // Login screen
   @override
   String get loginSubtitle => '连接到您的 AI Agent 助手';
 
@@ -269,7 +272,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get errorServerProtocol => '服务器地址必须以 ws:// 或 wss:// 开头';
 
-  // Chat screen
   @override
   String get chatConnecting => '正在连接到 Agent Assistant 服务器...';
 
@@ -288,7 +290,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get chatEmptySubtitle => '连接成功后，AI Agent 的问题和任务将在这里显示';
 
-  // Splash screen
   @override
   String get splashInitializing => '正在初始化...';
 
@@ -313,7 +314,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get splashRetryButton => '重试';
 
-  // Message bubble
   @override
   String get copyTooltip => '复制';
 
@@ -352,7 +352,6 @@ class AppLocalizationsZh extends AppLocalizations {
     return '$nickname的回复';
   }
 
-  // Nickname settings
   @override
   String get nicknameSettingsTitle => '昵称设置';
 
@@ -381,9 +380,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nicknameTipsTitle => '提示：';
 
   @override
-  String get nicknameTipsBody => '• 昵称长度为2-20个字符\n'
-      '• 昵称将显示在您的回复中\n'
-      '• 其他用户可以看到您的昵称';
+  String get nicknameTipsBody => '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
 
   @override
   String nicknameLoadFailed(String error) {
@@ -407,7 +404,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get nicknameSaved => '昵称已保存并同步到服务器';
 
-  // Server management
   @override
   String get servers => '服务器';
 
@@ -446,10 +442,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String deleteServerConfirmMessage(String serverName) {
-    return '确定要删除服务器 "$serverName" 吗？';
+    return '确定要删除服务器 \"$serverName\" 吗？';
   }
 
-  // Server connections
   @override
   String get close => '关闭';
 

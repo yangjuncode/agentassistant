@@ -62,8 +62,7 @@ import 'app_localizations_zh.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -71,8 +70,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -84,8 +82,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -314,6 +311,12 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String version(String version);
 
+  /// No description provided for @buildTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Build Time {time}'**
+  String buildTime(String time);
+
   /// No description provided for @feedback.
   ///
   /// In en, this message translates to:
@@ -500,102 +503,482 @@ abstract class AppLocalizations {
   /// **'Not connected'**
   String get notConnected;
 
-  // Login screen
+  /// No description provided for @loginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to your AI Agent assistant'**
   String get loginSubtitle;
+
+  /// No description provided for @loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed: {error}'**
   String loginFailed(String error);
+
+  /// No description provided for @loginTokenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Access token'**
   String get loginTokenLabel;
+
+  /// No description provided for @loginTokenHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your access token'**
   String get loginTokenHint;
+
+  /// No description provided for @loginAdvancedSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced settings'**
   String get loginAdvancedSettings;
+
+  /// No description provided for @loginServerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Server address'**
   String get loginServerLabel;
+
+  /// No description provided for @loginRememberSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember settings'**
   String get loginRememberSettingsTitle;
+
+  /// No description provided for @loginRememberSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto fill on next launch'**
   String get loginRememberSettingsSubtitle;
+
+  /// No description provided for @loginButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect'**
   String get loginButton;
+
+  /// No description provided for @loginHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Need help? Please contact your system administrator to get an access token.'**
   String get loginHelp;
+
+  /// No description provided for @errorTokenRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter access token'**
   String get errorTokenRequired;
+
+  /// No description provided for @errorTokenInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid token format (at least 1 character)'**
   String get errorTokenInvalid;
+
+  /// No description provided for @errorServerRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter server address'**
   String get errorServerRequired;
+
+  /// No description provided for @errorServerProtocol.
+  ///
+  /// In en, this message translates to:
+  /// **'Server address must start with ws:// or wss://'**
   String get errorServerProtocol;
 
-  // Chat screen
+  /// No description provided for @chatConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to Agent Assistant server...'**
   String get chatConnecting;
+
+  /// No description provided for @chatConnectionLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Connection lost'**
   String get chatConnectionLost;
+
+  /// No description provided for @chatUnableConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Unable to connect to server'**
   String get chatUnableConnect;
+
+  /// No description provided for @chatReconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Reconnect'**
   String get chatReconnect;
+
+  /// No description provided for @chatEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for messages from AI Agent...'**
   String get chatEmptyTitle;
+
+  /// No description provided for @chatEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Once connected, questions and tasks from the AI Agent will appear here.'**
   String get chatEmptySubtitle;
 
-  // Splash screen
+  /// No description provided for @splashInitializing.
+  ///
+  /// In en, this message translates to:
+  /// **'Initializing...'**
   String get splashInitializing;
+
+  /// No description provided for @splashConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'Connecting to server...'**
   String get splashConnecting;
+
+  /// No description provided for @splashConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected!'**
   String get splashConnected;
+
+  /// No description provided for @splashManualConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual connection required'**
   String get splashManualConnect;
+
+  /// No description provided for @splashInitFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Initialization failed'**
   String get splashInitFailed;
+
+  /// No description provided for @splashRetrying.
+  ///
+  /// In en, this message translates to:
+  /// **'Retrying...'**
   String get splashRetrying;
+
+  /// No description provided for @splashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent Assistant Client'**
   String get splashTitle;
+
+  /// No description provided for @splashRetryButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
   String get splashRetryButton;
 
-  // Message bubble
+  /// No description provided for @copyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
   String get copyTooltip;
+
+  /// No description provided for @messageCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Message copied to clipboard'**
   String get messageCopied;
+
+  /// No description provided for @replyCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply copied to clipboard'**
   String get replyCopied;
+
+  /// No description provided for @statusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
   String get statusPending;
+
+  /// No description provided for @statusReplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Replied'**
   String get statusReplied;
+
+  /// No description provided for @statusConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
   String get statusConfirmed;
+
+  /// No description provided for @statusError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
   String get statusError;
+
+  /// No description provided for @statusExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
   String get statusExpired;
+
+  /// No description provided for @statusCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
   String get statusCancelled;
+
+  /// No description provided for @yourReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Your reply'**
   String get yourReply;
+
+  /// No description provided for @otherUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Other user'**
   String get otherUser;
+
+  /// No description provided for @replyFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply from {nickname}'**
   String replyFrom(String nickname);
 
-  // Nickname settings
+  /// No description provided for @nicknameSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname Settings'**
   String get nicknameSettingsTitle;
+
+  /// No description provided for @nicknameSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the nickname that will be displayed in chat'**
   String get nicknameSettingsSubtitle;
+
+  /// No description provided for @nicknameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname'**
   String get nicknameLabel;
+
+  /// No description provided for @nicknameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your nickname'**
   String get nicknameHint;
+
+  /// No description provided for @nicknameRegenerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Regenerate'**
   String get nicknameRegenerate;
+
+  /// No description provided for @nicknameClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
   String get nicknameClear;
+
+  /// No description provided for @nicknameSaving.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
   String get nicknameSaving;
+
+  /// No description provided for @nicknameSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
   String get nicknameSave;
+
+  /// No description provided for @nicknameTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips:'**
   String get nicknameTipsTitle;
+
+  /// No description provided for @nicknameTipsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'• Nickname length must be between 2 and 20 characters\n• Your nickname will be shown in your replies\n• Other users can see your nickname'**
   String get nicknameTipsBody;
+
+  /// No description provided for @nicknameLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load nickname: {error}'**
   String nicknameLoadFailed(String error);
+
+  /// No description provided for @nicknameSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save nickname: {error}'**
   String nicknameSaveFailed(String error);
+
+  /// No description provided for @nicknameEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname cannot be empty'**
   String get nicknameEmptyError;
+
+  /// No description provided for @nicknameTooShortError.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname must be at least 2 characters'**
   String get nicknameTooShortError;
+
+  /// No description provided for @nicknameTooLongError.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname cannot exceed 20 characters'**
   String get nicknameTooLongError;
+
+  /// No description provided for @nicknameSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname has been saved and synced to server'**
   String get nicknameSaved;
 
-  // Server management
+  /// No description provided for @servers.
+  ///
+  /// In en, this message translates to:
+  /// **'Servers'**
   String get servers;
+
+  /// No description provided for @addServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Server'**
   String get addServer;
+
+  /// No description provided for @editServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Server'**
   String get editServer;
+
+  /// No description provided for @serverAlias.
+  ///
+  /// In en, this message translates to:
+  /// **'Alias (optional)'**
   String get serverAlias;
+
+  /// No description provided for @webSocketUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'WebSocket URL'**
   String get webSocketUrl;
+
+  /// No description provided for @enabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
   String get enabled;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
   String get save;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
   String get edit;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
   String get delete;
+
+  /// No description provided for @noServersConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'No servers configured. Add a server to connect.'**
   String get noServersConfigured;
+
+  /// No description provided for @noEnabledServers.
+  ///
+  /// In en, this message translates to:
+  /// **'No servers enabled. Please enable at least one server.'**
   String get noEnabledServers;
+
+  /// No description provided for @deleteServerConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Server'**
   String get deleteServerConfirmTitle;
+
+  /// No description provided for @deleteServerConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete server \"{serverName}\"?'**
   String deleteServerConfirmMessage(String serverName);
 
-  // Server connections
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
   String get close;
+
+  /// No description provided for @serverConnectionsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Server connections'**
   String get serverConnectionsTooltip;
+
+  /// No description provided for @serverConnectionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Server Connections'**
   String get serverConnectionsTitle;
+
+  /// No description provided for @serverStatusLine.
+  ///
+  /// In en, this message translates to:
+  /// **'status: {status}'**
   String serverStatusLine(String status);
+
+  /// No description provided for @serverErrorLine.
+  ///
+  /// In en, this message translates to:
+  /// **'error: {error}'**
   String serverErrorLine(String error);
+
+  /// No description provided for @serverStatusConnected.
+  ///
+  /// In en, this message translates to:
+  /// **'connected'**
   String get serverStatusConnected;
+
+  /// No description provided for @serverStatusConnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'connecting'**
   String get serverStatusConnecting;
+
+  /// No description provided for @serverStatusReconnecting.
+  ///
+  /// In en, this message translates to:
+  /// **'reconnecting'**
   String get serverStatusReconnecting;
+
+  /// No description provided for @serverStatusError.
+  ///
+  /// In en, this message translates to:
+  /// **'error'**
   String get serverStatusError;
+
+  /// No description provided for @serverStatusDisconnected.
+  ///
+  /// In en, this message translates to:
+  /// **'disconnected'**
   String get serverStatusDisconnected;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -604,25 +987,25 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'zh'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'zh':
-      return AppLocalizationsZh();
+    case 'en': return AppLocalizationsEn();
+    case 'zh': return AppLocalizationsZh();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }
