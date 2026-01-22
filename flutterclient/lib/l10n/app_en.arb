@@ -64,6 +64,14 @@
       }
     }
   },
+  "buildTime": "Build Time {time}",
+  "@buildTime": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "feedback": "Feedback",
   "feedbackDesc": "Report bugs or suggest features",
   "feedbackMessage": "Please contact your system administrator to report issues",

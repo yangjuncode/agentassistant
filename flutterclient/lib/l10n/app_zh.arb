@@ -36,6 +36,7 @@
   "app": "应用",
   "about": "关于",
   "version": "版本 {version}",
+  "buildTime": "编译时间 {time}",
   "feedback": "反馈问题",
   "feedbackDesc": "报告 Bug 或提出建议",
   "feedbackMessage": "请联系您的系统管理员反馈问题",

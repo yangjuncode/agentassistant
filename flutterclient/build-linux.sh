@@ -22,6 +22,10 @@ else
     echo "Icon already exists: $ICON_FILE"
 fi
 
+# Inject build time into app_config.dart
+BUILD_TIME=$(date "+%Y-%m-%d %H:%M:%S")
+sed -i "s/static const String buildTime = '.*';/static const String buildTime = '$BUILD_TIME';/" lib/config/app_config.dart
+
 if flutter build linux --release; then
     # Copy build output to root bin directory
     echo "Build successful. Copying build output to ../bin..."

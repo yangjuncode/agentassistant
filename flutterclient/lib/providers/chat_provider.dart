@@ -643,8 +643,6 @@ class ChatProvider extends ChangeNotifier {
     );
     _addMessage(chatMessage);
     _logger.i('Received question: ${request.request.question}');
-    print(
-        '[MCP] Received question, applying attention mode: $_askQuestionAttentionMode');
 
     _handleDesktopAttentionOnNewPendingItem(
       title: 'New question',
@@ -666,11 +664,9 @@ class ChatProvider extends ChangeNotifier {
     );
     _addMessage(chatMessage);
     _logger.i('Received work report: ${request.request.summary}');
-    print(
-        '[MCP] Received work report, applying attention mode: $_workReportAttentionMode');
 
     _handleDesktopAttentionOnNewPendingItem(
-      title: 'New task',
+      title: 'New Workreport',
       body: request.request.summary,
       mode: _workReportAttentionMode,
     );

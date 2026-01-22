@@ -486,6 +486,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onTap: _showAboutDialog,
                     ),
                     ListTile(
+                      leading: const Icon(Icons.history),
+                      title: Text(l10n.buildTime(AppConfig.buildTime)),
+                    ),
+                    ListTile(
                       leading: const Icon(Icons.bug_report),
                       title: Text(l10n.feedback),
                       subtitle: Text(l10n.feedbackDesc),
