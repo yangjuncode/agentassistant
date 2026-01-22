@@ -58,6 +58,10 @@ class ChatProvider extends ChangeNotifier {
   bool _autoForwardToSystemInput = false;
   DesktopMcpAttentionMode _desktopMcpAttentionMode =
       DesktopMcpAttentionMode.popupOnTop;
+  DesktopMcpAttentionMode _askQuestionAttentionMode =
+      DesktopMcpAttentionMode.popupOnTop;
+  DesktopMcpAttentionMode _workReportAttentionMode =
+      DesktopMcpAttentionMode.popupOnTop;
   bool _showOnlyPendingMessages = false;
   bool _isInputFocused = false;
   Timer? _inputFocusDebounceTimer;
@@ -94,6 +98,10 @@ class ChatProvider extends ChangeNotifier {
   bool get autoForwardToSystemInput => _autoForwardToSystemInput;
   DesktopMcpAttentionMode get desktopMcpAttentionMode =>
       _desktopMcpAttentionMode;
+  DesktopMcpAttentionMode get askQuestionAttentionMode =>
+      _askQuestionAttentionMode;
+  DesktopMcpAttentionMode get workReportAttentionMode =>
+      _workReportAttentionMode;
   // Expose read-only view of drafts if needed
   Map<String, String> get replyDrafts => Map.unmodifiable(_replyDrafts);
   bool get hasAnyDraft => _replyDrafts.values.any((t) => t.trim().isNotEmpty);
@@ -187,10 +195,72 @@ class ChatProvider extends ChangeNotifier {
       } else {
         _desktopMcpAttentionMode = DesktopMcpAttentionMode.popupOnTop;
       }
+
+      // Load specific modes with fallback to global mode
+      final askRaw = prefs.getInt(AppConfig.askQuestionAttentionModeStorageKey);
+      if (askRaw != null &&
+          askRaw >= 0 &&
+          askRaw < DesktopMcpAttentionMode.values.length) {
+        _askQuestionAttentionMode = DesktopMcpAttentionMode.values[askRaw];
+      } else {
+        _askQuestionAttentionMode = _desktopMcpAttentionMode;
+      }
+
+      final workRaw = prefs.getInt(AppConfig.workReportAttentionModeStorageKey);
+      if (workRaw != null &&
+          workRaw >= 0 &&
+          workRaw < DesktopMcpAttentionMode.values.length) {
+        _workReportAttentionMode = DesktopMcpAttentionMode.values[workRaw];
+      } else {
+        _workReportAttentionMode = _desktopMcpAttentionMode;
+      }
+
       notifyListeners();
     } catch (error) {
-      _logger.e('Failed to load desktop attention mode: $error');
+      _logger.e('Failed to load desktop attention modes: $error');
       _desktopMcpAttentionMode = DesktopMcpAttentionMode.popupOnTop;
+      _askQuestionAttentionMode = DesktopMcpAttentionMode.popupOnTop;
+      _workReportAttentionMode = DesktopMcpAttentionMode.popupOnTop;
+    }
+  }
+
+  Future<void> setAskQuestionAttentionMode(DesktopMcpAttentionMode mode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(
+          AppConfig.askQuestionAttentionModeStorageKey, mode.index);
+      _askQuestionAttentionMode = mode;
+      notifyListeners();
+
+      if (mode != DesktopMcpAttentionMode.popupOnTop &&
+          mode != DesktopMcpAttentionMode.trayPopupOnTop) {
+        final windowService = WindowService();
+        if (windowService.isDesktop) {
+          await windowService.resetAlwaysOnTop();
+        }
+      }
+    } catch (error) {
+      _logger.e('Failed to save ask question attention mode: $error');
+    }
+  }
+
+  Future<void> setWorkReportAttentionMode(DesktopMcpAttentionMode mode) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(
+          AppConfig.workReportAttentionModeStorageKey, mode.index);
+      _workReportAttentionMode = mode;
+      notifyListeners();
+
+      if (mode != DesktopMcpAttentionMode.popupOnTop &&
+          mode != DesktopMcpAttentionMode.trayPopupOnTop) {
+        final windowService = WindowService();
+        if (windowService.isDesktop) {
+          await windowService.resetAlwaysOnTop();
+        }
+      }
+    } catch (error) {
+      _logger.e('Failed to save work report attention mode: $error');
     }
   }
 
@@ -573,10 +643,13 @@ class ChatProvider extends ChangeNotifier {
     );
     _addMessage(chatMessage);
     _logger.i('Received question: ${request.request.question}');
+    print(
+        '[MCP] Received question, applying attention mode: $_askQuestionAttentionMode');
 
     _handleDesktopAttentionOnNewPendingItem(
       title: 'New question',
       body: request.request.question,
+      mode: _askQuestionAttentionMode,
     );
   }
 
@@ -593,16 +666,20 @@ class ChatProvider extends ChangeNotifier {
     );
     _addMessage(chatMessage);
     _logger.i('Received work report: ${request.request.summary}');
+    print(
+        '[MCP] Received work report, applying attention mode: $_workReportAttentionMode');
 
     _handleDesktopAttentionOnNewPendingItem(
       title: 'New task',
       body: request.request.summary,
+      mode: _workReportAttentionMode,
     );
   }
 
   Future<void> _handleDesktopAttentionOnNewPendingItem({
     required String title,
     required String body,
+    required DesktopMcpAttentionMode mode,
   }) async {
     final windowService = WindowService();
 
@@ -616,14 +693,16 @@ class ChatProvider extends ChangeNotifier {
       return;
     }
 
-    await _applyDesktopAttention(title: title, body: body);
+    await _applyDesktopAttention(title: title, body: body, mode: mode);
   }
 
   Future<void> _applyDesktopAttention({
     required String title,
     required String body,
+    DesktopMcpAttentionMode? mode,
   }) async {
-    if (_desktopMcpAttentionMode == DesktopMcpAttentionMode.none) {
+    final attentionMode = mode ?? _desktopMcpAttentionMode;
+    if (attentionMode == DesktopMcpAttentionMode.none) {
       return;
     }
 
@@ -641,16 +720,15 @@ class ChatProvider extends ChangeNotifier {
         return;
       }
 
-      if (_desktopMcpAttentionMode == DesktopMcpAttentionMode.tray ||
-          _desktopMcpAttentionMode == DesktopMcpAttentionMode.trayPopupOnTop) {
+      if (attentionMode == DesktopMcpAttentionMode.tray ||
+          attentionMode == DesktopMcpAttentionMode.trayPopupOnTop) {
         await TrayService().showInfoNotification(title: title, body: body);
       }
 
-      if (_desktopMcpAttentionMode == DesktopMcpAttentionMode.popup) {
+      if (attentionMode == DesktopMcpAttentionMode.popup) {
         await windowService.bringToFrontWithoutOnTop();
-      } else if (_desktopMcpAttentionMode ==
-              DesktopMcpAttentionMode.popupOnTop ||
-          _desktopMcpAttentionMode == DesktopMcpAttentionMode.trayPopupOnTop) {
+      } else if (attentionMode == DesktopMcpAttentionMode.popupOnTop ||
+          attentionMode == DesktopMcpAttentionMode.trayPopupOnTop) {
         await windowService.bringToFrontAndStay();
 
         if (pendingQuestions.isEmpty && pendingTasks.isEmpty) {

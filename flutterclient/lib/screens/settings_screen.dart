@@ -409,37 +409,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                   child: Column(
                     children: [
-                      ListTile(
-                        leading: const Icon(Icons.notifications_active),
-                        title: Text(l10n.mcpMessageAttention),
-                        subtitle: Text(
-                          _desktopMcpAttentionModeLabel(
-                            l10n,
-                            chatProvider.desktopMcpAttentionMode,
-                          ),
-                        ),
-                        trailing: SizedBox(
-                          width: 260,
-                          child: DropdownButton<DesktopMcpAttentionMode>(
-                            value: chatProvider.desktopMcpAttentionMode,
-                            isExpanded: true,
-                            onChanged: (mode) {
-                              if (mode == null) return;
-                              chatProvider.setDesktopMcpAttentionMode(mode);
-                            },
-                            items: DesktopMcpAttentionMode.values
-                                .map(
-                                  (m) => DropdownMenuItem(
-                                    value: m,
-                                    child: Text(
-                                      _desktopMcpAttentionModeLabel(l10n, m),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
+                      _buildAttentionModeTile(
+                        l10n,
+                        l10n.mcpAskQuestionAttention,
+                        chatProvider.askQuestionAttentionMode,
+                        (mode) =>
+                            chatProvider.setAskQuestionAttentionMode(mode),
+                      ),
+                      const Divider(height: 1),
+                      _buildAttentionModeTile(
+                        l10n,
+                        l10n.mcpWorkReportAttention,
+                        chatProvider.workReportAttentionMode,
+                        (mode) => chatProvider.setWorkReportAttentionMode(mode),
                       ),
                     ],
                   ),
@@ -700,6 +682,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.w600,
             ),
+      ),
+    );
+  }
+
+  Widget _buildAttentionModeTile(
+    AppLocalizations l10n,
+    String title,
+    DesktopMcpAttentionMode currentMode,
+    ValueChanged<DesktopMcpAttentionMode> onChanged,
+  ) {
+    return ListTile(
+      leading: const Icon(Icons.notifications_active),
+      title: Text(title),
+      subtitle: Text(_desktopMcpAttentionModeLabel(l10n, currentMode)),
+      trailing: SizedBox(
+        width: 260,
+        child: DropdownButton<DesktopMcpAttentionMode>(
+          value: currentMode,
+          isExpanded: true,
+          onChanged: (mode) {
+            if (mode != null) onChanged(mode);
+          },
+          items: DesktopMcpAttentionMode.values
+              .map(
+                (m) => DropdownMenuItem(
+                  value: m,
+                  child: Text(
+                    _desktopMcpAttentionModeLabel(l10n, m),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }

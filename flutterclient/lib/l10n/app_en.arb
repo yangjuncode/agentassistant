@@ -90,6 +90,8 @@
 
   "desktop": "Desktop",
   "mcpMessageAttention": "MCP message attention",
+  "mcpAskQuestionAttention": "Ask Question attention",
+  "mcpWorkReportAttention": "Work Report attention",
   "mcpAttentionModeNone": "None",
   "mcpAttentionModeTray": "Systray info only",
   "mcpAttentionModePopup": "Popup only",

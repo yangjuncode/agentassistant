@@ -186,6 +186,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mcpMessageAttention => 'MCP message attention';
 
   @override
+  String get mcpAskQuestionAttention => 'Ask Question attention';
+
+  @override
+  String get mcpWorkReportAttention => 'Work Report attention';
+
+  @override
   String get mcpAttentionModeNone => 'None';
 
   @override

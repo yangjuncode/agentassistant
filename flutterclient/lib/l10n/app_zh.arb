@@ -55,6 +55,8 @@
   ,
   "desktop": "桌面端",
   "mcpMessageAttention": "MCP 消息提醒",
+  "mcpAskQuestionAttention": "Ask Question 提醒模式",
+  "mcpWorkReportAttention": "Work Report 提醒模式",
   "mcpAttentionModeNone": "无",
   "mcpAttentionModeTray": "仅系统托盘通知",
   "mcpAttentionModePopup": "仅弹窗",

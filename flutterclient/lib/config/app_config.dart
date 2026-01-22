@@ -25,6 +25,10 @@ class AppConfig {
       'chat_auto_send_interval';
   static const String desktopMcpAttentionModeStorageKey =
       'desktop_mcp_attention_mode';
+  static const String askQuestionAttentionModeStorageKey =
+      'ask_question_attention_mode';
+  static const String workReportAttentionModeStorageKey =
+      'work_report_attention_mode';
 
   // Default values
   static const String appName = 'Agent Assistant';

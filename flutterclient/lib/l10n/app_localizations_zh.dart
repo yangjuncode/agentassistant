@@ -182,6 +182,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mcpMessageAttention => 'MCP 消息提醒';
 
   @override
+  String get mcpAskQuestionAttention => 'Ask Question 提醒模式';
+
+  @override
+  String get mcpWorkReportAttention => 'Work Report 提醒模式';
+
+  @override
   String get mcpAttentionModeNone => '无';
 
   @override

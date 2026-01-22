@@ -422,6 +422,18 @@ abstract class AppLocalizations {
   /// **'MCP message attention'**
   String get mcpMessageAttention;
 
+  /// No description provided for @mcpAskQuestionAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask Question attention'**
+  String get mcpAskQuestionAttention;
+
+  /// No description provided for @mcpWorkReportAttention.
+  ///
+  /// In en, this message translates to:
+  /// **'Work Report attention'**
+  String get mcpWorkReportAttention;
+
   /// No description provided for @mcpAttentionModeNone.
   ///
   /// In en, this message translates to:
