@@ -474,6 +474,17 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         ),
                         const SizedBox(width: 8),
                         OutlinedButton(
+                          onPressed:
+                              _isSubmitting ? null : () => _handleSubmit('Yes'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            minimumSize: const Size(0, 32),
+                          ),
+                          child: const Text('Yes'),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
                           onPressed: _isSubmitting
                               ? null
                               : () => _handleSubmit('Continue'),
@@ -516,6 +527,21 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                               foregroundColor: Colors.green,
                               side: BorderSide(
                                   color: Colors.green.withValues(alpha: 0.5)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          OutlinedButton.icon(
+                            onPressed: _isSubmitting
+                                ? null
+                                : () => _handleSubmit('Yes'),
+                            icon: const Icon(Icons.thumb_up, size: 16),
+                            label: const Text('Yes'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.teal,
+                              side: BorderSide(
+                                  color: Colors.teal.withValues(alpha: 0.5)),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 8),
                             ),
