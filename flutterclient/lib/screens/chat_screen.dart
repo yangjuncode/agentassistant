@@ -12,6 +12,7 @@ import '../widgets/online_users_bar.dart';
 import '../config/app_config.dart';
 import 'settings_screen.dart';
 import '../widgets/server_status_icon.dart';
+import '../widgets/project_directory_cache_dialog.dart';
 
 /// Main chat screen for Agent Assistant
 class ChatScreen extends StatefulWidget {
@@ -34,6 +35,13 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeScreen();
     });
+  }
+
+  void _showCacheManager() {
+    showDialog(
+      context: context,
+      builder: (context) => const ProjectDirectoryCacheDialog(),
+    );
   }
 
   @override
@@ -251,6 +259,14 @@ class _ChatScreenState extends State<ChatScreen> {
         title: const Text(AppConfig.appName),
         actions: [
           const PendingActionsIndicator(),
+          IconButton(
+            icon: const Icon(Icons.folder_open),
+            onPressed: _showCacheManager,
+            tooltip: '缓存管理',
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+          ),
+          const SizedBox(width: 8),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: _showSettings,

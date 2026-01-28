@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../l10n/app_localizations.dart';
 import '../providers/chat_provider.dart';
+import '../providers/project_directory_index_provider.dart';
 import '../models/server_config.dart';
 
 import '../config/app_config.dart';
@@ -272,6 +273,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: Consumer<ChatProvider>(
         builder: (context, chatProvider, child) {
+          final pathIndexProvider =
+              context.watch<ProjectDirectoryIndexProvider>();
           return ListView(
             children: [
               _buildCurrentProfile(context, chatProvider),
@@ -398,6 +401,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
                       },
                     ),
+                  ],
+                ),
+              ),
+
+              _buildSectionHeader('路径补全'),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
+                  children: [
+                    for (int i = 0;
+                        i <
+                            ProjectDirectoryIndexProvider
+                                .defaultIgnoredDirs.length;
+                        i++) ...[
+                      SwitchListTile(
+                        secondary: const Icon(Icons.folder_off),
+                        title: Text(
+                            '忽略目录: ${ProjectDirectoryIndexProvider.defaultIgnoredDirs[i]}'),
+                        value: pathIndexProvider.ignoredDirs.contains(
+                            ProjectDirectoryIndexProvider
+                                .defaultIgnoredDirs[i]),
+                        onChanged: (v) {
+                          pathIndexProvider.setIgnoredDirEnabled(
+                              ProjectDirectoryIndexProvider
+                                  .defaultIgnoredDirs[i],
+                              v);
+                        },
+                      ),
+                      if (i <
+                          ProjectDirectoryIndexProvider
+                                  .defaultIgnoredDirs.length -
+                              1)
+                        const Divider(height: 1),
+                    ],
                   ],
                 ),
               ),

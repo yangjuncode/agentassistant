@@ -36,3 +36,5 @@ dist/
 cmd/agentassistant-mcp/agentassistant-mcp
 cmd/agentassistant-srv/agentassistant-srv
 cmd/agentassistant-input/agentassistant-input
+
+.tmp/

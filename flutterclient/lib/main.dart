@@ -10,6 +10,7 @@ import 'l10n/app_localizations.dart';
 import 'providers/locale_provider.dart';
 
 import 'providers/chat_provider.dart';
+import 'providers/project_directory_index_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/splash_screen.dart';
@@ -134,6 +135,8 @@ class AgentAssistantApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => ChatProvider()),
         ChangeNotifierProvider(create: (context) => LocaleProvider()),
+        ChangeNotifierProvider(
+            create: (context) => ProjectDirectoryIndexProvider()),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {

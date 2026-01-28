@@ -33,7 +33,8 @@ class AppConfig {
   // Default values
   static const String appName = 'Agent Assistant';
   static const String appVersion = '1.0.0';
-  static const String buildTime = '2026-01-22 15:02:23';
+  static const String buildTime =
+      String.fromEnvironment('BUILD_TIME', defaultValue: 'unknown');
   static const int defaultChatAutoSendInterval = 5;
 
   // Build WebSocket URL
