@@ -32,7 +32,7 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
 
   int _ttlHours = defaultTtlHours;
   Set<String> _ignoredDirs = defaultIgnoredDirs.toSet();
-  bool _watchEnabledDesktop = false;
+  bool _watchEnabledDesktop = true;
 
   ProjectDirectoryIndexProvider() {
     _loadSettings();
@@ -218,7 +218,7 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
     } catch (_) {
       _ttlHours = defaultTtlHours;
       _ignoredDirs = defaultIgnoredDirs.toSet();
-      _watchEnabledDesktop = false;
+      _watchEnabledDesktop = true;
     }
 
     notifyListeners();
