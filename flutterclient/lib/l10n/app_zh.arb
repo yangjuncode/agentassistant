@@ -54,6 +54,9 @@
   "languageChinese": "简体中文",
   "nicknameUpdated": "昵称已更新为: {nickname}"
   ,
+  "pathAutocomplete": "路径补全",
+  "ignoredDirectory": "忽略目录: {dir}",
+
   "desktop": "桌面端",
   "mcpMessageAttention": "MCP 消息提醒",
   "mcpAskQuestionAttention": "Ask Question 提醒模式",
@@ -63,6 +66,12 @@
   "mcpAttentionModePopup": "仅弹窗",
   "mcpAttentionModePopupOnTop": "弹窗 + 置顶",
   "mcpAttentionModeTrayPopupOnTop": "系统托盘通知 + 弹窗 + 置顶",
+
+  "slashCommands": "Slash Commands",
+  "slashCommandsShow": "显示",
+  "slashCommandsOptionCommands": "命令",
+  "slashCommandsOptionSkills": "技能",
+  "slashCommandsOptionCommandsAndSkills": "命令+技能",
 
   "webSocketUrlHint": "ws://host:port/ws",
   "chatAutoSendInterval": "聊天自动发送间隔",

@@ -139,7 +139,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackMessage => '请联系您的系统管理员反馈问题';
 
   @override
-  String get aboutAppDescription => 'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
+  String get aboutAppDescription =>
+      'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
 
   @override
   String get features => '功能特性：';
@@ -178,6 +179,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String nicknameUpdated(String nickname) {
     return '昵称已更新为: $nickname';
   }
+
+  @override
+  String get pathAutocomplete => '路径补全';
+
+  @override
+  String ignoredDirectory(String dir) {
+    return '忽略目录: $dir';
+  }
+
+  @override
+  String get slashCommands => 'Slash Commands';
+
+  @override
+  String get slashCommandsShow => '显示';
+
+  @override
+  String get slashCommandsOptionCommands => '命令';
+
+  @override
+  String get slashCommandsOptionSkills => '技能';
+
+  @override
+  String get slashCommandsOptionCommandsAndSkills => '命令+技能';
 
   @override
   String get desktop => '桌面端';
@@ -380,7 +404,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nicknameTipsTitle => '提示：';
 
   @override
-  String get nicknameTipsBody => '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
+  String get nicknameTipsBody =>
+      '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
 
   @override
   String nicknameLoadFailed(String error) {

@@ -96,6 +96,22 @@
     }
   },
 
+  "pathAutocomplete": "Path Autocomplete",
+  "ignoredDirectory": "Ignored directory: {dir}",
+  "@ignoredDirectory": {
+    "placeholders": {
+      "dir": {
+        "type": "String"
+      }
+    }
+  },
+
+  "slashCommands": "Slash Commands",
+  "slashCommandsShow": "Show",
+  "slashCommandsOptionCommands": "Commands",
+  "slashCommandsOptionSkills": "Skills",
+  "slashCommandsOptionCommandsAndSkills": "Commands & Skills",
+
   "desktop": "Desktop",
   "mcpMessageAttention": "MCP message attention",
   "mcpAskQuestionAttention": "Ask Question attention",

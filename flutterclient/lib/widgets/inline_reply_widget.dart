@@ -9,6 +9,7 @@ import 'package:desktop_drop/desktop_drop.dart';
 import '../models/chat_message.dart';
 import '../providers/chat_provider.dart';
 import '../providers/project_directory_index_provider.dart';
+import '../providers/mcp_tool_index_provider.dart';
 import '../constants/websocket_commands.dart';
 import '../services/attachment_service.dart';
 
@@ -39,9 +40,9 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   final GlobalKey _inputFieldKey = GlobalKey();
   OverlayEntry? _suggestOverlay;
   Timer? _suggestDebounce;
-  List<PathSuggestion> _suggestions = const [];
+  List<_InlineSuggestion> _suggestions = const [];
   int _selectedSuggestionIndex = 0;
-  int? _activeAtIndex;
+  int? _activeTokenIndex;
   bool _suppressNextSuggestUpdate = false;
 
   static const double _suggestOverlayGap = 8;
@@ -93,9 +94,11 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final chatProvider = context.read<ChatProvider>();
       final pathIndexProvider = context.read<ProjectDirectoryIndexProvider>();
+      final toolIndexProvider = context.read<McpToolIndexProvider>();
       final root = widget.message.projectDirectory;
       if (root != null && root.isNotEmpty) {
         pathIndexProvider.touchRoot(root);
+        toolIndexProvider.touchContext(root, widget.message.mcpClientName);
       }
 
       final draft = chatProvider.getDraft(widget.message.id);
@@ -164,7 +167,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   void _updateSuggestions() {
     final root = widget.message.projectDirectory;
     if (root == null || root.isEmpty) {
-      _activeAtIndex = null;
+      _activeTokenIndex = null;
       _suggestions = const [];
       _removeSuggestOverlay();
       return;
@@ -172,7 +175,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
     final provider = context.read<ProjectDirectoryIndexProvider>();
     if (!provider.rootExists(root)) {
-      _activeAtIndex = null;
+      _activeTokenIndex = null;
       _suggestions = const [];
       _removeSuggestOverlay();
       return;
@@ -181,25 +184,62 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     final value = _controller.value;
     final cursor = value.selection.isValid ? value.selection.baseOffset : -1;
     if (cursor < 0) {
-      _activeAtIndex = null;
+      _activeTokenIndex = null;
       _suggestions = const [];
       _removeSuggestOverlay();
       return;
     }
 
-    final info = _findAtToken(value.text, cursor);
-    if (info == null) {
-      _activeAtIndex = null;
+    final atInfo = _findToken(value.text, cursor, 64);
+    final slashInfo = _findToken(value.text, cursor, 47);
+
+    _AtToken? info;
+    _SuggestMode? mode;
+    if (atInfo == null && slashInfo == null) {
+      info = null;
+      mode = null;
+    } else if (atInfo == null) {
+      info = slashInfo;
+      mode = _SuggestMode.mcpTool;
+    } else if (slashInfo == null) {
+      info = atInfo;
+      mode = _SuggestMode.path;
+    } else {
+      if (slashInfo.atIndex > atInfo.atIndex) {
+        info = slashInfo;
+        mode = _SuggestMode.mcpTool;
+      } else {
+        info = atInfo;
+        mode = _SuggestMode.path;
+      }
+    }
+
+    if (info == null || mode == null) {
+      _activeTokenIndex = null;
       _suggestions = const [];
       _removeSuggestOverlay();
       return;
     }
 
-    _activeAtIndex = info.atIndex;
+    _activeTokenIndex = info.atIndex;
     final query = info.query;
-    provider.touchRoot(root);
-    final results = provider.search(root, query, limit: 20);
-    _suggestions = results;
+
+    if (mode == _SuggestMode.path) {
+      provider.touchRoot(root);
+      final results = provider.search(root, query, limit: 20);
+      _suggestions = results.map(_InlineSuggestion.path).toList();
+    } else {
+      final toolProvider = context.read<McpToolIndexProvider>();
+      toolProvider.touchContext(root, widget.message.mcpClientName);
+      final results = toolProvider.search(
+        root,
+        widget.message.mcpClientName,
+        query,
+        limit: 20,
+      );
+      _suggestions = results.map(_InlineSuggestion.tool).toList();
+    }
+
     if (_selectedSuggestionIndex >= _suggestions.length) {
       _selectedSuggestionIndex = 0;
     }
@@ -211,14 +251,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     _ensureSuggestOverlay();
   }
 
-  _AtToken? _findAtToken(String text, int cursor) {
+  _AtToken? _findToken(String text, int cursor, int triggerCodeUnit) {
     final before = text.substring(0, cursor);
     var i = before.length - 1;
     while (i >= 0) {
       final c = before.codeUnitAt(i);
-      if (c == 64) {
-        // '@'
-        // Must be start of token
+      if (c == triggerCodeUnit) {
         if (i == 0) {
           return _AtToken(atIndex: i, query: before.substring(i + 1));
         }
@@ -288,18 +326,40 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                                 horizontal: 6,
                                 vertical: 2,
                               ),
-                              child: Text(
-                                s.displayText,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 13,
-                                  height: 1.15,
-                                  color: selected
-                                      ? Theme.of(context).colorScheme.primary
-                                      : null,
-                                ),
+                              child: Row(
+                                children: [
+                                  if (s.icon != null) ...[
+                                    Icon(
+                                      s.icon,
+                                      size: 16,
+                                      color: selected
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                    ),
+                                    const SizedBox(width: 6),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      s.displayText,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: 'monospace',
+                                        fontSize: 13,
+                                        height: 1.15,
+                                        color: selected
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .primary
+                                            : null,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           );
@@ -325,51 +385,79 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   void _applySuggestion(int index) {
     if (index < 0 || index >= _suggestions.length) return;
-    final atIndex = _activeAtIndex;
-    if (atIndex == null) return;
+    final tokenIndex = _activeTokenIndex;
+    if (tokenIndex == null) return;
 
     final root = widget.message.projectDirectory;
     if (root == null || root.isEmpty) return;
-    final provider = context.read<ProjectDirectoryIndexProvider>();
 
     final suggestion = _suggestions[index];
-    final insert = '@${suggestion.displayText}';
-
-    final keepOpen = suggestion.isDir &&
-        provider.directoryHasChildren(root, suggestion.relativePath);
-
     final value = _controller.value;
     final selection = value.selection;
     final cursor = selection.isValid ? selection.baseOffset : value.text.length;
     final safeCursor = cursor.clamp(0, value.text.length);
-    final safeAt = atIndex.clamp(0, safeCursor);
+    final safeToken = tokenIndex.clamp(0, safeCursor);
 
-    final newText = value.text.replaceRange(safeAt, safeCursor, insert);
+    if (suggestion.kind == _InlineSuggestionKind.path) {
+      final provider = context.read<ProjectDirectoryIndexProvider>();
+      final ps = suggestion.pathSuggestion;
+      if (ps == null) return;
 
-    // Prevent suggestion list from immediately re-opening due to programmatic text update.
-    if (!keepOpen) {
-      _suppressNextSuggestUpdate = true;
-    }
+      final insert = '@${ps.displayText}';
+      final keepOpen =
+          ps.isDir && provider.directoryHasChildren(root, ps.relativePath);
 
-    _controller.value = value.copyWith(
-      text: newText,
-      selection: TextSelection.collapsed(offset: safeAt + insert.length),
-      composing: TextRange.empty,
-    );
+      final newText = value.text.replaceRange(safeToken, safeCursor, insert);
 
-    if (!keepOpen) {
-      _activeAtIndex = null;
-      _removeSuggestOverlay();
+      if (!keepOpen) {
+        _suppressNextSuggestUpdate = true;
+      }
+
+      _controller.value = value.copyWith(
+        text: newText,
+        selection: TextSelection.collapsed(offset: safeToken + insert.length),
+        composing: TextRange.empty,
+      );
+
+      if (!keepOpen) {
+        _activeTokenIndex = null;
+        _removeSuggestOverlay();
+        return;
+      }
+
+      _activeTokenIndex = safeToken;
+      _selectedSuggestionIndex = 0;
+      Future.microtask(() {
+        if (!mounted) return;
+        _updateSuggestions();
+      });
       return;
     }
 
-    // Keep overlay open for directories that have children; refresh suggestions.
-    _activeAtIndex = safeAt;
-    _selectedSuggestionIndex = 0;
-    Future.microtask(() {
-      if (!mounted) return;
-      _updateSuggestions();
-    });
+    final tool = suggestion.toolSuggestion;
+    if (tool == null) return;
+
+    final name = tool.name;
+    final filePath = tool.filePath;
+    late final String insert;
+    if (tool.type == McpToolSuggestionType.skill) {
+      insert =
+          'user wants to follow the instruction in skill[$name] file: @$filePath with /$name : ';
+    } else {
+      insert =
+          'user wants to follow the instruction in command[$name] file: @$filePath with /$name : ';
+    }
+
+    final newText = value.text.replaceRange(safeToken, safeCursor, insert);
+    _suppressNextSuggestUpdate = true;
+    _controller.value = value.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(offset: safeToken + insert.length),
+      composing: TextRange.empty,
+    );
+
+    _activeTokenIndex = null;
+    _removeSuggestOverlay();
   }
 
   /// Handle paste from clipboard
@@ -1162,6 +1250,65 @@ class _AtToken {
     required this.atIndex,
     required this.query,
   });
+}
+
+enum _SuggestMode {
+  path,
+  mcpTool,
+}
+
+enum _InlineSuggestionKind {
+  path,
+  tool,
+}
+
+class _InlineSuggestion {
+  final _InlineSuggestionKind kind;
+  final PathSuggestion? pathSuggestion;
+  final McpToolSuggestion? toolSuggestion;
+
+  const _InlineSuggestion._({
+    required this.kind,
+    this.pathSuggestion,
+    this.toolSuggestion,
+  });
+
+  factory _InlineSuggestion.path(PathSuggestion suggestion) {
+    return _InlineSuggestion._(
+      kind: _InlineSuggestionKind.path,
+      pathSuggestion: suggestion,
+    );
+  }
+
+  factory _InlineSuggestion.tool(McpToolSuggestion suggestion) {
+    return _InlineSuggestion._(
+      kind: _InlineSuggestionKind.tool,
+      toolSuggestion: suggestion,
+    );
+  }
+
+  String get displayText {
+    if (kind == _InlineSuggestionKind.path) {
+      return pathSuggestion?.displayText ?? '';
+    }
+    final tool = toolSuggestion;
+    if (tool == null) return '';
+    return tool.name;
+  }
+
+  IconData? get icon {
+    if (kind == _InlineSuggestionKind.path) {
+      final ps = pathSuggestion;
+      if (ps == null) return null;
+      return ps.isDir ? Icons.folder : Icons.insert_drive_file;
+    }
+    final tool = toolSuggestion;
+    if (tool == null) return null;
+    if (tool.type == McpToolSuggestionType.skill) {
+      return Icons.extension;
+    }
+    return Icons.bolt;
+  }
 }
 
 class _SuggestOverlayPlacement {

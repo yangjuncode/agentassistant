@@ -11,6 +11,7 @@ import 'providers/locale_provider.dart';
 
 import 'providers/chat_provider.dart';
 import 'providers/project_directory_index_provider.dart';
+import 'providers/mcp_tool_index_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/splash_screen.dart';
@@ -137,6 +138,7 @@ class AgentAssistantApp extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => LocaleProvider()),
         ChangeNotifierProvider(
             create: (context) => ProjectDirectoryIndexProvider()),
+        ChangeNotifierProvider(create: (context) => McpToolIndexProvider()),
       ],
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {
