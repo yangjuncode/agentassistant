@@ -497,6 +497,7 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     $core.int? timeout,
     $core.String? agentName,
     $core.String? reasoningModelName,
+    $core.String? mcpClientName,
   }) {
     final $result = create();
     if (projectDirectory != null) {
@@ -514,6 +515,9 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     if (reasoningModelName != null) {
       $result.reasoningModelName = reasoningModelName;
     }
+    if (mcpClientName != null) {
+      $result.mcpClientName = mcpClientName;
+    }
     return $result;
   }
   McpAskQuestionRequest._() : super();
@@ -526,6 +530,7 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     ..a<$core.int>(3, _omitFieldNames ? '' : 'Timeout', $pb.PbFieldType.O3, protoName: 'Timeout')
     ..aOS(4, _omitFieldNames ? '' : 'AgentName', protoName: 'AgentName')
     ..aOS(5, _omitFieldNames ? '' : 'ReasoningModelName', protoName: 'ReasoningModelName')
+    ..aOS(6, _omitFieldNames ? '' : 'McpClientName', protoName: 'McpClientName')
     ..hasRequiredFields = false
   ;
 
@@ -599,6 +604,16 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
   $core.bool hasReasoningModelName() => $_has(4);
   @$pb.TagNumber(5)
   void clearReasoningModelName() => clearField(5);
+
+  /// MCP client name from initialize.clientInfo.name (e.g., windsurf)
+  @$pb.TagNumber(6)
+  $core.String get mcpClientName => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set mcpClientName($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasMcpClientName() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearMcpClientName() => clearField(6);
 }
 
 class AskQuestionRequest extends $pb.GeneratedMessage {
@@ -787,6 +802,7 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
     $core.int? timeout,
     $core.String? agentName,
     $core.String? reasoningModelName,
+    $core.String? mcpClientName,
   }) {
     final $result = create();
     if (projectDirectory != null) {
@@ -804,6 +820,9 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
     if (reasoningModelName != null) {
       $result.reasoningModelName = reasoningModelName;
     }
+    if (mcpClientName != null) {
+      $result.mcpClientName = mcpClientName;
+    }
     return $result;
   }
   McpWorkReportRequest._() : super();
@@ -816,6 +835,7 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
     ..a<$core.int>(3, _omitFieldNames ? '' : 'Timeout', $pb.PbFieldType.O3, protoName: 'Timeout')
     ..aOS(4, _omitFieldNames ? '' : 'AgentName', protoName: 'AgentName')
     ..aOS(5, _omitFieldNames ? '' : 'ReasoningModelName', protoName: 'ReasoningModelName')
+    ..aOS(6, _omitFieldNames ? '' : 'McpClientName', protoName: 'McpClientName')
     ..hasRequiredFields = false
   ;
 
@@ -889,6 +909,16 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
   $core.bool hasReasoningModelName() => $_has(4);
   @$pb.TagNumber(5)
   void clearReasoningModelName() => clearField(5);
+
+  /// MCP client name from initialize.clientInfo.name (e.g., windsurf)
+  @$pb.TagNumber(6)
+  $core.String get mcpClientName => $_getSZ(5);
+  @$pb.TagNumber(6)
+  set mcpClientName($core.String v) { $_setString(5, v); }
+  @$pb.TagNumber(6)
+  $core.bool hasMcpClientName() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearMcpClientName() => clearField(6);
 }
 
 class WorkReportRequest extends $pb.GeneratedMessage {

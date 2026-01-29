@@ -402,8 +402,10 @@ type McpAskQuestionRequest struct {
 	AgentName string `protobuf:"bytes,4,opt,name=AgentName,proto3" json:"AgentName,omitempty"`
 	// the actual LLM/inference model name being used (e.g., GPT-4, Gemini 3 Pro)
 	ReasoningModelName string `protobuf:"bytes,5,opt,name=ReasoningModelName,proto3" json:"ReasoningModelName,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// MCP client name from initialize.clientInfo.name (e.g., windsurf)
+	McpClientName string `protobuf:"bytes,6,opt,name=McpClientName,proto3" json:"McpClientName,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *McpAskQuestionRequest) Reset() {
@@ -467,6 +469,13 @@ func (x *McpAskQuestionRequest) GetAgentName() string {
 func (x *McpAskQuestionRequest) GetReasoningModelName() string {
 	if x != nil {
 		return x.ReasoningModelName
+	}
+	return ""
+}
+
+func (x *McpAskQuestionRequest) GetMcpClientName() string {
+	if x != nil {
+		return x.McpClientName
 	}
 	return ""
 }
@@ -624,8 +633,10 @@ type McpWorkReportRequest struct {
 	AgentName string `protobuf:"bytes,4,opt,name=AgentName,proto3" json:"AgentName,omitempty"`
 	// the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
 	ReasoningModelName string `protobuf:"bytes,5,opt,name=ReasoningModelName,proto3" json:"ReasoningModelName,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// MCP client name from initialize.clientInfo.name (e.g., windsurf)
+	McpClientName string `protobuf:"bytes,6,opt,name=McpClientName,proto3" json:"McpClientName,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *McpWorkReportRequest) Reset() {
@@ -689,6 +700,13 @@ func (x *McpWorkReportRequest) GetAgentName() string {
 func (x *McpWorkReportRequest) GetReasoningModelName() string {
 	if x != nil {
 		return x.ReasoningModelName
+	}
+	return ""
+}
+
+func (x *McpWorkReportRequest) GetMcpClientName() string {
+	if x != nil {
+		return x.McpClientName
 	}
 	return ""
 }
@@ -1904,13 +1922,14 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x05audio\x18\x04 \x01(\v2\x1e.agentassistproto.AudioContentR\x05audio\x12O\n" +
 	"\x11embedded_resource\x18\x05 \x01(\v2\".agentassistproto.EmbeddedResourceR\x10embeddedResource\"\n" +
 	"\n" +
-	"\bMsgEmpty\"\xc7\x01\n" +
+	"\bMsgEmpty\"\xed\x01\n" +
 	"\x15McpAskQuestionRequest\x12*\n" +
 	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x12\x1a\n" +
 	"\bQuestion\x18\x02 \x01(\tR\bQuestion\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
 	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
-	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\xa3\x01\n" +
+	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\x12$\n" +
+	"\rMcpClientName\x18\x06 \x01(\tR\rMcpClientName\"\xa3\x01\n" +
 	"\x12AskQuestionRequest\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x1c\n" +
 	"\tUserToken\x18\x02 \x01(\tR\tUserToken\x12A\n" +
@@ -1923,13 +1942,14 @@ const file_agentassist_proto_rawDesc = "" +
 	"\bcontents\x18\x04 \x03(\v2\".agentassistproto.McpResultContentR\bcontents\x1a7\n" +
 	"\tMetaEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc4\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xea\x01\n" +
 	"\x14McpWorkReportRequest\x12*\n" +
 	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x12\x18\n" +
 	"\aSummary\x18\x02 \x01(\tR\aSummary\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
 	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
-	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\"\xa1\x01\n" +
+	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\x12$\n" +
+	"\rMcpClientName\x18\x06 \x01(\tR\rMcpClientName\"\xa1\x01\n" +
 	"\x11WorkReportRequest\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x1c\n" +
 	"\tUserToken\x18\x02 \x01(\tR\tUserToken\x12@\n" +

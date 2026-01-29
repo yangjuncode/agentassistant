@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sync/atomic"
 	"strings"
 
 	"connectrpc.com/connect"
@@ -34,6 +35,8 @@ type Config struct {
 // Global configuration
 var config Config
 var client agentassistproto.SrvAgentAssistClient
+
+var mcpClientName atomic.Value
 
 func main() {
 	// Parse command line arguments
@@ -87,10 +90,16 @@ func main() {
 	}
 
 	// Create a new MCP server
+	hooks := &server.Hooks{}
+	hooks.AddAfterInitialize(func(ctx context.Context, id any, message *mcp.InitializeRequest, result *mcp.InitializeResult) {
+		mcpClientName.Store(message.Params.ClientInfo.Name)
+	})
+
 	s := server.NewMCPServer(
 		"Agent-Assistant ",
 		version,
 		server.WithToolCapabilities(false),
+		server.WithHooks(hooks),
 	)
 
 	// ask_question tool
@@ -239,6 +248,13 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	agentName, _ := request.RequireString("agent_name")
 	reasoningModelName, _ := request.RequireString("reasoning_model_name")
 
+	currentMcpClientName := ""
+	if v := mcpClientName.Load(); v != nil {
+		if s, ok := v.(string); ok {
+			currentMcpClientName = s
+		}
+	}
+
 	// Create RPC request
 	req := &agentassistproto.AskQuestionRequest{
 		ID:        generateRequestID(),
@@ -249,6 +265,7 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 			Timeout:            int32(timeout),
 			AgentName:          agentName,
 			ReasoningModelName: reasoningModelName,
+			McpClientName:      currentMcpClientName,
 		},
 	}
 
@@ -283,6 +300,13 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	agentName, _ := request.RequireString("agent_name")
 	reasoningModelName, _ := request.RequireString("reasoning_model_name")
 
+	currentMcpClientName := ""
+	if v := mcpClientName.Load(); v != nil {
+		if s, ok := v.(string); ok {
+			currentMcpClientName = s
+		}
+	}
+
 	// Create RPC request
 	req := &agentassistproto.WorkReportRequest{
 		ID:        generateRequestID(),
@@ -293,6 +317,7 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 			Timeout:            int32(timeout),
 			AgentName:          agentName,
 			ReasoningModelName: reasoningModelName,
+			McpClientName:      currentMcpClientName,
 		},
 	}
 

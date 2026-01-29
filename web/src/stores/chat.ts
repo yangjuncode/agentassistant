@@ -38,6 +38,7 @@ export interface ChatMessage {
   repliedAt?: Date;
   repliedByCurrentUser?: boolean;
   repliedByNickname?: string;
+  mcpClientName?: string;
   agentName?: string;
   reasoningModelName?: string;
 }
@@ -178,6 +179,7 @@ export const useChatStore = defineStore('chat', () => {
       isAnswered: false,
       originalRequest: request,
       timeout: request.Request?.Timeout,
+      ...(request.Request?.McpClientName ? { mcpClientName: request.Request.McpClientName } : {}),
       ...(request.Request?.AgentName ? { agentName: request.Request.AgentName } : {}),
       ...(request.Request?.ReasoningModelName ? { reasoningModelName: request.Request.ReasoningModelName } : {})
     };
@@ -197,6 +199,7 @@ export const useChatStore = defineStore('chat', () => {
       isAnswered: false,
       originalRequest: request,
       timeout: request.Request?.Timeout,
+      ...(request.Request?.McpClientName ? { mcpClientName: request.Request.McpClientName } : {}),
       ...(request.Request?.AgentName ? { agentName: request.Request.AgentName } : {}),
       ...(request.Request?.ReasoningModelName ? { reasoningModelName: request.Request.ReasoningModelName } : {})
     };

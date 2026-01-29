@@ -111,6 +111,7 @@ const McpAskQuestionRequest$json = {
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
     {'1': 'AgentName', '3': 4, '4': 1, '5': 9, '10': 'AgentName'},
     {'1': 'ReasoningModelName', '3': 5, '4': 1, '5': 9, '10': 'ReasoningModelName'},
+    {'1': 'McpClientName', '3': 6, '4': 1, '5': 9, '10': 'McpClientName'},
   ],
 };
 
@@ -119,7 +120,8 @@ final $typed_data.Uint8List mcpAskQuestionRequestDescriptor = $convert.base64Dec
     'ChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSKgoQUHJvamVjdERpcmVjdG9yeRgBIAEoCVIQUHJvam'
     'VjdERpcmVjdG9yeRIaCghRdWVzdGlvbhgCIAEoCVIIUXVlc3Rpb24SGAoHVGltZW91dBgDIAEo'
     'BVIHVGltZW91dBIcCglBZ2VudE5hbWUYBCABKAlSCUFnZW50TmFtZRIuChJSZWFzb25pbmdNb2'
-    'RlbE5hbWUYBSABKAlSElJlYXNvbmluZ01vZGVsTmFtZQ==');
+    'RlbE5hbWUYBSABKAlSElJlYXNvbmluZ01vZGVsTmFtZRIkCg1NY3BDbGllbnROYW1lGAYgASgJ'
+    'Ug1NY3BDbGllbnROYW1l');
 
 @$core.Deprecated('Use askQuestionRequestDescriptor instead')
 const AskQuestionRequest$json = {
@@ -177,6 +179,7 @@ const McpWorkReportRequest$json = {
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
     {'1': 'AgentName', '3': 4, '4': 1, '5': 9, '10': 'AgentName'},
     {'1': 'ReasoningModelName', '3': 5, '4': 1, '5': 9, '10': 'ReasoningModelName'},
+    {'1': 'McpClientName', '3': 6, '4': 1, '5': 9, '10': 'McpClientName'},
   ],
 };
 
@@ -185,7 +188,8 @@ final $typed_data.Uint8List mcpWorkReportRequestDescriptor = $convert.base64Deco
     'ChRNY3BXb3JrUmVwb3J0UmVxdWVzdBIqChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJUhBQcm9qZW'
     'N0RGlyZWN0b3J5EhgKB1N1bW1hcnkYAiABKAlSB1N1bW1hcnkSGAoHVGltZW91dBgDIAEoBVIH'
     'VGltZW91dBIcCglBZ2VudE5hbWUYBCABKAlSCUFnZW50TmFtZRIuChJSZWFzb25pbmdNb2RlbE'
-    '5hbWUYBSABKAlSElJlYXNvbmluZ01vZGVsTmFtZQ==');
+    '5hbWUYBSABKAlSElJlYXNvbmluZ01vZGVsTmFtZRIkCg1NY3BDbGllbnROYW1lGAYgASgJUg1N'
+    'Y3BDbGllbnROYW1l');
 
 @$core.Deprecated('Use workReportRequestDescriptor instead')
 const WorkReportRequest$json = {

@@ -22,6 +22,7 @@ class ChatMessage {
   final DateTime? repliedAt;
   final bool repliedByCurrentUser;
   final String? repliedByNickname;
+  final String? mcpClientName;
   final String? agentName;
   final String? reasoningModelName;
 
@@ -43,6 +44,7 @@ class ChatMessage {
     this.repliedAt,
     this.repliedByCurrentUser = false,
     this.repliedByNickname,
+    this.mcpClientName,
     this.agentName,
     this.reasoningModelName,
   })  : id = id ?? const Uuid().v4(),
@@ -64,6 +66,9 @@ class ChatMessage {
           : DateTime.now(),
       question: request.request.question,
       projectDirectory: request.request.projectDirectory,
+      mcpClientName: request.request.mcpClientName.isNotEmpty
+          ? request.request.mcpClientName
+          : null,
       agentName: request.request.agentName.isNotEmpty
           ? request.request.agentName
           : null,
@@ -89,6 +94,9 @@ class ChatMessage {
           : DateTime.now(),
       summary: request.request.summary,
       projectDirectory: request.request.projectDirectory,
+      mcpClientName: request.request.mcpClientName.isNotEmpty
+          ? request.request.mcpClientName
+          : null,
       agentName: request.request.agentName.isNotEmpty
           ? request.request.agentName
           : null,
@@ -142,6 +150,7 @@ class ChatMessage {
       repliedAt: repliedAt ?? this.repliedAt,
       repliedByCurrentUser: repliedByCurrentUser ?? this.repliedByCurrentUser,
       repliedByNickname: repliedByNickname ?? this.repliedByNickname,
+      mcpClientName: mcpClientName,
       agentName: agentName,
       reasoningModelName: reasoningModelName,
     );
@@ -167,6 +176,7 @@ class ChatMessage {
       'repliedAt': repliedAt?.toIso8601String(),
       'repliedByCurrentUser': repliedByCurrentUser,
       'repliedByNickname': repliedByNickname,
+      'mcpClientName': mcpClientName,
       'agentName': agentName,
       'reasoningModelName': reasoningModelName,
     };
@@ -196,6 +206,7 @@ class ChatMessage {
           json['repliedAt'] != null ? DateTime.parse(json['repliedAt']) : null,
       repliedByCurrentUser: json['repliedByCurrentUser'] ?? false,
       repliedByNickname: json['repliedByNickname'],
+      mcpClientName: json['mcpClientName'],
       agentName: json['agentName'],
       reasoningModelName: json['reasoningModelName'],
     );
@@ -220,16 +231,26 @@ class ChatMessage {
       baseTitle = '$baseTitle [$serverName]';
     }
 
-    // Build the "from" suffix with model info
+    final fromParts = <String>[];
+    if (mcpClientName != null && mcpClientName!.isNotEmpty) {
+      fromParts.add(mcpClientName!);
+    }
+
     if (agentName != null && agentName!.isNotEmpty) {
       if (reasoningModelName != null && reasoningModelName!.isNotEmpty) {
-        return '$baseTitle from $agentName[$reasoningModelName]';
+        fromParts.add('$agentName[$reasoningModelName]');
+      } else {
+        fromParts.add(agentName!);
       }
-      return '$baseTitle from $agentName';
     } else if (reasoningModelName != null && reasoningModelName!.isNotEmpty) {
-      return '$baseTitle from [$reasoningModelName]';
+      fromParts.add('[$reasoningModelName]');
     }
-    return baseTitle;
+
+    if (fromParts.isEmpty) {
+      return baseTitle;
+    }
+
+    return '$baseTitle from ${fromParts.join(' | ')}';
   }
 
   /// Get display content

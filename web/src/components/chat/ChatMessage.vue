@@ -5,7 +5,7 @@
       <q-card-section class="bg-blue-1">
         <div class="row items-center q-mb-sm">
           <q-icon name="smart_toy" color="blue" class="q-mr-sm" />
-          <span class="text-subtitle2 text-blue-8">AI Agent 提问<template v-if="message.agentName || message.reasoningModelName"> from {{ formatModelInfo(message) }}</template></span>
+          <span class="text-subtitle2 text-blue-8">AI Agent 提问<template v-if="message.mcpClientName || message.agentName || message.reasoningModelName"> from {{ formatModelInfo(message) }}</template></span>
           <q-space />
           <q-chip
             v-if="message.isAnswered"
@@ -112,7 +112,7 @@
       <q-card-section class="bg-green-1">
         <div class="row items-center q-mb-sm">
           <q-icon name="task_alt" color="green" class="q-mr-sm" />
-          <span class="text-subtitle2 text-green-8">任务完成<template v-if="message.agentName || message.reasoningModelName"> from {{ formatModelInfo(message) }}</template></span>
+          <span class="text-subtitle2 text-green-8">任务完成<template v-if="message.mcpClientName || message.agentName || message.reasoningModelName"> from {{ formatModelInfo(message) }}</template></span>
           <q-space />
           <q-chip
             v-if="message.isAnswered"
@@ -293,14 +293,20 @@ function formatTime(date: Date): string {
 }
 
 function formatModelInfo(message: ChatMessage): string {
-  if (message.agentName && message.reasoningModelName) {
-    return `${message.agentName}[${message.reasoningModelName}]`;
-  } else if (message.agentName) {
-    return message.agentName;
-  } else if (message.reasoningModelName) {
-    return `[${message.reasoningModelName}]`;
+  const parts: string[] = [];
+  if (message.mcpClientName) {
+    parts.push(message.mcpClientName);
   }
-  return '';
+
+  if (message.agentName && message.reasoningModelName) {
+    parts.push(`${message.agentName}[${message.reasoningModelName}]`);
+  } else if (message.agentName) {
+    parts.push(message.agentName);
+  } else if (message.reasoningModelName) {
+    parts.push(`[${message.reasoningModelName}]`);
+  }
+
+  return parts.join(' | ');
 }
 </script>
 

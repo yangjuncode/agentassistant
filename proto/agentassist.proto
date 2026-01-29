@@ -68,6 +68,8 @@ message McpAskQuestionRequest {
   string AgentName = 4;
   // the actual LLM/inference model name being used (e.g., GPT-4, Gemini 3 Pro)
   string ReasoningModelName = 5;
+  // MCP client name from initialize.clientInfo.name (e.g., windsurf)
+  string McpClientName = 6;
 }
 
 message AskQuestionRequest {
@@ -100,6 +102,8 @@ message McpWorkReportRequest {
   string AgentName = 4;
   // the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
   string ReasoningModelName = 5;
+  // MCP client name from initialize.clientInfo.name (e.g., windsurf)
+  string McpClientName = 6;
 }
 
 message WorkReportRequest {
