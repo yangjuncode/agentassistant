@@ -1100,6 +1100,250 @@ class WorkReportResponse extends $pb.GeneratedMessage {
   $core.List<McpResultContent> get contents => $_getList(3);
 }
 
+class McpClientInfoData extends $pb.GeneratedMessage {
+  factory McpClientInfoData({
+    $core.String? protocolVersion,
+    $core.String? capabilitiesJson,
+    $core.String? clientName,
+    $core.String? clientVersion,
+  }) {
+    final $result = create();
+    if (protocolVersion != null) {
+      $result.protocolVersion = protocolVersion;
+    }
+    if (capabilitiesJson != null) {
+      $result.capabilitiesJson = capabilitiesJson;
+    }
+    if (clientName != null) {
+      $result.clientName = clientName;
+    }
+    if (clientVersion != null) {
+      $result.clientVersion = clientVersion;
+    }
+    return $result;
+  }
+  McpClientInfoData._() : super();
+  factory McpClientInfoData.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory McpClientInfoData.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'McpClientInfoData', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'ProtocolVersion', protoName: 'ProtocolVersion')
+    ..aOS(2, _omitFieldNames ? '' : 'CapabilitiesJson', protoName: 'CapabilitiesJson')
+    ..aOS(3, _omitFieldNames ? '' : 'ClientName', protoName: 'ClientName')
+    ..aOS(4, _omitFieldNames ? '' : 'ClientVersion', protoName: 'ClientVersion')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  McpClientInfoData clone() => McpClientInfoData()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  McpClientInfoData copyWith(void Function(McpClientInfoData) updates) => super.copyWith((message) => updates(message as McpClientInfoData)) as McpClientInfoData;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static McpClientInfoData create() => McpClientInfoData._();
+  McpClientInfoData createEmptyInstance() => create();
+  static $pb.PbList<McpClientInfoData> createRepeated() => $pb.PbList<McpClientInfoData>();
+  @$core.pragma('dart2js:noInline')
+  static McpClientInfoData getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<McpClientInfoData>(create);
+  static McpClientInfoData? _defaultInstance;
+
+  /// MCP protocol version requested by client
+  @$pb.TagNumber(1)
+  $core.String get protocolVersion => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set protocolVersion($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasProtocolVersion() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearProtocolVersion() => clearField(1);
+
+  /// Raw JSON describing client capabilities (mcp.InitializeParams.capabilities)
+  @$pb.TagNumber(2)
+  $core.String get capabilitiesJson => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set capabilitiesJson($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasCapabilitiesJson() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearCapabilitiesJson() => clearField(2);
+
+  /// MCP client implementation name
+  @$pb.TagNumber(3)
+  $core.String get clientName => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set clientName($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasClientName() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearClientName() => clearField(3);
+
+  /// MCP client implementation version
+  @$pb.TagNumber(4)
+  $core.String get clientVersion => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set clientVersion($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasClientVersion() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearClientVersion() => clearField(4);
+}
+
+class McpClientInfoRequest extends $pb.GeneratedMessage {
+  factory McpClientInfoRequest({
+    $core.String? iD,
+    $core.String? userToken,
+    McpClientInfoData? request,
+    $fixnum.Int64? timestamp,
+  }) {
+    final $result = create();
+    if (iD != null) {
+      $result.iD = iD;
+    }
+    if (userToken != null) {
+      $result.userToken = userToken;
+    }
+    if (request != null) {
+      $result.request = request;
+    }
+    if (timestamp != null) {
+      $result.timestamp = timestamp;
+    }
+    return $result;
+  }
+  McpClientInfoRequest._() : super();
+  factory McpClientInfoRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory McpClientInfoRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'McpClientInfoRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'ID', protoName: 'ID')
+    ..aOS(2, _omitFieldNames ? '' : 'UserToken', protoName: 'UserToken')
+    ..aOM<McpClientInfoData>(3, _omitFieldNames ? '' : 'Request', protoName: 'Request', subBuilder: McpClientInfoData.create)
+    ..aInt64(4, _omitFieldNames ? '' : 'Timestamp', protoName: 'Timestamp')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  McpClientInfoRequest clone() => McpClientInfoRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  McpClientInfoRequest copyWith(void Function(McpClientInfoRequest) updates) => super.copyWith((message) => updates(message as McpClientInfoRequest)) as McpClientInfoRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static McpClientInfoRequest create() => McpClientInfoRequest._();
+  McpClientInfoRequest createEmptyInstance() => create();
+  static $pb.PbList<McpClientInfoRequest> createRepeated() => $pb.PbList<McpClientInfoRequest>();
+  @$core.pragma('dart2js:noInline')
+  static McpClientInfoRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<McpClientInfoRequest>(create);
+  static McpClientInfoRequest? _defaultInstance;
+
+  /// request id
+  @$pb.TagNumber(1)
+  $core.String get iD => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set iD($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasID() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearID() => clearField(1);
+
+  /// user token
+  @$pb.TagNumber(2)
+  $core.String get userToken => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set userToken($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasUserToken() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearUserToken() => clearField(2);
+
+  /// initialize request payload
+  @$pb.TagNumber(3)
+  McpClientInfoData get request => $_getN(2);
+  @$pb.TagNumber(3)
+  set request(McpClientInfoData v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRequest() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRequest() => clearField(3);
+  @$pb.TagNumber(3)
+  McpClientInfoData ensureRequest() => $_ensure(2);
+
+  /// timestamp (UTC)
+  @$pb.TagNumber(4)
+  $fixnum.Int64 get timestamp => $_getI64(3);
+  @$pb.TagNumber(4)
+  set timestamp($fixnum.Int64 v) { $_setInt64(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasTimestamp() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTimestamp() => clearField(4);
+}
+
+class McpClientInfoResponse extends $pb.GeneratedMessage {
+  factory McpClientInfoResponse({
+    $core.bool? success,
+  }) {
+    final $result = create();
+    if (success != null) {
+      $result.success = success;
+    }
+    return $result;
+  }
+  McpClientInfoResponse._() : super();
+  factory McpClientInfoResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory McpClientInfoResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'McpClientInfoResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOB(1, _omitFieldNames ? '' : 'Success', protoName: 'Success')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  McpClientInfoResponse clone() => McpClientInfoResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  McpClientInfoResponse copyWith(void Function(McpClientInfoResponse) updates) => super.copyWith((message) => updates(message as McpClientInfoResponse)) as McpClientInfoResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static McpClientInfoResponse create() => McpClientInfoResponse._();
+  McpClientInfoResponse createEmptyInstance() => create();
+  static $pb.PbList<McpClientInfoResponse> createRepeated() => $pb.PbList<McpClientInfoResponse>();
+  @$core.pragma('dart2js:noInline')
+  static McpClientInfoResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<McpClientInfoResponse>(create);
+  static McpClientInfoResponse? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.bool get success => $_getBF(0);
+  @$pb.TagNumber(1)
+  set success($core.bool v) { $_setBool(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSuccess() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSuccess() => clearField(1);
+}
+
 class CheckMessageValidityRequest extends $pb.GeneratedMessage {
   factory CheckMessageValidityRequest({
     $core.Iterable<$core.String>? requestIds,
@@ -2483,6 +2727,9 @@ class SrvAgentAssistApi {
   ;
   $async.Future<WorkReportResponse> workReport($pb.ClientContext? ctx, WorkReportRequest request) =>
     _client.invoke<WorkReportResponse>(ctx, 'SrvAgentAssist', 'WorkReport', request, WorkReportResponse())
+  ;
+  $async.Future<McpClientInfoResponse> sendMcpClientInfo($pb.ClientContext? ctx, McpClientInfoRequest request) =>
+    _client.invoke<McpClientInfoResponse>(ctx, 'SrvAgentAssist', 'SendMcpClientInfo', request, McpClientInfoResponse())
   ;
 }
 

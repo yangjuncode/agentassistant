@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file agentassist.proto.
  */
 export const file_agentassist: GenFile = /*@__PURE__*/
-  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSKaAQoVTWNwQXNrUXVlc3Rpb25SZXF1ZXN0EhgKEFByb2plY3REaXJlY3RvcnkYASABKAkSEAoIUXVlc3Rpb24YAiABKAkSDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkigAEKEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLUAQoTQXNrUXVlc3Rpb25SZXNwb25zZRIKCgJJRBgBIAEoCRIPCgdJc0Vycm9yGAIgASgIEj0KBE1ldGEYAyADKAsyLy5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIpgBChRNY3BXb3JrUmVwb3J0UmVxdWVzdBIYChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJEg8KB1N1bW1hcnkYAiABKAkSDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkifgoRV29ya1JlcG9ydFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFdvcmtSZXBvcnRSZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLSAQoSV29ya1JlcG9ydFJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPAoETWV0YRgDIAMoCzIuLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlLk1ldGFFbnRyeRI0Cghjb250ZW50cxgEIAMoCzIiLmFnZW50YXNzaXN0cHJvdG8uTWNwUmVzdWx0Q29udGVudBorCglNZXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASIyChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSEwoLcmVxdWVzdF9pZHMYASADKAkinwEKHENoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2USTgoIdmFsaWRpdHkYASADKAsyPC5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2UuVmFsaWRpdHlFbnRyeRovCg1WYWxpZGl0eUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCDoCOAEiLwoZR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJItEBCg5QZW5kaW5nTWVzc2FnZRIUCgxtZXNzYWdlX3R5cGUYASABKAkSQgoUYXNrX3F1ZXN0aW9uX3JlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBJAChN3b3JrX3JlcG9ydF9yZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBISCgpjcmVhdGVkX2F0GAQgASgDEg8KB3RpbWVvdXQYBSABKAUibQoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2USOgoQcGVuZGluZ19tZXNzYWdlcxgBIAMoCzIgLmFnZW50YXNzaXN0cHJvdG8uUGVuZGluZ01lc3NhZ2USEwoLdG90YWxfY291bnQYAiABKAUiWAocUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhISCgpyZXF1ZXN0X2lkGAEgASgJEg4KBnJlYXNvbhgCIAEoCRIUCgxtZXNzYWdlX3R5cGUYAyABKAkiRwoKT25saW5lVXNlchIRCgljbGllbnRfaWQYASABKAkSEAoIbmlja25hbWUYAiABKAkSFAoMY29ubmVjdGVkX2F0GAMgASgDIisKFUdldE9ubGluZVVzZXJzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJImEKFkdldE9ubGluZVVzZXJzUmVzcG9uc2USMgoMb25saW5lX3VzZXJzGAEgAygLMhwuYWdlbnRhc3Npc3Rwcm90by5PbmxpbmVVc2VyEhMKC3RvdGFsX2NvdW50GAIgASgFIq0BCgtDaGF0TWVzc2FnZRISCgptZXNzYWdlX2lkGAEgASgJEhgKEHNlbmRlcl9jbGllbnRfaWQYAiABKAkSFwoPc2VuZGVyX25pY2tuYW1lGAMgASgJEhoKEnJlY2VpdmVyX2NsaWVudF9pZBgEIAEoCRIZChFyZWNlaXZlcl9uaWNrbmFtZRgFIAEoCRIPCgdjb250ZW50GAYgASgJEg8KB3NlbnRfYXQYByABKAMiRQoWU2VuZENoYXRNZXNzYWdlUmVxdWVzdBIaChJyZWNlaXZlcl9jbGllbnRfaWQYASABKAkSDwoHY29udGVudBgCIAEoCSJOChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhIzCgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlIk4KEVVzZXJMb2dpblJlc3BvbnNlEhEKCWNsaWVudF9pZBgBIAEoCRIPCgdzdWNjZXNzGAIgASgIEhUKDWVycm9yX21lc3NhZ2UYAyABKAkicQogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24SKgoEdXNlchgBIAEoCzIcLmFnZW50YXNzaXN0cHJvdG8uT25saW5lVXNlchIOCgZzdGF0dXMYAiABKAkSEQoJdGltZXN0YW1wGAMgASgDIrMJChBXZWJzb2NrZXRNZXNzYWdlEgsKA0NtZBgBIAEoCRJAChJBc2tRdWVzdGlvblJlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBI+ChFXb3JrUmVwb3J0UmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlcXVlc3QSQgoTQXNrUXVlc3Rpb25SZXNwb25zZRgEIAEoCzIlLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJAChJXb3JrUmVwb3J0UmVzcG9uc2UYBSABKAsyJC5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXNwb25zZRJSChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QYDSABKAsyLS5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBJUChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlGA4gASgLMi4uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEk4KGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QYDyABKAsyKy5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSUAoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2UYECABKAsyLC5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlElQKHFJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24YESABKAsyLi5hZ2VudGFzc2lzdHByb3RvLlJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24SRgoVR2V0T25saW5lVXNlcnNSZXF1ZXN0GBMgASgLMicuYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1JlcXVlc3QSSAoWR2V0T25saW5lVXNlcnNSZXNwb25zZRgUIAEoCzIoLmFnZW50YXNzaXN0cHJvdG8uR2V0T25saW5lVXNlcnNSZXNwb25zZRJIChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0GBUgASgLMiguYWdlbnRhc3Npc3Rwcm90by5TZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EkoKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhI+ChFVc2VyTG9naW5SZXNwb25zZRgXIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uVXNlckxvZ2luUmVzcG9uc2USXAogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24YGCABKAsyMi5hZ2VudGFzc2lzdHByb3RvLlVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEhAKCFN0clBhcmFtGAwgASgJEhAKCE5pY2tuYW1lGBIgASgJMsUBCg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcKCldvcmtSZXBvcnQSIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0GiQuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2VCOFo2Z2l0aHViLmNvbS95YW5nanVuY29kZS9hZ2VudGFzc2lzdGFudC9hZ2VudGFzc2lzdHByb3RvYgZwcm90bzM");
+  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSKaAQoVTWNwQXNrUXVlc3Rpb25SZXF1ZXN0EhgKEFByb2plY3REaXJlY3RvcnkYASABKAkSEAoIUXVlc3Rpb24YAiABKAkSDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkigAEKEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLUAQoTQXNrUXVlc3Rpb25SZXNwb25zZRIKCgJJRBgBIAEoCRIPCgdJc0Vycm9yGAIgASgIEj0KBE1ldGEYAyADKAsyLy5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIpgBChRNY3BXb3JrUmVwb3J0UmVxdWVzdBIYChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJEg8KB1N1bW1hcnkYAiABKAkSDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkifgoRV29ya1JlcG9ydFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFdvcmtSZXBvcnRSZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLSAQoSV29ya1JlcG9ydFJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPAoETWV0YRgDIAMoCzIuLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlLk1ldGFFbnRyeRI0Cghjb250ZW50cxgEIAMoCzIiLmFnZW50YXNzaXN0cHJvdG8uTWNwUmVzdWx0Q29udGVudBorCglNZXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJxChFNY3BDbGllbnRJbmZvRGF0YRIXCg9Qcm90b2NvbFZlcnNpb24YASABKAkSGAoQQ2FwYWJpbGl0aWVzSnNvbhgCIAEoCRISCgpDbGllbnROYW1lGAMgASgJEhUKDUNsaWVudFZlcnNpb24YBCABKAkifgoUTWNwQ2xpZW50SW5mb1JlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjQKB1JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9EYXRhEhEKCVRpbWVzdGFtcBgEIAEoAyIoChVNY3BDbGllbnRJbmZvUmVzcG9uc2USDwoHU3VjY2VzcxgBIAEoCCIyChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSEwoLcmVxdWVzdF9pZHMYASADKAkinwEKHENoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2USTgoIdmFsaWRpdHkYASADKAsyPC5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2UuVmFsaWRpdHlFbnRyeRovCg1WYWxpZGl0eUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCDoCOAEiLwoZR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJItEBCg5QZW5kaW5nTWVzc2FnZRIUCgxtZXNzYWdlX3R5cGUYASABKAkSQgoUYXNrX3F1ZXN0aW9uX3JlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBJAChN3b3JrX3JlcG9ydF9yZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBISCgpjcmVhdGVkX2F0GAQgASgDEg8KB3RpbWVvdXQYBSABKAUibQoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2USOgoQcGVuZGluZ19tZXNzYWdlcxgBIAMoCzIgLmFnZW50YXNzaXN0cHJvdG8uUGVuZGluZ01lc3NhZ2USEwoLdG90YWxfY291bnQYAiABKAUiWAocUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhISCgpyZXF1ZXN0X2lkGAEgASgJEg4KBnJlYXNvbhgCIAEoCRIUCgxtZXNzYWdlX3R5cGUYAyABKAkiRwoKT25saW5lVXNlchIRCgljbGllbnRfaWQYASABKAkSEAoIbmlja25hbWUYAiABKAkSFAoMY29ubmVjdGVkX2F0GAMgASgDIisKFUdldE9ubGluZVVzZXJzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJImEKFkdldE9ubGluZVVzZXJzUmVzcG9uc2USMgoMb25saW5lX3VzZXJzGAEgAygLMhwuYWdlbnRhc3Npc3Rwcm90by5PbmxpbmVVc2VyEhMKC3RvdGFsX2NvdW50GAIgASgFIq0BCgtDaGF0TWVzc2FnZRISCgptZXNzYWdlX2lkGAEgASgJEhgKEHNlbmRlcl9jbGllbnRfaWQYAiABKAkSFwoPc2VuZGVyX25pY2tuYW1lGAMgASgJEhoKEnJlY2VpdmVyX2NsaWVudF9pZBgEIAEoCRIZChFyZWNlaXZlcl9uaWNrbmFtZRgFIAEoCRIPCgdjb250ZW50GAYgASgJEg8KB3NlbnRfYXQYByABKAMiRQoWU2VuZENoYXRNZXNzYWdlUmVxdWVzdBIaChJyZWNlaXZlcl9jbGllbnRfaWQYASABKAkSDwoHY29udGVudBgCIAEoCSJOChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhIzCgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlIk4KEVVzZXJMb2dpblJlc3BvbnNlEhEKCWNsaWVudF9pZBgBIAEoCRIPCgdzdWNjZXNzGAIgASgIEhUKDWVycm9yX21lc3NhZ2UYAyABKAkicQogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24SKgoEdXNlchgBIAEoCzIcLmFnZW50YXNzaXN0cHJvdG8uT25saW5lVXNlchIOCgZzdGF0dXMYAiABKAkSEQoJdGltZXN0YW1wGAMgASgDIrMJChBXZWJzb2NrZXRNZXNzYWdlEgsKA0NtZBgBIAEoCRJAChJBc2tRdWVzdGlvblJlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBI+ChFXb3JrUmVwb3J0UmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlcXVlc3QSQgoTQXNrUXVlc3Rpb25SZXNwb25zZRgEIAEoCzIlLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJAChJXb3JrUmVwb3J0UmVzcG9uc2UYBSABKAsyJC5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXNwb25zZRJSChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QYDSABKAsyLS5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBJUChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlGA4gASgLMi4uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEk4KGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QYDyABKAsyKy5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSUAoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2UYECABKAsyLC5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlElQKHFJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24YESABKAsyLi5hZ2VudGFzc2lzdHByb3RvLlJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24SRgoVR2V0T25saW5lVXNlcnNSZXF1ZXN0GBMgASgLMicuYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1JlcXVlc3QSSAoWR2V0T25saW5lVXNlcnNSZXNwb25zZRgUIAEoCzIoLmFnZW50YXNzaXN0cHJvdG8uR2V0T25saW5lVXNlcnNSZXNwb25zZRJIChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0GBUgASgLMiguYWdlbnRhc3Npc3Rwcm90by5TZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EkoKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhI+ChFVc2VyTG9naW5SZXNwb25zZRgXIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uVXNlckxvZ2luUmVzcG9uc2USXAogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24YGCABKAsyMi5hZ2VudGFzc2lzdHByb3RvLlVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEhAKCFN0clBhcmFtGAwgASgJEhAKCE5pY2tuYW1lGBIgASgJMqsCCg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcKCldvcmtSZXBvcnQSIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0GiQuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2USZAoRU2VuZE1jcENsaWVudEluZm8SJi5hZ2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9SZXF1ZXN0GicuYWdlbnRhc3Npc3Rwcm90by5NY3BDbGllbnRJbmZvUmVzcG9uc2VCOFo2Z2l0aHViLmNvbS95YW5nanVuY29kZS9hZ2VudGFzc2lzdGFudC9hZ2VudGFzc2lzdHByb3RvYgZwcm90bzM");
 
 /**
  * TextContent represents text provided to or from an LLM.
@@ -477,6 +477,103 @@ export const WorkReportResponseSchema: GenMessage<WorkReportResponse> = /*@__PUR
   messageDesc(file_agentassist, 11);
 
 /**
+ * @generated from message agentassistproto.McpClientInfoData
+ */
+export type McpClientInfoData = Message<"agentassistproto.McpClientInfoData"> & {
+  /**
+   * MCP protocol version requested by client
+   *
+   * @generated from field: string ProtocolVersion = 1;
+   */
+  ProtocolVersion: string;
+
+  /**
+   * Raw JSON describing client capabilities (mcp.InitializeParams.capabilities)
+   *
+   * @generated from field: string CapabilitiesJson = 2;
+   */
+  CapabilitiesJson: string;
+
+  /**
+   * MCP client implementation name
+   *
+   * @generated from field: string ClientName = 3;
+   */
+  ClientName: string;
+
+  /**
+   * MCP client implementation version
+   *
+   * @generated from field: string ClientVersion = 4;
+   */
+  ClientVersion: string;
+};
+
+/**
+ * Describes the message agentassistproto.McpClientInfoData.
+ * Use `create(McpClientInfoDataSchema)` to create a new message.
+ */
+export const McpClientInfoDataSchema: GenMessage<McpClientInfoData> = /*@__PURE__*/
+  messageDesc(file_agentassist, 12);
+
+/**
+ * @generated from message agentassistproto.McpClientInfoRequest
+ */
+export type McpClientInfoRequest = Message<"agentassistproto.McpClientInfoRequest"> & {
+  /**
+   * request id
+   *
+   * @generated from field: string ID = 1;
+   */
+  ID: string;
+
+  /**
+   * user token
+   *
+   * @generated from field: string UserToken = 2;
+   */
+  UserToken: string;
+
+  /**
+   * initialize request payload
+   *
+   * @generated from field: agentassistproto.McpClientInfoData Request = 3;
+   */
+  Request?: McpClientInfoData;
+
+  /**
+   * timestamp (UTC)
+   *
+   * @generated from field: int64 Timestamp = 4;
+   */
+  Timestamp: bigint;
+};
+
+/**
+ * Describes the message agentassistproto.McpClientInfoRequest.
+ * Use `create(McpClientInfoRequestSchema)` to create a new message.
+ */
+export const McpClientInfoRequestSchema: GenMessage<McpClientInfoRequest> = /*@__PURE__*/
+  messageDesc(file_agentassist, 13);
+
+/**
+ * @generated from message agentassistproto.McpClientInfoResponse
+ */
+export type McpClientInfoResponse = Message<"agentassistproto.McpClientInfoResponse"> & {
+  /**
+   * @generated from field: bool Success = 1;
+   */
+  Success: boolean;
+};
+
+/**
+ * Describes the message agentassistproto.McpClientInfoResponse.
+ * Use `create(McpClientInfoResponseSchema)` to create a new message.
+ */
+export const McpClientInfoResponseSchema: GenMessage<McpClientInfoResponse> = /*@__PURE__*/
+  messageDesc(file_agentassist, 14);
+
+/**
  * @generated from message agentassistproto.CheckMessageValidityRequest
  */
 export type CheckMessageValidityRequest = Message<"agentassistproto.CheckMessageValidityRequest"> & {
@@ -493,7 +590,7 @@ export type CheckMessageValidityRequest = Message<"agentassistproto.CheckMessage
  * Use `create(CheckMessageValidityRequestSchema)` to create a new message.
  */
 export const CheckMessageValidityRequestSchema: GenMessage<CheckMessageValidityRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 12);
+  messageDesc(file_agentassist, 15);
 
 /**
  * @generated from message agentassistproto.CheckMessageValidityResponse
@@ -512,7 +609,7 @@ export type CheckMessageValidityResponse = Message<"agentassistproto.CheckMessag
  * Use `create(CheckMessageValidityResponseSchema)` to create a new message.
  */
 export const CheckMessageValidityResponseSchema: GenMessage<CheckMessageValidityResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 13);
+  messageDesc(file_agentassist, 16);
 
 /**
  * GetPendingMessagesRequest represents a request to get all pending messages for a user
@@ -533,7 +630,7 @@ export type GetPendingMessagesRequest = Message<"agentassistproto.GetPendingMess
  * Use `create(GetPendingMessagesRequestSchema)` to create a new message.
  */
 export const GetPendingMessagesRequestSchema: GenMessage<GetPendingMessagesRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 14);
+  messageDesc(file_agentassist, 17);
 
 /**
  * PendingMessage represents a single pending message
@@ -582,7 +679,7 @@ export type PendingMessage = Message<"agentassistproto.PendingMessage"> & {
  * Use `create(PendingMessageSchema)` to create a new message.
  */
 export const PendingMessageSchema: GenMessage<PendingMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 15);
+  messageDesc(file_agentassist, 18);
 
 /**
  * GetPendingMessagesResponse represents the response containing all pending messages
@@ -610,7 +707,7 @@ export type GetPendingMessagesResponse = Message<"agentassistproto.GetPendingMes
  * Use `create(GetPendingMessagesResponseSchema)` to create a new message.
  */
 export const GetPendingMessagesResponseSchema: GenMessage<GetPendingMessagesResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 16);
+  messageDesc(file_agentassist, 19);
 
 /**
  * RequestCancelledNotification represents a notification that a request has been cancelled
@@ -645,7 +742,7 @@ export type RequestCancelledNotification = Message<"agentassistproto.RequestCanc
  * Use `create(RequestCancelledNotificationSchema)` to create a new message.
  */
 export const RequestCancelledNotificationSchema: GenMessage<RequestCancelledNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 17);
+  messageDesc(file_agentassist, 20);
 
 /**
  * OnlineUser represents an online user with the same token
@@ -680,7 +777,7 @@ export type OnlineUser = Message<"agentassistproto.OnlineUser"> & {
  * Use `create(OnlineUserSchema)` to create a new message.
  */
 export const OnlineUserSchema: GenMessage<OnlineUser> = /*@__PURE__*/
-  messageDesc(file_agentassist, 18);
+  messageDesc(file_agentassist, 21);
 
 /**
  * GetOnlineUsersRequest represents a request to get online users with the same token
@@ -701,7 +798,7 @@ export type GetOnlineUsersRequest = Message<"agentassistproto.GetOnlineUsersRequ
  * Use `create(GetOnlineUsersRequestSchema)` to create a new message.
  */
 export const GetOnlineUsersRequestSchema: GenMessage<GetOnlineUsersRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 19);
+  messageDesc(file_agentassist, 22);
 
 /**
  * GetOnlineUsersResponse represents the response containing online users
@@ -729,7 +826,7 @@ export type GetOnlineUsersResponse = Message<"agentassistproto.GetOnlineUsersRes
  * Use `create(GetOnlineUsersResponseSchema)` to create a new message.
  */
 export const GetOnlineUsersResponseSchema: GenMessage<GetOnlineUsersResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 20);
+  messageDesc(file_agentassist, 23);
 
 /**
  * ChatMessage represents a chat message between users
@@ -792,7 +889,7 @@ export type ChatMessage = Message<"agentassistproto.ChatMessage"> & {
  * Use `create(ChatMessageSchema)` to create a new message.
  */
 export const ChatMessageSchema: GenMessage<ChatMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 21);
+  messageDesc(file_agentassist, 24);
 
 /**
  * SendChatMessageRequest represents a request to send a chat message
@@ -820,7 +917,7 @@ export type SendChatMessageRequest = Message<"agentassistproto.SendChatMessageRe
  * Use `create(SendChatMessageRequestSchema)` to create a new message.
  */
 export const SendChatMessageRequestSchema: GenMessage<SendChatMessageRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 22);
+  messageDesc(file_agentassist, 25);
 
 /**
  * ChatMessageNotification represents a notification of a new chat message
@@ -841,7 +938,7 @@ export type ChatMessageNotification = Message<"agentassistproto.ChatMessageNotif
  * Use `create(ChatMessageNotificationSchema)` to create a new message.
  */
 export const ChatMessageNotificationSchema: GenMessage<ChatMessageNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 23);
+  messageDesc(file_agentassist, 26);
 
 /**
  * UserLoginResponse represents the response to a user login
@@ -876,7 +973,7 @@ export type UserLoginResponse = Message<"agentassistproto.UserLoginResponse"> & 
  * Use `create(UserLoginResponseSchema)` to create a new message.
  */
 export const UserLoginResponseSchema: GenMessage<UserLoginResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 24);
+  messageDesc(file_agentassist, 27);
 
 /**
  * UserConnectionStatusNotification represents a notification when a user connects or disconnects
@@ -911,7 +1008,7 @@ export type UserConnectionStatusNotification = Message<"agentassistproto.UserCon
  * Use `create(UserConnectionStatusNotificationSchema)` to create a new message.
  */
 export const UserConnectionStatusNotificationSchema: GenMessage<UserConnectionStatusNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 25);
+  messageDesc(file_agentassist, 28);
 
 /**
  * @generated from message agentassistproto.WebsocketMessage
@@ -1062,7 +1159,7 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
  * Use `create(WebsocketMessageSchema)` to create a new message.
  */
 export const WebsocketMessageSchema: GenMessage<WebsocketMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 26);
+  messageDesc(file_agentassist, 29);
 
 /**
  * @generated from service agentassistproto.SrvAgentAssist
@@ -1083,6 +1180,14 @@ export const SrvAgentAssist: GenService<{
     methodKind: "unary";
     input: typeof WorkReportRequestSchema;
     output: typeof WorkReportResponseSchema;
+  },
+  /**
+   * @generated from rpc agentassistproto.SrvAgentAssist.SendMcpClientInfo
+   */
+  sendMcpClientInfo: {
+    methodKind: "unary";
+    input: typeof McpClientInfoRequestSchema;
+    output: typeof McpClientInfoResponseSchema;
   },
 }> = /*@__PURE__*/
   serviceDesc(file_agentassist, 0);

@@ -18,6 +18,28 @@ type AgentAssistService struct {
 	broadcaster *Broadcaster
 }
 
+// SendMcpClientInfo handles the initial MCP client info RPC.
+func (s *AgentAssistService) SendMcpClientInfo(
+	ctx context.Context,
+	req *connect.Request[agentassistproto.McpClientInfoRequest],
+) (*connect.Response[agentassistproto.McpClientInfoResponse], error) {
+	if req.Msg.Request == nil {
+		log.Printf("Received McpClientInfo request with nil payload")
+		return connect.NewResponse(&agentassistproto.McpClientInfoResponse{Success: false}), nil
+	}
+
+	info := req.Msg.Request
+	log.Printf(
+		"MCP client initialized: protocol=%s, client=%s (%s), capabilities=%s",
+		info.ProtocolVersion,
+		info.ClientName,
+		info.ClientVersion,
+		info.CapabilitiesJson,
+	)
+
+	return connect.NewResponse(&agentassistproto.McpClientInfoResponse{Success: true}), nil
+}
+
 // NewAgentAssistService creates a new instance of the service
 func NewAgentAssistService() *AgentAssistService {
 	return &AgentAssistService{

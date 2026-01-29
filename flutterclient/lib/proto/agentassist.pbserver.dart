@@ -23,11 +23,13 @@ export 'agentassist.pb.dart';
 abstract class SrvAgentAssistServiceBase extends $pb.GeneratedService {
   $async.Future<$0.AskQuestionResponse> askQuestion($pb.ServerContext ctx, $0.AskQuestionRequest request);
   $async.Future<$0.WorkReportResponse> workReport($pb.ServerContext ctx, $0.WorkReportRequest request);
+  $async.Future<$0.McpClientInfoResponse> sendMcpClientInfo($pb.ServerContext ctx, $0.McpClientInfoRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
       case 'AskQuestion': return $0.AskQuestionRequest();
       case 'WorkReport': return $0.WorkReportRequest();
+      case 'SendMcpClientInfo': return $0.McpClientInfoRequest();
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }
@@ -36,6 +38,7 @@ abstract class SrvAgentAssistServiceBase extends $pb.GeneratedService {
     switch (methodName) {
       case 'AskQuestion': return this.askQuestion(ctx, request as $0.AskQuestionRequest);
       case 'WorkReport': return this.workReport(ctx, request as $0.WorkReportRequest);
+      case 'SendMcpClientInfo': return this.sendMcpClientInfo(ctx, request as $0.McpClientInfoRequest);
       default: throw $core.ArgumentError('Unknown method: $methodName');
     }
   }

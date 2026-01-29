@@ -38,12 +38,16 @@ const (
 	// SrvAgentAssistWorkReportProcedure is the fully-qualified name of the SrvAgentAssist's WorkReport
 	// RPC.
 	SrvAgentAssistWorkReportProcedure = "/agentassistproto.SrvAgentAssist/WorkReport"
+	// SrvAgentAssistSendMcpClientInfoProcedure is the fully-qualified name of the SrvAgentAssist's
+	// SendMcpClientInfo RPC.
+	SrvAgentAssistSendMcpClientInfoProcedure = "/agentassistproto.SrvAgentAssist/SendMcpClientInfo"
 )
 
 // SrvAgentAssistClient is a client for the agentassistproto.SrvAgentAssist service.
 type SrvAgentAssistClient interface {
 	AskQuestion(context.Context, *connect.Request[AskQuestionRequest]) (*connect.Response[AskQuestionResponse], error)
 	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
+	SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error)
 }
 
 // NewSrvAgentAssistClient constructs a client for the agentassistproto.SrvAgentAssist service. By
@@ -69,13 +73,20 @@ func NewSrvAgentAssistClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(srvAgentAssistMethods.ByName("WorkReport")),
 			connect.WithClientOptions(opts...),
 		),
+		sendMcpClientInfo: connect.NewClient[McpClientInfoRequest, McpClientInfoResponse](
+			httpClient,
+			baseURL+SrvAgentAssistSendMcpClientInfoProcedure,
+			connect.WithSchema(srvAgentAssistMethods.ByName("SendMcpClientInfo")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // srvAgentAssistClient implements SrvAgentAssistClient.
 type srvAgentAssistClient struct {
-	askQuestion *connect.Client[AskQuestionRequest, AskQuestionResponse]
-	workReport  *connect.Client[WorkReportRequest, WorkReportResponse]
+	askQuestion       *connect.Client[AskQuestionRequest, AskQuestionResponse]
+	workReport        *connect.Client[WorkReportRequest, WorkReportResponse]
+	sendMcpClientInfo *connect.Client[McpClientInfoRequest, McpClientInfoResponse]
 }
 
 // AskQuestion calls agentassistproto.SrvAgentAssist.AskQuestion.
@@ -88,10 +99,16 @@ func (c *srvAgentAssistClient) WorkReport(ctx context.Context, req *connect.Requ
 	return c.workReport.CallUnary(ctx, req)
 }
 
+// SendMcpClientInfo calls agentassistproto.SrvAgentAssist.SendMcpClientInfo.
+func (c *srvAgentAssistClient) SendMcpClientInfo(ctx context.Context, req *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error) {
+	return c.sendMcpClientInfo.CallUnary(ctx, req)
+}
+
 // SrvAgentAssistHandler is an implementation of the agentassistproto.SrvAgentAssist service.
 type SrvAgentAssistHandler interface {
 	AskQuestion(context.Context, *connect.Request[AskQuestionRequest]) (*connect.Response[AskQuestionResponse], error)
 	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
+	SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error)
 }
 
 // NewSrvAgentAssistHandler builds an HTTP handler from the service implementation. It returns the
@@ -113,12 +130,20 @@ func NewSrvAgentAssistHandler(svc SrvAgentAssistHandler, opts ...connect.Handler
 		connect.WithSchema(srvAgentAssistMethods.ByName("WorkReport")),
 		connect.WithHandlerOptions(opts...),
 	)
+	srvAgentAssistSendMcpClientInfoHandler := connect.NewUnaryHandler(
+		SrvAgentAssistSendMcpClientInfoProcedure,
+		svc.SendMcpClientInfo,
+		connect.WithSchema(srvAgentAssistMethods.ByName("SendMcpClientInfo")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/agentassistproto.SrvAgentAssist/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SrvAgentAssistAskQuestionProcedure:
 			srvAgentAssistAskQuestionHandler.ServeHTTP(w, r)
 		case SrvAgentAssistWorkReportProcedure:
 			srvAgentAssistWorkReportHandler.ServeHTTP(w, r)
+		case SrvAgentAssistSendMcpClientInfoProcedure:
+			srvAgentAssistSendMcpClientInfoHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -134,4 +159,8 @@ func (UnimplementedSrvAgentAssistHandler) AskQuestion(context.Context, *connect.
 
 func (UnimplementedSrvAgentAssistHandler) WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.WorkReport is not implemented"))
+}
+
+func (UnimplementedSrvAgentAssistHandler) SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.SendMcpClientInfo is not implemented"))
 }

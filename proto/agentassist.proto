@@ -125,6 +125,32 @@ message WorkReportResponse {
   repeated McpResultContent contents = 4;
 }
 
+message McpClientInfoData {
+  // MCP protocol version requested by client
+  string ProtocolVersion = 1;
+  // Raw JSON describing client capabilities (mcp.InitializeParams.capabilities)
+  string CapabilitiesJson = 2;
+  // MCP client implementation name
+  string ClientName = 3;
+  // MCP client implementation version
+  string ClientVersion = 4;
+}
+
+message McpClientInfoRequest {
+  // request id
+  string ID = 1;
+  // user token
+  string UserToken = 2;
+  // initialize request payload
+  McpClientInfoData Request = 3;
+  // timestamp (UTC)
+  int64 Timestamp = 4;
+}
+
+message McpClientInfoResponse {
+  bool Success = 1;
+}
+
 message CheckMessageValidityRequest {
   // list of request IDs to check
   repeated string request_ids = 1;
@@ -323,6 +349,7 @@ message WebsocketMessage {
 service SrvAgentAssist {
   rpc AskQuestion(AskQuestionRequest) returns (AskQuestionResponse);
   rpc WorkReport(WorkReportRequest) returns (WorkReportResponse);
+  rpc SendMcpClientInfo(McpClientInfoRequest) returns (McpClientInfoResponse);
 }
 
 // WebsocketMessage defines the message structure for WebSocket communication

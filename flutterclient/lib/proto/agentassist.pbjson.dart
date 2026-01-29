@@ -238,6 +238,53 @@ final $typed_data.Uint8List workReportResponseDescriptor = $convert.base64Decode
     '8uTWNwUmVzdWx0Q29udGVudFIIY29udGVudHMaNwoJTWV0YUVudHJ5EhAKA2tleRgBIAEoCVID'
     'a2V5EhQKBXZhbHVlGAIgASgJUgV2YWx1ZToCOAE=');
 
+@$core.Deprecated('Use mcpClientInfoDataDescriptor instead')
+const McpClientInfoData$json = {
+  '1': 'McpClientInfoData',
+  '2': [
+    {'1': 'ProtocolVersion', '3': 1, '4': 1, '5': 9, '10': 'ProtocolVersion'},
+    {'1': 'CapabilitiesJson', '3': 2, '4': 1, '5': 9, '10': 'CapabilitiesJson'},
+    {'1': 'ClientName', '3': 3, '4': 1, '5': 9, '10': 'ClientName'},
+    {'1': 'ClientVersion', '3': 4, '4': 1, '5': 9, '10': 'ClientVersion'},
+  ],
+};
+
+/// Descriptor for `McpClientInfoData`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List mcpClientInfoDataDescriptor = $convert.base64Decode(
+    'ChFNY3BDbGllbnRJbmZvRGF0YRIoCg9Qcm90b2NvbFZlcnNpb24YASABKAlSD1Byb3RvY29sVm'
+    'Vyc2lvbhIqChBDYXBhYmlsaXRpZXNKc29uGAIgASgJUhBDYXBhYmlsaXRpZXNKc29uEh4KCkNs'
+    'aWVudE5hbWUYAyABKAlSCkNsaWVudE5hbWUSJAoNQ2xpZW50VmVyc2lvbhgEIAEoCVINQ2xpZW'
+    '50VmVyc2lvbg==');
+
+@$core.Deprecated('Use mcpClientInfoRequestDescriptor instead')
+const McpClientInfoRequest$json = {
+  '1': 'McpClientInfoRequest',
+  '2': [
+    {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
+    {'1': 'UserToken', '3': 2, '4': 1, '5': 9, '10': 'UserToken'},
+    {'1': 'Request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.McpClientInfoData', '10': 'Request'},
+    {'1': 'Timestamp', '3': 4, '4': 1, '5': 3, '10': 'Timestamp'},
+  ],
+};
+
+/// Descriptor for `McpClientInfoRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List mcpClientInfoRequestDescriptor = $convert.base64Decode(
+    'ChRNY3BDbGllbnRJbmZvUmVxdWVzdBIOCgJJRBgBIAEoCVICSUQSHAoJVXNlclRva2VuGAIgAS'
+    'gJUglVc2VyVG9rZW4SPQoHUmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uTWNwQ2xp'
+    'ZW50SW5mb0RhdGFSB1JlcXVlc3QSHAoJVGltZXN0YW1wGAQgASgDUglUaW1lc3RhbXA=');
+
+@$core.Deprecated('Use mcpClientInfoResponseDescriptor instead')
+const McpClientInfoResponse$json = {
+  '1': 'McpClientInfoResponse',
+  '2': [
+    {'1': 'Success', '3': 1, '4': 1, '5': 8, '10': 'Success'},
+  ],
+};
+
+/// Descriptor for `McpClientInfoResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List mcpClientInfoResponseDescriptor = $convert.base64Decode(
+    'ChVNY3BDbGllbnRJbmZvUmVzcG9uc2USGAoHU3VjY2VzcxgBIAEoCFIHU3VjY2Vzcw==');
+
 @$core.Deprecated('Use checkMessageValidityRequestDescriptor instead')
 const CheckMessageValidityRequest$json = {
   '1': 'CheckMessageValidityRequest',
@@ -526,6 +573,7 @@ const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '2': [
     {'1': 'AskQuestion', '2': '.agentassistproto.AskQuestionRequest', '3': '.agentassistproto.AskQuestionResponse'},
     {'1': 'WorkReport', '2': '.agentassistproto.WorkReportRequest', '3': '.agentassistproto.WorkReportResponse'},
+    {'1': 'SendMcpClientInfo', '2': '.agentassistproto.McpClientInfoRequest', '3': '.agentassistproto.McpClientInfoResponse'},
   ],
 };
 
@@ -544,6 +592,9 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SrvAgentAs
   '.agentassistproto.McpWorkReportRequest': McpWorkReportRequest$json,
   '.agentassistproto.WorkReportResponse': WorkReportResponse$json,
   '.agentassistproto.WorkReportResponse.MetaEntry': WorkReportResponse_MetaEntry$json,
+  '.agentassistproto.McpClientInfoRequest': McpClientInfoRequest$json,
+  '.agentassistproto.McpClientInfoData': McpClientInfoData$json,
+  '.agentassistproto.McpClientInfoResponse': McpClientInfoResponse$json,
 };
 
 /// Descriptor for `SrvAgentAssist`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -551,5 +602,7 @@ final $typed_data.Uint8List srvAgentAssistServiceDescriptor = $convert.base64Dec
     'Cg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUX'
     'Vlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcK'
     'CldvcmtSZXBvcnQSIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0GiQuYWdlbn'
-    'Rhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2U=');
+    'Rhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2USZAoRU2VuZE1jcENsaWVudEluZm8SJi5h'
+    'Z2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9SZXF1ZXN0GicuYWdlbnRhc3Npc3Rwcm90by'
+    '5NY3BDbGllbnRJbmZvUmVzcG9uc2U=');
 

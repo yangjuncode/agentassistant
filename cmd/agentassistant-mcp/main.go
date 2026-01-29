@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"log"
@@ -11,8 +12,8 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"sync/atomic"
 	"strings"
+	"sync/atomic"
 
 	"connectrpc.com/connect"
 	"github.com/BurntSushi/toml"
@@ -32,11 +33,69 @@ type Config struct {
 	AgentAssistantServerToken string `toml:"agentassistant_server_token"`
 }
 
+type cachedMcpClientInfo struct {
+	ProtocolVersion  string
+	CapabilitiesJson string
+	ClientName       string
+	ClientVersion    string
+}
+
+func cacheMcpClientInfo(params mcp.InitializeParams) {
+	capabilitiesBytes, err := json.Marshal(params.Capabilities)
+	if err != nil {
+		log.Printf("Failed to marshal MCP capabilities: %v", err)
+		capabilitiesBytes = []byte("{}")
+	}
+
+	info := &cachedMcpClientInfo{
+		ProtocolVersion:  params.ProtocolVersion,
+		CapabilitiesJson: string(capabilitiesBytes),
+		ClientName:       params.ClientInfo.Name,
+		ClientVersion:    params.ClientInfo.Version,
+	}
+
+	mcpClientInfo.Store(info)
+}
+
+//func ensureMcpClientInfoSent() {
+//	if mcpClientInfoSent.Load() {
+//		return
+//	}
+//
+//	value := mcpClientInfo.Load()
+//	info, ok := value.(*cachedMcpClientInfo)
+//	if !ok || info == nil {
+//		return
+//	}
+//
+//	req := &agentassistproto.McpClientInfoRequest{
+//		ID:        generateRequestID(),
+//		UserToken: config.AgentAssistantServerToken,
+//		Request: &agentassistproto.McpClientInfoData{
+//			ProtocolVersion:  info.ProtocolVersion,
+//			CapabilitiesJson: info.CapabilitiesJson,
+//			ClientName:       info.ClientName,
+//			ClientVersion:    info.ClientVersion,
+//		},
+//		Timestamp: time.Now().UnixMilli(),
+//	}
+//
+//	if _, err := client.SendMcpClientInfo(context.Background(), connect.NewRequest(req)); err != nil {
+//		log.Printf("Failed to send MCP client info: %v", err)
+//		return
+//	}
+//
+//	log.Printf("Sent MCP client info for %s (%s)", info.ClientName, info.ClientVersion)
+//	mcpClientInfoSent.Store(true)
+//}
+
 // Global configuration
 var config Config
 var client agentassistproto.SrvAgentAssistClient
 
 var mcpClientName atomic.Value
+var mcpClientInfo atomic.Value
+var mcpClientInfoSent atomic.Bool
 
 func main() {
 	// Parse command line arguments
@@ -93,6 +152,8 @@ func main() {
 	hooks := &server.Hooks{}
 	hooks.AddAfterInitialize(func(ctx context.Context, id any, message *mcp.InitializeRequest, result *mcp.InitializeResult) {
 		mcpClientName.Store(message.Params.ClientInfo.Name)
+		cacheMcpClientInfo(message.Params)
+		//go ensureMcpClientInfoSent()
 	})
 
 	s := server.NewMCPServer(
@@ -229,6 +290,7 @@ func openBrowser(url string) {
 
 // askQuestionHandler handles the ask_question tool
 func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	//ensureMcpClientInfoSent()
 	projectDirectory, err := request.RequireString("project_directory")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
@@ -281,6 +343,7 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 
 // workReportHandler handles the work_report tool
 func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	//ensureMcpClientInfoSent()
 	projectDirectory, err := request.RequireString("project_directory")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
