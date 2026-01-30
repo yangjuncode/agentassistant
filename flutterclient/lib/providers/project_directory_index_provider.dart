@@ -23,6 +23,12 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
     '.windsurf',
     '.antigravity',
     '.idea',
+    '.gemini',
+    '.trae',
+    '.opencode',
+    '.cursor',
+    '.codex',
+    '.claude',
     'cmake-build-debug',
     'cmake-build-release',
   ];
