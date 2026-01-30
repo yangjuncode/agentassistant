@@ -67,6 +67,7 @@ class ChatProvider extends ChangeNotifier {
   Timer? _inputFocusDebounceTimer;
   int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
   String? _nickname;
+  Completer<String>? _nicknameLoadCompleter;
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
@@ -1204,25 +1205,36 @@ class ChatProvider extends ChangeNotifier {
   }
 
   /// Load nickname from SharedPreferences
-  Future<String?> _loadNickname() async {
+  Future<String> _loadNickname() async {
+    if (_nicknameLoadCompleter != null) {
+      return _nicknameLoadCompleter!.future;
+    }
+
+    _nicknameLoadCompleter = Completer<String>();
+
     try {
       final prefs = await SharedPreferences.getInstance();
-      final nickname = prefs.getString('user_nickname');
+      final nickname = prefs.getString(AppConfig.nicknameStorageKey);
       if (nickname != null && nickname.isNotEmpty) {
         _nickname = nickname;
+        _nicknameLoadCompleter!.complete(nickname);
         notifyListeners();
         return nickname;
       }
       // Generate and save default nickname if none exists
       final defaultNickname = _generateDefaultNickname();
-      await prefs.setString('user_nickname', defaultNickname);
+      await prefs.setString(AppConfig.nicknameStorageKey, defaultNickname);
       _nickname = defaultNickname;
+      _nicknameLoadCompleter!.complete(defaultNickname);
       notifyListeners();
       return defaultNickname;
     } catch (error) {
       _logger.e('Failed to load nickname: $error');
       final def = _generateDefaultNickname();
       _nickname = def;
+      if (!_nicknameLoadCompleter!.isCompleted) {
+        _nicknameLoadCompleter!.complete(def);
+      }
       notifyListeners();
       return def;
     }
@@ -1264,7 +1276,7 @@ class ChatProvider extends ChangeNotifier {
 
       // Save to SharedPreferences
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('user_nickname', nickname);
+      await prefs.setString(AppConfig.nicknameStorageKey, nickname);
 
       // Update all services (even if not connected, so it's used on reconnect)
       for (final svc in _services.values) {

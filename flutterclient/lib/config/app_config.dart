@@ -29,6 +29,7 @@ class AppConfig {
       'ask_question_attention_mode';
   static const String workReportAttentionModeStorageKey =
       'work_report_attention_mode';
+  static const String nicknameStorageKey = 'user_nickname';
 
   // Default values
   static const String appName = 'Agent Assistant';

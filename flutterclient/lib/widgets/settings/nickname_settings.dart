@@ -38,22 +38,29 @@ class _NicknameSettingsState extends State<NicknameSettings> {
     super.dispose();
   }
 
-  void _loadCurrentNickname() {
-    if (!mounted) return;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _syncWithProvider();
+  }
+
+  void _syncWithProvider() {
     final chatProvider = context.read<ChatProvider>();
     final nickname = chatProvider.nickname;
 
-    if (nickname != null) {
+    // Only update if the controller is empty or if the nickname changed
+    // and we are not currently editing (to avoid jumping cursor)
+    if (nickname != null &&
+        (_controller.text.isEmpty ||
+            (_controller.text != nickname && !_isLoading))) {
       setState(() {
         _controller.text = nickname;
       });
-    } else if (_controller.text.isEmpty) {
-      // Generate default nickname if none exists
-      final defaultNickname = NicknameHelper.generateDefaultNickname();
-      setState(() {
-        _controller.text = defaultNickname;
-      });
     }
+  }
+
+  void _loadCurrentNickname() {
+    _syncWithProvider();
   }
 
   Future<void> _saveNickname() async {
