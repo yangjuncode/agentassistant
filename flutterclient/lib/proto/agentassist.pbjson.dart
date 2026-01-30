@@ -102,12 +102,45 @@ const MsgEmpty$json = {
 final $typed_data.Uint8List msgEmptyDescriptor = $convert.base64Decode(
     'CghNc2dFbXB0eQ==');
 
+@$core.Deprecated('Use optionDescriptor instead')
+const Option$json = {
+  '1': 'Option',
+  '2': [
+    {'1': 'label', '3': 1, '4': 1, '5': 9, '10': 'label'},
+    {'1': 'description', '3': 2, '4': 1, '5': 9, '10': 'description'},
+  ],
+};
+
+/// Descriptor for `Option`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List optionDescriptor = $convert.base64Decode(
+    'CgZPcHRpb24SFAoFbGFiZWwYASABKAlSBWxhYmVsEiAKC2Rlc2NyaXB0aW9uGAIgASgJUgtkZX'
+    'NjcmlwdGlvbg==');
+
+@$core.Deprecated('Use questionDescriptor instead')
+const Question$json = {
+  '1': 'Question',
+  '2': [
+    {'1': 'question', '3': 1, '4': 1, '5': 9, '10': 'question'},
+    {'1': 'header', '3': 2, '4': 1, '5': 9, '10': 'header'},
+    {'1': 'options', '3': 3, '4': 3, '5': 11, '6': '.agentassistproto.Option', '10': 'options'},
+    {'1': 'multiple', '3': 4, '4': 1, '5': 8, '10': 'multiple'},
+    {'1': 'custom', '3': 5, '4': 1, '5': 8, '10': 'custom'},
+  ],
+};
+
+/// Descriptor for `Question`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List questionDescriptor = $convert.base64Decode(
+    'CghRdWVzdGlvbhIaCghxdWVzdGlvbhgBIAEoCVIIcXVlc3Rpb24SFgoGaGVhZGVyGAIgASgJUg'
+    'ZoZWFkZXISMgoHb3B0aW9ucxgDIAMoCzIYLmFnZW50YXNzaXN0cHJvdG8uT3B0aW9uUgdvcHRp'
+    'b25zEhoKCG11bHRpcGxlGAQgASgIUghtdWx0aXBsZRIWCgZjdXN0b20YBSABKAhSBmN1c3RvbQ'
+    '==');
+
 @$core.Deprecated('Use mcpAskQuestionRequestDescriptor instead')
 const McpAskQuestionRequest$json = {
   '1': 'McpAskQuestionRequest',
   '2': [
     {'1': 'ProjectDirectory', '3': 1, '4': 1, '5': 9, '10': 'ProjectDirectory'},
-    {'1': 'Question', '3': 2, '4': 1, '5': 9, '10': 'Question'},
+    {'1': 'Questions', '3': 2, '4': 3, '5': 11, '6': '.agentassistproto.Question', '10': 'Questions'},
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
     {'1': 'AgentName', '3': 4, '4': 1, '5': 9, '10': 'AgentName'},
     {'1': 'ReasoningModelName', '3': 5, '4': 1, '5': 9, '10': 'ReasoningModelName'},
@@ -118,10 +151,10 @@ const McpAskQuestionRequest$json = {
 /// Descriptor for `McpAskQuestionRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List mcpAskQuestionRequestDescriptor = $convert.base64Decode(
     'ChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSKgoQUHJvamVjdERpcmVjdG9yeRgBIAEoCVIQUHJvam'
-    'VjdERpcmVjdG9yeRIaCghRdWVzdGlvbhgCIAEoCVIIUXVlc3Rpb24SGAoHVGltZW91dBgDIAEo'
-    'BVIHVGltZW91dBIcCglBZ2VudE5hbWUYBCABKAlSCUFnZW50TmFtZRIuChJSZWFzb25pbmdNb2'
-    'RlbE5hbWUYBSABKAlSElJlYXNvbmluZ01vZGVsTmFtZRIkCg1NY3BDbGllbnROYW1lGAYgASgJ'
-    'Ug1NY3BDbGllbnROYW1l');
+    'VjdERpcmVjdG9yeRI4CglRdWVzdGlvbnMYAiADKAsyGi5hZ2VudGFzc2lzdHByb3RvLlF1ZXN0'
+    'aW9uUglRdWVzdGlvbnMSGAoHVGltZW91dBgDIAEoBVIHVGltZW91dBIcCglBZ2VudE5hbWUYBC'
+    'ABKAlSCUFnZW50TmFtZRIuChJSZWFzb25pbmdNb2RlbE5hbWUYBSABKAlSElJlYXNvbmluZ01v'
+    'ZGVsTmFtZRIkCg1NY3BDbGllbnROYW1lGAYgASgJUg1NY3BDbGllbnROYW1l');
 
 @$core.Deprecated('Use askQuestionRequestDescriptor instead')
 const AskQuestionRequest$json = {
@@ -581,6 +614,8 @@ const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
 const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SrvAgentAssistServiceBase$messageJson = {
   '.agentassistproto.AskQuestionRequest': AskQuestionRequest$json,
   '.agentassistproto.McpAskQuestionRequest': McpAskQuestionRequest$json,
+  '.agentassistproto.Question': Question$json,
+  '.agentassistproto.Option': Option$json,
   '.agentassistproto.AskQuestionResponse': AskQuestionResponse$json,
   '.agentassistproto.AskQuestionResponse.MetaEntry': AskQuestionResponse_MetaEntry$json,
   '.agentassistproto.McpResultContent': McpResultContent$json,

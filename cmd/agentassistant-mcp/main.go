@@ -166,46 +166,87 @@ func main() {
 	// ask_question tool
 	tool := mcp.NewTool("ask_question",
 		mcp.WithDescription(`
-Ask a question to the Agent-Assistant
+Use this tool when you need to ask the user questions during execution. This allows you to:
+1. Gather user preferences or requirements
+2. Clarify ambiguous instructions
+3. Get decisions on implementation choices as you work
+4. Offer choices to the user about what direction to take.
 
-This tool allows you to ask a question to the Agent-Assistant. The Agent-Assistant/User will send the answer/feedback to you.
-
-Args:
-- project_directory: The current project directory
-- question: The question to ask
-- timeout: The timeout in seconds, default is 3600s (1 hour)
-- agent_name: The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)
-- reasoning_model_name: The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)
-
-Returns:
-- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from Agent-Assistant
+Usage notes:
+- When "custom" is enabled (default), a "Type your own answer" option is added automatically; don't include "Other" or catch-all options
+- Answers are returned as arrays of labels; set "multiple: true" to allow selecting more than one
+- If you recommend a specific option, make that the first option in the list and add "(Recommended)" at the end of the label
 `),
-		//ProjectDirectory
-		mcp.WithString("project_directory",
-			mcp.Required(),
-			mcp.Description("Current project directory"),
-		),
-		//question
-		mcp.WithString("question",
-			mcp.Required(),
-			mcp.Description("The question to ask"),
-		),
-		//timeout
-		mcp.WithNumber("timeout",
-			mcp.DefaultNumber(3600),
-			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
-		),
-		//agent_name
-		mcp.WithString("agent_name",
-			mcp.Required(),
-			mcp.Description("The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)"),
-		),
-		//reasoning_model_name
-		mcp.WithString("reasoning_model_name",
-			mcp.Required(),
-			mcp.Description("The specific identifier of the LLM/inference model being used (e.g., 'gpt-4o', 'claude-3-5-sonnet', 'gemini-1.5-pro'). Do NOT use generic agent names like 'cascade' or 'windsurf'."),
-		),
 	)
+
+	// Manually set input schema because mcp-go helpers don't support complex nested arrays yet
+	tool.InputSchema = mcp.ToolInputSchema{
+		Type: "object",
+		Properties: map[string]interface{}{
+			"project_directory": map[string]interface{}{
+				"type":        "string",
+				"description": "Current project directory",
+			},
+			"questions": map[string]interface{}{
+				"type":        "array",
+				"description": "Questions to ask",
+				"items": map[string]interface{}{
+					"type": "object",
+					"properties": map[string]interface{}{
+						"question": map[string]interface{}{
+							"type":        "string",
+							"description": "Complete question",
+						},
+						"header": map[string]interface{}{
+							"type":        "string",
+							"description": "Very short label (max 30 chars)",
+						},
+						"options": map[string]interface{}{
+							"type":        "array",
+							"description": "Available choices",
+							"items": map[string]interface{}{
+								"type": "object",
+								"properties": map[string]interface{}{
+									"label": map[string]interface{}{
+										"type":        "string",
+										"description": "Display text (1-5 words, concise)",
+									},
+									"description": map[string]interface{}{
+										"type":        "string",
+										"description": "Explanation of choice",
+									},
+								},
+								"required": []string{"label", "description"},
+							},
+						},
+						"multiple": map[string]interface{}{
+							"type":        "boolean",
+							"description": "Allow selecting multiple choices",
+						},
+						"custom": map[string]interface{}{
+							"type":        "boolean",
+							"description": "Allow typing a custom answer (default: true)",
+						},
+					},
+					"required": []string{"question", "header", "options"},
+				},
+			},
+			"timeout": map[string]interface{}{
+				"type":        "integer",
+				"description": "Timeout in seconds, default is 3600s (1 hour)",
+				"default":     3600,
+			},
+			"agent_name": map[string]interface{}{
+				"type":        "string",
+				"description": "The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)",
+			},
+			"reasoning_model_name": map[string]interface{}{
+				"type":        "string",
+				"description": "The specific identifier of the LLM/inference model being used (e.g., 'gpt-4o', 'claude-3-5-sonnet', 'gemini-1.5-pro'). Do NOT use generic agent names like 'cascade' or 'windsurf'.",
+			},
+		},
+		Required: []string{"project_directory", "questions", "agent_name", "reasoning_model_name"},
+	}
 
 	workReportTool := mcp.NewTool("work_report",
 		mcp.WithDescription(`
@@ -288,27 +329,53 @@ func openBrowser(url string) {
 	}
 }
 
+type OptionInput struct {
+	Label       string `json:"label"`
+	Description string `json:"description"`
+}
+type QuestionInput struct {
+	Question string        `json:"question"`
+	Header   string        `json:"header"`
+	Options  []OptionInput `json:"options"`
+	Multiple bool          `json:"multiple"`
+	Custom   *bool         `json:"custom"` // Pointer for optional
+}
+type AskQuestionInput struct {
+	ProjectDirectory   string          `json:"project_directory"`
+	Questions          []QuestionInput `json:"questions"`
+	Timeout            int             `json:"timeout"`
+	AgentName          string          `json:"agent_name"`
+	ReasoningModelName string          `json:"reasoning_model_name"`
+}
+
 // askQuestionHandler handles the ask_question tool
 func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	//ensureMcpClientInfoSent()
-	projectDirectory, err := request.RequireString("project_directory")
+	// Parse arguments using JSON unmarshal to handle complex structure
+	jsonBytes, err := json.Marshal(request.Params.Arguments)
 	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to process arguments: %v", err)), nil
 	}
 
-	question, err := request.RequireString("question")
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
+	var input AskQuestionInput
+	// Set defaults
+	input.Timeout = 3600
+
+	if err := json.Unmarshal(jsonBytes, &input); err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Invalid arguments: %v", err)), nil
 	}
 
-	timeout, err := request.RequireInt("timeout")
-	if err != nil {
-		timeout = 3600 // Default timeout (1 hour)
+	if input.ProjectDirectory == "" {
+		return mcp.NewToolResultError("project_directory is required"), nil
 	}
-
-	// Get optional agent_name and reasoning_model_name
-	agentName, _ := request.RequireString("agent_name")
-	reasoningModelName, _ := request.RequireString("reasoning_model_name")
+	if len(input.Questions) == 0 {
+		return mcp.NewToolResultError("at least one question is required"), nil
+	}
+	if input.AgentName == "" {
+		return mcp.NewToolResultError("agent_name is required"), nil
+	}
+	if input.ReasoningModelName == "" {
+		return mcp.NewToolResultError("reasoning_model_name is required"), nil
+	}
 
 	currentMcpClientName := ""
 	if v := mcpClientName.Load(); v != nil {
@@ -317,16 +384,41 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		}
 	}
 
+	// Map to proto
+	protoQuestions := make([]*agentassistproto.Question, len(input.Questions))
+	for i, q := range input.Questions {
+		opts := make([]*agentassistproto.Option, len(q.Options))
+		for j, o := range q.Options {
+			opts[j] = &agentassistproto.Option{
+				Label:       o.Label,
+				Description: o.Description,
+			}
+		}
+
+		custom := true // default true
+		if q.Custom != nil {
+			custom = *q.Custom
+		}
+
+		protoQuestions[i] = &agentassistproto.Question{
+			Question: q.Question,
+			Header:   q.Header,
+			Options:  opts,
+			Multiple: q.Multiple,
+			Custom:   custom,
+		}
+	}
+
 	// Create RPC request
 	req := &agentassistproto.AskQuestionRequest{
 		ID:        generateRequestID(),
 		UserToken: config.AgentAssistantServerToken,
 		Request: &agentassistproto.McpAskQuestionRequest{
-			ProjectDirectory:   projectDirectory,
-			Question:           question,
-			Timeout:            int32(timeout),
-			AgentName:          agentName,
-			ReasoningModelName: reasoningModelName,
+			ProjectDirectory:   input.ProjectDirectory,
+			Questions:          protoQuestions,
+			Timeout:            int32(input.Timeout),
+			AgentName:          input.AgentName,
+			ReasoningModelName: input.ReasoningModelName,
 			McpClientName:      currentMcpClientName,
 		},
 	}

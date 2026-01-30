@@ -37,12 +37,12 @@ message EmbeddedResource {
 }
 
 message McpResultContent {
-   //content type
-   // 1: text
-   // 2: image
-   // 3: audio
-   // 4: embedded resource
-   int32 type = 1;
+  // content type
+  //  1: text
+  //  2: image
+  //  3: audio
+  //  4: embedded resource
+  int32 type = 1;
   // text
   TextContent text = 2;
   // image
@@ -53,18 +53,30 @@ message McpResultContent {
   EmbeddedResource embedded_resource = 5;
 }
 
-message MsgEmpty {
-  
+message MsgEmpty {}
+
+message Option {
+  string label = 1;
+  string description = 2;
+}
+
+message Question {
+  string question = 1;         // Complete question
+  string header = 2;           // Very short label
+  repeated Option options = 3; // Available choices
+  bool multiple = 4;           // Allow selecting multiple choices
+  bool custom = 5;             // Allow typing a custom answer
 }
 
 message McpAskQuestionRequest {
   // current project directory
   string ProjectDirectory = 1;
-  // ai agent's question
-  string Question = 2;
+  // ai agent's questions
+  repeated Question Questions = 2;
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
-  // the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+  // the AI agent/client name that is calling this tool (e.g., Antigravity,
+  // Cascade)
   string AgentName = 4;
   // the actual LLM/inference model name being used (e.g., GPT-4, Gemini 3 Pro)
   string ReasoningModelName = 5;
@@ -98,9 +110,11 @@ message McpWorkReportRequest {
   string Summary = 2;
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
-  // the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+  // the AI agent/client name that is calling this tool (e.g., Antigravity,
+  // Cascade)
   string AgentName = 4;
-  // the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
+  // the actual LLM/inference model name being used for this task (e.g., GPT-4,
+  // Gemini 3 Pro)
   string ReasoningModelName = 5;
   // MCP client name from initialize.clientInfo.name (e.g., windsurf)
   string McpClientName = 6;
@@ -147,9 +161,7 @@ message McpClientInfoRequest {
   int64 Timestamp = 4;
 }
 
-message McpClientInfoResponse {
-  bool Success = 1;
-}
+message McpClientInfoResponse { bool Success = 1; }
 
 message CheckMessageValidityRequest {
   // list of request IDs to check
@@ -161,7 +173,8 @@ message CheckMessageValidityResponse {
   map<string, bool> validity = 1;
 }
 
-// GetPendingMessagesRequest represents a request to get all pending messages for a user
+// GetPendingMessagesRequest represents a request to get all pending messages
+// for a user
 message GetPendingMessagesRequest {
   // user token to filter messages
   string user_token = 1;
@@ -181,7 +194,8 @@ message PendingMessage {
   int32 timeout = 5;
 }
 
-// GetPendingMessagesResponse represents the response containing all pending messages
+// GetPendingMessagesResponse represents the response containing all pending
+// messages
 message GetPendingMessagesResponse {
   // list of pending messages
   repeated PendingMessage pending_messages = 1;
@@ -189,7 +203,8 @@ message GetPendingMessagesResponse {
   int32 total_count = 2;
 }
 
-// RequestCancelledNotification represents a notification that a request has been cancelled
+// RequestCancelledNotification represents a notification that a request has
+// been cancelled
 message RequestCancelledNotification {
   // request id that was cancelled
   string request_id = 1;
@@ -209,7 +224,8 @@ message OnlineUser {
   int64 connected_at = 3;
 }
 
-// GetOnlineUsersRequest represents a request to get online users with the same token
+// GetOnlineUsersRequest represents a request to get online users with the same
+// token
 message GetOnlineUsersRequest {
   // user token to filter users
   string user_token = 1;
@@ -265,7 +281,8 @@ message UserLoginResponse {
   string error_message = 3;
 }
 
-// UserConnectionStatusNotification represents a notification when a user connects or disconnects
+// UserConnectionStatusNotification represents a notification when a user
+// connects or disconnects
 message UserConnectionStatusNotification {
   // the user who connected/disconnected
   OnlineUser user = 1;
@@ -274,8 +291,6 @@ message UserConnectionStatusNotification {
   // timestamp of the status change
   int64 timestamp = 3;
 }
-
-
 
 message WebsocketMessage {
   // WebsocketMessage cmd
@@ -294,10 +309,10 @@ message WebsocketMessage {
   // ChatMessageNotification: notification of a new chat message
   string Cmd = 1;
 
-  //ask question
+  // ask question
   AskQuestionRequest AskQuestionRequest = 2;
 
-  //work report
+  // work report
   WorkReportRequest WorkReportRequest = 3;
 
   // ask question reply
@@ -339,7 +354,7 @@ message WebsocketMessage {
   // user connection status notification
   UserConnectionStatusNotification UserConnectionStatusNotification = 24;
 
-  //str param
+  // str param
   string StrParam = 12;
 
   // user nickname (for UserLogin and notifications)

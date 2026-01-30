@@ -67,8 +67,8 @@ func (s *AgentAssistService) AskQuestion(
 		}, nil
 	}
 
-	log.Printf("Received AskQuestion request: ProjectDirectory=%s, Question=%s, Timeout=%d",
-		req.Msg.Request.ProjectDirectory, req.Msg.Request.Question, req.Msg.Request.Timeout)
+	log.Printf("Received AskQuestion request: ProjectDirectory=%s, Questions=%d, Timeout=%d",
+		req.Msg.Request.ProjectDirectory, len(req.Msg.Request.Questions), req.Msg.Request.Timeout)
 
 	// Set default timeout if not provided
 	timeout := req.Msg.Request.Timeout

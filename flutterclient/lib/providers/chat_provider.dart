@@ -678,11 +678,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       serverName: serverName,
     );
     _addMessage(chatMessage);
-    _logger.i('Received question: ${request.request.question}');
+    final questionText =
+        request.request.questions.map((q) => q.question).join('\n\n');
+    _logger.i('Received question: $questionText');
 
     _handleDesktopAttentionOnNewPendingItem(
       title: 'New question',
-      body: request.request.question,
+      body: questionText,
       mode: _askQuestionAttentionMode,
     );
   }
@@ -1072,7 +1074,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         ..userToken = _currentToken ?? ''
         ..request = (pb.McpAskQuestionRequest()
           ..projectDirectory = message.projectDirectory ?? ''
-          ..question = message.question ?? '');
+          ..questions.add(pb.Question()..question = message.question ?? ''));
 
       // Send reply
       await _services[serverId]!

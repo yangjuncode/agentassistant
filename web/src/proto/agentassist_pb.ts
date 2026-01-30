@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file agentassist.proto.
  */
 export const file_agentassist: GenFile = /*@__PURE__*/
-  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSKaAQoVTWNwQXNrUXVlc3Rpb25SZXF1ZXN0EhgKEFByb2plY3REaXJlY3RvcnkYASABKAkSEAoIUXVlc3Rpb24YAiABKAkSDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkigAEKEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLUAQoTQXNrUXVlc3Rpb25SZXNwb25zZRIKCgJJRBgBIAEoCRIPCgdJc0Vycm9yGAIgASgIEj0KBE1ldGEYAyADKAsyLy5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIpgBChRNY3BXb3JrUmVwb3J0UmVxdWVzdBIYChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJEg8KB1N1bW1hcnkYAiABKAkSDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkifgoRV29ya1JlcG9ydFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFdvcmtSZXBvcnRSZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLSAQoSV29ya1JlcG9ydFJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPAoETWV0YRgDIAMoCzIuLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlLk1ldGFFbnRyeRI0Cghjb250ZW50cxgEIAMoCzIiLmFnZW50YXNzaXN0cHJvdG8uTWNwUmVzdWx0Q29udGVudBorCglNZXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJxChFNY3BDbGllbnRJbmZvRGF0YRIXCg9Qcm90b2NvbFZlcnNpb24YASABKAkSGAoQQ2FwYWJpbGl0aWVzSnNvbhgCIAEoCRISCgpDbGllbnROYW1lGAMgASgJEhUKDUNsaWVudFZlcnNpb24YBCABKAkifgoUTWNwQ2xpZW50SW5mb1JlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjQKB1JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9EYXRhEhEKCVRpbWVzdGFtcBgEIAEoAyIoChVNY3BDbGllbnRJbmZvUmVzcG9uc2USDwoHU3VjY2VzcxgBIAEoCCIyChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSEwoLcmVxdWVzdF9pZHMYASADKAkinwEKHENoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2USTgoIdmFsaWRpdHkYASADKAsyPC5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2UuVmFsaWRpdHlFbnRyeRovCg1WYWxpZGl0eUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCDoCOAEiLwoZR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJItEBCg5QZW5kaW5nTWVzc2FnZRIUCgxtZXNzYWdlX3R5cGUYASABKAkSQgoUYXNrX3F1ZXN0aW9uX3JlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBJAChN3b3JrX3JlcG9ydF9yZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBISCgpjcmVhdGVkX2F0GAQgASgDEg8KB3RpbWVvdXQYBSABKAUibQoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2USOgoQcGVuZGluZ19tZXNzYWdlcxgBIAMoCzIgLmFnZW50YXNzaXN0cHJvdG8uUGVuZGluZ01lc3NhZ2USEwoLdG90YWxfY291bnQYAiABKAUiWAocUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhISCgpyZXF1ZXN0X2lkGAEgASgJEg4KBnJlYXNvbhgCIAEoCRIUCgxtZXNzYWdlX3R5cGUYAyABKAkiRwoKT25saW5lVXNlchIRCgljbGllbnRfaWQYASABKAkSEAoIbmlja25hbWUYAiABKAkSFAoMY29ubmVjdGVkX2F0GAMgASgDIisKFUdldE9ubGluZVVzZXJzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJImEKFkdldE9ubGluZVVzZXJzUmVzcG9uc2USMgoMb25saW5lX3VzZXJzGAEgAygLMhwuYWdlbnRhc3Npc3Rwcm90by5PbmxpbmVVc2VyEhMKC3RvdGFsX2NvdW50GAIgASgFIq0BCgtDaGF0TWVzc2FnZRISCgptZXNzYWdlX2lkGAEgASgJEhgKEHNlbmRlcl9jbGllbnRfaWQYAiABKAkSFwoPc2VuZGVyX25pY2tuYW1lGAMgASgJEhoKEnJlY2VpdmVyX2NsaWVudF9pZBgEIAEoCRIZChFyZWNlaXZlcl9uaWNrbmFtZRgFIAEoCRIPCgdjb250ZW50GAYgASgJEg8KB3NlbnRfYXQYByABKAMiRQoWU2VuZENoYXRNZXNzYWdlUmVxdWVzdBIaChJyZWNlaXZlcl9jbGllbnRfaWQYASABKAkSDwoHY29udGVudBgCIAEoCSJOChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhIzCgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlIk4KEVVzZXJMb2dpblJlc3BvbnNlEhEKCWNsaWVudF9pZBgBIAEoCRIPCgdzdWNjZXNzGAIgASgIEhUKDWVycm9yX21lc3NhZ2UYAyABKAkicQogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24SKgoEdXNlchgBIAEoCzIcLmFnZW50YXNzaXN0cHJvdG8uT25saW5lVXNlchIOCgZzdGF0dXMYAiABKAkSEQoJdGltZXN0YW1wGAMgASgDIrMJChBXZWJzb2NrZXRNZXNzYWdlEgsKA0NtZBgBIAEoCRJAChJBc2tRdWVzdGlvblJlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBI+ChFXb3JrUmVwb3J0UmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlcXVlc3QSQgoTQXNrUXVlc3Rpb25SZXNwb25zZRgEIAEoCzIlLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJAChJXb3JrUmVwb3J0UmVzcG9uc2UYBSABKAsyJC5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXNwb25zZRJSChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QYDSABKAsyLS5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBJUChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlGA4gASgLMi4uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEk4KGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QYDyABKAsyKy5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSUAoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2UYECABKAsyLC5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlElQKHFJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24YESABKAsyLi5hZ2VudGFzc2lzdHByb3RvLlJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24SRgoVR2V0T25saW5lVXNlcnNSZXF1ZXN0GBMgASgLMicuYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1JlcXVlc3QSSAoWR2V0T25saW5lVXNlcnNSZXNwb25zZRgUIAEoCzIoLmFnZW50YXNzaXN0cHJvdG8uR2V0T25saW5lVXNlcnNSZXNwb25zZRJIChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0GBUgASgLMiguYWdlbnRhc3Npc3Rwcm90by5TZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EkoKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhI+ChFVc2VyTG9naW5SZXNwb25zZRgXIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uVXNlckxvZ2luUmVzcG9uc2USXAogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24YGCABKAsyMi5hZ2VudGFzc2lzdHByb3RvLlVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEhAKCFN0clBhcmFtGAwgASgJEhAKCE5pY2tuYW1lGBIgASgJMqsCCg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcKCldvcmtSZXBvcnQSIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0GiQuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2USZAoRU2VuZE1jcENsaWVudEluZm8SJi5hZ2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9SZXF1ZXN0GicuYWdlbnRhc3Npc3Rwcm90by5NY3BDbGllbnRJbmZvUmVzcG9uc2VCOFo2Z2l0aHViLmNvbS95YW5nanVuY29kZS9hZ2VudGFzc2lzdGFudC9hZ2VudGFzc2lzdHByb3RvYgZwcm90bzM");
+  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSIsCgZPcHRpb24SDQoFbGFiZWwYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkieQoIUXVlc3Rpb24SEAoIcXVlc3Rpb24YASABKAkSDgoGaGVhZGVyGAIgASgJEikKB29wdGlvbnMYAyADKAsyGC5hZ2VudGFzc2lzdHByb3RvLk9wdGlvbhIQCghtdWx0aXBsZRgEIAEoCBIOCgZjdXN0b20YBSABKAgitwEKFU1jcEFza1F1ZXN0aW9uUmVxdWVzdBIYChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJEi0KCVF1ZXN0aW9ucxgCIAMoCzIaLmFnZW50YXNzaXN0cHJvdG8uUXVlc3Rpb24SDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkigAEKEkFza1F1ZXN0aW9uUmVxdWVzdBIKCgJJRBgBIAEoCRIRCglVc2VyVG9rZW4YAiABKAkSOAoHUmVxdWVzdBgDIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uTWNwQXNrUXVlc3Rpb25SZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLUAQoTQXNrUXVlc3Rpb25SZXNwb25zZRIKCgJJRBgBIAEoCRIPCgdJc0Vycm9yGAIgASgIEj0KBE1ldGEYAyADKAsyLy5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2UuTWV0YUVudHJ5EjQKCGNvbnRlbnRzGAQgAygLMiIuYWdlbnRhc3Npc3Rwcm90by5NY3BSZXN1bHRDb250ZW50GisKCU1ldGFFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIpgBChRNY3BXb3JrUmVwb3J0UmVxdWVzdBIYChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJEg8KB1N1bW1hcnkYAiABKAkSDwoHVGltZW91dBgDIAEoBRIRCglBZ2VudE5hbWUYBCABKAkSGgoSUmVhc29uaW5nTW9kZWxOYW1lGAUgASgJEhUKDU1jcENsaWVudE5hbWUYBiABKAkifgoRV29ya1JlcG9ydFJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjcKB1JlcXVlc3QYAyABKAsyJi5hZ2VudGFzc2lzdHByb3RvLk1jcFdvcmtSZXBvcnRSZXF1ZXN0EhEKCVRpbWVzdGFtcBgEIAEoAyLSAQoSV29ya1JlcG9ydFJlc3BvbnNlEgoKAklEGAEgASgJEg8KB0lzRXJyb3IYAiABKAgSPAoETWV0YRgDIAMoCzIuLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlLk1ldGFFbnRyeRI0Cghjb250ZW50cxgEIAMoCzIiLmFnZW50YXNzaXN0cHJvdG8uTWNwUmVzdWx0Q29udGVudBorCglNZXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJxChFNY3BDbGllbnRJbmZvRGF0YRIXCg9Qcm90b2NvbFZlcnNpb24YASABKAkSGAoQQ2FwYWJpbGl0aWVzSnNvbhgCIAEoCRISCgpDbGllbnROYW1lGAMgASgJEhUKDUNsaWVudFZlcnNpb24YBCABKAkifgoUTWNwQ2xpZW50SW5mb1JlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjQKB1JlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9EYXRhEhEKCVRpbWVzdGFtcBgEIAEoAyIoChVNY3BDbGllbnRJbmZvUmVzcG9uc2USDwoHU3VjY2VzcxgBIAEoCCIyChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSEwoLcmVxdWVzdF9pZHMYASADKAkinwEKHENoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2USTgoIdmFsaWRpdHkYASADKAsyPC5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2UuVmFsaWRpdHlFbnRyeRovCg1WYWxpZGl0eUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCDoCOAEiLwoZR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJItEBCg5QZW5kaW5nTWVzc2FnZRIUCgxtZXNzYWdlX3R5cGUYASABKAkSQgoUYXNrX3F1ZXN0aW9uX3JlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBJAChN3b3JrX3JlcG9ydF9yZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBISCgpjcmVhdGVkX2F0GAQgASgDEg8KB3RpbWVvdXQYBSABKAUibQoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2USOgoQcGVuZGluZ19tZXNzYWdlcxgBIAMoCzIgLmFnZW50YXNzaXN0cHJvdG8uUGVuZGluZ01lc3NhZ2USEwoLdG90YWxfY291bnQYAiABKAUiWAocUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhISCgpyZXF1ZXN0X2lkGAEgASgJEg4KBnJlYXNvbhgCIAEoCRIUCgxtZXNzYWdlX3R5cGUYAyABKAkiRwoKT25saW5lVXNlchIRCgljbGllbnRfaWQYASABKAkSEAoIbmlja25hbWUYAiABKAkSFAoMY29ubmVjdGVkX2F0GAMgASgDIisKFUdldE9ubGluZVVzZXJzUmVxdWVzdBISCgp1c2VyX3Rva2VuGAEgASgJImEKFkdldE9ubGluZVVzZXJzUmVzcG9uc2USMgoMb25saW5lX3VzZXJzGAEgAygLMhwuYWdlbnRhc3Npc3Rwcm90by5PbmxpbmVVc2VyEhMKC3RvdGFsX2NvdW50GAIgASgFIq0BCgtDaGF0TWVzc2FnZRISCgptZXNzYWdlX2lkGAEgASgJEhgKEHNlbmRlcl9jbGllbnRfaWQYAiABKAkSFwoPc2VuZGVyX25pY2tuYW1lGAMgASgJEhoKEnJlY2VpdmVyX2NsaWVudF9pZBgEIAEoCRIZChFyZWNlaXZlcl9uaWNrbmFtZRgFIAEoCRIPCgdjb250ZW50GAYgASgJEg8KB3NlbnRfYXQYByABKAMiRQoWU2VuZENoYXRNZXNzYWdlUmVxdWVzdBIaChJyZWNlaXZlcl9jbGllbnRfaWQYASABKAkSDwoHY29udGVudBgCIAEoCSJOChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhIzCgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlIk4KEVVzZXJMb2dpblJlc3BvbnNlEhEKCWNsaWVudF9pZBgBIAEoCRIPCgdzdWNjZXNzGAIgASgIEhUKDWVycm9yX21lc3NhZ2UYAyABKAkicQogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24SKgoEdXNlchgBIAEoCzIcLmFnZW50YXNzaXN0cHJvdG8uT25saW5lVXNlchIOCgZzdGF0dXMYAiABKAkSEQoJdGltZXN0YW1wGAMgASgDIrMJChBXZWJzb2NrZXRNZXNzYWdlEgsKA0NtZBgBIAEoCRJAChJBc2tRdWVzdGlvblJlcXVlc3QYAiABKAsyJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBI+ChFXb3JrUmVwb3J0UmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlcXVlc3QSQgoTQXNrUXVlc3Rpb25SZXNwb25zZRgEIAEoCzIlLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJAChJXb3JrUmVwb3J0UmVzcG9uc2UYBSABKAsyJC5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXNwb25zZRJSChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QYDSABKAsyLS5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBJUChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlGA4gASgLMi4uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEk4KGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QYDyABKAsyKy5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSUAoaR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2UYECABKAsyLC5hZ2VudGFzc2lzdHByb3RvLkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlElQKHFJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24YESABKAsyLi5hZ2VudGFzc2lzdHByb3RvLlJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24SRgoVR2V0T25saW5lVXNlcnNSZXF1ZXN0GBMgASgLMicuYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1JlcXVlc3QSSAoWR2V0T25saW5lVXNlcnNSZXNwb25zZRgUIAEoCzIoLmFnZW50YXNzaXN0cHJvdG8uR2V0T25saW5lVXNlcnNSZXNwb25zZRJIChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0GBUgASgLMiguYWdlbnRhc3Npc3Rwcm90by5TZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EkoKF0NoYXRNZXNzYWdlTm90aWZpY2F0aW9uGBYgASgLMikuYWdlbnRhc3Npc3Rwcm90by5DaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhI+ChFVc2VyTG9naW5SZXNwb25zZRgXIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uVXNlckxvZ2luUmVzcG9uc2USXAogVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24YGCABKAsyMi5hZ2VudGFzc2lzdHByb3RvLlVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEhAKCFN0clBhcmFtGAwgASgJEhAKCE5pY2tuYW1lGBIgASgJMqsCCg5TcnZBZ2VudEFzc2lzdBJaCgtBc2tRdWVzdGlvbhIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0GiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlElcKCldvcmtSZXBvcnQSIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0GiQuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2USZAoRU2VuZE1jcENsaWVudEluZm8SJi5hZ2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9SZXF1ZXN0GicuYWdlbnRhc3Npc3Rwcm90by5NY3BDbGllbnRJbmZvUmVzcG9uc2VCOFo2Z2l0aHViLmNvbS95YW5nanVuY29kZS9hZ2VudGFzc2lzdGFudC9hZ2VudGFzc2lzdHByb3RvYgZwcm90bzM");
 
 /**
  * TextContent represents text provided to or from an LLM.
@@ -162,10 +162,10 @@ export const EmbeddedResourceSchema: GenMessage<EmbeddedResource> = /*@__PURE__*
 export type McpResultContent = Message<"agentassistproto.McpResultContent"> & {
   /**
    * content type
-   * 1: text
-   * 2: image
-   * 3: audio
-   * 4: embedded resource
+   *  1: text
+   *  2: image
+   *  3: audio
+   *  4: embedded resource
    *
    * @generated from field: int32 type = 1;
    */
@@ -221,6 +221,75 @@ export const MsgEmptySchema: GenMessage<MsgEmpty> = /*@__PURE__*/
   messageDesc(file_agentassist, 5);
 
 /**
+ * @generated from message agentassistproto.Option
+ */
+export type Option = Message<"agentassistproto.Option"> & {
+  /**
+   * @generated from field: string label = 1;
+   */
+  label: string;
+
+  /**
+   * @generated from field: string description = 2;
+   */
+  description: string;
+};
+
+/**
+ * Describes the message agentassistproto.Option.
+ * Use `create(OptionSchema)` to create a new message.
+ */
+export const OptionSchema: GenMessage<Option> = /*@__PURE__*/
+  messageDesc(file_agentassist, 6);
+
+/**
+ * @generated from message agentassistproto.Question
+ */
+export type Question = Message<"agentassistproto.Question"> & {
+  /**
+   * Complete question
+   *
+   * @generated from field: string question = 1;
+   */
+  question: string;
+
+  /**
+   * Very short label
+   *
+   * @generated from field: string header = 2;
+   */
+  header: string;
+
+  /**
+   * Available choices
+   *
+   * @generated from field: repeated agentassistproto.Option options = 3;
+   */
+  options: Option[];
+
+  /**
+   * Allow selecting multiple choices
+   *
+   * @generated from field: bool multiple = 4;
+   */
+  multiple: boolean;
+
+  /**
+   * Allow typing a custom answer
+   *
+   * @generated from field: bool custom = 5;
+   */
+  custom: boolean;
+};
+
+/**
+ * Describes the message agentassistproto.Question.
+ * Use `create(QuestionSchema)` to create a new message.
+ */
+export const QuestionSchema: GenMessage<Question> = /*@__PURE__*/
+  messageDesc(file_agentassist, 7);
+
+/**
  * @generated from message agentassistproto.McpAskQuestionRequest
  */
 export type McpAskQuestionRequest = Message<"agentassistproto.McpAskQuestionRequest"> & {
@@ -232,11 +301,11 @@ export type McpAskQuestionRequest = Message<"agentassistproto.McpAskQuestionRequ
   ProjectDirectory: string;
 
   /**
-   * ai agent's question
+   * ai agent's questions
    *
-   * @generated from field: string Question = 2;
+   * @generated from field: repeated agentassistproto.Question Questions = 2;
    */
-  Question: string;
+  Questions: Question[];
 
   /**
    * timeout in seconds, default is 600s
@@ -246,7 +315,8 @@ export type McpAskQuestionRequest = Message<"agentassistproto.McpAskQuestionRequ
   Timeout: number;
 
   /**
-   * the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+   * the AI agent/client name that is calling this tool (e.g., Antigravity,
+   * Cascade)
    *
    * @generated from field: string AgentName = 4;
    */
@@ -272,7 +342,7 @@ export type McpAskQuestionRequest = Message<"agentassistproto.McpAskQuestionRequ
  * Use `create(McpAskQuestionRequestSchema)` to create a new message.
  */
 export const McpAskQuestionRequestSchema: GenMessage<McpAskQuestionRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 6);
+  messageDesc(file_agentassist, 8);
 
 /**
  * @generated from message agentassistproto.AskQuestionRequest
@@ -312,7 +382,7 @@ export type AskQuestionRequest = Message<"agentassistproto.AskQuestionRequest"> 
  * Use `create(AskQuestionRequestSchema)` to create a new message.
  */
 export const AskQuestionRequestSchema: GenMessage<AskQuestionRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 7);
+  messageDesc(file_agentassist, 9);
 
 /**
  * @generated from message agentassistproto.AskQuestionResponse
@@ -346,7 +416,7 @@ export type AskQuestionResponse = Message<"agentassistproto.AskQuestionResponse"
  * Use `create(AskQuestionResponseSchema)` to create a new message.
  */
 export const AskQuestionResponseSchema: GenMessage<AskQuestionResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 8);
+  messageDesc(file_agentassist, 10);
 
 /**
  * @generated from message agentassistproto.McpWorkReportRequest
@@ -374,14 +444,16 @@ export type McpWorkReportRequest = Message<"agentassistproto.McpWorkReportReques
   Timeout: number;
 
   /**
-   * the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+   * the AI agent/client name that is calling this tool (e.g., Antigravity,
+   * Cascade)
    *
    * @generated from field: string AgentName = 4;
    */
   AgentName: string;
 
   /**
-   * the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
+   * the actual LLM/inference model name being used for this task (e.g., GPT-4,
+   * Gemini 3 Pro)
    *
    * @generated from field: string ReasoningModelName = 5;
    */
@@ -400,7 +472,7 @@ export type McpWorkReportRequest = Message<"agentassistproto.McpWorkReportReques
  * Use `create(McpWorkReportRequestSchema)` to create a new message.
  */
 export const McpWorkReportRequestSchema: GenMessage<McpWorkReportRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 9);
+  messageDesc(file_agentassist, 11);
 
 /**
  * @generated from message agentassistproto.WorkReportRequest
@@ -440,7 +512,7 @@ export type WorkReportRequest = Message<"agentassistproto.WorkReportRequest"> & 
  * Use `create(WorkReportRequestSchema)` to create a new message.
  */
 export const WorkReportRequestSchema: GenMessage<WorkReportRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 10);
+  messageDesc(file_agentassist, 12);
 
 /**
  * @generated from message agentassistproto.WorkReportResponse
@@ -474,7 +546,7 @@ export type WorkReportResponse = Message<"agentassistproto.WorkReportResponse"> 
  * Use `create(WorkReportResponseSchema)` to create a new message.
  */
 export const WorkReportResponseSchema: GenMessage<WorkReportResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 11);
+  messageDesc(file_agentassist, 13);
 
 /**
  * @generated from message agentassistproto.McpClientInfoData
@@ -514,7 +586,7 @@ export type McpClientInfoData = Message<"agentassistproto.McpClientInfoData"> & 
  * Use `create(McpClientInfoDataSchema)` to create a new message.
  */
 export const McpClientInfoDataSchema: GenMessage<McpClientInfoData> = /*@__PURE__*/
-  messageDesc(file_agentassist, 12);
+  messageDesc(file_agentassist, 14);
 
 /**
  * @generated from message agentassistproto.McpClientInfoRequest
@@ -554,7 +626,7 @@ export type McpClientInfoRequest = Message<"agentassistproto.McpClientInfoReques
  * Use `create(McpClientInfoRequestSchema)` to create a new message.
  */
 export const McpClientInfoRequestSchema: GenMessage<McpClientInfoRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 13);
+  messageDesc(file_agentassist, 15);
 
 /**
  * @generated from message agentassistproto.McpClientInfoResponse
@@ -571,7 +643,7 @@ export type McpClientInfoResponse = Message<"agentassistproto.McpClientInfoRespo
  * Use `create(McpClientInfoResponseSchema)` to create a new message.
  */
 export const McpClientInfoResponseSchema: GenMessage<McpClientInfoResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 14);
+  messageDesc(file_agentassist, 16);
 
 /**
  * @generated from message agentassistproto.CheckMessageValidityRequest
@@ -590,7 +662,7 @@ export type CheckMessageValidityRequest = Message<"agentassistproto.CheckMessage
  * Use `create(CheckMessageValidityRequestSchema)` to create a new message.
  */
 export const CheckMessageValidityRequestSchema: GenMessage<CheckMessageValidityRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 15);
+  messageDesc(file_agentassist, 17);
 
 /**
  * @generated from message agentassistproto.CheckMessageValidityResponse
@@ -609,10 +681,11 @@ export type CheckMessageValidityResponse = Message<"agentassistproto.CheckMessag
  * Use `create(CheckMessageValidityResponseSchema)` to create a new message.
  */
 export const CheckMessageValidityResponseSchema: GenMessage<CheckMessageValidityResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 16);
+  messageDesc(file_agentassist, 18);
 
 /**
- * GetPendingMessagesRequest represents a request to get all pending messages for a user
+ * GetPendingMessagesRequest represents a request to get all pending messages
+ * for a user
  *
  * @generated from message agentassistproto.GetPendingMessagesRequest
  */
@@ -630,7 +703,7 @@ export type GetPendingMessagesRequest = Message<"agentassistproto.GetPendingMess
  * Use `create(GetPendingMessagesRequestSchema)` to create a new message.
  */
 export const GetPendingMessagesRequestSchema: GenMessage<GetPendingMessagesRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 17);
+  messageDesc(file_agentassist, 19);
 
 /**
  * PendingMessage represents a single pending message
@@ -679,10 +752,11 @@ export type PendingMessage = Message<"agentassistproto.PendingMessage"> & {
  * Use `create(PendingMessageSchema)` to create a new message.
  */
 export const PendingMessageSchema: GenMessage<PendingMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 18);
+  messageDesc(file_agentassist, 20);
 
 /**
- * GetPendingMessagesResponse represents the response containing all pending messages
+ * GetPendingMessagesResponse represents the response containing all pending
+ * messages
  *
  * @generated from message agentassistproto.GetPendingMessagesResponse
  */
@@ -707,10 +781,11 @@ export type GetPendingMessagesResponse = Message<"agentassistproto.GetPendingMes
  * Use `create(GetPendingMessagesResponseSchema)` to create a new message.
  */
 export const GetPendingMessagesResponseSchema: GenMessage<GetPendingMessagesResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 19);
+  messageDesc(file_agentassist, 21);
 
 /**
- * RequestCancelledNotification represents a notification that a request has been cancelled
+ * RequestCancelledNotification represents a notification that a request has
+ * been cancelled
  *
  * @generated from message agentassistproto.RequestCancelledNotification
  */
@@ -742,7 +817,7 @@ export type RequestCancelledNotification = Message<"agentassistproto.RequestCanc
  * Use `create(RequestCancelledNotificationSchema)` to create a new message.
  */
 export const RequestCancelledNotificationSchema: GenMessage<RequestCancelledNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 20);
+  messageDesc(file_agentassist, 22);
 
 /**
  * OnlineUser represents an online user with the same token
@@ -777,10 +852,11 @@ export type OnlineUser = Message<"agentassistproto.OnlineUser"> & {
  * Use `create(OnlineUserSchema)` to create a new message.
  */
 export const OnlineUserSchema: GenMessage<OnlineUser> = /*@__PURE__*/
-  messageDesc(file_agentassist, 21);
+  messageDesc(file_agentassist, 23);
 
 /**
- * GetOnlineUsersRequest represents a request to get online users with the same token
+ * GetOnlineUsersRequest represents a request to get online users with the same
+ * token
  *
  * @generated from message agentassistproto.GetOnlineUsersRequest
  */
@@ -798,7 +874,7 @@ export type GetOnlineUsersRequest = Message<"agentassistproto.GetOnlineUsersRequ
  * Use `create(GetOnlineUsersRequestSchema)` to create a new message.
  */
 export const GetOnlineUsersRequestSchema: GenMessage<GetOnlineUsersRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 22);
+  messageDesc(file_agentassist, 24);
 
 /**
  * GetOnlineUsersResponse represents the response containing online users
@@ -826,7 +902,7 @@ export type GetOnlineUsersResponse = Message<"agentassistproto.GetOnlineUsersRes
  * Use `create(GetOnlineUsersResponseSchema)` to create a new message.
  */
 export const GetOnlineUsersResponseSchema: GenMessage<GetOnlineUsersResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 23);
+  messageDesc(file_agentassist, 25);
 
 /**
  * ChatMessage represents a chat message between users
@@ -889,7 +965,7 @@ export type ChatMessage = Message<"agentassistproto.ChatMessage"> & {
  * Use `create(ChatMessageSchema)` to create a new message.
  */
 export const ChatMessageSchema: GenMessage<ChatMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 24);
+  messageDesc(file_agentassist, 26);
 
 /**
  * SendChatMessageRequest represents a request to send a chat message
@@ -917,7 +993,7 @@ export type SendChatMessageRequest = Message<"agentassistproto.SendChatMessageRe
  * Use `create(SendChatMessageRequestSchema)` to create a new message.
  */
 export const SendChatMessageRequestSchema: GenMessage<SendChatMessageRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 25);
+  messageDesc(file_agentassist, 27);
 
 /**
  * ChatMessageNotification represents a notification of a new chat message
@@ -938,7 +1014,7 @@ export type ChatMessageNotification = Message<"agentassistproto.ChatMessageNotif
  * Use `create(ChatMessageNotificationSchema)` to create a new message.
  */
 export const ChatMessageNotificationSchema: GenMessage<ChatMessageNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 26);
+  messageDesc(file_agentassist, 28);
 
 /**
  * UserLoginResponse represents the response to a user login
@@ -973,10 +1049,11 @@ export type UserLoginResponse = Message<"agentassistproto.UserLoginResponse"> & 
  * Use `create(UserLoginResponseSchema)` to create a new message.
  */
 export const UserLoginResponseSchema: GenMessage<UserLoginResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 27);
+  messageDesc(file_agentassist, 29);
 
 /**
- * UserConnectionStatusNotification represents a notification when a user connects or disconnects
+ * UserConnectionStatusNotification represents a notification when a user
+ * connects or disconnects
  *
  * @generated from message agentassistproto.UserConnectionStatusNotification
  */
@@ -1008,7 +1085,7 @@ export type UserConnectionStatusNotification = Message<"agentassistproto.UserCon
  * Use `create(UserConnectionStatusNotificationSchema)` to create a new message.
  */
 export const UserConnectionStatusNotificationSchema: GenMessage<UserConnectionStatusNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 28);
+  messageDesc(file_agentassist, 30);
 
 /**
  * @generated from message agentassistproto.WebsocketMessage
@@ -1159,7 +1236,7 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
  * Use `create(WebsocketMessageSchema)` to create a new message.
  */
 export const WebsocketMessageSchema: GenMessage<WebsocketMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 29);
+  messageDesc(file_agentassist, 31);
 
 /**
  * @generated from service agentassistproto.SrvAgentAssist

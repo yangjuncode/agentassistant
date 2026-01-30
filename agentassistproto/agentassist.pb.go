@@ -272,10 +272,11 @@ func (x *EmbeddedResource) GetData() []byte {
 type McpResultContent struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// content type
-	// 1: text
-	// 2: image
-	// 3: audio
-	// 4: embedded resource
+	//
+	//	1: text
+	//	2: image
+	//	3: audio
+	//	4: embedded resource
 	Type int32 `protobuf:"varint,1,opt,name=type,proto3" json:"type,omitempty"`
 	// text
 	Text *TextContent `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
@@ -390,15 +391,144 @@ func (*MsgEmpty) Descriptor() ([]byte, []int) {
 	return file_agentassist_proto_rawDescGZIP(), []int{5}
 }
 
+type Option struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Label         string                 `protobuf:"bytes,1,opt,name=label,proto3" json:"label,omitempty"`
+	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Option) Reset() {
+	*x = Option{}
+	mi := &file_agentassist_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Option) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Option) ProtoMessage() {}
+
+func (x *Option) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Option.ProtoReflect.Descriptor instead.
+func (*Option) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *Option) GetLabel() string {
+	if x != nil {
+		return x.Label
+	}
+	return ""
+}
+
+func (x *Option) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+type Question struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Question      string                 `protobuf:"bytes,1,opt,name=question,proto3" json:"question,omitempty"`  // Complete question
+	Header        string                 `protobuf:"bytes,2,opt,name=header,proto3" json:"header,omitempty"`      // Very short label
+	Options       []*Option              `protobuf:"bytes,3,rep,name=options,proto3" json:"options,omitempty"`    // Available choices
+	Multiple      bool                   `protobuf:"varint,4,opt,name=multiple,proto3" json:"multiple,omitempty"` // Allow selecting multiple choices
+	Custom        bool                   `protobuf:"varint,5,opt,name=custom,proto3" json:"custom,omitempty"`     // Allow typing a custom answer
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Question) Reset() {
+	*x = Question{}
+	mi := &file_agentassist_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Question) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Question) ProtoMessage() {}
+
+func (x *Question) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Question.ProtoReflect.Descriptor instead.
+func (*Question) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *Question) GetQuestion() string {
+	if x != nil {
+		return x.Question
+	}
+	return ""
+}
+
+func (x *Question) GetHeader() string {
+	if x != nil {
+		return x.Header
+	}
+	return ""
+}
+
+func (x *Question) GetOptions() []*Option {
+	if x != nil {
+		return x.Options
+	}
+	return nil
+}
+
+func (x *Question) GetMultiple() bool {
+	if x != nil {
+		return x.Multiple
+	}
+	return false
+}
+
+func (x *Question) GetCustom() bool {
+	if x != nil {
+		return x.Custom
+	}
+	return false
+}
+
 type McpAskQuestionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// current project directory
 	ProjectDirectory string `protobuf:"bytes,1,opt,name=ProjectDirectory,proto3" json:"ProjectDirectory,omitempty"`
-	// ai agent's question
-	Question string `protobuf:"bytes,2,opt,name=Question,proto3" json:"Question,omitempty"`
+	// ai agent's questions
+	Questions []*Question `protobuf:"bytes,2,rep,name=Questions,proto3" json:"Questions,omitempty"`
 	// timeout in seconds, default is 600s
 	Timeout int32 `protobuf:"varint,3,opt,name=Timeout,proto3" json:"Timeout,omitempty"`
-	// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+	// the AI agent/client name that is calling this tool (e.g., Antigravity,
+	// Cascade)
 	AgentName string `protobuf:"bytes,4,opt,name=AgentName,proto3" json:"AgentName,omitempty"`
 	// the actual LLM/inference model name being used (e.g., GPT-4, Gemini 3 Pro)
 	ReasoningModelName string `protobuf:"bytes,5,opt,name=ReasoningModelName,proto3" json:"ReasoningModelName,omitempty"`
@@ -410,7 +540,7 @@ type McpAskQuestionRequest struct {
 
 func (x *McpAskQuestionRequest) Reset() {
 	*x = McpAskQuestionRequest{}
-	mi := &file_agentassist_proto_msgTypes[6]
+	mi := &file_agentassist_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -422,7 +552,7 @@ func (x *McpAskQuestionRequest) String() string {
 func (*McpAskQuestionRequest) ProtoMessage() {}
 
 func (x *McpAskQuestionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[6]
+	mi := &file_agentassist_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -435,7 +565,7 @@ func (x *McpAskQuestionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use McpAskQuestionRequest.ProtoReflect.Descriptor instead.
 func (*McpAskQuestionRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{6}
+	return file_agentassist_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *McpAskQuestionRequest) GetProjectDirectory() string {
@@ -445,11 +575,11 @@ func (x *McpAskQuestionRequest) GetProjectDirectory() string {
 	return ""
 }
 
-func (x *McpAskQuestionRequest) GetQuestion() string {
+func (x *McpAskQuestionRequest) GetQuestions() []*Question {
 	if x != nil {
-		return x.Question
+		return x.Questions
 	}
-	return ""
+	return nil
 }
 
 func (x *McpAskQuestionRequest) GetTimeout() int32 {
@@ -496,7 +626,7 @@ type AskQuestionRequest struct {
 
 func (x *AskQuestionRequest) Reset() {
 	*x = AskQuestionRequest{}
-	mi := &file_agentassist_proto_msgTypes[7]
+	mi := &file_agentassist_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -508,7 +638,7 @@ func (x *AskQuestionRequest) String() string {
 func (*AskQuestionRequest) ProtoMessage() {}
 
 func (x *AskQuestionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[7]
+	mi := &file_agentassist_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -521,7 +651,7 @@ func (x *AskQuestionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskQuestionRequest.ProtoReflect.Descriptor instead.
 func (*AskQuestionRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{7}
+	return file_agentassist_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AskQuestionRequest) GetID() string {
@@ -565,7 +695,7 @@ type AskQuestionResponse struct {
 
 func (x *AskQuestionResponse) Reset() {
 	*x = AskQuestionResponse{}
-	mi := &file_agentassist_proto_msgTypes[8]
+	mi := &file_agentassist_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -577,7 +707,7 @@ func (x *AskQuestionResponse) String() string {
 func (*AskQuestionResponse) ProtoMessage() {}
 
 func (x *AskQuestionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[8]
+	mi := &file_agentassist_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -590,7 +720,7 @@ func (x *AskQuestionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AskQuestionResponse.ProtoReflect.Descriptor instead.
 func (*AskQuestionResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{8}
+	return file_agentassist_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *AskQuestionResponse) GetID() string {
@@ -629,9 +759,11 @@ type McpWorkReportRequest struct {
 	Summary string `protobuf:"bytes,2,opt,name=Summary,proto3" json:"Summary,omitempty"`
 	// timeout in seconds, default is 600s
 	Timeout int32 `protobuf:"varint,3,opt,name=Timeout,proto3" json:"Timeout,omitempty"`
-	// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+	// the AI agent/client name that is calling this tool (e.g., Antigravity,
+	// Cascade)
 	AgentName string `protobuf:"bytes,4,opt,name=AgentName,proto3" json:"AgentName,omitempty"`
-	// the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
+	// the actual LLM/inference model name being used for this task (e.g., GPT-4,
+	// Gemini 3 Pro)
 	ReasoningModelName string `protobuf:"bytes,5,opt,name=ReasoningModelName,proto3" json:"ReasoningModelName,omitempty"`
 	// MCP client name from initialize.clientInfo.name (e.g., windsurf)
 	McpClientName string `protobuf:"bytes,6,opt,name=McpClientName,proto3" json:"McpClientName,omitempty"`
@@ -641,7 +773,7 @@ type McpWorkReportRequest struct {
 
 func (x *McpWorkReportRequest) Reset() {
 	*x = McpWorkReportRequest{}
-	mi := &file_agentassist_proto_msgTypes[9]
+	mi := &file_agentassist_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -653,7 +785,7 @@ func (x *McpWorkReportRequest) String() string {
 func (*McpWorkReportRequest) ProtoMessage() {}
 
 func (x *McpWorkReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[9]
+	mi := &file_agentassist_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -666,7 +798,7 @@ func (x *McpWorkReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use McpWorkReportRequest.ProtoReflect.Descriptor instead.
 func (*McpWorkReportRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{9}
+	return file_agentassist_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *McpWorkReportRequest) GetProjectDirectory() string {
@@ -727,7 +859,7 @@ type WorkReportRequest struct {
 
 func (x *WorkReportRequest) Reset() {
 	*x = WorkReportRequest{}
-	mi := &file_agentassist_proto_msgTypes[10]
+	mi := &file_agentassist_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -739,7 +871,7 @@ func (x *WorkReportRequest) String() string {
 func (*WorkReportRequest) ProtoMessage() {}
 
 func (x *WorkReportRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[10]
+	mi := &file_agentassist_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -752,7 +884,7 @@ func (x *WorkReportRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WorkReportRequest.ProtoReflect.Descriptor instead.
 func (*WorkReportRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{10}
+	return file_agentassist_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *WorkReportRequest) GetID() string {
@@ -796,7 +928,7 @@ type WorkReportResponse struct {
 
 func (x *WorkReportResponse) Reset() {
 	*x = WorkReportResponse{}
-	mi := &file_agentassist_proto_msgTypes[11]
+	mi := &file_agentassist_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -808,7 +940,7 @@ func (x *WorkReportResponse) String() string {
 func (*WorkReportResponse) ProtoMessage() {}
 
 func (x *WorkReportResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[11]
+	mi := &file_agentassist_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -821,7 +953,7 @@ func (x *WorkReportResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WorkReportResponse.ProtoReflect.Descriptor instead.
 func (*WorkReportResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{11}
+	return file_agentassist_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *WorkReportResponse) GetID() string {
@@ -868,7 +1000,7 @@ type McpClientInfoData struct {
 
 func (x *McpClientInfoData) Reset() {
 	*x = McpClientInfoData{}
-	mi := &file_agentassist_proto_msgTypes[12]
+	mi := &file_agentassist_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -880,7 +1012,7 @@ func (x *McpClientInfoData) String() string {
 func (*McpClientInfoData) ProtoMessage() {}
 
 func (x *McpClientInfoData) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[12]
+	mi := &file_agentassist_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -893,7 +1025,7 @@ func (x *McpClientInfoData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use McpClientInfoData.ProtoReflect.Descriptor instead.
 func (*McpClientInfoData) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{12}
+	return file_agentassist_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *McpClientInfoData) GetProtocolVersion() string {
@@ -940,7 +1072,7 @@ type McpClientInfoRequest struct {
 
 func (x *McpClientInfoRequest) Reset() {
 	*x = McpClientInfoRequest{}
-	mi := &file_agentassist_proto_msgTypes[13]
+	mi := &file_agentassist_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -952,7 +1084,7 @@ func (x *McpClientInfoRequest) String() string {
 func (*McpClientInfoRequest) ProtoMessage() {}
 
 func (x *McpClientInfoRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[13]
+	mi := &file_agentassist_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -965,7 +1097,7 @@ func (x *McpClientInfoRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use McpClientInfoRequest.ProtoReflect.Descriptor instead.
 func (*McpClientInfoRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{13}
+	return file_agentassist_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *McpClientInfoRequest) GetID() string {
@@ -1005,7 +1137,7 @@ type McpClientInfoResponse struct {
 
 func (x *McpClientInfoResponse) Reset() {
 	*x = McpClientInfoResponse{}
-	mi := &file_agentassist_proto_msgTypes[14]
+	mi := &file_agentassist_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1017,7 +1149,7 @@ func (x *McpClientInfoResponse) String() string {
 func (*McpClientInfoResponse) ProtoMessage() {}
 
 func (x *McpClientInfoResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[14]
+	mi := &file_agentassist_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1030,7 +1162,7 @@ func (x *McpClientInfoResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use McpClientInfoResponse.ProtoReflect.Descriptor instead.
 func (*McpClientInfoResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{14}
+	return file_agentassist_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *McpClientInfoResponse) GetSuccess() bool {
@@ -1050,7 +1182,7 @@ type CheckMessageValidityRequest struct {
 
 func (x *CheckMessageValidityRequest) Reset() {
 	*x = CheckMessageValidityRequest{}
-	mi := &file_agentassist_proto_msgTypes[15]
+	mi := &file_agentassist_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1062,7 +1194,7 @@ func (x *CheckMessageValidityRequest) String() string {
 func (*CheckMessageValidityRequest) ProtoMessage() {}
 
 func (x *CheckMessageValidityRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[15]
+	mi := &file_agentassist_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1075,7 +1207,7 @@ func (x *CheckMessageValidityRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckMessageValidityRequest.ProtoReflect.Descriptor instead.
 func (*CheckMessageValidityRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{15}
+	return file_agentassist_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CheckMessageValidityRequest) GetRequestIds() []string {
@@ -1095,7 +1227,7 @@ type CheckMessageValidityResponse struct {
 
 func (x *CheckMessageValidityResponse) Reset() {
 	*x = CheckMessageValidityResponse{}
-	mi := &file_agentassist_proto_msgTypes[16]
+	mi := &file_agentassist_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1107,7 +1239,7 @@ func (x *CheckMessageValidityResponse) String() string {
 func (*CheckMessageValidityResponse) ProtoMessage() {}
 
 func (x *CheckMessageValidityResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[16]
+	mi := &file_agentassist_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1120,7 +1252,7 @@ func (x *CheckMessageValidityResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CheckMessageValidityResponse.ProtoReflect.Descriptor instead.
 func (*CheckMessageValidityResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{16}
+	return file_agentassist_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *CheckMessageValidityResponse) GetValidity() map[string]bool {
@@ -1130,7 +1262,8 @@ func (x *CheckMessageValidityResponse) GetValidity() map[string]bool {
 	return nil
 }
 
-// GetPendingMessagesRequest represents a request to get all pending messages for a user
+// GetPendingMessagesRequest represents a request to get all pending messages
+// for a user
 type GetPendingMessagesRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// user token to filter messages
@@ -1141,7 +1274,7 @@ type GetPendingMessagesRequest struct {
 
 func (x *GetPendingMessagesRequest) Reset() {
 	*x = GetPendingMessagesRequest{}
-	mi := &file_agentassist_proto_msgTypes[17]
+	mi := &file_agentassist_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1153,7 +1286,7 @@ func (x *GetPendingMessagesRequest) String() string {
 func (*GetPendingMessagesRequest) ProtoMessage() {}
 
 func (x *GetPendingMessagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[17]
+	mi := &file_agentassist_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1166,7 +1299,7 @@ func (x *GetPendingMessagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPendingMessagesRequest.ProtoReflect.Descriptor instead.
 func (*GetPendingMessagesRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{17}
+	return file_agentassist_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetPendingMessagesRequest) GetUserToken() string {
@@ -1195,7 +1328,7 @@ type PendingMessage struct {
 
 func (x *PendingMessage) Reset() {
 	*x = PendingMessage{}
-	mi := &file_agentassist_proto_msgTypes[18]
+	mi := &file_agentassist_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1207,7 +1340,7 @@ func (x *PendingMessage) String() string {
 func (*PendingMessage) ProtoMessage() {}
 
 func (x *PendingMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[18]
+	mi := &file_agentassist_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1220,7 +1353,7 @@ func (x *PendingMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PendingMessage.ProtoReflect.Descriptor instead.
 func (*PendingMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{18}
+	return file_agentassist_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *PendingMessage) GetMessageType() string {
@@ -1258,7 +1391,8 @@ func (x *PendingMessage) GetTimeout() int32 {
 	return 0
 }
 
-// GetPendingMessagesResponse represents the response containing all pending messages
+// GetPendingMessagesResponse represents the response containing all pending
+// messages
 type GetPendingMessagesResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// list of pending messages
@@ -1271,7 +1405,7 @@ type GetPendingMessagesResponse struct {
 
 func (x *GetPendingMessagesResponse) Reset() {
 	*x = GetPendingMessagesResponse{}
-	mi := &file_agentassist_proto_msgTypes[19]
+	mi := &file_agentassist_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1283,7 +1417,7 @@ func (x *GetPendingMessagesResponse) String() string {
 func (*GetPendingMessagesResponse) ProtoMessage() {}
 
 func (x *GetPendingMessagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[19]
+	mi := &file_agentassist_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1296,7 +1430,7 @@ func (x *GetPendingMessagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetPendingMessagesResponse.ProtoReflect.Descriptor instead.
 func (*GetPendingMessagesResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{19}
+	return file_agentassist_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetPendingMessagesResponse) GetPendingMessages() []*PendingMessage {
@@ -1313,7 +1447,8 @@ func (x *GetPendingMessagesResponse) GetTotalCount() int32 {
 	return 0
 }
 
-// RequestCancelledNotification represents a notification that a request has been cancelled
+// RequestCancelledNotification represents a notification that a request has
+// been cancelled
 type RequestCancelledNotification struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// request id that was cancelled
@@ -1328,7 +1463,7 @@ type RequestCancelledNotification struct {
 
 func (x *RequestCancelledNotification) Reset() {
 	*x = RequestCancelledNotification{}
-	mi := &file_agentassist_proto_msgTypes[20]
+	mi := &file_agentassist_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1340,7 +1475,7 @@ func (x *RequestCancelledNotification) String() string {
 func (*RequestCancelledNotification) ProtoMessage() {}
 
 func (x *RequestCancelledNotification) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[20]
+	mi := &file_agentassist_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1353,7 +1488,7 @@ func (x *RequestCancelledNotification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestCancelledNotification.ProtoReflect.Descriptor instead.
 func (*RequestCancelledNotification) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{20}
+	return file_agentassist_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *RequestCancelledNotification) GetRequestId() string {
@@ -1392,7 +1527,7 @@ type OnlineUser struct {
 
 func (x *OnlineUser) Reset() {
 	*x = OnlineUser{}
-	mi := &file_agentassist_proto_msgTypes[21]
+	mi := &file_agentassist_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1404,7 +1539,7 @@ func (x *OnlineUser) String() string {
 func (*OnlineUser) ProtoMessage() {}
 
 func (x *OnlineUser) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[21]
+	mi := &file_agentassist_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1417,7 +1552,7 @@ func (x *OnlineUser) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OnlineUser.ProtoReflect.Descriptor instead.
 func (*OnlineUser) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{21}
+	return file_agentassist_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *OnlineUser) GetClientId() string {
@@ -1441,7 +1576,8 @@ func (x *OnlineUser) GetConnectedAt() int64 {
 	return 0
 }
 
-// GetOnlineUsersRequest represents a request to get online users with the same token
+// GetOnlineUsersRequest represents a request to get online users with the same
+// token
 type GetOnlineUsersRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// user token to filter users
@@ -1452,7 +1588,7 @@ type GetOnlineUsersRequest struct {
 
 func (x *GetOnlineUsersRequest) Reset() {
 	*x = GetOnlineUsersRequest{}
-	mi := &file_agentassist_proto_msgTypes[22]
+	mi := &file_agentassist_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1464,7 +1600,7 @@ func (x *GetOnlineUsersRequest) String() string {
 func (*GetOnlineUsersRequest) ProtoMessage() {}
 
 func (x *GetOnlineUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[22]
+	mi := &file_agentassist_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1477,7 +1613,7 @@ func (x *GetOnlineUsersRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineUsersRequest.ProtoReflect.Descriptor instead.
 func (*GetOnlineUsersRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{22}
+	return file_agentassist_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetOnlineUsersRequest) GetUserToken() string {
@@ -1500,7 +1636,7 @@ type GetOnlineUsersResponse struct {
 
 func (x *GetOnlineUsersResponse) Reset() {
 	*x = GetOnlineUsersResponse{}
-	mi := &file_agentassist_proto_msgTypes[23]
+	mi := &file_agentassist_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1512,7 +1648,7 @@ func (x *GetOnlineUsersResponse) String() string {
 func (*GetOnlineUsersResponse) ProtoMessage() {}
 
 func (x *GetOnlineUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[23]
+	mi := &file_agentassist_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1525,7 +1661,7 @@ func (x *GetOnlineUsersResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOnlineUsersResponse.ProtoReflect.Descriptor instead.
 func (*GetOnlineUsersResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{23}
+	return file_agentassist_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetOnlineUsersResponse) GetOnlineUsers() []*OnlineUser {
@@ -1565,7 +1701,7 @@ type ChatMessage struct {
 
 func (x *ChatMessage) Reset() {
 	*x = ChatMessage{}
-	mi := &file_agentassist_proto_msgTypes[24]
+	mi := &file_agentassist_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1577,7 +1713,7 @@ func (x *ChatMessage) String() string {
 func (*ChatMessage) ProtoMessage() {}
 
 func (x *ChatMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[24]
+	mi := &file_agentassist_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1590,7 +1726,7 @@ func (x *ChatMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatMessage.ProtoReflect.Descriptor instead.
 func (*ChatMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{24}
+	return file_agentassist_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ChatMessage) GetMessageId() string {
@@ -1655,7 +1791,7 @@ type SendChatMessageRequest struct {
 
 func (x *SendChatMessageRequest) Reset() {
 	*x = SendChatMessageRequest{}
-	mi := &file_agentassist_proto_msgTypes[25]
+	mi := &file_agentassist_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1667,7 +1803,7 @@ func (x *SendChatMessageRequest) String() string {
 func (*SendChatMessageRequest) ProtoMessage() {}
 
 func (x *SendChatMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[25]
+	mi := &file_agentassist_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1680,7 +1816,7 @@ func (x *SendChatMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatMessageRequest.ProtoReflect.Descriptor instead.
 func (*SendChatMessageRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{25}
+	return file_agentassist_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *SendChatMessageRequest) GetReceiverClientId() string {
@@ -1708,7 +1844,7 @@ type ChatMessageNotification struct {
 
 func (x *ChatMessageNotification) Reset() {
 	*x = ChatMessageNotification{}
-	mi := &file_agentassist_proto_msgTypes[26]
+	mi := &file_agentassist_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1720,7 +1856,7 @@ func (x *ChatMessageNotification) String() string {
 func (*ChatMessageNotification) ProtoMessage() {}
 
 func (x *ChatMessageNotification) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[26]
+	mi := &file_agentassist_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1733,7 +1869,7 @@ func (x *ChatMessageNotification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatMessageNotification.ProtoReflect.Descriptor instead.
 func (*ChatMessageNotification) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{26}
+	return file_agentassist_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *ChatMessageNotification) GetChatMessage() *ChatMessage {
@@ -1758,7 +1894,7 @@ type UserLoginResponse struct {
 
 func (x *UserLoginResponse) Reset() {
 	*x = UserLoginResponse{}
-	mi := &file_agentassist_proto_msgTypes[27]
+	mi := &file_agentassist_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1770,7 +1906,7 @@ func (x *UserLoginResponse) String() string {
 func (*UserLoginResponse) ProtoMessage() {}
 
 func (x *UserLoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[27]
+	mi := &file_agentassist_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1783,7 +1919,7 @@ func (x *UserLoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserLoginResponse.ProtoReflect.Descriptor instead.
 func (*UserLoginResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{27}
+	return file_agentassist_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *UserLoginResponse) GetClientId() string {
@@ -1807,7 +1943,8 @@ func (x *UserLoginResponse) GetErrorMessage() string {
 	return ""
 }
 
-// UserConnectionStatusNotification represents a notification when a user connects or disconnects
+// UserConnectionStatusNotification represents a notification when a user
+// connects or disconnects
 type UserConnectionStatusNotification struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// the user who connected/disconnected
@@ -1822,7 +1959,7 @@ type UserConnectionStatusNotification struct {
 
 func (x *UserConnectionStatusNotification) Reset() {
 	*x = UserConnectionStatusNotification{}
-	mi := &file_agentassist_proto_msgTypes[28]
+	mi := &file_agentassist_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1834,7 +1971,7 @@ func (x *UserConnectionStatusNotification) String() string {
 func (*UserConnectionStatusNotification) ProtoMessage() {}
 
 func (x *UserConnectionStatusNotification) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[28]
+	mi := &file_agentassist_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1847,7 +1984,7 @@ func (x *UserConnectionStatusNotification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserConnectionStatusNotification.ProtoReflect.Descriptor instead.
 func (*UserConnectionStatusNotification) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{28}
+	return file_agentassist_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *UserConnectionStatusNotification) GetUser() *OnlineUser {
@@ -1928,7 +2065,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_agentassist_proto_msgTypes[29]
+	mi := &file_agentassist_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1940,7 +2077,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[29]
+	mi := &file_agentassist_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1953,7 +2090,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{29}
+	return file_agentassist_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *WebsocketMessage) GetCmd() string {
@@ -2110,10 +2247,19 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x05audio\x18\x04 \x01(\v2\x1e.agentassistproto.AudioContentR\x05audio\x12O\n" +
 	"\x11embedded_resource\x18\x05 \x01(\v2\".agentassistproto.EmbeddedResourceR\x10embeddedResource\"\n" +
 	"\n" +
-	"\bMsgEmpty\"\xed\x01\n" +
+	"\bMsgEmpty\"@\n" +
+	"\x06Option\x12\x14\n" +
+	"\x05label\x18\x01 \x01(\tR\x05label\x12 \n" +
+	"\vdescription\x18\x02 \x01(\tR\vdescription\"\xa6\x01\n" +
+	"\bQuestion\x12\x1a\n" +
+	"\bquestion\x18\x01 \x01(\tR\bquestion\x12\x16\n" +
+	"\x06header\x18\x02 \x01(\tR\x06header\x122\n" +
+	"\aoptions\x18\x03 \x03(\v2\x18.agentassistproto.OptionR\aoptions\x12\x1a\n" +
+	"\bmultiple\x18\x04 \x01(\bR\bmultiple\x12\x16\n" +
+	"\x06custom\x18\x05 \x01(\bR\x06custom\"\x8b\x02\n" +
 	"\x15McpAskQuestionRequest\x12*\n" +
-	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x12\x1a\n" +
-	"\bQuestion\x18\x02 \x01(\tR\bQuestion\x12\x18\n" +
+	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x128\n" +
+	"\tQuestions\x18\x02 \x03(\v2\x1a.agentassistproto.QuestionR\tQuestions\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
 	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
 	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\x12$\n" +
@@ -2263,7 +2409,7 @@ func file_agentassist_proto_rawDescGZIP() []byte {
 	return file_agentassist_proto_rawDescData
 }
 
-var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 33)
+var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
 var file_agentassist_proto_goTypes = []any{
 	(*TextContent)(nil),                      // 0: agentassistproto.TextContent
 	(*ImageContent)(nil),                     // 1: agentassistproto.ImageContent
@@ -2271,79 +2417,83 @@ var file_agentassist_proto_goTypes = []any{
 	(*EmbeddedResource)(nil),                 // 3: agentassistproto.EmbeddedResource
 	(*McpResultContent)(nil),                 // 4: agentassistproto.McpResultContent
 	(*MsgEmpty)(nil),                         // 5: agentassistproto.MsgEmpty
-	(*McpAskQuestionRequest)(nil),            // 6: agentassistproto.McpAskQuestionRequest
-	(*AskQuestionRequest)(nil),               // 7: agentassistproto.AskQuestionRequest
-	(*AskQuestionResponse)(nil),              // 8: agentassistproto.AskQuestionResponse
-	(*McpWorkReportRequest)(nil),             // 9: agentassistproto.McpWorkReportRequest
-	(*WorkReportRequest)(nil),                // 10: agentassistproto.WorkReportRequest
-	(*WorkReportResponse)(nil),               // 11: agentassistproto.WorkReportResponse
-	(*McpClientInfoData)(nil),                // 12: agentassistproto.McpClientInfoData
-	(*McpClientInfoRequest)(nil),             // 13: agentassistproto.McpClientInfoRequest
-	(*McpClientInfoResponse)(nil),            // 14: agentassistproto.McpClientInfoResponse
-	(*CheckMessageValidityRequest)(nil),      // 15: agentassistproto.CheckMessageValidityRequest
-	(*CheckMessageValidityResponse)(nil),     // 16: agentassistproto.CheckMessageValidityResponse
-	(*GetPendingMessagesRequest)(nil),        // 17: agentassistproto.GetPendingMessagesRequest
-	(*PendingMessage)(nil),                   // 18: agentassistproto.PendingMessage
-	(*GetPendingMessagesResponse)(nil),       // 19: agentassistproto.GetPendingMessagesResponse
-	(*RequestCancelledNotification)(nil),     // 20: agentassistproto.RequestCancelledNotification
-	(*OnlineUser)(nil),                       // 21: agentassistproto.OnlineUser
-	(*GetOnlineUsersRequest)(nil),            // 22: agentassistproto.GetOnlineUsersRequest
-	(*GetOnlineUsersResponse)(nil),           // 23: agentassistproto.GetOnlineUsersResponse
-	(*ChatMessage)(nil),                      // 24: agentassistproto.ChatMessage
-	(*SendChatMessageRequest)(nil),           // 25: agentassistproto.SendChatMessageRequest
-	(*ChatMessageNotification)(nil),          // 26: agentassistproto.ChatMessageNotification
-	(*UserLoginResponse)(nil),                // 27: agentassistproto.UserLoginResponse
-	(*UserConnectionStatusNotification)(nil), // 28: agentassistproto.UserConnectionStatusNotification
-	(*WebsocketMessage)(nil),                 // 29: agentassistproto.WebsocketMessage
-	nil,                                      // 30: agentassistproto.AskQuestionResponse.MetaEntry
-	nil,                                      // 31: agentassistproto.WorkReportResponse.MetaEntry
-	nil,                                      // 32: agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	(*Option)(nil),                           // 6: agentassistproto.Option
+	(*Question)(nil),                         // 7: agentassistproto.Question
+	(*McpAskQuestionRequest)(nil),            // 8: agentassistproto.McpAskQuestionRequest
+	(*AskQuestionRequest)(nil),               // 9: agentassistproto.AskQuestionRequest
+	(*AskQuestionResponse)(nil),              // 10: agentassistproto.AskQuestionResponse
+	(*McpWorkReportRequest)(nil),             // 11: agentassistproto.McpWorkReportRequest
+	(*WorkReportRequest)(nil),                // 12: agentassistproto.WorkReportRequest
+	(*WorkReportResponse)(nil),               // 13: agentassistproto.WorkReportResponse
+	(*McpClientInfoData)(nil),                // 14: agentassistproto.McpClientInfoData
+	(*McpClientInfoRequest)(nil),             // 15: agentassistproto.McpClientInfoRequest
+	(*McpClientInfoResponse)(nil),            // 16: agentassistproto.McpClientInfoResponse
+	(*CheckMessageValidityRequest)(nil),      // 17: agentassistproto.CheckMessageValidityRequest
+	(*CheckMessageValidityResponse)(nil),     // 18: agentassistproto.CheckMessageValidityResponse
+	(*GetPendingMessagesRequest)(nil),        // 19: agentassistproto.GetPendingMessagesRequest
+	(*PendingMessage)(nil),                   // 20: agentassistproto.PendingMessage
+	(*GetPendingMessagesResponse)(nil),       // 21: agentassistproto.GetPendingMessagesResponse
+	(*RequestCancelledNotification)(nil),     // 22: agentassistproto.RequestCancelledNotification
+	(*OnlineUser)(nil),                       // 23: agentassistproto.OnlineUser
+	(*GetOnlineUsersRequest)(nil),            // 24: agentassistproto.GetOnlineUsersRequest
+	(*GetOnlineUsersResponse)(nil),           // 25: agentassistproto.GetOnlineUsersResponse
+	(*ChatMessage)(nil),                      // 26: agentassistproto.ChatMessage
+	(*SendChatMessageRequest)(nil),           // 27: agentassistproto.SendChatMessageRequest
+	(*ChatMessageNotification)(nil),          // 28: agentassistproto.ChatMessageNotification
+	(*UserLoginResponse)(nil),                // 29: agentassistproto.UserLoginResponse
+	(*UserConnectionStatusNotification)(nil), // 30: agentassistproto.UserConnectionStatusNotification
+	(*WebsocketMessage)(nil),                 // 31: agentassistproto.WebsocketMessage
+	nil,                                      // 32: agentassistproto.AskQuestionResponse.MetaEntry
+	nil,                                      // 33: agentassistproto.WorkReportResponse.MetaEntry
+	nil,                                      // 34: agentassistproto.CheckMessageValidityResponse.ValidityEntry
 }
 var file_agentassist_proto_depIdxs = []int32{
 	0,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
 	1,  // 1: agentassistproto.McpResultContent.image:type_name -> agentassistproto.ImageContent
 	2,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
 	3,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
-	6,  // 4: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
-	30, // 5: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
-	4,  // 6: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
-	9,  // 7: agentassistproto.WorkReportRequest.Request:type_name -> agentassistproto.McpWorkReportRequest
-	31, // 8: agentassistproto.WorkReportResponse.Meta:type_name -> agentassistproto.WorkReportResponse.MetaEntry
-	4,  // 9: agentassistproto.WorkReportResponse.contents:type_name -> agentassistproto.McpResultContent
-	12, // 10: agentassistproto.McpClientInfoRequest.Request:type_name -> agentassistproto.McpClientInfoData
-	32, // 11: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
-	7,  // 12: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
-	10, // 13: agentassistproto.PendingMessage.work_report_request:type_name -> agentassistproto.WorkReportRequest
-	18, // 14: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
-	21, // 15: agentassistproto.GetOnlineUsersResponse.online_users:type_name -> agentassistproto.OnlineUser
-	24, // 16: agentassistproto.ChatMessageNotification.chat_message:type_name -> agentassistproto.ChatMessage
-	21, // 17: agentassistproto.UserConnectionStatusNotification.user:type_name -> agentassistproto.OnlineUser
-	7,  // 18: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
-	10, // 19: agentassistproto.WebsocketMessage.WorkReportRequest:type_name -> agentassistproto.WorkReportRequest
-	8,  // 20: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
-	11, // 21: agentassistproto.WebsocketMessage.WorkReportResponse:type_name -> agentassistproto.WorkReportResponse
-	15, // 22: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
-	16, // 23: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
-	17, // 24: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
-	19, // 25: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
-	20, // 26: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
-	22, // 27: agentassistproto.WebsocketMessage.GetOnlineUsersRequest:type_name -> agentassistproto.GetOnlineUsersRequest
-	23, // 28: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
-	25, // 29: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
-	26, // 30: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
-	27, // 31: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
-	28, // 32: agentassistproto.WebsocketMessage.UserConnectionStatusNotification:type_name -> agentassistproto.UserConnectionStatusNotification
-	7,  // 33: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
-	10, // 34: agentassistproto.SrvAgentAssist.WorkReport:input_type -> agentassistproto.WorkReportRequest
-	13, // 35: agentassistproto.SrvAgentAssist.SendMcpClientInfo:input_type -> agentassistproto.McpClientInfoRequest
-	8,  // 36: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
-	11, // 37: agentassistproto.SrvAgentAssist.WorkReport:output_type -> agentassistproto.WorkReportResponse
-	14, // 38: agentassistproto.SrvAgentAssist.SendMcpClientInfo:output_type -> agentassistproto.McpClientInfoResponse
-	36, // [36:39] is the sub-list for method output_type
-	33, // [33:36] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	6,  // 4: agentassistproto.Question.options:type_name -> agentassistproto.Option
+	7,  // 5: agentassistproto.McpAskQuestionRequest.Questions:type_name -> agentassistproto.Question
+	8,  // 6: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
+	32, // 7: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
+	4,  // 8: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
+	11, // 9: agentassistproto.WorkReportRequest.Request:type_name -> agentassistproto.McpWorkReportRequest
+	33, // 10: agentassistproto.WorkReportResponse.Meta:type_name -> agentassistproto.WorkReportResponse.MetaEntry
+	4,  // 11: agentassistproto.WorkReportResponse.contents:type_name -> agentassistproto.McpResultContent
+	14, // 12: agentassistproto.McpClientInfoRequest.Request:type_name -> agentassistproto.McpClientInfoData
+	34, // 13: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	9,  // 14: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
+	12, // 15: agentassistproto.PendingMessage.work_report_request:type_name -> agentassistproto.WorkReportRequest
+	20, // 16: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
+	23, // 17: agentassistproto.GetOnlineUsersResponse.online_users:type_name -> agentassistproto.OnlineUser
+	26, // 18: agentassistproto.ChatMessageNotification.chat_message:type_name -> agentassistproto.ChatMessage
+	23, // 19: agentassistproto.UserConnectionStatusNotification.user:type_name -> agentassistproto.OnlineUser
+	9,  // 20: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
+	12, // 21: agentassistproto.WebsocketMessage.WorkReportRequest:type_name -> agentassistproto.WorkReportRequest
+	10, // 22: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
+	13, // 23: agentassistproto.WebsocketMessage.WorkReportResponse:type_name -> agentassistproto.WorkReportResponse
+	17, // 24: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
+	18, // 25: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
+	19, // 26: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
+	21, // 27: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
+	22, // 28: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
+	24, // 29: agentassistproto.WebsocketMessage.GetOnlineUsersRequest:type_name -> agentassistproto.GetOnlineUsersRequest
+	25, // 30: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
+	27, // 31: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
+	28, // 32: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
+	29, // 33: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
+	30, // 34: agentassistproto.WebsocketMessage.UserConnectionStatusNotification:type_name -> agentassistproto.UserConnectionStatusNotification
+	9,  // 35: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
+	12, // 36: agentassistproto.SrvAgentAssist.WorkReport:input_type -> agentassistproto.WorkReportRequest
+	15, // 37: agentassistproto.SrvAgentAssist.SendMcpClientInfo:input_type -> agentassistproto.McpClientInfoRequest
+	10, // 38: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
+	13, // 39: agentassistproto.SrvAgentAssist.WorkReport:output_type -> agentassistproto.WorkReportResponse
+	16, // 40: agentassistproto.SrvAgentAssist.SendMcpClientInfo:output_type -> agentassistproto.McpClientInfoResponse
+	38, // [38:41] is the sub-list for method output_type
+	35, // [35:38] is the sub-list for method input_type
+	35, // [35:35] is the sub-list for extension type_name
+	35, // [35:35] is the sub-list for extension extendee
+	0,  // [0:35] is the sub-list for field type_name
 }
 
 func init() { file_agentassist_proto_init() }
@@ -2357,7 +2507,7 @@ func file_agentassist_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agentassist_proto_rawDesc), len(file_agentassist_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   33,
+			NumMessages:   35,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

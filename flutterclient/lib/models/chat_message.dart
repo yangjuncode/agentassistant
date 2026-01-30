@@ -64,7 +64,7 @@ class ChatMessage {
       timestamp: request.timestamp > Int64(0)
           ? DateTime.fromMillisecondsSinceEpoch(request.timestamp.toInt())
           : DateTime.now(),
-      question: request.request.question,
+      question: request.request.questions.toString(),
       projectDirectory: request.request.projectDirectory,
       mcpClientName: request.request.mcpClientName.isNotEmpty
           ? request.request.mcpClientName

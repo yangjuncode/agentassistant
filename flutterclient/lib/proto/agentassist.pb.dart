@@ -490,10 +490,174 @@ class MsgEmpty extends $pb.GeneratedMessage {
   static MsgEmpty? _defaultInstance;
 }
 
+class Option extends $pb.GeneratedMessage {
+  factory Option({
+    $core.String? label,
+    $core.String? description,
+  }) {
+    final $result = create();
+    if (label != null) {
+      $result.label = label;
+    }
+    if (description != null) {
+      $result.description = description;
+    }
+    return $result;
+  }
+  Option._() : super();
+  factory Option.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Option.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Option', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'label')
+    ..aOS(2, _omitFieldNames ? '' : 'description')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Option clone() => Option()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Option copyWith(void Function(Option) updates) => super.copyWith((message) => updates(message as Option)) as Option;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Option create() => Option._();
+  Option createEmptyInstance() => create();
+  static $pb.PbList<Option> createRepeated() => $pb.PbList<Option>();
+  @$core.pragma('dart2js:noInline')
+  static Option getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Option>(create);
+  static Option? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get label => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set label($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasLabel() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearLabel() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get description => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set description($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasDescription() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearDescription() => clearField(2);
+}
+
+class Question extends $pb.GeneratedMessage {
+  factory Question({
+    $core.String? question,
+    $core.String? header,
+    $core.Iterable<Option>? options,
+    $core.bool? multiple,
+    $core.bool? custom,
+  }) {
+    final $result = create();
+    if (question != null) {
+      $result.question = question;
+    }
+    if (header != null) {
+      $result.header = header;
+    }
+    if (options != null) {
+      $result.options.addAll(options);
+    }
+    if (multiple != null) {
+      $result.multiple = multiple;
+    }
+    if (custom != null) {
+      $result.custom = custom;
+    }
+    return $result;
+  }
+  Question._() : super();
+  factory Question.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory Question.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'Question', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'question')
+    ..aOS(2, _omitFieldNames ? '' : 'header')
+    ..pc<Option>(3, _omitFieldNames ? '' : 'options', $pb.PbFieldType.PM, subBuilder: Option.create)
+    ..aOB(4, _omitFieldNames ? '' : 'multiple')
+    ..aOB(5, _omitFieldNames ? '' : 'custom')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  Question clone() => Question()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  Question copyWith(void Function(Question) updates) => super.copyWith((message) => updates(message as Question)) as Question;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Question create() => Question._();
+  Question createEmptyInstance() => create();
+  static $pb.PbList<Question> createRepeated() => $pb.PbList<Question>();
+  @$core.pragma('dart2js:noInline')
+  static Question getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Question>(create);
+  static Question? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get question => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set question($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasQuestion() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearQuestion() => clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.String get header => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set header($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasHeader() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearHeader() => clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.List<Option> get options => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.bool get multiple => $_getBF(3);
+  @$pb.TagNumber(4)
+  set multiple($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasMultiple() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearMultiple() => clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.bool get custom => $_getBF(4);
+  @$pb.TagNumber(5)
+  set custom($core.bool v) { $_setBool(4, v); }
+  @$pb.TagNumber(5)
+  $core.bool hasCustom() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearCustom() => clearField(5);
+}
+
 class McpAskQuestionRequest extends $pb.GeneratedMessage {
   factory McpAskQuestionRequest({
     $core.String? projectDirectory,
-    $core.String? question,
+    $core.Iterable<Question>? questions,
     $core.int? timeout,
     $core.String? agentName,
     $core.String? reasoningModelName,
@@ -503,8 +667,8 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     if (projectDirectory != null) {
       $result.projectDirectory = projectDirectory;
     }
-    if (question != null) {
-      $result.question = question;
+    if (questions != null) {
+      $result.questions.addAll(questions);
     }
     if (timeout != null) {
       $result.timeout = timeout;
@@ -526,7 +690,7 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'McpAskQuestionRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'ProjectDirectory', protoName: 'ProjectDirectory')
-    ..aOS(2, _omitFieldNames ? '' : 'Question', protoName: 'Question')
+    ..pc<Question>(2, _omitFieldNames ? '' : 'Questions', $pb.PbFieldType.PM, protoName: 'Questions', subBuilder: Question.create)
     ..a<$core.int>(3, _omitFieldNames ? '' : 'Timeout', $pb.PbFieldType.O3, protoName: 'Timeout')
     ..aOS(4, _omitFieldNames ? '' : 'AgentName', protoName: 'AgentName')
     ..aOS(5, _omitFieldNames ? '' : 'ReasoningModelName', protoName: 'ReasoningModelName')
@@ -565,15 +729,9 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearProjectDirectory() => clearField(1);
 
-  /// ai agent's question
+  /// ai agent's questions
   @$pb.TagNumber(2)
-  $core.String get question => $_getSZ(1);
-  @$pb.TagNumber(2)
-  set question($core.String v) { $_setString(1, v); }
-  @$pb.TagNumber(2)
-  $core.bool hasQuestion() => $_has(1);
-  @$pb.TagNumber(2)
-  void clearQuestion() => clearField(2);
+  $core.List<Question> get questions => $_getList(1);
 
   /// timeout in seconds, default is 600s
   @$pb.TagNumber(3)
@@ -585,7 +743,8 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearTimeout() => clearField(3);
 
-  /// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+  /// the AI agent/client name that is calling this tool (e.g., Antigravity,
+  /// Cascade)
   @$pb.TagNumber(4)
   $core.String get agentName => $_getSZ(3);
   @$pb.TagNumber(4)
@@ -890,7 +1049,8 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(3)
   void clearTimeout() => clearField(3);
 
-  /// the AI agent/client name that is calling this tool (e.g., Antigravity, Cascade)
+  /// the AI agent/client name that is calling this tool (e.g., Antigravity,
+  /// Cascade)
   @$pb.TagNumber(4)
   $core.String get agentName => $_getSZ(3);
   @$pb.TagNumber(4)
@@ -900,7 +1060,8 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   void clearAgentName() => clearField(4);
 
-  /// the actual LLM/inference model name being used for this task (e.g., GPT-4, Gemini 3 Pro)
+  /// the actual LLM/inference model name being used for this task (e.g., GPT-4,
+  /// Gemini 3 Pro)
   @$pb.TagNumber(5)
   $core.String get reasoningModelName => $_getSZ(4);
   @$pb.TagNumber(5)
@@ -1434,7 +1595,8 @@ class CheckMessageValidityResponse extends $pb.GeneratedMessage {
   $core.Map<$core.String, $core.bool> get validity => $_getMap(0);
 }
 
-/// GetPendingMessagesRequest represents a request to get all pending messages for a user
+/// GetPendingMessagesRequest represents a request to get all pending messages
+/// for a user
 class GetPendingMessagesRequest extends $pb.GeneratedMessage {
   factory GetPendingMessagesRequest({
     $core.String? userToken,
@@ -1602,7 +1764,8 @@ class PendingMessage extends $pb.GeneratedMessage {
   void clearTimeout() => clearField(5);
 }
 
-/// GetPendingMessagesResponse represents the response containing all pending messages
+/// GetPendingMessagesResponse represents the response containing all pending
+/// messages
 class GetPendingMessagesResponse extends $pb.GeneratedMessage {
   factory GetPendingMessagesResponse({
     $core.Iterable<PendingMessage>? pendingMessages,
@@ -1663,7 +1826,8 @@ class GetPendingMessagesResponse extends $pb.GeneratedMessage {
   void clearTotalCount() => clearField(2);
 }
 
-/// RequestCancelledNotification represents a notification that a request has been cancelled
+/// RequestCancelledNotification represents a notification that a request has
+/// been cancelled
 class RequestCancelledNotification extends $pb.GeneratedMessage {
   factory RequestCancelledNotification({
     $core.String? requestId,
@@ -1827,7 +1991,8 @@ class OnlineUser extends $pb.GeneratedMessage {
   void clearConnectedAt() => clearField(3);
 }
 
-/// GetOnlineUsersRequest represents a request to get online users with the same token
+/// GetOnlineUsersRequest represents a request to get online users with the same
+/// token
 class GetOnlineUsersRequest extends $pb.GeneratedMessage {
   factory GetOnlineUsersRequest({
     $core.String? userToken,
@@ -2285,7 +2450,8 @@ class UserLoginResponse extends $pb.GeneratedMessage {
   void clearErrorMessage() => clearField(3);
 }
 
-/// UserConnectionStatusNotification represents a notification when a user connects or disconnects
+/// UserConnectionStatusNotification represents a notification when a user
+/// connects or disconnects
 class UserConnectionStatusNotification extends $pb.GeneratedMessage {
   factory UserConnectionStatusNotification({
     OnlineUser? user,
