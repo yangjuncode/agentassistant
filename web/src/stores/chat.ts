@@ -7,7 +7,9 @@ import type {
   AskQuestionResponse,
   WorkReportResponse,
   OnlineUser,
-  ChatMessage as ProtoChatMessage
+  ChatMessage as ProtoChatMessage,
+  Question,
+  Option
 } from '../proto/agentassist_pb';
 import {
   AskQuestionResponseSchema,
@@ -168,13 +170,30 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  function formatQuestionsToMarkdown(questions: Question[]): string {
+    return questions.map(q => {
+      let md = '';
+      if (q.header) {
+        md += `### ${q.header}\n\n`;
+      }
+      if (q.question) {
+        md += `${q.question}\n\n`;
+      }
+      if (q.options && q.options.length > 0) {
+        md += q.options.map((opt: Option) => `- **${opt.label}** ${opt.description ? '- ' + opt.description : ''}`).join('\n');
+        md += '\n';
+      }
+      return md;
+    }).join('\n---\n\n');
+  }
+
   function handleAskQuestion(request: AskQuestionRequest) {
     const chatMessage: ChatMessage = {
       id: request.ID,
       type: 'question',
       timestamp: request.Timestamp > 0n ? new Date(Number(request.Timestamp)) : new Date(),
       content: (request.Request?.Questions && request.Request.Questions.length > 0)
-        ? JSON.stringify(request.Request.Questions)
+        ? formatQuestionsToMarkdown(request.Request.Questions)
         : (request.Request?.Question || ''),
       projectDirectory: request.Request?.ProjectDirectory,
       isFromAgent: true,

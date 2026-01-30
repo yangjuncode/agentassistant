@@ -65,7 +65,7 @@ class ChatMessage {
           ? DateTime.fromMillisecondsSinceEpoch(request.timestamp.toInt())
           : DateTime.now(),
       question: request.request.questions.isNotEmpty
-          ? request.request.questions.toString()
+          ? _formatQuestionsToMarkdown(request.request.questions)
           : request.request.question,
       projectDirectory: request.request.projectDirectory,
       mcpClientName: request.request.mcpClientName.isNotEmpty
@@ -78,6 +78,29 @@ class ChatMessage {
           ? request.request.reasoningModelName
           : null,
     );
+  }
+
+  static String _formatQuestionsToMarkdown(List<Question> questions) {
+    return questions.map((q) {
+      final buffer = StringBuffer();
+      if (q.header.isNotEmpty) {
+        buffer.writeln('### ${q.header}\n');
+      }
+      if (q.question.isNotEmpty) {
+        buffer.writeln('${q.question}\n');
+      }
+      if (q.options.isNotEmpty) {
+        for (final opt in q.options) {
+          buffer.write('- **${opt.label}**');
+          if (opt.description.isNotEmpty) {
+            buffer.write(' - ${opt.description}');
+          }
+          buffer.writeln();
+        }
+        buffer.writeln();
+      }
+      return buffer.toString();
+    }).join('\n---\n\n');
   }
 
   /// Create from WorkReportRequest
