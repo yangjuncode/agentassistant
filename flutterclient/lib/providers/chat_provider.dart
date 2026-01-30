@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 import 'package:fixnum/fixnum.dart';
@@ -26,7 +27,7 @@ enum DesktopMcpAttentionMode {
 }
 
 /// Chat provider for managing chat state and WebSocket communication
-class ChatProvider extends ChangeNotifier {
+class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   static final Logger _logger = Logger(level: Level.nothing);
 
   final ServerStorageService _serverStorageService = ServerStorageService();
@@ -176,6 +177,7 @@ class ChatProvider extends ChangeNotifier {
   }
 
   ChatProvider() {
+    WidgetsBinding.instance.addObserver(this);
     Future.microtask(() async {
       await _loadNickname(); // Load nickname first
       await _loadServerConfigs();
@@ -184,6 +186,39 @@ class ChatProvider extends ChangeNotifier {
       await _loadChatSettings();
     });
     // Defer loading settings to avoid calling notifyListeners during build.
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _logger.i('App resumed - checking connections');
+      _checkAndRestoreConnections();
+    }
+  }
+
+  Future<void> _checkAndRestoreConnections() async {
+    for (final config in _serverConfigs) {
+      if (!config.isEnabled) continue;
+
+      final service = _services[config.id];
+      if (service == null) {
+        // Should exist if enabled, but good to be safe
+        await _ensureConnected(config);
+      } else {
+        if (!service.isConnected) {
+          // If disconnected or connecting/reconnecting, force a fresh start
+          _logger.i('App resumed: Forcing reconnect for ${config.displayName}');
+          await service.forceReconnect();
+        } else {
+          // If we think we're connected, send a ping to verify
+          _logger.d('App resumed: Pinging ${config.displayName}');
+          service.sendGetPendingMessages().catchError((e) {
+            _logger.w('Ping failed on resume, reconnecting: $e');
+            service.forceReconnect();
+          });
+        }
+      }
+    }
   }
 
   Future<void> _loadDesktopMcpAttentionMode() async {
@@ -1672,6 +1707,7 @@ class ChatProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     for (final sub in _messageSubscriptions.values) {
       sub.cancel();
     }

@@ -62,8 +62,9 @@ class WebSocketService {
   String? get clientId => _clientId;
 
   /// Connect to WebSocket server
-  Future<void> connect(String url, String token, {String? nickname}) async {
-    if (_isConnecting) return;
+  Future<void> connect(String url, String token,
+      {String? nickname, bool force = false}) async {
+    if (_isConnecting && !force) return;
 
     // Clean up any existing connection before creating a new one
     _cleanup();
@@ -126,6 +127,18 @@ class WebSocketService {
       if (!_isManuallyDisconnected) {
         _scheduleReconnect();
       }
+    }
+  }
+
+  /// Force reconnection irrespective of current state
+  Future<void> forceReconnect() async {
+    _logger.i('Forcing reconnection...');
+    if (_url != null && _token != null) {
+      // Cancel any pending reconnect timer
+      _reconnectTimer?.cancel();
+      // Reset attempts so we don't have a long delay if this fails
+      _reconnectAttempts = 0;
+      await connect(_url!, _token!, nickname: _nickname, force: true);
     }
   }
 
@@ -408,7 +421,11 @@ class WebSocketService {
     _reconnectAttempts++;
     final backoffMs =
         AppConfig.reconnectDelayMs * pow(2, _reconnectAttempts - 1);
-    final delayMs = min(300000, backoffMs.toInt());
+    // Determine maximum delay based on platform or importance
+    // For mobile apps showing "connecting", we want faster retries when active
+    // But exponential backoff is good for background.
+    // Let's resetattempts on successful connect.
+    final delayMs = min(60000, backoffMs.toInt()); // Cap at 60s instead of 300s
     final delay = Duration(milliseconds: delayMs);
 
     _logger.i(
@@ -431,9 +448,15 @@ class WebSocketService {
     _heartbeatTimer = Timer.periodic(
       Duration(milliseconds: AppConfig.heartbeatIntervalMs),
       (_) {
-        if (_channel != null) {
+        if (_channel != null && isConnected) {
           // Send ping or keep-alive message if needed
-          //_logger.d('Heartbeat check');
+          _logger.d('Sending Heartbeat (GetPendingMessages)');
+          // Use GetPendingMessages as a safe heartbeat
+          sendGetPendingMessages().catchError((e) {
+            _logger.w('Heartbeat failed: $e');
+            // Optionally trigger reconnection if heartbeat fails consistently
+            // But usually the socket error handler will catch this soon.
+          });
         }
       },
     );
