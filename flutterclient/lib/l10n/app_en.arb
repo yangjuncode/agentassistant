@@ -111,6 +111,10 @@
   "slashCommandsOptionCommands": "Commands",
   "slashCommandsOptionSkills": "Skills",
   "slashCommandsOptionCommandsAndSkills": "Commands & Skills",
+  "slashCommandCompletionText": "/ Command Completion Text",
+  "slashSkillCompletionText": "/ Skill Completion Text",
+  "slashCompletionTextDesc": "Customize the input text when / command autocompletes. Available variables: %name%, %path%, %type%",
+  "resetToDefault": "Reset to Default",
 
   "desktop": "Desktop",
   "mcpMessageAttention": "MCP message attention",

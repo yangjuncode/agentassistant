@@ -29,6 +29,14 @@ class McpToolSuggestion {
 
 class McpToolIndexProvider extends ChangeNotifier {
   static const String _slashSuggestContentKey = 'mcp_slash_suggest_content';
+  static const String _slashCommandCompletionTextKey =
+      'mcp_slash_command_completion_text';
+  static const String _slashSkillCompletionTextKey =
+      'mcp_slash_skill_completion_text';
+  static const String defaultSlashCommandCompletionText =
+      'user wants to follow the instruction in command(%name%)[File: %path%] with /%name%: ';
+  static const String defaultSlashSkillCompletionText =
+      'user wants to follow the instruction in skill(%name%)[File: %path%] with /%name%: ';
   static const int defaultTtlHours = 8;
 
   final Map<String, _ToolCache> _caches = {};
@@ -36,6 +44,8 @@ class McpToolIndexProvider extends ChangeNotifier {
 
   int _ttlHours = defaultTtlHours;
   McpSlashSuggestContent _slashSuggestContent = McpSlashSuggestContent.command;
+  String _slashCommandCompletionText = defaultSlashCommandCompletionText;
+  String _slashSkillCompletionText = defaultSlashSkillCompletionText;
 
   McpToolIndexProvider() {
     _loadSettings();
@@ -51,6 +61,8 @@ class McpToolIndexProvider extends ChangeNotifier {
   }
 
   McpSlashSuggestContent get slashSuggestContent => _slashSuggestContent;
+  String get slashCommandCompletionText => _slashCommandCompletionText;
+  String get slashSkillCompletionText => _slashSkillCompletionText;
 
   Future<void> setSlashSuggestContent(McpSlashSuggestContent value) async {
     if (_slashSuggestContent == value) return;
@@ -60,6 +72,34 @@ class McpToolIndexProvider extends ChangeNotifier {
       await prefs.setInt(_slashSuggestContentKey, value.index);
     } catch (_) {}
     notifyListeners();
+  }
+
+  Future<void> setSlashCommandCompletionText(String value) async {
+    if (_slashCommandCompletionText == value) return;
+    _slashCommandCompletionText = value;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_slashCommandCompletionTextKey, value);
+    } catch (_) {}
+    notifyListeners();
+  }
+
+  Future<void> setSlashSkillCompletionText(String value) async {
+    if (_slashSkillCompletionText == value) return;
+    _slashSkillCompletionText = value;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_slashSkillCompletionTextKey, value);
+    } catch (_) {}
+    notifyListeners();
+  }
+
+  Future<void> resetSlashCommandCompletionText() async {
+    await setSlashCommandCompletionText(defaultSlashCommandCompletionText);
+  }
+
+  Future<void> resetSlashSkillCompletionText() async {
+    await setSlashSkillCompletionText(defaultSlashSkillCompletionText);
   }
 
   bool rootExists(String root) {
@@ -206,6 +246,14 @@ class McpToolIndexProvider extends ChangeNotifier {
           raw >= 0 &&
           raw < McpSlashSuggestContent.values.length) {
         _slashSuggestContent = McpSlashSuggestContent.values[raw];
+      }
+      final cmdText = prefs.getString(_slashCommandCompletionTextKey);
+      if (cmdText != null) {
+        _slashCommandCompletionText = cmdText;
+      }
+      final skillText = prefs.getString(_slashSkillCompletionTextKey);
+      if (skillText != null) {
+        _slashSkillCompletionText = skillText;
       }
     } catch (_) {}
     notifyListeners();

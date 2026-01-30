@@ -12,6 +12,7 @@ import '../models/server_config.dart';
 import '../config/app_config.dart';
 import '../services/window_service.dart';
 import '../widgets/settings/nickname_settings.dart';
+import '../widgets/settings/slash_command_completion_settings.dart';
 import '../widgets/server_status_icon.dart';
 import '../widgets/settings/language_settings.dart';
 import 'login_screen.dart';
@@ -418,10 +419,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 .defaultIgnoredDirs.length;
                         i++) ...[
                       SwitchListTile(
-                        secondary: const Icon(Icons.folder_off),
-                        title: Text(l10n.ignoredDirectory(
-                            ProjectDirectoryIndexProvider
-                                .defaultIgnoredDirs[i])),
+                        dense: true,
+                        visualDensity: VisualDensity.compact,
+                        secondary: const Icon(Icons.folder_off, size: 20),
+                        title: Text(
+                          l10n.ignoredDirectory(ProjectDirectoryIndexProvider
+                              .defaultIgnoredDirs[i]),
+                          style: const TextStyle(fontSize: 13),
+                        ),
                         value: pathIndexProvider.ignoredDirs.contains(
                             ProjectDirectoryIndexProvider
                                 .defaultIgnoredDirs[i]),
@@ -474,6 +479,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ],
                       ),
                     ),
+                    const Divider(height: 1),
+                    const SlashCommandCompletionSettings(),
                   ],
                 ),
               ),

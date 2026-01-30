@@ -72,6 +72,10 @@
   "slashCommandsOptionCommands": "命令",
   "slashCommandsOptionSkills": "技能",
   "slashCommandsOptionCommandsAndSkills": "命令+技能",
+  "slashCommandCompletionText": "/ 命令 (Command) 补全文本",
+  "slashSkillCompletionText": "/ 技能 (Skill) 补全文本",
+  "slashCompletionTextDesc": "定制 / 命令自动补全时的输入文本。可用变量: %name%, %path%, %type%",
+  "resetToDefault": "恢复默认",
 
   "webSocketUrlHint": "ws://host:port/ws",
   "chatAutoSendInterval": "聊天自动发送间隔",

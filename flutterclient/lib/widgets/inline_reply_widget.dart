@@ -437,16 +437,16 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     final tool = suggestion.toolSuggestion;
     if (tool == null) return;
 
-    final name = tool.name;
-    final filePath = tool.filePath;
-    late final String insert;
-    if (tool.type == McpToolSuggestionType.skill) {
-      insert =
-          'user wants to follow the instruction in skill[$name] file: @$filePath with /$name : ';
-    } else {
-      insert =
-          'user wants to follow the instruction in command[$name] file: @$filePath with /$name : ';
-    }
+    final toolProvider = context.read<McpToolIndexProvider>();
+    final isSkill = tool.type == McpToolSuggestionType.skill;
+    final template = isSkill
+        ? toolProvider.slashSkillCompletionText
+        : toolProvider.slashCommandCompletionText;
+    final type = isSkill ? 'skill' : 'command';
+    final insert = template
+        .replaceAll('%name%', tool.name)
+        .replaceAll('%path%', tool.filePath)
+        .replaceAll('%type%', type);
 
     final newText = value.text.replaceRange(safeToken, safeCursor, insert);
     _suppressNextSuggestUpdate = true;
