@@ -71,8 +71,8 @@ message Question {
 message McpAskQuestionRequest {
   // current project directory
   string ProjectDirectory = 1;
-  // ai agent's questions
-  repeated Question Questions = 2;
+  // ai agent's question
+  string Question = 2 [ deprecated = true ];
   // timeout in seconds, default is 600s
   int32 Timeout = 3;
   // the AI agent/client name that is calling this tool (e.g., Antigravity,
@@ -82,6 +82,8 @@ message McpAskQuestionRequest {
   string ReasoningModelName = 5;
   // MCP client name from initialize.clientInfo.name (e.g., windsurf)
   string McpClientName = 6;
+  // ai agent's questions
+  repeated Question Questions = 7;
 }
 
 message AskQuestionRequest {

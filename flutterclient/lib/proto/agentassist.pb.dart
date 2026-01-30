@@ -657,18 +657,21 @@ class Question extends $pb.GeneratedMessage {
 class McpAskQuestionRequest extends $pb.GeneratedMessage {
   factory McpAskQuestionRequest({
     $core.String? projectDirectory,
-    $core.Iterable<Question>? questions,
+  @$core.Deprecated('This field is deprecated.')
+    $core.String? question,
     $core.int? timeout,
     $core.String? agentName,
     $core.String? reasoningModelName,
     $core.String? mcpClientName,
+    $core.Iterable<Question>? questions,
   }) {
     final $result = create();
     if (projectDirectory != null) {
       $result.projectDirectory = projectDirectory;
     }
-    if (questions != null) {
-      $result.questions.addAll(questions);
+    if (question != null) {
+      // ignore: deprecated_member_use_from_same_package
+      $result.question = question;
     }
     if (timeout != null) {
       $result.timeout = timeout;
@@ -682,6 +685,9 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
     if (mcpClientName != null) {
       $result.mcpClientName = mcpClientName;
     }
+    if (questions != null) {
+      $result.questions.addAll(questions);
+    }
     return $result;
   }
   McpAskQuestionRequest._() : super();
@@ -690,11 +696,12 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'McpAskQuestionRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'ProjectDirectory', protoName: 'ProjectDirectory')
-    ..pc<Question>(2, _omitFieldNames ? '' : 'Questions', $pb.PbFieldType.PM, protoName: 'Questions', subBuilder: Question.create)
+    ..aOS(2, _omitFieldNames ? '' : 'Question', protoName: 'Question')
     ..a<$core.int>(3, _omitFieldNames ? '' : 'Timeout', $pb.PbFieldType.O3, protoName: 'Timeout')
     ..aOS(4, _omitFieldNames ? '' : 'AgentName', protoName: 'AgentName')
     ..aOS(5, _omitFieldNames ? '' : 'ReasoningModelName', protoName: 'ReasoningModelName')
     ..aOS(6, _omitFieldNames ? '' : 'McpClientName', protoName: 'McpClientName')
+    ..pc<Question>(7, _omitFieldNames ? '' : 'Questions', $pb.PbFieldType.PM, protoName: 'Questions', subBuilder: Question.create)
     ..hasRequiredFields = false
   ;
 
@@ -729,9 +736,19 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(1)
   void clearProjectDirectory() => clearField(1);
 
-  /// ai agent's questions
+  /// ai agent's question
+  @$core.Deprecated('This field is deprecated.')
   @$pb.TagNumber(2)
-  $core.List<Question> get questions => $_getList(1);
+  $core.String get question => $_getSZ(1);
+  @$core.Deprecated('This field is deprecated.')
+  @$pb.TagNumber(2)
+  set question($core.String v) { $_setString(1, v); }
+  @$core.Deprecated('This field is deprecated.')
+  @$pb.TagNumber(2)
+  $core.bool hasQuestion() => $_has(1);
+  @$core.Deprecated('This field is deprecated.')
+  @$pb.TagNumber(2)
+  void clearQuestion() => clearField(2);
 
   /// timeout in seconds, default is 600s
   @$pb.TagNumber(3)
@@ -773,6 +790,10 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
   $core.bool hasMcpClientName() => $_has(5);
   @$pb.TagNumber(6)
   void clearMcpClientName() => clearField(6);
+
+  /// ai agent's questions
+  @$pb.TagNumber(7)
+  $core.List<Question> get questions => $_getList(6);
 }
 
 class AskQuestionRequest extends $pb.GeneratedMessage {

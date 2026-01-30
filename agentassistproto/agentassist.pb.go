@@ -523,8 +523,10 @@ type McpAskQuestionRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// current project directory
 	ProjectDirectory string `protobuf:"bytes,1,opt,name=ProjectDirectory,proto3" json:"ProjectDirectory,omitempty"`
-	// ai agent's questions
-	Questions []*Question `protobuf:"bytes,2,rep,name=Questions,proto3" json:"Questions,omitempty"`
+	// ai agent's question
+	//
+	// Deprecated: Marked as deprecated in agentassist.proto.
+	Question string `protobuf:"bytes,2,opt,name=Question,proto3" json:"Question,omitempty"`
 	// timeout in seconds, default is 600s
 	Timeout int32 `protobuf:"varint,3,opt,name=Timeout,proto3" json:"Timeout,omitempty"`
 	// the AI agent/client name that is calling this tool (e.g., Antigravity,
@@ -534,6 +536,8 @@ type McpAskQuestionRequest struct {
 	ReasoningModelName string `protobuf:"bytes,5,opt,name=ReasoningModelName,proto3" json:"ReasoningModelName,omitempty"`
 	// MCP client name from initialize.clientInfo.name (e.g., windsurf)
 	McpClientName string `protobuf:"bytes,6,opt,name=McpClientName,proto3" json:"McpClientName,omitempty"`
+	// ai agent's questions
+	Questions     []*Question `protobuf:"bytes,7,rep,name=Questions,proto3" json:"Questions,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -575,11 +579,12 @@ func (x *McpAskQuestionRequest) GetProjectDirectory() string {
 	return ""
 }
 
-func (x *McpAskQuestionRequest) GetQuestions() []*Question {
+// Deprecated: Marked as deprecated in agentassist.proto.
+func (x *McpAskQuestionRequest) GetQuestion() string {
 	if x != nil {
-		return x.Questions
+		return x.Question
 	}
-	return nil
+	return ""
 }
 
 func (x *McpAskQuestionRequest) GetTimeout() int32 {
@@ -608,6 +613,13 @@ func (x *McpAskQuestionRequest) GetMcpClientName() string {
 		return x.McpClientName
 	}
 	return ""
+}
+
+func (x *McpAskQuestionRequest) GetQuestions() []*Question {
+	if x != nil {
+		return x.Questions
+	}
+	return nil
 }
 
 type AskQuestionRequest struct {
@@ -2256,14 +2268,15 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x06header\x18\x02 \x01(\tR\x06header\x122\n" +
 	"\aoptions\x18\x03 \x03(\v2\x18.agentassistproto.OptionR\aoptions\x12\x1a\n" +
 	"\bmultiple\x18\x04 \x01(\bR\bmultiple\x12\x16\n" +
-	"\x06custom\x18\x05 \x01(\bR\x06custom\"\x8b\x02\n" +
+	"\x06custom\x18\x05 \x01(\bR\x06custom\"\xab\x02\n" +
 	"\x15McpAskQuestionRequest\x12*\n" +
-	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x128\n" +
-	"\tQuestions\x18\x02 \x03(\v2\x1a.agentassistproto.QuestionR\tQuestions\x12\x18\n" +
+	"\x10ProjectDirectory\x18\x01 \x01(\tR\x10ProjectDirectory\x12\x1e\n" +
+	"\bQuestion\x18\x02 \x01(\tB\x02\x18\x01R\bQuestion\x12\x18\n" +
 	"\aTimeout\x18\x03 \x01(\x05R\aTimeout\x12\x1c\n" +
 	"\tAgentName\x18\x04 \x01(\tR\tAgentName\x12.\n" +
 	"\x12ReasoningModelName\x18\x05 \x01(\tR\x12ReasoningModelName\x12$\n" +
-	"\rMcpClientName\x18\x06 \x01(\tR\rMcpClientName\"\xa3\x01\n" +
+	"\rMcpClientName\x18\x06 \x01(\tR\rMcpClientName\x128\n" +
+	"\tQuestions\x18\a \x03(\v2\x1a.agentassistproto.QuestionR\tQuestions\"\xa3\x01\n" +
 	"\x12AskQuestionRequest\x12\x0e\n" +
 	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x1c\n" +
 	"\tUserToken\x18\x02 \x01(\tR\tUserToken\x12A\n" +

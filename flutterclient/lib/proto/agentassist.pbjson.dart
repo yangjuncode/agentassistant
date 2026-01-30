@@ -140,21 +140,30 @@ const McpAskQuestionRequest$json = {
   '1': 'McpAskQuestionRequest',
   '2': [
     {'1': 'ProjectDirectory', '3': 1, '4': 1, '5': 9, '10': 'ProjectDirectory'},
-    {'1': 'Questions', '3': 2, '4': 3, '5': 11, '6': '.agentassistproto.Question', '10': 'Questions'},
+    {
+      '1': 'Question',
+      '3': 2,
+      '4': 1,
+      '5': 9,
+      '8': {'3': true},
+      '10': 'Question',
+    },
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
     {'1': 'AgentName', '3': 4, '4': 1, '5': 9, '10': 'AgentName'},
     {'1': 'ReasoningModelName', '3': 5, '4': 1, '5': 9, '10': 'ReasoningModelName'},
     {'1': 'McpClientName', '3': 6, '4': 1, '5': 9, '10': 'McpClientName'},
+    {'1': 'Questions', '3': 7, '4': 3, '5': 11, '6': '.agentassistproto.Question', '10': 'Questions'},
   ],
 };
 
 /// Descriptor for `McpAskQuestionRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List mcpAskQuestionRequestDescriptor = $convert.base64Decode(
     'ChVNY3BBc2tRdWVzdGlvblJlcXVlc3QSKgoQUHJvamVjdERpcmVjdG9yeRgBIAEoCVIQUHJvam'
-    'VjdERpcmVjdG9yeRI4CglRdWVzdGlvbnMYAiADKAsyGi5hZ2VudGFzc2lzdHByb3RvLlF1ZXN0'
-    'aW9uUglRdWVzdGlvbnMSGAoHVGltZW91dBgDIAEoBVIHVGltZW91dBIcCglBZ2VudE5hbWUYBC'
-    'ABKAlSCUFnZW50TmFtZRIuChJSZWFzb25pbmdNb2RlbE5hbWUYBSABKAlSElJlYXNvbmluZ01v'
-    'ZGVsTmFtZRIkCg1NY3BDbGllbnROYW1lGAYgASgJUg1NY3BDbGllbnROYW1l');
+    'VjdERpcmVjdG9yeRIeCghRdWVzdGlvbhgCIAEoCUICGAFSCFF1ZXN0aW9uEhgKB1RpbWVvdXQY'
+    'AyABKAVSB1RpbWVvdXQSHAoJQWdlbnROYW1lGAQgASgJUglBZ2VudE5hbWUSLgoSUmVhc29uaW'
+    '5nTW9kZWxOYW1lGAUgASgJUhJSZWFzb25pbmdNb2RlbE5hbWUSJAoNTWNwQ2xpZW50TmFtZRgG'
+    'IAEoCVINTWNwQ2xpZW50TmFtZRI4CglRdWVzdGlvbnMYByADKAsyGi5hZ2VudGFzc2lzdHByb3'
+    'RvLlF1ZXN0aW9uUglRdWVzdGlvbnM=');
 
 @$core.Deprecated('Use askQuestionRequestDescriptor instead')
 const AskQuestionRequest$json = {

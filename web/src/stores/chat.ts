@@ -173,7 +173,9 @@ export const useChatStore = defineStore('chat', () => {
       id: request.ID,
       type: 'question',
       timestamp: request.Timestamp > 0n ? new Date(Number(request.Timestamp)) : new Date(),
-      content: request.Request?.Question || '',
+      content: (request.Request?.Questions && request.Request.Questions.length > 0)
+        ? JSON.stringify(request.Request.Questions)
+        : (request.Request?.Question || ''),
       projectDirectory: request.Request?.ProjectDirectory,
       isFromAgent: true,
       isAnswered: false,

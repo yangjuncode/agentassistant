@@ -410,11 +410,18 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	}
 
 	// Create RPC request
+	// For backward compatibility, we populate the Question field with the first question's text
+	legacyQuestion := ""
+	if len(input.Questions) > 0 {
+		legacyQuestion = input.Questions[0].Question
+	}
+
 	req := &agentassistproto.AskQuestionRequest{
 		ID:        generateRequestID(),
 		UserToken: config.AgentAssistantServerToken,
 		Request: &agentassistproto.McpAskQuestionRequest{
 			ProjectDirectory:   input.ProjectDirectory,
+			Question:           legacyQuestion,
 			Questions:          protoQuestions,
 			Timeout:            int32(input.Timeout),
 			AgentName:          input.AgentName,
