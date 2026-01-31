@@ -27,7 +27,7 @@
           </q-chip>
         </div>
 
-        <div class="text-body1 q-mb-sm">{{ message.content }}</div>
+        <MarkdownViewer :content="message.content" class="q-mb-sm" />
 
         <div class="text-caption text-grey-6">
           <div v-if="message.projectDirectory">
@@ -102,7 +102,7 @@
               {{ formatTime(message.repliedAt) }}
             </span>
           </div>
-          <div class="text-body1">{{ message.replyText }}</div>
+          <MarkdownViewer :content="message.replyText" />
         </div>
       </q-card-section>
     </q-card>
@@ -134,7 +134,7 @@
           </q-chip>
         </div>
 
-        <div class="text-body1 q-mb-sm">{{ message.content }}</div>
+        <MarkdownViewer :content="message.content" class="q-mb-sm" />
 
         <div class="text-caption text-grey-6">
           <div v-if="message.projectDirectory">
@@ -206,7 +206,7 @@
               {{ formatTime(message.repliedAt) }}
             </span>
           </div>
-          <div class="text-body1">{{ message.replyText }}</div>
+          <MarkdownViewer :content="message.replyText" />
         </div>
       </q-card-section>
     </q-card>
@@ -221,7 +221,7 @@
             <q-space />
             <span class="text-caption">{{ formatTime(message.timestamp) }}</span>
           </div>
-          <div class="text-body1">{{ message.content }}</div>
+          <MarkdownViewer :content="message.content" />
         </q-card-section>
       </q-card>
     </div>
@@ -244,6 +244,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { ChatMessage } from '../../stores/chat';
+import MarkdownViewer from './MarkdownViewer.vue';
 
 interface Props {
   message: ChatMessage;
