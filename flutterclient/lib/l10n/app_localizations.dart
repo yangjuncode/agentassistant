@@ -227,6 +227,18 @@ abstract class AppLocalizations {
   /// **'Auto forward disabled'**
   String get autoForwardDisabled;
 
+  /// No description provided for @useInteractiveMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Interactive Question Mode'**
+  String get useInteractiveMode;
+
+  /// No description provided for @useInteractiveModeDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Render questions as interactive forms'**
+  String get useInteractiveModeDesc;
+
   /// No description provided for @messages.
   ///
   /// In en, this message translates to:

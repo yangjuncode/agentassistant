@@ -20,8 +20,11 @@
   "systemInput": "系统输入",
   "autoForwardMessages": "自动转发聊天消息",
   "autoForwardMessagesDesc": "收到聊天消息时自动发送到系统输入",
+
   "autoForwardEnabled": "已开启自动转发",
   "autoForwardDisabled": "已关闭自动转发",
+  "useInteractiveMode": "交互式提问模式",
+  "useInteractiveModeDesc": "以交互式表单形式显示问题",
   "messages": "消息",
   "messageStats": "消息统计",
   "totalMessages": "总计 {count} 条消息",

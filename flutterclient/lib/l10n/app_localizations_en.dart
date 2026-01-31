@@ -75,6 +75,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoForwardDisabled => 'Auto forward disabled';
 
   @override
+  String get useInteractiveMode => 'Interactive Question Mode';
+
+  @override
+  String get useInteractiveModeDesc => 'Render questions as interactive forms';
+
+  @override
   String get messages => 'Messages';
 
   @override

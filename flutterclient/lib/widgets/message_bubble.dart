@@ -3,12 +3,15 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/chat_message.dart';
 import '../constants/websocket_commands.dart';
+import '../providers/chat_provider.dart';
 import 'content_display.dart';
 import 'inline_reply_widget.dart';
+import 'ask_question_widget.dart';
 
 /// Message bubble widget for displaying chat messages
 class MessageBubble extends StatelessWidget {
@@ -21,6 +24,16 @@ class MessageBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final chatProvider = context.watch<ChatProvider>();
+    final useInteractive = chatProvider.useInteractiveAskQuestion;
+    
+    // Check if we should use interactive widget
+    final showInteractive = useInteractive &&
+        message.type == MessageType.question &&
+        message.rawQuestions != null &&
+        message.rawQuestions!.isNotEmpty &&
+        message.status == MessageStatus.pending;
+
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -33,13 +46,17 @@ class MessageBubble extends StatelessWidget {
             const SizedBox(height: 2),
 
             // Message content
-            _buildContent(context),
-
-            // Inline reply widget (if needs user action and not expired)
-            if (message.needsUserAction &&
-                message.status != MessageStatus.expired) ...[
-              const SizedBox(height: 2),
-              InlineReplyWidget(message: message),
+            if (showInteractive)
+              AskQuestionWidget(message: message)
+            else ...[
+              _buildContent(context),
+              
+              // Inline reply widget (if needs user action and not expired)
+              if (message.needsUserAction &&
+                  message.status != MessageStatus.expired) ...[
+                const SizedBox(height: 2),
+                InlineReplyWidget(message: message),
+              ],
             ],
 
             // Reply content (if replied)

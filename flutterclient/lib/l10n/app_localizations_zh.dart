@@ -75,6 +75,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoForwardDisabled => '已关闭自动转发';
 
   @override
+  String get useInteractiveMode => '交互式提问模式';
+
+  @override
+  String get useInteractiveModeDesc => '以交互式表单形式显示问题';
+
+  @override
   String get messages => '消息';
 
   @override

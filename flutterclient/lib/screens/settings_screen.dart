@@ -404,6 +404,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
                       },
                     ),
+                    const Divider(height: 1),
+                    SwitchListTile(
+                      secondary: const Icon(Icons.touch_app),
+                      title: Text(l10n.useInteractiveMode),
+                      subtitle: Text(l10n.useInteractiveModeDesc),
+                      value: chatProvider.useInteractiveAskQuestion,
+                      onChanged: (value) {
+                        chatProvider.setUseInteractiveAskQuestion(value);
+                      },
+                    ),
                   ],
                 ),
               ),

@@ -20,8 +20,11 @@
   "systemInput": "System Input",
   "autoForwardMessages": "Auto Forward Chat Messages",
   "autoForwardMessagesDesc": "Automatically send received chat messages to system input",
+
   "autoForwardEnabled": "Auto forward enabled",
   "autoForwardDisabled": "Auto forward disabled",
+  "useInteractiveMode": "Interactive Question Mode",
+  "useInteractiveModeDesc": "Render questions as interactive forms",
   "messages": "Messages",
   "messageStats": "Message Statistics",
   "totalMessages": "Total {count} messages",

@@ -25,6 +25,7 @@ class ChatMessage {
   final String? mcpClientName;
   final String? agentName;
   final String? reasoningModelName;
+  final List<Question>? rawQuestions;
 
   ChatMessage({
     String? id,
@@ -47,6 +48,7 @@ class ChatMessage {
     this.mcpClientName,
     this.agentName,
     this.reasoningModelName,
+    this.rawQuestions,
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
@@ -67,6 +69,9 @@ class ChatMessage {
       question: request.request.questions.isNotEmpty
           ? _formatQuestionsToMarkdown(request.request.questions)
           : request.request.question,
+      rawQuestions: request.request.questions.isNotEmpty
+          ? request.request.questions
+          : null,
       projectDirectory: request.request.projectDirectory,
       mcpClientName: request.request.mcpClientName.isNotEmpty
           ? request.request.mcpClientName
@@ -173,6 +178,7 @@ class ChatMessage {
       isError: isError ?? this.isError,
       replyText: replyText ?? this.replyText,
       repliedAt: repliedAt ?? this.repliedAt,
+      rawQuestions: rawQuestions,
       repliedByCurrentUser: repliedByCurrentUser ?? this.repliedByCurrentUser,
       repliedByNickname: repliedByNickname ?? this.repliedByNickname,
       mcpClientName: mcpClientName,
@@ -199,6 +205,7 @@ class ChatMessage {
       'isError': isError,
       'replyText': replyText,
       'repliedAt': repliedAt?.toIso8601String(),
+      'rawQuestions': rawQuestions?.map(_questionToJson).toList(),
       'repliedByCurrentUser': repliedByCurrentUser,
       'repliedByNickname': repliedByNickname,
       'mcpClientName': mcpClientName,
@@ -227,14 +234,52 @@ class ChatMessage {
       meta: Map<String, String>.from(json['meta'] ?? {}),
       isError: json['isError'] ?? false,
       replyText: json['replyText'],
-      repliedAt:
-          json['repliedAt'] != null ? DateTime.parse(json['repliedAt']) : null,
+      repliedAt: json['repliedAt'] != null
+          ? DateTime.tryParse(json['repliedAt'])
+          : null,
+      rawQuestions: (json['rawQuestions'] as List?)
+          ?.map((q) => _questionFromJson(q))
+          .toList(),
       repliedByCurrentUser: json['repliedByCurrentUser'] ?? false,
       repliedByNickname: json['repliedByNickname'],
       mcpClientName: json['mcpClientName'],
       agentName: json['agentName'],
       reasoningModelName: json['reasoningModelName'],
     );
+  }
+
+  static Map<String, dynamic> _questionToJson(Question q) {
+    return {
+      'question': q.question,
+      'header': q.header,
+      'multiple': q.multiple,
+      'custom': q.custom,
+      'options': q.options
+          .map((o) => {
+                'label': o.label,
+                'description': o.description,
+              })
+          .toList(),
+    };
+  }
+
+  static Question _questionFromJson(dynamic json) {
+    final q = Question()
+      ..question = json['question'] ?? ''
+      ..header = json['header'] ?? ''
+      ..multiple = json['multiple'] ?? false
+      ..custom = json['custom'] ?? false;
+
+    if (json['options'] != null) {
+      q.options.addAll(
+        (json['options'] as List)
+            .whereType<Map<String, dynamic>>()
+            .map((o) => Option()
+              ..label = o['label'] ?? ''
+              ..description = o['description'] ?? ''),
+      );
+    }
+    return q;
   }
 
   /// Get display title

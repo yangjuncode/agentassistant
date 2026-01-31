@@ -18,13 +18,7 @@ import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
 import '../proto/agentassist.pb.dart' as pb;
 
-enum DesktopMcpAttentionMode {
-  none,
-  tray,
-  popup,
-  popupOnTop,
-  trayPopupOnTop,
-}
+enum DesktopMcpAttentionMode { none, tray, popup, popupOnTop, trayPopupOnTop }
 
 /// Chat provider for managing chat state and WebSocket communication
 class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
@@ -57,6 +51,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   String? _currentToken;
   String? _activeChatUserKey;
   bool _autoForwardToSystemInput = false;
+  bool _useInteractiveAskQuestion = true;
   DesktopMcpAttentionMode _desktopMcpAttentionMode =
       DesktopMcpAttentionMode.popupOnTop;
   DesktopMcpAttentionMode _askQuestionAttentionMode =
@@ -67,14 +62,18 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   bool _isInputFocused = false;
   Timer? _inputFocusDebounceTimer;
   int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
+
   String? _nickname;
   Completer<String>? _nicknameLoadCompleter;
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
   List<ChatMessage> get visibleMessages => _showOnlyPendingMessages
-      ? List.unmodifiable(_messages
-          .where((m) => m.needsUserAction && m.status != MessageStatus.expired))
+      ? List.unmodifiable(
+          _messages.where(
+            (m) => m.needsUserAction && m.status != MessageStatus.expired,
+          ),
+        )
       : List.unmodifiable(_messages);
   bool get isConnected => _isConnected;
   bool get isConnecting => _isConnecting;
@@ -98,6 +97,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   Map<String, String?> get serverErrors => Map.unmodifiable(_serverErrors);
 
   bool get autoForwardToSystemInput => _autoForwardToSystemInput;
+  bool get useInteractiveAskQuestion => _useInteractiveAskQuestion;
   DesktopMcpAttentionMode get desktopMcpAttentionMode =>
       _desktopMcpAttentionMode;
   DesktopMcpAttentionMode get askQuestionAttentionMode =>
@@ -251,6 +251,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         _workReportAttentionMode = _desktopMcpAttentionMode;
       }
 
+      _useInteractiveAskQuestion =
+          prefs.getBool('use_interactive_ask_question') ?? true;
+      _nickname = prefs.getString('nickname');
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load desktop attention modes: $error');
@@ -260,11 +263,21 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Set use interactive ask question
+  Future<void> setUseInteractiveAskQuestion(bool value) async {
+    _useInteractiveAskQuestion = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('use_interactive_ask_question', value);
+  }
+
   Future<void> setAskQuestionAttentionMode(DesktopMcpAttentionMode mode) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(
-          AppConfig.askQuestionAttentionModeStorageKey, mode.index);
+        AppConfig.askQuestionAttentionModeStorageKey,
+        mode.index,
+      );
       _askQuestionAttentionMode = mode;
       notifyListeners();
 
@@ -284,7 +297,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(
-          AppConfig.workReportAttentionModeStorageKey, mode.index);
+        AppConfig.workReportAttentionModeStorageKey,
+        mode.index,
+      );
       _workReportAttentionMode = mode;
       notifyListeners();
 
@@ -304,7 +319,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt(
-          AppConfig.desktopMcpAttentionModeStorageKey, mode.index);
+        AppConfig.desktopMcpAttentionModeStorageKey,
+        mode.index,
+      );
       _desktopMcpAttentionMode = mode;
       notifyListeners();
 
@@ -394,9 +411,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void _refreshGlobalConnectionState() {
-    final anyConnecting = _serverStatuses.values.any((s) =>
-        s == WebSocketServiceStatus.connecting ||
-        s == WebSocketServiceStatus.reconnecting);
+    final anyConnecting = _serverStatuses.values.any(
+      (s) =>
+          s == WebSocketServiceStatus.connecting ||
+          s == WebSocketServiceStatus.reconnecting,
+    );
     final anyConnected = _services.values.any((s) => s.isConnected);
 
     _isConnecting = anyConnecting;
@@ -493,11 +512,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     // Ensure we have at least one server config (migrate legacy key if needed)
     await _loadServerConfigs();
     if (_serverConfigs.isEmpty) {
-      await upsertServerConfig(ServerConfig(
-        name: '',
-        url: serverUrl,
-        isEnabled: true,
-      ));
+      await upsertServerConfig(
+        ServerConfig(name: '', url: serverUrl, isEnabled: true),
+      );
     } else {
       // Update the first config as the "default" quick-connect target
       final first = _serverConfigs.first;
@@ -542,8 +559,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
 
     // Parallel connection to all enabled servers
-    final futures =
-        _serverConfigs.where((c) => c.isEnabled).map((config) async {
+    final futures = _serverConfigs.where((c) => c.isEnabled).map((
+      config,
+    ) async {
       try {
         await _connectServer(config, token);
       } catch (e) {
@@ -588,7 +606,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final targets = serverId != null
         ? <MapEntry<String, WebSocketService>>[
             if (_services.containsKey(serverId))
-              MapEntry(serverId, _services[serverId]!)
+              MapEntry(serverId, _services[serverId]!),
           ]
         : _services.entries.toList();
 
@@ -621,45 +639,75 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Handle incoming WebSocket messages
   void _handleWebSocketMessage(
-      pb.WebsocketMessage message, String serverId, String serverName) {
+    pb.WebsocketMessage message,
+    String serverId,
+    String serverName,
+  ) {
     _logger.d('Handling WebSocket message: ${message.cmd} (server=$serverId)');
 
     switch (message.cmd) {
       case WebSocketCommands.askQuestion:
-        _handleAskQuestionMessage(message.askQuestionRequest,
-            serverId: serverId, serverName: serverName);
+        _handleAskQuestionMessage(
+          message.askQuestionRequest,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.workReport:
-        _handleWorkReportMessage(message.workReportRequest,
-            serverId: serverId, serverName: serverName);
+        _handleWorkReportMessage(
+          message.workReportRequest,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.askQuestionReplyNotification:
-        _handleAskQuestionReplyNotification(message,
-            serverId: serverId, serverName: serverName);
+        _handleAskQuestionReplyNotification(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.workReportReplyNotification:
-        _handleWorkReportReplyNotification(message,
-            serverId: serverId, serverName: serverName);
+        _handleWorkReportReplyNotification(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.getPendingMessages:
-        _handleGetPendingMessagesResponse(message,
-            serverId: serverId, serverName: serverName);
+        _handleGetPendingMessagesResponse(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.requestCancelled:
-        _handleRequestCancelledNotification(message,
-            serverId: serverId, serverName: serverName);
+        _handleRequestCancelledNotification(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.getOnlineUsers:
-        _handleGetOnlineUsersResponse(message,
-            serverId: serverId, serverName: serverName);
+        _handleGetOnlineUsersResponse(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.chatMessageNotification:
-        _handleChatMessageNotification(message,
-            serverId: serverId, serverName: serverName);
+        _handleChatMessageNotification(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       case WebSocketCommands.userConnectionStatusNotification:
-        _handleUserConnectionStatusNotification(message,
-            serverId: serverId, serverName: serverName);
+        _handleUserConnectionStatusNotification(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
         break;
       default:
         _logger.w('Unknown message command: ${message.cmd}');
@@ -794,8 +842,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final request = message.askQuestionRequest;
     final requestId = request.iD;
 
-    _logger
-        .i('Ask question reply notification received for request: $requestId');
+    _logger.i(
+      'Ask question reply notification received for request: $requestId',
+    );
 
     // Extract reply content from the response
     String? replyText;
@@ -822,8 +871,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     // Find and update the existing message
-    final messageIndex = _messages
-        .indexWhere((m) => m.requestId == requestId && m.serverId == serverId);
+    final messageIndex = _messages.indexWhere(
+      (m) => m.requestId == requestId && m.serverId == serverId,
+    );
     if (messageIndex != -1) {
       final existingMessage = _messages[messageIndex];
 
@@ -843,15 +893,19 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         notifyListeners();
         _updatePendingState();
         _logger.i(
-            'Updated message $requestId status to replied (by another user) with content: $replyText');
+          'Updated message $requestId status to replied (by another user) with content: $replyText',
+        );
 
         // Show notification to user
-        _showReplyNotification('Question has been replied by another user',
-            replyText ?? existingMessage.question ?? '');
+        _showReplyNotification(
+          'Question has been replied by another user',
+          replyText ?? existingMessage.question ?? '',
+        );
       }
     } else {
       _logger.w(
-          'Message with request ID $requestId not found for reply notification');
+        'Message with request ID $requestId not found for reply notification',
+      );
     }
   }
 
@@ -870,7 +924,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final requestId = request.iD;
 
     _logger.i(
-        'Task work report reply notification received for request: $requestId');
+      'Task work report reply notification received for request: $requestId',
+    );
 
     // Extract reply content from the response
     String? replyText;
@@ -917,15 +972,19 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         notifyListeners();
         _updatePendingState();
         _logger.i(
-            'Updated message $requestId status to confirmed (by another user) with content: $replyText');
+          'Updated message $requestId status to confirmed (by another user) with content: $replyText',
+        );
 
         // Show notification to user
-        _showReplyNotification('Work report has been confirmed by another user',
-            replyText ?? existingMessage.summary ?? '');
+        _showReplyNotification(
+          'Work report has been confirmed by another user',
+          replyText ?? existingMessage.summary ?? '',
+        );
       }
     } else {
       _logger.w(
-          'Message with request ID $requestId not found for work report notification');
+        'Message with request ID $requestId not found for work report notification',
+      );
     }
   }
 
@@ -960,8 +1019,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       notifyListeners();
       _updatePendingState();
     } else {
-      _logger
-          .w('Message with request ID $requestId not found for cancellation');
+      _logger.w(
+        'Message with request ID $requestId not found for cancellation',
+      );
     }
   }
 
@@ -1012,19 +1072,23 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
           existingKeys.add(key);
           addedCount++;
           _logger.d(
-              'Added pending message: ${chatMessage.id} (${chatMessage.type})');
+            'Added pending message: ${chatMessage.id} (${chatMessage.type})',
+          );
         } else {
-          _logger
-              .d('Skipped existing pending message: ${chatMessage.requestId}');
+          _logger.d(
+            'Skipped existing pending message: ${chatMessage.requestId}',
+          );
         }
       } else {
         _logger.w(
-            'Failed to convert pending message: ${pendingMessage.messageType}');
+          'Failed to convert pending message: ${pendingMessage.messageType}',
+        );
       }
     }
 
     _logger.i(
-        'Successfully loaded $addedCount new pending messages. Total: ${_messages.length}');
+      'Successfully loaded $addedCount new pending messages. Total: ${_messages.length}',
+    );
     notifyListeners();
     _updatePendingState();
   }
@@ -1077,8 +1141,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
           ..questions.add(pb.Question()..question = message.question ?? ''));
 
       // Send reply
-      await _services[serverId]!
-          .sendAskQuestionReply(originalRequest, response);
+      await _services[serverId]!.sendAskQuestionReply(
+        originalRequest,
+        response,
+      );
 
       // Update message status
       final updatedMessage = message.copyWith(
@@ -1101,8 +1167,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       // Update message status to error
       final index = _messages.indexWhere((m) => m.id == messageId);
       if (index != -1) {
-        _messages[index] =
-            _messages[index].copyWith(status: MessageStatus.error);
+        _messages[index] = _messages[index].copyWith(
+          status: MessageStatus.error,
+        );
       }
       notifyListeners();
     }
@@ -1180,8 +1247,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       // Update message status to error
       final index = _messages.indexWhere((m) => m.id == messageId);
       if (index != -1) {
-        _messages[index] =
-            _messages[index].copyWith(status: MessageStatus.error);
+        _messages[index] = _messages[index].copyWith(
+          status: MessageStatus.error,
+        );
       }
       notifyListeners();
     }
@@ -1285,7 +1353,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       'Friendly',
       'Active',
       'Creative',
-      'Professional'
+      'Professional',
     ];
     final nouns = [
       'Developer',
@@ -1293,7 +1361,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       'Assistant',
       'Partner',
       'Colleague',
-      'Friend'
+      'Friend',
     ];
 
     final now = DateTime.now();
@@ -1324,7 +1392,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         _logger.i('Nickname updated and sent to connected servers: $nickname');
       } else {
         _logger.i(
-            'Nickname saved locally, will be sent on next connection: $nickname');
+          'Nickname saved locally, will be sent on next connection: $nickname',
+        );
       }
     } catch (error) {
       _logger.e('Failed to update nickname: $error');
@@ -1361,11 +1430,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     // Replace online users for this server
     _onlineUsers.removeWhere((u) => u.serverId == serverId);
     for (final user in response.onlineUsers) {
-      _onlineUsers.add(DisplayOnlineUser(
-        serverId: serverId,
-        serverName: serverName,
-        user: user,
-      ));
+      _onlineUsers.add(
+        DisplayOnlineUser(
+          serverId: serverId,
+          serverName: serverName,
+          user: user,
+        ),
+      );
     }
     notifyListeners();
 
@@ -1383,7 +1454,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
     if (!message.hasChatMessageNotification()) {
       print(
-          '[ChatNotification] ⚠️ ChatMessageNotification missing notification data');
+        '[ChatNotification] ⚠️ ChatMessageNotification missing notification data',
+      );
       return;
     }
 
@@ -1391,11 +1463,14 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final chatMessage = notification.chatMessage;
 
     print(
-        '[ChatNotification] Message from ${chatMessage.senderNickname} (${chatMessage.senderClientId})');
+      '[ChatNotification] Message from ${chatMessage.senderNickname} (${chatMessage.senderClientId})',
+    );
     print(
-        '[ChatNotification] Message content length: ${chatMessage.content.length}');
+      '[ChatNotification] Message content length: ${chatMessage.content.length}',
+    );
     print(
-        '[ChatNotification] Message content: ${chatMessage.content.length > 100 ? "${chatMessage.content.substring(0, 100)}..." : chatMessage.content}');
+      '[ChatNotification] Message content: ${chatMessage.content.length > 100 ? "${chatMessage.content.substring(0, 100)}..." : chatMessage.content}',
+    );
 
     // Add to chat messages map
     final senderId = chatMessage.senderClientId;
@@ -1409,26 +1484,32 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
     // Auto forward to system input if enabled and message is from another user
     print(
-        '[ChatNotification] Auto forward setting: $_autoForwardToSystemInput');
+      '[ChatNotification] Auto forward setting: $_autoForwardToSystemInput',
+    );
     print(
-        '[ChatNotification] Current client ID: ${_services[serverId]?.clientId}');
+      '[ChatNotification] Current client ID: ${_services[serverId]?.clientId}',
+    );
     print('[ChatNotification] Sender ID: $senderId');
     print(
-        '[ChatNotification] Is from other user: ${senderId != _services[serverId]?.clientId}');
+      '[ChatNotification] Is from other user: ${senderId != _services[serverId]?.clientId}',
+    );
 
     if (_autoForwardToSystemInput &&
         senderId != _services[serverId]?.clientId) {
       print(
-          '[ChatNotification] ✅ Conditions met for auto-forwarding, scheduling microtask...');
+        '[ChatNotification] ✅ Conditions met for auto-forwarding, scheduling microtask...',
+      );
       // Use microtask to defer auto-forwarding until after the current build cycle
       Future.microtask(() {
         print(
-            '[ChatNotification] Microtask executing, calling _autoForwardMessageToSystemInput...');
+          '[ChatNotification] Microtask executing, calling _autoForwardMessageToSystemInput...',
+        );
         _autoForwardMessageToSystemInput(chatMessage.content);
       });
       // Don't bring window to front when auto-forwarding is enabled
       print(
-          '[ChatNotification] Auto-forwarding enabled, not bringing window to front');
+        '[ChatNotification] Auto-forwarding enabled, not bringing window to front',
+      );
     } else {
       print('[ChatNotification] ❌ Auto-forwarding conditions not met');
       if (!_autoForwardToSystemInput) {
@@ -1437,10 +1518,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       if (senderId == _services[serverId]?.clientId) {
         print('[ChatNotification] Reason: Message is from current user');
       }
-      _applyDesktopAttention(
-        title: 'New message',
-        body: chatMessage.content,
-      );
+      _applyDesktopAttention(title: 'New message', body: chatMessage.content);
     }
   }
 
@@ -1462,22 +1540,27 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final status = notification.status;
 
     _logger.i(
-        'Processing user connection status: $status for user: ${user.nickname} (${user.clientId})');
+      'Processing user connection status: $status for user: ${user.nickname} (${user.clientId})',
+    );
 
     if (status == 'connected') {
       // Add or update user in online users list
       final existingIndex = _onlineUsers.indexWhere(
-          (u) => u.serverId == serverId && u.user.clientId == user.clientId);
+        (u) => u.serverId == serverId && u.user.clientId == user.clientId,
+      );
 
       if (user.clientId != currentClientIdForServer(serverId)) {
         if (existingIndex == -1) {
-          _onlineUsers.add(DisplayOnlineUser(
-            serverId: serverId,
-            serverName: serverName,
-            user: user,
-          ));
+          _onlineUsers.add(
+            DisplayOnlineUser(
+              serverId: serverId,
+              serverName: serverName,
+              user: user,
+            ),
+          );
           _logger.i(
-              '✅ User ${user.nickname} (${user.clientId}) added to online users list');
+            '✅ User ${user.nickname} (${user.clientId}) added to online users list',
+          );
         } else {
           // Update existing user info (nickname might have changed)
           _onlineUsers[existingIndex] = DisplayOnlineUser(
@@ -1486,7 +1569,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
             user: user,
           );
           _logger.i(
-              '✅ User ${user.nickname} (${user.clientId}) info updated in online users list');
+            '✅ User ${user.nickname} (${user.clientId}) info updated in online users list',
+          );
         }
       } else {
         _logger.d('Ignoring connection status for current user');
@@ -1494,22 +1578,26 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     } else if (status == 'disconnected') {
       // Remove user from online users list
       final userIndex = _onlineUsers.indexWhere(
-          (u) => u.serverId == serverId && u.user.clientId == user.clientId);
+        (u) => u.serverId == serverId && u.user.clientId == user.clientId,
+      );
       if (userIndex != -1) {
         final disconnectedUser = _onlineUsers[userIndex];
         _onlineUsers.removeAt(userIndex);
         _logger.i(
-            '✅ User ${disconnectedUser.user.nickname} (${disconnectedUser.user.clientId}) removed from online users list');
+          '✅ User ${disconnectedUser.user.nickname} (${disconnectedUser.user.clientId}) removed from online users list',
+        );
 
         // Close chat dialog if it's open for this user
         if (_activeChatUserKey == _chatKey(serverId, user.clientId)) {
           setActiveChatUser(null);
-          _logger
-              .i('✅ Closed chat dialog for disconnected user ${user.clientId}');
+          _logger.i(
+            '✅ Closed chat dialog for disconnected user ${user.clientId}',
+          );
         }
       } else {
         _logger.w(
-            '⚠️ User ${user.nickname} (${user.clientId}) not found in online users list');
+          '⚠️ User ${user.nickname} (${user.clientId}) not found in online users list',
+        );
       }
     }
 
@@ -1544,25 +1632,42 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Send chat message to another user
-  Future<void> sendChatMessage(String receiverClientId, String content,
-      {required String serverId}) async {
-    await _sendChatMessageInternal(serverId, receiverClientId, content,
-        notifyUI: true);
+  Future<void> sendChatMessage(
+    String receiverClientId,
+    String content, {
+    required String serverId,
+  }) async {
+    await _sendChatMessageInternal(
+      serverId,
+      receiverClientId,
+      content,
+      notifyUI: true,
+    );
     // Chat messages don't count toward MCP pending, but keep tray in sync anyway
     _updateTrayPendingCount();
   }
 
   /// Send chat message without triggering UI updates (for auto-send)
-  Future<void> sendChatMessageSilent(String receiverClientId, String content,
-      {required String serverId}) async {
-    await _sendChatMessageInternal(serverId, receiverClientId, content,
-        notifyUI: false);
+  Future<void> sendChatMessageSilent(
+    String receiverClientId,
+    String content, {
+    required String serverId,
+  }) async {
+    await _sendChatMessageInternal(
+      serverId,
+      receiverClientId,
+      content,
+      notifyUI: false,
+    );
     _updateTrayPendingCount();
   }
 
   Future<void> _sendChatMessageInternal(
-      String serverId, String receiverClientId, String content,
-      {required bool notifyUI}) async {
+    String serverId,
+    String receiverClientId,
+    String content, {
+    required bool notifyUI,
+  }) async {
     final svc = _services[serverId];
 
     // Create local message first to show it in UI immediately
@@ -1598,7 +1703,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     try {
       await svc.sendChatMessage(receiverClientId, content);
       _logger.i(
-          'Chat message sent to $receiverClientId: $content (UI notify: $notifyUI)');
+        'Chat message sent to $receiverClientId: $content (UI notify: $notifyUI)',
+      );
     } catch (error) {
       _logger.e('Failed to send chat message: $error');
       _failedChatMessageIds.add(messageId);
@@ -1659,6 +1765,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       _chatAutoSendInterval =
           prefs.getInt(AppConfig.chatAutoSendIntervalStorageKey) ??
               AppConfig.defaultChatAutoSendInterval;
+      _useInteractiveAskQuestion =
+          prefs.getBool('use_interactive_ask_question') ?? true;
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load chat settings: $error');
@@ -1683,7 +1791,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     print('[AutoForward] Starting auto forward to system input');
     print('[AutoForward] Content length: ${content.length}');
     print(
-        '[AutoForward] Content preview: ${content.length > 100 ? "${content.substring(0, 100)}..." : content}');
+      '[AutoForward] Content preview: ${content.length > 100 ? "${content.substring(0, 100)}..." : content}',
+    );
 
     try {
       print('[AutoForward] Calling SystemInputService.sendToSystemInput...');
@@ -1691,18 +1800,22 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       final success = await SystemInputService.sendToSystemInput(content);
       stopwatch.stop();
       print(
-          '[AutoForward] SystemInputService.sendToSystemInput returned in ${stopwatch.elapsedMilliseconds}ms');
+        '[AutoForward] SystemInputService.sendToSystemInput returned in ${stopwatch.elapsedMilliseconds}ms',
+      );
 
       if (success) {
         print(
-            '[AutoForward] ✅ Successfully auto forwarded message to system input: ${content.length} characters');
+          '[AutoForward] ✅ Successfully auto forwarded message to system input: ${content.length} characters',
+        );
       } else {
         print(
-            '[AutoForward] ❌ Failed to auto forward message to system input (returned false)');
+          '[AutoForward] ❌ Failed to auto forward message to system input (returned false)',
+        );
       }
     } catch (error, stackTrace) {
       print(
-          '[AutoForward] ❌ Exception during auto forward to system input: $error');
+        '[AutoForward] ❌ Exception during auto forward to system input: $error',
+      );
       print('[AutoForward] Stack trace: $stackTrace');
     }
   }
