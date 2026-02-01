@@ -262,6 +262,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// 显示自定义忽略规则编辑对话框
+  void _showCustomIgnorePatternsDialog(
+    BuildContext context,
+    ProjectDirectoryIndexProvider provider,
+    AppLocalizations l10n,
+  ) {
+    final controller =
+        TextEditingController(text: provider.customIgnorePatterns);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.customIgnorePatternsDialogTitle),
+        content: SizedBox(
+          width: 520,
+          height: 400,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.customIgnorePatternsDesc,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 13,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: l10n.customIgnorePatternsHint,
+                    border: const OutlineInputBorder(),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              controller.text =
+                  ProjectDirectoryIndexProvider.defaultIgnorePatterns;
+            },
+            child: Text(l10n.resetToDefault),
+          ),
+          TextButton(
+            onPressed: () {
+              controller.dispose();
+              Navigator.of(context).pop();
+            },
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              provider.setCustomIgnorePatterns(controller.text);
+              controller.dispose();
+              Navigator.of(context).pop();
+            },
+            child: Text(l10n.save),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -423,36 +495,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Column(
                   children: [
-                    for (int i = 0;
-                        i <
-                            ProjectDirectoryIndexProvider
-                                .defaultIgnoredDirs.length;
-                        i++) ...[
-                      SwitchListTile(
-                        dense: true,
-                        visualDensity: VisualDensity.compact,
-                        secondary: const Icon(Icons.folder_off, size: 20),
-                        title: Text(
-                          l10n.ignoredDirectory(ProjectDirectoryIndexProvider
-                              .defaultIgnoredDirs[i]),
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                        value: pathIndexProvider.ignoredDirs.contains(
-                            ProjectDirectoryIndexProvider
-                                .defaultIgnoredDirs[i]),
-                        onChanged: (v) {
-                          pathIndexProvider.setIgnoredDirEnabled(
-                              ProjectDirectoryIndexProvider
-                                  .defaultIgnoredDirs[i],
-                              v);
-                        },
-                      ),
-                      if (i <
-                          ProjectDirectoryIndexProvider
-                                  .defaultIgnoredDirs.length -
-                              1)
-                        const Divider(height: 1),
-                    ],
+                    // 使用 GitIgnore 开关
+                    SwitchListTile(
+                      secondary: const Icon(Icons.description_outlined),
+                      title: Text(l10n.useGitIgnore),
+                      subtitle: Text(l10n.useGitIgnoreDesc),
+                      value: pathIndexProvider.useGitIgnore,
+                      onChanged: (v) {
+                        pathIndexProvider.setUseGitIgnore(v);
+                      },
+                    ),
+                    const Divider(height: 1),
+                    // 自定义忽略规则
+                    ListTile(
+                      leading: const Icon(Icons.tune),
+                      title: Text(l10n.customIgnorePatterns),
+                      subtitle: Text(l10n.customIgnorePatternsDesc),
+                      trailing: const Icon(Icons.edit),
+                      onTap: () => _showCustomIgnorePatternsDialog(
+                          context, pathIndexProvider, l10n),
+                    ),
                   ],
                 ),
               ),

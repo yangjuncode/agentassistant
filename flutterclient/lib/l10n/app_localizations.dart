@@ -431,11 +431,41 @@ abstract class AppLocalizations {
   /// **'Path Autocomplete'**
   String get pathAutocomplete;
 
-  /// No description provided for @ignoredDirectory.
+  /// No description provided for @useGitIgnore.
   ///
   /// In en, this message translates to:
-  /// **'Ignored directory: {dir}'**
-  String ignoredDirectory(String dir);
+  /// **'Use .gitignore rules'**
+  String get useGitIgnore;
+
+  /// No description provided for @useGitIgnoreDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically apply project\'s .gitignore patterns'**
+  String get useGitIgnoreDesc;
+
+  /// No description provided for @customIgnorePatterns.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom ignore patterns'**
+  String get customIgnorePatterns;
+
+  /// No description provided for @customIgnorePatternsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add custom patterns in gitignore format'**
+  String get customIgnorePatternsDesc;
+
+  /// No description provided for @customIgnorePatternsDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Custom Ignore Patterns'**
+  String get customIgnorePatternsDialogTitle;
+
+  /// No description provided for @customIgnorePatternsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'# Each line is a pattern\n*.log\nbuild/\nnode_modules/'**
+  String get customIgnorePatternsHint;
 
   /// No description provided for @slashCommands.
   ///

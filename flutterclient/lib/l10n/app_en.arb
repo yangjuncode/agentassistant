@@ -100,14 +100,12 @@
   },
 
   "pathAutocomplete": "Path Autocomplete",
-  "ignoredDirectory": "Ignored directory: {dir}",
-  "@ignoredDirectory": {
-    "placeholders": {
-      "dir": {
-        "type": "String"
-      }
-    }
-  },
+  "useGitIgnore": "Use .gitignore rules",
+  "useGitIgnoreDesc": "Automatically apply project's .gitignore patterns",
+  "customIgnorePatterns": "Custom ignore patterns",
+  "customIgnorePatternsDesc": "Add custom patterns in gitignore format",
+  "customIgnorePatternsDialogTitle": "Edit Custom Ignore Patterns",
+  "customIgnorePatternsHint": "# Each line is a pattern\n*.log\nbuild/\nnode_modules/",
 
   "slashCommands": "Slash Commands",
   "slashCommandsShow": "Show",

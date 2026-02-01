@@ -189,9 +189,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pathAutocomplete => 'Path Autocomplete';
 
   @override
-  String ignoredDirectory(String dir) {
-    return 'Ignored directory: $dir';
-  }
+  String get useGitIgnore => 'Use .gitignore rules';
+
+  @override
+  String get useGitIgnoreDesc => 'Automatically apply project\'s .gitignore patterns';
+
+  @override
+  String get customIgnorePatterns => 'Custom ignore patterns';
+
+  @override
+  String get customIgnorePatternsDesc => 'Add custom patterns in gitignore format';
+
+  @override
+  String get customIgnorePatternsDialogTitle => 'Edit Custom Ignore Patterns';
+
+  @override
+  String get customIgnorePatternsHint => '# Each line is a pattern\n*.log\nbuild/\nnode_modules/';
 
   @override
   String get slashCommands => 'Slash Commands';

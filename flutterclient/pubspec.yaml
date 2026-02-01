@@ -61,6 +61,9 @@ dependencies:
   file_picker: ^10.3.8
   mime: ^1.0.0
 
+  # Glob pattern matching (gitignore style)
+  glob: ^2.1.2
+
 
 
 dev_dependencies:

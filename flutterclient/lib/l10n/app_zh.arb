@@ -58,7 +58,12 @@
   "nicknameUpdated": "昵称已更新为: {nickname}"
   ,
   "pathAutocomplete": "路径补全",
-  "ignoredDirectory": "忽略目录: {dir}",
+  "useGitIgnore": "使用 .gitignore 规则",
+  "useGitIgnoreDesc": "自动应用项目的 .gitignore 文件规则",
+  "customIgnorePatterns": "自定义忽略规则",
+  "customIgnorePatternsDesc": "添加 gitignore 格式的自定义规则",
+  "customIgnorePatternsDialogTitle": "编辑自定义忽略规则",
+  "customIgnorePatternsHint": "# 每行一条规则\n*.log\nbuild/\nnode_modules/",
 
   "desktop": "桌面端",
   "mcpMessageAttention": "MCP 消息提醒",
