@@ -183,9 +183,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get pathAutocomplete => '路径补全';
 
   @override
-  String ignoredDirectory(String dir) {
-    return '忽略目录: $dir';
-  }
+  String get useGitIgnore => '使用 .gitignore 规则';
+
+  @override
+  String get useGitIgnoreDesc => '自动应用项目的 .gitignore 文件规则';
+
+  @override
+  String get customIgnorePatterns => '自定义忽略规则';
+
+  @override
+  String get customIgnorePatternsDesc => '添加 gitignore 格式的自定义规则';
+
+  @override
+  String get customIgnorePatternsDialogTitle => '编辑自定义忽略规则';
+
+  @override
+  String get customIgnorePatternsHint => '# 每行一条规则\n*.log\nbuild/\nnode_modules/';
 
   @override
   String get slashCommands => 'Slash Commands';

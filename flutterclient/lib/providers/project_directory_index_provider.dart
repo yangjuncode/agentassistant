@@ -2,43 +2,61 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:glob/glob.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// 路径自动补全的目录索引 Provider
+/// 支持 GitIgnore 风格的文件/目录过滤
 class ProjectDirectoryIndexProvider extends ChangeNotifier {
   static const String _ttlHoursKey = 'path_index_cache_ttl_hours';
-  static const String _ignoredDirsKey = 'path_autocomplete_ignored_dirs';
   static const String _watchEnabledDesktopKey =
       'path_index_watch_enabled_desktop';
+  static const String _useGitIgnoreKey = 'path_autocomplete_use_gitignore';
+  static const String _customIgnorePatternsKey =
+      'path_autocomplete_custom_patterns';
 
   static const int defaultTtlHours = 8;
-  static const List<String> defaultIgnoredDirs = [
-    '.git',
-    '.github',
-    '.agent',
-    '.tmp',
-    'node_modules',
-    'build',
-    '.dart_tool',
-    '.vscode',
-    '.windsurf',
-    '.antigravity',
-    '.idea',
-    '.gemini',
-    '.trae',
-    '.opencode',
-    '.cursor',
-    '.codex',
-    '.claude',
-    'cmake-build-debug',
-    'cmake-build-release',
-  ];
+
+  /// 默认的忽略模式（gitignore 格式）
+  /// 这些是程序内置的默认规则
+  static const String defaultIgnorePatterns = '''
+# 版本控制
+.git/
+.github/
+
+# IDE 和编辑器
+.vscode/
+.idea/
+.cursor/
+
+# AI Agent 工具目录
+.agent/
+.windsurf/
+.antigravity/
+.gemini/
+.trae/
+.opencode/
+.codex/
+.claude/
+
+# 构建产物
+build/
+.dart_tool/
+node_modules/
+cmake-build-debug/
+cmake-build-release/
+
+# 临时文件
+.tmp/
+''';
 
   final Map<String, _RootCache> _caches = {};
   Timer? _cleanupTimer;
 
   int _ttlHours = defaultTtlHours;
-  Set<String> _ignoredDirs = defaultIgnoredDirs.toSet();
   bool _watchEnabledDesktop = true;
+  bool _useGitIgnore = true;
+  String _customIgnorePatterns = defaultIgnorePatterns;
 
   ProjectDirectoryIndexProvider() {
     _loadSettings();
@@ -53,8 +71,9 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
   }
 
   int get ttlHours => _ttlHours;
-  Set<String> get ignoredDirs => Set.unmodifiable(_ignoredDirs);
   bool get watchEnabledDesktop => _watchEnabledDesktop;
+  bool get useGitIgnore => _useGitIgnore;
+  String get customIgnorePatterns => _customIgnorePatterns;
 
   List<RootCacheInfo> get cacheInfos {
     final infos = _caches.entries
@@ -82,28 +101,31 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setIgnoredDirEnabled(String name, bool enabled) async {
-    final normalized = name.trim();
-    if (normalized.isEmpty) return;
-    final updated = Set<String>.from(_ignoredDirs);
-    if (enabled) {
-      updated.add(normalized);
-    } else {
-      updated.remove(normalized);
-    }
-    if (setEquals(updated, _ignoredDirs)) return;
-    _ignoredDirs = updated;
+  Future<void> setUseGitIgnore(bool enabled) async {
+    if (_useGitIgnore == enabled) return;
+    _useGitIgnore = enabled;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_ignoredDirsKey, _ignoredDirs.toList()..sort());
+    await prefs.setBool(_useGitIgnoreKey, enabled);
 
-    // Invalidate existing indexes so ignore-list changes take effect.
-    for (final cache in _caches.values) {
-      cache.builtAt = null;
-    }
-    for (final cache in _caches.values) {
-      unawaited(_ensureIndexed(cache, force: true));
-    }
+    // 使设置变更生效，重新构建索引
+    _invalidateAllCaches();
     notifyListeners();
+  }
+
+  Future<void> setCustomIgnorePatterns(String patterns) async {
+    if (_customIgnorePatterns == patterns) return;
+    _customIgnorePatterns = patterns;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_customIgnorePatternsKey, patterns);
+
+    // 使设置变更生效，重新构建索引
+    _invalidateAllCaches();
+    notifyListeners();
+  }
+
+  /// 重置自定义忽略规则为默认值
+  Future<void> resetCustomIgnorePatterns() async {
+    await setCustomIgnorePatterns(defaultIgnorePatterns);
   }
 
   Future<void> setWatchEnabledDesktop(bool enabled) async {
@@ -206,25 +228,29 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
     return cache.search(query, limit: limit);
   }
 
+  void _invalidateAllCaches() {
+    for (final cache in _caches.values) {
+      cache.builtAt = null;
+    }
+    for (final cache in _caches.values) {
+      unawaited(_ensureIndexed(cache, force: true));
+    }
+  }
+
   Future<void> _loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       _ttlHours = prefs.getInt(_ttlHoursKey) ?? defaultTtlHours;
-
-      final ignored = prefs.getStringList(_ignoredDirsKey);
-      if (ignored != null && ignored.isNotEmpty) {
-        _ignoredDirs =
-            ignored.map((e) => e.trim()).where((e) => e.isNotEmpty).toSet();
-      } else {
-        _ignoredDirs = defaultIgnoredDirs.toSet();
-      }
-
       _watchEnabledDesktop =
           prefs.getBool(_watchEnabledDesktopKey) ?? _watchEnabledDesktop;
+      _useGitIgnore = prefs.getBool(_useGitIgnoreKey) ?? _useGitIgnore;
+      _customIgnorePatterns =
+          prefs.getString(_customIgnorePatternsKey) ?? defaultIgnorePatterns;
     } catch (_) {
       _ttlHours = defaultTtlHours;
-      _ignoredDirs = defaultIgnoredDirs.toSet();
       _watchEnabledDesktop = true;
+      _useGitIgnore = true;
+      _customIgnorePatterns = defaultIgnorePatterns;
     }
 
     notifyListeners();
@@ -248,11 +274,14 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // 收集所有忽略模式
+      final allPatterns = _collectIgnorePatterns(cache.root);
+
       final result = await compute<_IndexRequest, _IndexResult>(
         _buildIndexInIsolate,
         _IndexRequest(
           root: cache.root,
-          ignoredDirNames: _ignoredDirs.toList(),
+          ignorePatterns: allPatterns,
         ),
       );
 
@@ -268,6 +297,49 @@ class ProjectDirectoryIndexProvider extends ChangeNotifier {
       cache.isBuilding = false;
       notifyListeners();
     }
+  }
+
+  /// 收集所有忽略模式：自定义规则 + (可选) .gitignore
+  List<String> _collectIgnorePatterns(String root) {
+    final patterns = <String>{};
+
+    // 1. 添加自定义忽略规则
+    patterns.addAll(_parseIgnorePatterns(_customIgnorePatterns));
+
+    // 2. 如果启用了 .gitignore，读取并添加
+    if (_useGitIgnore) {
+      patterns.addAll(_readGitIgnorePatterns(root));
+    }
+
+    return patterns.toList();
+  }
+
+  /// 解析 gitignore 格式的文本，返回模式列表
+  static List<String> _parseIgnorePatterns(String text) {
+    final patterns = <String>[];
+    for (final line in text.split('\n')) {
+      final trimmed = line.trim();
+      // 忽略空行和注释
+      if (trimmed.isEmpty || trimmed.startsWith('#')) continue;
+      patterns.add(trimmed);
+    }
+    return patterns;
+  }
+
+  /// 读取项目根目录的 .gitignore 文件
+  List<String> _readGitIgnorePatterns(String root) {
+    final patterns = <String>[];
+    try {
+      final sep = Platform.pathSeparator;
+      final gitignoreFile = File('$root$sep.gitignore');
+      if (gitignoreFile.existsSync()) {
+        final content = gitignoreFile.readAsStringSync();
+        patterns.addAll(_parseIgnorePatterns(content));
+      }
+    } catch (_) {
+      // 忽略读取错误
+    }
+    return patterns;
   }
 
   bool _shouldWatch() {
@@ -503,11 +575,11 @@ int? _subsequenceScore(String queryLower, String candidateLower) {
 
 class _IndexRequest {
   final String root;
-  final List<String> ignoredDirNames;
+  final List<String> ignorePatterns;
 
   const _IndexRequest({
     required this.root,
-    required this.ignoredDirNames,
+    required this.ignorePatterns,
   });
 }
 
@@ -520,16 +592,29 @@ class _IndexResult {
   });
 }
 
+/// 在 Isolate 中构建文件索引
+/// 使用 glob 模式匹配进行过滤
 _IndexResult _buildIndexInIsolate(_IndexRequest request) {
   final root = request.root;
-  final ignored = request.ignoredDirNames
-      .map((e) => e.trim())
-      .where((e) => e.isNotEmpty)
-      .toSet();
-
   final rootDir = Directory(root);
   if (!rootDir.existsSync()) {
     return const _IndexResult(entries: []);
+  }
+
+  // 编译 glob 模式
+  final globs = <Glob>[];
+  for (final pattern in request.ignorePatterns) {
+    try {
+      // 处理 gitignore 格式的模式（可能返回多个 glob 模式）
+      final normalizedPatterns = _normalizeGitIgnorePatterns(pattern);
+      for (final normalizedPattern in normalizedPatterns) {
+        if (normalizedPattern.isNotEmpty) {
+          globs.add(Glob(normalizedPattern));
+        }
+      }
+    } catch (_) {
+      // 忽略无效的 glob 模式
+    }
   }
 
   final entries = <List<Object?>>[];
@@ -545,14 +630,14 @@ _IndexResult _buildIndexInIsolate(_IndexRequest request) {
     final dir = queue.removeLast();
 
     final dirPath = dir.path;
-    final name = _baseName(dirPath, sep);
-    if (dirPath != rootDir.path && ignored.contains(name)) {
-      continue;
-    }
-
     final relDir = _relativePath(normalizedRoot, dirPath);
+
+    // 对目录进行模式匹配检查
     if (relDir.isNotEmpty) {
       final normalized = relDir.replaceAll('\\', '/');
+      if (_shouldIgnore(normalized, globs, isDir: true)) {
+        continue; // 跳过此目录及其子目录
+      }
       entries.add([normalized, true]);
     }
 
@@ -565,6 +650,10 @@ _IndexResult _buildIndexInIsolate(_IndexRequest request) {
           final rel = _relativePath(normalizedRoot, child.path);
           if (rel.isEmpty) continue;
           final normalized = rel.replaceAll('\\', '/');
+          // 对文件进行模式匹配检查
+          if (_shouldIgnore(normalized, globs, isDir: false)) {
+            continue;
+          }
           entries.add([normalized, false]);
         }
       }
@@ -583,6 +672,80 @@ _IndexResult _buildIndexInIsolate(_IndexRequest request) {
   });
 
   return _IndexResult(entries: entries);
+}
+
+/// 将 gitignore 格式的模式转换为 glob 格式
+/// 返回一个或多个 glob 模式字符串
+List<String> _normalizeGitIgnorePatterns(String pattern) {
+  var p = pattern.trim();
+  if (p.isEmpty) return [];
+
+  // 处理否定模式（暂不支持，直接忽略）
+  if (p.startsWith('!')) return [];
+
+  // 移除开头的斜杠（gitignore 中表示根目录相对路径）
+  final isRootAnchored = p.startsWith('/');
+  if (isRootAnchored) {
+    p = p.substring(1);
+  }
+
+  // 如果模式以 / 结尾，表示只匹配目录
+  // 移除尾部斜杠用于匹配
+  if (p.endsWith('/')) {
+    p = p.substring(0, p.length - 1);
+  }
+
+  if (p.isEmpty) return [];
+
+  final results = <String>[];
+
+  // 如果模式不包含 /，则匹配任意深度的目录/文件
+  // 例如：.git 应该匹配 .git 和 foo/.git 和 bar/baz/.git
+  if (!p.contains('/')) {
+    // 匹配根目录下的
+    results.add(p);
+    // 匹配任意子目录下的
+    results.add('**/$p');
+    // 匹配目录内的所有内容
+    results.add('$p/**');
+    results.add('**/$p/**');
+  } else {
+    // 模式包含路径分隔符
+    if (isRootAnchored) {
+      // 根目录锚定的模式
+      results.add(p);
+      results.add('$p/**');
+    } else {
+      // 可以匹配任意位置
+      results.add(p);
+      results.add('**/$p');
+      results.add('$p/**');
+      results.add('**/$p/**');
+    }
+  }
+
+  return results;
+}
+
+/// 检查路径是否应该被忽略
+bool _shouldIgnore(String relativePath, List<Glob> globs,
+    {required bool isDir}) {
+  if (globs.isEmpty) return false;
+
+  // 对于目录，需要同时检查带/和不带/的情况
+  final pathsToCheck = <String>[relativePath];
+  if (isDir) {
+    pathsToCheck.add('$relativePath/');
+  }
+
+  for (final glob in globs) {
+    for (final path in pathsToCheck) {
+      if (glob.matches(path)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 List<_IndexedEntry> _toIndexedEntries(List<List<Object?>> raw) {
@@ -604,12 +767,4 @@ List<_IndexedEntry> _toIndexedEntries(List<List<Object?>> raw) {
 String _relativePath(String normalizedRootWithSep, String fullPath) {
   if (!fullPath.startsWith(normalizedRootWithSep)) return '';
   return fullPath.substring(normalizedRootWithSep.length);
-}
-
-String _baseName(String path, String sep) {
-  final normalized =
-      path.endsWith(sep) ? path.substring(0, path.length - 1) : path;
-  final idx = normalized.lastIndexOf(sep);
-  if (idx == -1) return normalized;
-  return normalized.substring(idx + 1);
 }
