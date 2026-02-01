@@ -34,12 +34,12 @@ class McpToolIndexProvider extends ChangeNotifier {
   static const String _slashSkillCompletionTextKey =
       'mcp_slash_skill_completion_text';
   static const String defaultSlashCommandCompletionText =
-      'Command /%name% triggered. Workflow file: [%path%]. \n'
+      '\nCommand /%name% triggered. Workflow file: [%path%]. \n'
       'Action: Read/Reference the file to understand the workflow, then execute: \n'
       'Instruction: /%name% ';
 
   static const String defaultSlashSkillCompletionText =
-      'Skill /%name% invoked. Definition source: [%path%]. \n'
+      '\nSkill /%name% invoked. Definition source: [%path%]. \n'
       'Action: Consult the file content for skill logic, then apply to: \n'
       'Request: /%name% ';
   static const int defaultTtlHours = 8;
