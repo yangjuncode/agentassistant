@@ -34,9 +34,14 @@ class McpToolIndexProvider extends ChangeNotifier {
   static const String _slashSkillCompletionTextKey =
       'mcp_slash_skill_completion_text';
   static const String defaultSlashCommandCompletionText =
-      'user wants to follow the instruction in command(%name%)[File: %path%] with /%name%: ';
+      'Command /%name% triggered. Workflow file: [%path%]. \n'
+      'Action: Read/Reference the file to understand the workflow, then execute: \n'
+      'Instruction: /%name% ';
+
   static const String defaultSlashSkillCompletionText =
-      'user wants to follow the instruction in skill(%name%)[File: %path%] with /%name%: ';
+      'Skill /%name% invoked. Definition source: [%path%]. \n'
+      'Action: Consult the file content for skill logic, then apply to: \n'
+      'Request: /%name% ';
   static const int defaultTtlHours = 8;
 
   final Map<String, _ToolCache> _caches = {};
