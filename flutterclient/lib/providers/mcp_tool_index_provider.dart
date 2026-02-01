@@ -47,7 +47,7 @@ class McpToolIndexProvider extends ChangeNotifier {
   final Map<String, _ToolCache> _caches = {};
   Timer? _cleanupTimer;
 
-  int _ttlHours = defaultTtlHours;
+  final int _ttlHours = defaultTtlHours;
   McpSlashSuggestContent _slashSuggestContent = McpSlashSuggestContent.command;
   String _slashCommandCompletionText = defaultSlashCommandCompletionText;
   String _slashSkillCompletionText = defaultSlashSkillCompletionText;
