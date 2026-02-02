@@ -599,7 +599,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     var replyText = quickReply ?? _controller.text.trim();
     // If input is empty and no attachments, use default reply text
     if (replyText.isEmpty && _attachments.isEmpty) {
-      replyText = 'ok, well done, task end. stop.';
+      replyText = 'Confirmed. Task completed. Standby.';
     }
     if (_isSubmitting) return;
 
