@@ -49,6 +49,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   int? _activeTokenIndex; // The start index of @ or /
   bool _suppressNextSuggestUpdate = false;
   int? _activeInputIndex; // The index of the question currently being edited
+  bool _ignoreFocusLossOnce = false;
 
   static const double _suggestOverlayGap = 8;
   static const double _suggestOverlayMaxHeight = 240;
@@ -81,6 +82,10 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
           }
         } else {
           // If losing focus and it was the active one, remove overlay
+          if (_ignoreFocusLossOnce) {
+            _ignoreFocusLossOnce = false;
+            return;
+          }
           if (_activeInputIndex == i) {
             _removeSuggestOverlay();
             _activeInputIndex = null;
@@ -273,7 +278,25 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                           final s = _suggestions[idx];
                           final selected = idx == _selectedSuggestionIndex;
                           return InkWell(
-                            onTap: () => _applySuggestion(index, idx),
+                            canRequestFocus: false,
+                            mouseCursor: SystemMouseCursors.click,
+                            onHover: (hovering) {
+                              if (!hovering) return;
+                              if (_selectedSuggestionIndex == idx) return;
+                              _selectedSuggestionIndex = idx;
+                              _suggestOverlay?.markNeedsBuild();
+                            },
+                            onTapDown: (_) {
+                              _ignoreFocusLossOnce = true;
+                              if (_focusNodes[index] != null &&
+                                  !_focusNodes[index]!.hasFocus) {
+                                _focusNodes[index]!.requestFocus();
+                              }
+                              _applySuggestion(index, idx);
+                            },
+                            onTapCancel: () {
+                              _ignoreFocusLossOnce = false;
+                            },
                             child: Container(
                               color: selected
                                   ? Theme.of(context)
@@ -384,6 +407,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
 
   void _applySuggestion(int index, int suggestionIndex) {
     if (suggestionIndex < 0 || suggestionIndex >= _suggestions.length) return;
+    _ignoreFocusLossOnce = false;
     final tokenIndex = _activeTokenIndex;
     if (tokenIndex == null) return;
 
