@@ -349,31 +349,73 @@ type AskQuestionInput struct {
 
 // askQuestionHandler handles the ask_question tool
 func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	// Cast arguments to map for initial access
+	args, _ := request.Params.Arguments.(map[string]interface{})
+
 	// Parse arguments using JSON unmarshal to handle complex structure
 	jsonBytes, err := json.Marshal(request.Params.Arguments)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Failed to process arguments: %v", err)), nil
+		log.Printf("Warning: Failed to marshal arguments: %v", err)
+		// If marshal fails, we can still proceed with what we have in args map
+		jsonBytes = []byte("{}")
 	}
 
 	var input AskQuestionInput
 	// Set defaults
 	input.Timeout = 3600
 
+	// Try to unmarshal. If it fails, we will rely on manual extraction below
 	if err := json.Unmarshal(jsonBytes, &input); err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Invalid arguments: %v", err)), nil
+		log.Printf("Warning: Failed to unmarshal ask_question arguments: %v", err)
 	}
 
-	if input.ProjectDirectory == "" {
-		return mcp.NewToolResultError("project_directory is required"), nil
+	// Fallback/validation logic for essential fields
+	if input.ProjectDirectory == "" && args != nil {
+		if v, ok := args["project_directory"].(string); ok {
+			input.ProjectDirectory = v
+		}
 	}
+	if input.AgentName == "" && args != nil {
+		if v, ok := args["agent_name"].(string); ok {
+			input.AgentName = v
+		}
+	}
+	if input.ReasoningModelName == "" && args != nil {
+		if v, ok := args["reasoning_model_name"].(string); ok {
+			input.ReasoningModelName = v
+		}
+	}
+
+	// If no questions are provided or parsing failed to find them, treat the whole thing as a legacy question
+	// Use the original JSON string to ensure no content is lost
 	if len(input.Questions) == 0 {
-		return mcp.NewToolResultError("at least one question is required"), nil
+		legacyText := string(jsonBytes)
+		if legacyText == "" || legacyText == "{}" {
+			if args != nil {
+				// Fallback to fmt.Sprintf if json marshal failed or returned empty
+				legacyText = fmt.Sprintf("%v", args)
+			} else {
+				legacyText = "LLM sent empty or invalid arguments"
+			}
+		}
+
+		input.Questions = []QuestionInput{
+			{
+				Question: legacyText,
+				Header:   "Clarification",
+			},
+		}
+	}
+
+	// Ensure essential fields have at least some value to avoid RPC errors if server validates them
+	if input.ProjectDirectory == "" {
+		input.ProjectDirectory = "unknown"
 	}
 	if input.AgentName == "" {
-		return mcp.NewToolResultError("agent_name is required"), nil
+		input.AgentName = "Unknown Agent"
 	}
 	if input.ReasoningModelName == "" {
-		return mcp.NewToolResultError("reasoning_model_name is required"), nil
+		input.ReasoningModelName = "unknown"
 	}
 
 	currentMcpClientName := ""
