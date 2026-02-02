@@ -284,6 +284,13 @@ const _ToolConfig _defaultToolConfig = _ToolConfig(
 );
 
 const Map<String, _ToolConfig> _toolConfigs = {
+  // VS Code desktop notifications often carry this as McpClientName.
+  // Treat it like GitHub Copilot so / commands can be suggested from .github/prompts.
+  'Visual Studio Code': _ToolConfig(
+    clientNameKey: 'github',
+    skillsRelativeDir: '.github/skills/',
+    commandsRelativeDir: '.github/prompts/',
+  ),
   'Amazon Q Developer': _ToolConfig(
     clientNameKey: 'amazonq',
     skillsRelativeDir: '.amazonq/skills/',

@@ -44,6 +44,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   int _selectedSuggestionIndex = 0;
   int? _activeTokenIndex;
   bool _suppressNextSuggestUpdate = false;
+  bool _ignoreFocusLossOnce = false;
 
   static const double _suggestOverlayGap = 8;
   static const double _suggestOverlayMaxHeight = 240;
@@ -118,6 +119,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       if (mounted) {
         context.read<ChatProvider>().setInputFocused(_focusNode.hasFocus);
         if (!_focusNode.hasFocus) {
+          if (_ignoreFocusLossOnce) {
+            _ignoreFocusLossOnce = false;
+            return;
+          }
           _removeSuggestOverlay();
         }
       }
@@ -314,7 +319,24 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           final s = _suggestions[index];
                           final selected = index == _selectedSuggestionIndex;
                           return InkWell(
-                            onTap: () => _applySuggestion(index),
+                            canRequestFocus: false,
+                            mouseCursor: SystemMouseCursors.click,
+                            onHover: (hovering) {
+                              if (!hovering) return;
+                              if (_selectedSuggestionIndex == index) return;
+                              _selectedSuggestionIndex = index;
+                              _suggestOverlay?.markNeedsBuild();
+                            },
+                            onTapDown: (_) {
+                              _ignoreFocusLossOnce = true;
+                              if (!_focusNode.hasFocus) {
+                                _focusNode.requestFocus();
+                              }
+                              _applySuggestion(index);
+                            },
+                            onTapCancel: () {
+                              _ignoreFocusLossOnce = false;
+                            },
                             child: Container(
                               color: selected
                                   ? Theme.of(context)
@@ -385,6 +407,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   void _applySuggestion(int index) {
     if (index < 0 || index >= _suggestions.length) return;
+    _ignoreFocusLossOnce = false;
     final tokenIndex = _activeTokenIndex;
     if (tokenIndex == null) return;
 
