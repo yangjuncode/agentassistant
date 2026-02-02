@@ -252,7 +252,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
       _useInteractiveAskQuestion =
           prefs.getBool('use_interactive_ask_question') ?? true;
-      _nickname = prefs.getString('nickname');
+      // 注意：昵称加载已在 _loadNickname() 中完成，这里不需要重复加载
+      // 之前这里使用了错误的键 'nickname'，而正确的键是 AppConfig.nicknameStorageKey
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load desktop attention modes: $error');
