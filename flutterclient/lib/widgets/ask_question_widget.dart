@@ -26,6 +26,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   final Map<int, TextEditingController> _customInputs = {};
   // Map of question index to whether custom input is visible
   final Map<int, bool> _showCustomInput = {};
+  // Map of question index to focus node
+  final Map<int, FocusNode> _focusNodes = {};
 
   bool _isSubmitting = false;
 
@@ -36,6 +38,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     final questions = widget.message.rawQuestions ?? [];
     for (int i = 0; i < questions.length; i++) {
       _customInputs[i] = TextEditingController();
+      _focusNodes[i] = FocusNode();
     }
   }
 
@@ -43,6 +46,9 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   void dispose() {
     for (final controller in _customInputs.values) {
       controller.dispose();
+    }
+    for (final node in _focusNodes.values) {
+      node.dispose();
     }
     super.dispose();
   }
@@ -151,6 +157,16 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     });
   }
 
+  void _showAndFocusInput(int index) {
+    setState(() {
+      _showCustomInput[index] = true;
+    });
+    // Delay to ensure the TextField is built before requesting focus
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNodes[index]?.requestFocus();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final questions = widget.message.rawQuestions;
@@ -163,7 +179,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
 
     return Container(
       margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(12),
@@ -179,9 +195,9 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
             final question = entry.value;
             return _buildQuestionItem(context, index, question);
           }),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.center,
             child: ElevatedButton.icon(
               onPressed: _isSubmitting ? null : _submitReply,
               icon: _isSubmitting
@@ -211,29 +227,55 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (index > 0) const Divider(height: 24),
-
-        // Header/Question text
-        if (question.header.isNotEmpty)
+        if (question.header.isNotEmpty ||
+            question.question.isNotEmpty ||
+            (question.custom || true))
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              question.header,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                  ),
-            ),
-          ),
-
-        if (question.question.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              question.question,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                  ),
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  if (question.header.isNotEmpty)
+                    TextSpan(
+                      text: "${question.header} ",
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                    ),
+                  if (question.question.isNotEmpty)
+                    TextSpan(
+                      text: question.question,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                    ),
+                  if ((question.custom || true) && !showCustom)
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: InkWell(
+                        onTap: () => _showAndFocusInput(index),
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.edit_note,
+                                size: 22,
+                                color: colorScheme.secondary.withOpacity(0.8),
+                              ),
+                              const SizedBox(
+                                  width:
+                                      8), // Double the effective width for better tap area
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
 
@@ -245,23 +287,23 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
             final isSelected = selections.contains(optIndex);
 
             return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 2),
               child: InkWell(
                 onTap: () =>
                     _toggleSelection(index, optIndex, question.multiple),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? colorScheme.primaryContainer.withOpacity(0.4)
+                        ? colorScheme.primaryContainer.withOpacity(0.3)
                         : colorScheme.surface,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                       color: isSelected
-                          ? colorScheme.primary.withOpacity(0.5)
-                          : colorScheme.outlineVariant.withOpacity(0.5),
+                          ? colorScheme.primary.withOpacity(0.4)
+                          : colorScheme.outlineVariant.withOpacity(0.4),
                     ),
                   ),
                   child: Row(
@@ -275,39 +317,67 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                             : (isSelected
                                 ? Icons.radio_button_checked
                                 : Icons.radio_button_unchecked),
-                        size: 20,
+                        size: 18,
                         color: isSelected
                             ? colorScheme.primary
                             : colorScheme.outline,
                       ),
-                      const SizedBox(width: 12),
-
+                      const SizedBox(width: 8),
                       Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              option.label,
-                              style: TextStyle(
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                                color: isSelected
-                                    ? colorScheme.onSurface
-                                    : colorScheme.onSurfaceVariant,
+                        child: Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: option.label,
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  color: isSelected
+                                      ? colorScheme.onSurface
+                                      : colorScheme.onSurfaceVariant,
+                                ),
                               ),
-                            ),
-                            if (option.description.isNotEmpty)
-                              Text(
-                                option.description,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: colorScheme.outline,
+                              if (option.description.isNotEmpty)
+                                TextSpan(
+                                  text: "  ${option.description}",
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontSize: 12,
+                                        color: colorScheme.outline,
+                                      ),
+                                ),
+                              if (isSelected && !showCustom)
+                                WidgetSpan(
+                                  alignment: PlaceholderAlignment.middle,
+                                  child: InkWell(
+                                    onTap: () => _showAndFocusInput(index),
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.edit_note,
+                                            size: 18,
+                                            color: colorScheme.secondary
+                                                .withOpacity(0.8),
+                                          ),
+                                          const SizedBox(
+                                              width:
+                                                  8), // Increased width for better tap zone
+                                        ],
+                                      ),
                                     ),
-                              ),
-                          ],
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -317,38 +387,13 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
             );
           }),
 
-        // Edit/Custom input toggle
-        if (question.custom ||
-            true) // Always allow custom input as per user request ("I hope it at the very end have an edit icon")
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                if (!showCustom)
-                  IconButton(
-                    icon: const Icon(Icons.edit_note),
-                    tooltip: 'Add explanation',
-                    onPressed: () {
-                      setState(() {
-                        _showCustomInput[index] = true;
-                      });
-                    },
-                    iconSize: 20,
-                    color: colorScheme.secondary,
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-              ],
-            ),
-          ),
-
         // Custom Input Field
         if (showCustom)
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: TextField(
               controller: _customInputs[index],
+              focusNode: _focusNodes[index],
               decoration: InputDecoration(
                 hintText: 'Add explanation or custom answer...',
                 isDense: true,
