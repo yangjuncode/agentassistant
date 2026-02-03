@@ -296,7 +296,7 @@ const Map<String, _ToolConfig> _toolConfigs = {
     skillsRelativeDir: '.amazonq/skills/',
     commandsRelativeDir: '.amazonq/prompts/',
   ),
-  'Antigravity': _ToolConfig(
+  'antigravity-client': _ToolConfig(
     clientNameKey: 'agent',
     skillsRelativeDir: '.agent/skills/',
     commandsRelativeDir: '.agent/workflows/',
