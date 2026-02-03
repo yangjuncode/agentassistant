@@ -940,7 +940,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         OutlinedButton(
                           onPressed: _isSubmitting
                               ? null
-                              : () => _handleSubmit('git commit'),
+                              : () => _handleSubmit(
+                                  'git commit current work, task is finished, standby.'),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 0),
@@ -1018,7 +1019,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           OutlinedButton.icon(
                             onPressed: _isSubmitting
                                 ? null
-                                : () => _handleSubmit('git commit'),
+                                : () => _handleSubmit(
+                                    'git commit current work, task is finished, standby.'),
                             icon: const Icon(Icons.commit, size: 16),
                             label: const Text('git commit'),
                             style: OutlinedButton.styleFrom(
