@@ -940,6 +940,18 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         OutlinedButton(
                           onPressed: _isSubmitting
                               ? null
+                              : () => _handleSubmit('git commit'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 0),
+                            minimumSize: const Size(0, 32),
+                          ),
+                          child: const Text('git commit'),
+                        ),
+                        const SizedBox(width: 8),
+                        OutlinedButton(
+                          onPressed: _isSubmitting
+                              ? null
                               : () => _handleSubmit("ok, let's do it"),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
@@ -998,6 +1010,21 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                               foregroundColor: Colors.blue,
                               side: BorderSide(
                                   color: Colors.blue.withValues(alpha: 0.5)),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          OutlinedButton.icon(
+                            onPressed: _isSubmitting
+                                ? null
+                                : () => _handleSubmit('git commit'),
+                            icon: const Icon(Icons.commit, size: 16),
+                            label: const Text('git commit'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.orange,
+                              side: BorderSide(
+                                  color: Colors.orange.withValues(alpha: 0.5)),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 8),
                             ),
