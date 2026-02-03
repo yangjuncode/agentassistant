@@ -286,12 +286,12 @@ const _ToolConfig _defaultToolConfig = _ToolConfig(
 const Map<String, _ToolConfig> _toolConfigs = {
   // VS Code desktop notifications often carry this as McpClientName.
   // Treat it like GitHub Copilot so / commands can be suggested from .github/prompts.
-  'Visual Studio Code': _ToolConfig(
+  'visual studio code': _ToolConfig(
     clientNameKey: 'github',
     skillsRelativeDir: '.github/skills/',
     commandsRelativeDir: '.github/prompts/',
   ),
-  'Amazon Q Developer': _ToolConfig(
+  'amazon q developer': _ToolConfig(
     clientNameKey: 'amazonq',
     skillsRelativeDir: '.amazonq/skills/',
     commandsRelativeDir: '.amazonq/prompts/',
@@ -301,97 +301,97 @@ const Map<String, _ToolConfig> _toolConfigs = {
     skillsRelativeDir: '.agent/skills/',
     commandsRelativeDir: '.agent/workflows/',
   ),
-  'Auggie (Augment CLI)': _ToolConfig(
+  'auggie (augment cli)': _ToolConfig(
     clientNameKey: 'augment',
     skillsRelativeDir: '.augment/skills/',
     commandsRelativeDir: '.augment/commands/',
   ),
-  'Claude Code': _ToolConfig(
+  'claude code': _ToolConfig(
     clientNameKey: 'claude',
     skillsRelativeDir: '.claude/skills/',
     commandsRelativeDir: '.claude/commands/opsx/',
   ),
-  'Cline': _ToolConfig(
+  'cline': _ToolConfig(
     clientNameKey: 'cline',
     skillsRelativeDir: '.cline/skills/',
     commandsRelativeDir: '.clinerules/workflows/',
   ),
-  'CodeBuddy': _ToolConfig(
+  'codebuddy': _ToolConfig(
     clientNameKey: 'codebuddy',
     skillsRelativeDir: '.codebuddy/skills/',
     commandsRelativeDir: '.codebuddy/commands/opsx/',
   ),
-  'Codex': _ToolConfig(
+  'codex': _ToolConfig(
     clientNameKey: 'codex',
     skillsRelativeDir: '.codex/skills/',
     commandsRelativeDir: '.codex/prompts/',
   ),
-  'Continue': _ToolConfig(
+  'continue': _ToolConfig(
     clientNameKey: 'continue',
     skillsRelativeDir: '.continue/skills/',
     commandsRelativeDir: '.continue/prompts/',
   ),
-  'CoStrict': _ToolConfig(
+  'costrict': _ToolConfig(
     clientNameKey: 'cospec',
     skillsRelativeDir: '.cospec/skills/',
     commandsRelativeDir: '.cospec/openspec/commands/',
   ),
-  'Crush': _ToolConfig(
+  'crush': _ToolConfig(
     clientNameKey: 'crush',
     skillsRelativeDir: '.crush/skills/',
     commandsRelativeDir: '.crush/commands/opsx/',
   ),
-  'Cursor': _ToolConfig(
+  'cursor': _ToolConfig(
     clientNameKey: 'cursor',
     skillsRelativeDir: '.cursor/skills/',
     commandsRelativeDir: '.cursor/commands/',
   ),
-  'Factory Droid': _ToolConfig(
+  'factory droid': _ToolConfig(
     clientNameKey: 'factory',
     skillsRelativeDir: '.factory/skills/',
     commandsRelativeDir: '.factory/commands/',
   ),
-  'Gemini CLI': _ToolConfig(
+  'gemini cli': _ToolConfig(
     clientNameKey: 'gemini',
     skillsRelativeDir: '.gemini/skills/',
     commandsRelativeDir: '.gemini/commands/opsx/',
   ),
-  'GitHub Copilot': _ToolConfig(
+  'github copilot': _ToolConfig(
     clientNameKey: 'github',
     skillsRelativeDir: '.github/skills/',
     commandsRelativeDir: '.github/prompts/',
   ),
-  'iFlow': _ToolConfig(
+  'iflow': _ToolConfig(
     clientNameKey: 'iflow',
     skillsRelativeDir: '.iflow/skills/',
     commandsRelativeDir: '.iflow/commands/',
   ),
-  'Kilo Code': _ToolConfig(
+  'kilo code': _ToolConfig(
     clientNameKey: 'kilocode',
     skillsRelativeDir: '.kilocode/skills/',
     commandsRelativeDir: '.kilocode/workflows/',
   ),
-  'OpenCode': _ToolConfig(
+  'opencode': _ToolConfig(
     clientNameKey: 'opencode',
     skillsRelativeDir: '.opencode/skills/',
     commandsRelativeDir: '.opencode/command/',
   ),
-  'Qoder': _ToolConfig(
+  'qoder': _ToolConfig(
     clientNameKey: 'qoder',
     skillsRelativeDir: '.qoder/skills/',
     commandsRelativeDir: '.qoder/commands/opsx/',
   ),
-  'Qwen Code': _ToolConfig(
+  'qwen code': _ToolConfig(
     clientNameKey: 'qwen',
     skillsRelativeDir: '.qwen/skills/',
     commandsRelativeDir: '.qwen/commands/',
   ),
-  'RooCode': _ToolConfig(
+  'roocode': _ToolConfig(
     clientNameKey: 'roo',
     skillsRelativeDir: '.roo/skills/',
     commandsRelativeDir: '.roo/commands/',
   ),
-  'Windsurf': _ToolConfig(
+  'windsurf': _ToolConfig(
     clientNameKey: 'windsurf',
     skillsRelativeDir: '.windsurf/skills/',
     commandsRelativeDir: '.windsurf/workflows/',
@@ -399,7 +399,7 @@ const Map<String, _ToolConfig> _toolConfigs = {
 };
 
 _ToolConfig _resolveConfigForRoot(String root, String? mcpClientName) {
-  final name = (mcpClientName ?? '').trim();
+  final name = (mcpClientName ?? '').trim().toLowerCase();
   if (name.isEmpty) return _defaultToolConfig;
 
   final mapped = _toolConfigs[name];
