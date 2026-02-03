@@ -32,6 +32,15 @@ if flutter build linux --release --dart-define=BUILD_TIME="$BUILD_TIME"; then
     cp -rv build/linux/x64/release/bundle/* ../bin/
     echo "Build and export to bin/ complete!"
 else
-    echo "Error: Flutter build failed. Output was not copied."
-    exit 1
+    EXIT_CODE=$?
+    echo "--------------------------------------------------------"
+    echo "Error: Flutter build failed with exit code $EXIT_CODE. Output was not copied."
+    echo "Suggestion:"
+    echo "If the build failed due to plugin issues, try running:"
+    echo ""
+    echo "    flutter clean && flutter pub get"
+    echo ""
+    echo "Then try building again."
+    echo "--------------------------------------------------------"
+    exit $EXIT_CODE
 fi

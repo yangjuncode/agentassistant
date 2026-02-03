@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 
 import '../models/chat_message.dart';
@@ -689,47 +690,54 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
       return const SizedBox.shrink();
     }
 
-    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withOpacity(0.5),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ...questions.asMap().entries.map((entry) {
-            final index = entry.key;
-            final question = entry.value;
-            return _buildQuestionItem(context, index, question);
-          }),
-          const SizedBox(height: 12),
-          Align(
-            alignment: Alignment.center,
-            child: ElevatedButton.icon(
-              onPressed: _isSubmitting ? null : _submitReply,
-              icon: _isSubmitting
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.send, size: 18),
-              label: Text(_isSubmitting ? 'Sending...' : 'Reply'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 500;
+        final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+
+        return Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: colorScheme.outlineVariant.withOpacity(0.5),
             ),
           ),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ...questions.asMap().entries.map((entry) {
+                final index = entry.key;
+                final question = entry.value;
+                return _buildQuestionItem(context, index, question);
+              }),
+              const SizedBox(height: 12),
+              if (!(isCompact && isKeyboardOpen))
+                Align(
+                  alignment: Alignment.center,
+                  child: ElevatedButton.icon(
+                    onPressed: _isSubmitting ? null : _submitReply,
+                    icon: _isSubmitting
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.send, size: 18),
+                    label: Text(_isSubmitting ? 'Sending...' : 'Reply'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -742,55 +750,74 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (question.header.isNotEmpty ||
-            question.question.isNotEmpty ||
-            (question.custom || true))
+        if (question.header.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 2),
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  if (question.header.isNotEmpty)
-                    TextSpan(
-                      text: "${question.header} ",
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
-                    ),
-                  if (question.question.isNotEmpty)
-                    TextSpan(
-                      text: question.question,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w500,
-                          ),
-                    ),
-                  if ((question.custom || true) && !showCustom)
-                    WidgetSpan(
-                      alignment: PlaceholderAlignment.middle,
-                      child: InkWell(
-                        onTap: () => _showAndFocusInput(index),
-                        borderRadius: BorderRadius.circular(4),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.edit_note,
-                                size: 22,
-                                color: colorScheme.secondary.withOpacity(0.8),
-                              ),
-                              const SizedBox(
-                                  width:
-                                      8), // Double the effective width for better tap area
-                            ],
+            child: Text(
+              question.header,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
+            ),
+          ),
+        if (question.question.isNotEmpty || (question.custom || true))
+          Padding(
+            padding: const EdgeInsets.only(bottom: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: question.question.isEmpty
+                      ? const SizedBox.shrink()
+                      : MarkdownBody(
+                          data: question.question,
+                          selectable: false,
+                          styleSheet: MarkdownStyleSheet.fromTheme(
+                            Theme.of(context),
+                          ).copyWith(
+                            p: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.w500),
+                            code: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(
+                                  fontFamily: 'monospace',
+                                  backgroundColor: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                ),
+                            codeblockDecoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
                         ),
+                ),
+                if ((question.custom || true) && !showCustom)
+                  InkWell(
+                    onTap: () => _showAndFocusInput(index),
+                    borderRadius: BorderRadius.circular(4),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.edit_note,
+                            size: 22,
+                            color: colorScheme.secondary.withOpacity(0.8),
+                          ),
+                          const SizedBox(width: 8),
+                        ],
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
 
@@ -839,36 +866,27 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: option.label,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w600
-                                      : FontWeight.normal,
-                                  color: isSelected
-                                      ? colorScheme.onSurface
-                                      : colorScheme.onSurfaceVariant,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    option.label,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.normal,
+                                      color: isSelected
+                                          ? colorScheme.onSurface
+                                          : colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              if (option.description.isNotEmpty)
-                                TextSpan(
-                                  text: "  ${option.description}",
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        fontSize: 12,
-                                        color: colorScheme.outline,
-                                      ),
-                                ),
-                              if (isSelected && !showCustom)
-                                WidgetSpan(
-                                  alignment: PlaceholderAlignment.middle,
-                                  child: InkWell(
+                                if (isSelected && !showCustom)
+                                  InkWell(
                                     onTap: () => _showAndFocusInput(index),
                                     borderRadius: BorderRadius.circular(4),
                                     child: Padding(
@@ -883,16 +901,50 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                             color: colorScheme.secondary
                                                 .withOpacity(0.8),
                                           ),
-                                          const SizedBox(
-                                              width:
-                                                  8), // Increased width for better tap zone
+                                          const SizedBox(width: 8),
                                         ],
                                       ),
                                     ),
                                   ),
+                              ],
+                            ),
+                            if (option.description.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 2),
+                                child: IgnorePointer(
+                                  child: MarkdownBody(
+                                    data: option.description,
+                                    selectable: false,
+                                    styleSheet: MarkdownStyleSheet.fromTheme(
+                                      Theme.of(context),
+                                    ).copyWith(
+                                      p: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            fontSize: 12,
+                                            color: colorScheme.outline,
+                                          ),
+                                      code: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            fontFamily: 'monospace',
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .surfaceContainerHighest,
+                                          ),
+                                      codeblockDecoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                            ],
-                          ),
+                              ),
+                          ],
                         ),
                       ),
                     ],
@@ -912,29 +964,83 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
               child: CompositedTransformTarget(
                 key: _inputKeys[index],
                 link: _layerLinks[index]!,
-                child: TextField(
-                  controller: _customInputs[index],
-                  focusNode: _focusNodes[index],
-                  decoration: InputDecoration(
-                    hintText: 'Add explanation or custom answer...',
-                    isDense: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
+                child: Stack(
+                  children: [
+                    TextField(
+                      controller: _customInputs[index],
+                      focusNode: _focusNodes[index],
+                      decoration: InputDecoration(
+                        hintText: 'Add explanation or custom answer...',
+                        isDense: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.fromLTRB(12, 12, 56, 12),
+                      ),
+                      maxLines: 3,
+                      minLines: 1,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.close, size: 18),
-                      onPressed: () {
-                        setState(() {
-                          _showCustomInput[index] = false;
-                          _customInputs[index]?.clear();
-                        });
-                      },
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Material(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withOpacity(0.10),
+                            borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: _isSubmitting ? null : _submitReply,
+                              child: Padding(
+                                padding: const EdgeInsets.all(6),
+                                child: Icon(
+                                  Icons.send,
+                                  size: 18,
+                                  color: _isSubmitting
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant
+                                          .withOpacity(0.6)
+                                      : Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Material(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest
+                                .withOpacity(0.6),
+                            borderRadius: BorderRadius.circular(8),
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(8),
+                              onTap: () {
+                                setState(() {
+                                  _showCustomInput[index] = false;
+                                  _customInputs[index]?.clear();
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(6),
+                                child: Icon(
+                                  Icons.close,
+                                  size: 18,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  maxLines: 3,
-                  minLines: 1,
+                  ],
                 ),
               ),
             ),
