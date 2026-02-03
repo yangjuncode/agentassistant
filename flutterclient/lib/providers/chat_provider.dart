@@ -51,6 +51,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   String? _activeChatUserKey;
   bool _autoForwardToSystemInput = false;
   bool _useInteractiveAskQuestion = true;
+  bool _autoReplyAskQuestion = true;
   DesktopMcpAttentionMode _desktopMcpAttentionMode =
       DesktopMcpAttentionMode.popupOnTop;
   DesktopMcpAttentionMode _askQuestionAttentionMode =
@@ -97,6 +98,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   bool get autoForwardToSystemInput => _autoForwardToSystemInput;
   bool get useInteractiveAskQuestion => _useInteractiveAskQuestion;
+  bool get autoReplyAskQuestion => _autoReplyAskQuestion;
   DesktopMcpAttentionMode get desktopMcpAttentionMode =>
       _desktopMcpAttentionMode;
   DesktopMcpAttentionMode get askQuestionAttentionMode =>
@@ -252,6 +254,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
       _useInteractiveAskQuestion =
           prefs.getBool('use_interactive_ask_question') ?? true;
+      _autoReplyAskQuestion = prefs.getBool('auto_reply_ask_question') ?? true;
       // 注意：昵称加载已在 _loadNickname() 中完成，这里不需要重复加载
       // 之前这里使用了错误的键 'nickname'，而正确的键是 AppConfig.nicknameStorageKey
       notifyListeners();
@@ -269,6 +272,14 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('use_interactive_ask_question', value);
+  }
+
+  /// 设置单选自动回复
+  Future<void> setAutoReplyAskQuestion(bool value) async {
+    _autoReplyAskQuestion = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auto_reply_ask_question', value);
   }
 
   Future<void> setAskQuestionAttentionMode(DesktopMcpAttentionMode mode) async {

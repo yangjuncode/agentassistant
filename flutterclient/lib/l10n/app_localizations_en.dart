@@ -51,7 +51,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get disconnectConfirmTitle => 'Disconnect';
 
   @override
-  String get disconnectConfirmMessage => 'Are you sure you want to disconnect from the server?';
+  String get disconnectConfirmMessage =>
+      'Are you sure you want to disconnect from the server?';
 
   @override
   String get cancel => 'Cancel';
@@ -66,7 +67,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoForwardMessages => 'Auto Forward Chat Messages';
 
   @override
-  String get autoForwardMessagesDesc => 'Automatically send received chat messages to system input';
+  String get autoForwardMessagesDesc =>
+      'Automatically send received chat messages to system input';
 
   @override
   String get autoForwardEnabled => 'Auto forward enabled';
@@ -79,6 +81,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get useInteractiveModeDesc => 'Render questions as interactive forms';
+
+  @override
+  String get autoReplyAskQuestion => 'Auto-reply for single-choice';
+
+  @override
+  String get autoReplyAskQuestionDesc =>
+      'Automatically submit reply when all single-choice questions are answered';
 
   @override
   String get messages => 'Messages';
@@ -111,7 +120,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearMessagesConfirmTitle => 'Clear Messages';
 
   @override
-  String get clearMessagesConfirmMessage => 'Are you sure you want to clear all chat history? This action cannot be undone.';
+  String get clearMessagesConfirmMessage =>
+      'Are you sure you want to clear all chat history? This action cannot be undone.';
 
   @override
   String get clear => 'Clear';
@@ -142,10 +152,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get feedbackDesc => 'Report bugs or suggest features';
 
   @override
-  String get feedbackMessage => 'Please contact your system administrator to report issues';
+  String get feedbackMessage =>
+      'Please contact your system administrator to report issues';
 
   @override
-  String get aboutAppDescription => 'Agent Assistant is a mobile client application for real-time communication with AI Agents.';
+  String get aboutAppDescription =>
+      'Agent Assistant is a mobile client application for real-time communication with AI Agents.';
 
   @override
   String get features => 'Features:';
@@ -192,19 +204,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useGitIgnore => 'Use .gitignore rules';
 
   @override
-  String get useGitIgnoreDesc => 'Automatically apply project\'s .gitignore patterns';
+  String get useGitIgnoreDesc =>
+      'Automatically apply project\'s .gitignore patterns';
 
   @override
   String get customIgnorePatterns => 'Custom ignore patterns';
 
   @override
-  String get customIgnorePatternsDesc => 'Add custom patterns in gitignore format';
+  String get customIgnorePatternsDesc =>
+      'Add custom patterns in gitignore format';
 
   @override
   String get customIgnorePatternsDialogTitle => 'Edit Custom Ignore Patterns';
 
   @override
-  String get customIgnorePatternsHint => '# Each line is a pattern\n*.log\nbuild/\nnode_modules/';
+  String get customIgnorePatternsHint =>
+      '# Each line is a pattern\n*.log\nbuild/\nnode_modules/';
 
   @override
   String get slashCommands => 'Slash Commands';
@@ -228,7 +243,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get slashSkillCompletionText => '/ Skill Completion Text';
 
   @override
-  String get slashCompletionTextDesc => 'Customize the input text when / command autocompletes. Available variables: %name%, %path%, %type%';
+  String get slashCompletionTextDesc =>
+      'Customize the input text when / command autocompletes. Available variables: %name%, %path%, %type%';
 
   @override
   String get resetToDefault => 'Reset to Default';
@@ -258,7 +274,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mcpAttentionModePopupOnTop => 'Popup + Always on top';
 
   @override
-  String get mcpAttentionModeTrayPopupOnTop => 'Systray info + Popup + Always on top';
+  String get mcpAttentionModeTrayPopupOnTop =>
+      'Systray info + Popup + Always on top';
 
   @override
   String get webSocketUrlHint => 'ws://host:port/ws';
@@ -312,7 +329,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loginButton => 'Connect';
 
   @override
-  String get loginHelp => 'Need help? Please contact your system administrator to get an access token.';
+  String get loginHelp =>
+      'Need help? Please contact your system administrator to get an access token.';
 
   @override
   String get errorTokenRequired => 'Please enter access token';
@@ -324,7 +342,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorServerRequired => 'Please enter server address';
 
   @override
-  String get errorServerProtocol => 'Server address must start with ws:// or wss://';
+  String get errorServerProtocol =>
+      'Server address must start with ws:// or wss://';
 
   @override
   String get chatConnecting => 'Connecting to Agent Assistant server...';
@@ -342,7 +361,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatEmptyTitle => 'Waiting for messages from AI Agent...';
 
   @override
-  String get chatEmptySubtitle => 'Once connected, questions and tasks from the AI Agent will appear here.';
+  String get chatEmptySubtitle =>
+      'Once connected, questions and tasks from the AI Agent will appear here.';
 
   @override
   String get splashInitializing => 'Initializing...';
@@ -410,7 +430,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nicknameSettingsTitle => 'Nickname Settings';
 
   @override
-  String get nicknameSettingsSubtitle => 'Set the nickname that will be displayed in chat';
+  String get nicknameSettingsSubtitle =>
+      'Set the nickname that will be displayed in chat';
 
   @override
   String get nicknameLabel => 'Nickname';
@@ -434,7 +455,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nicknameTipsTitle => 'Tips:';
 
   @override
-  String get nicknameTipsBody => '• Nickname length must be between 2 and 20 characters\n• Your nickname will be shown in your replies\n• Other users can see your nickname';
+  String get nicknameTipsBody =>
+      '• Nickname length must be between 2 and 20 characters\n• Your nickname will be shown in your replies\n• Other users can see your nickname';
 
   @override
   String nicknameLoadFailed(String error) {
@@ -486,10 +508,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get delete => 'Delete';
 
   @override
-  String get noServersConfigured => 'No servers configured. Add a server to connect.';
+  String get noServersConfigured =>
+      'No servers configured. Add a server to connect.';
 
   @override
-  String get noEnabledServers => 'No servers enabled. Please enable at least one server.';
+  String get noEnabledServers =>
+      'No servers enabled. Please enable at least one server.';
 
   @override
   String get deleteServerConfirmTitle => 'Delete Server';

@@ -590,6 +590,49 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
       }
       _selections[questionIndex] = currentSelections;
     });
+
+    // 检查是否应该自动提交
+    _checkAutoReply();
+  }
+
+  /// 检查是否满足自动回复条件：
+  /// 1. 设置中开启了自动回复
+  /// 2. 所有问题都是单选
+  /// 3. 每个问题都已有选择，或自定义输入框有内容
+  void _checkAutoReply() {
+    final chatProvider = context.read<ChatProvider>();
+    if (!chatProvider.autoReplyAskQuestion) return;
+    if (_isSubmitting) return;
+
+    final questions = widget.message.rawQuestions;
+    if (questions == null || questions.isEmpty) return;
+
+    // 检查所有问题是否都是单选
+    final allSingleChoice = questions.every((q) => !q.multiple);
+    if (!allSingleChoice) return;
+
+    // 检查每个问题是否已回答
+    for (int i = 0; i < questions.length; i++) {
+      final hasSelection = (_selections[i]?.isNotEmpty ?? false);
+      final showCustom = _showCustomInput[i] ?? false;
+      final customText = _customInputs[i]?.text.trim() ?? '';
+
+      // 如果自定义输入框显示中但没有内容，且没有选择选项，则未回答
+      if (showCustom && customText.isEmpty && !hasSelection) {
+        return;
+      }
+      // 如果没有选择且自定义输入框也没有内容，则未回答
+      if (!hasSelection && customText.isEmpty) {
+        return;
+      }
+    }
+
+    // 所有条件满足，延迟自动提交
+    Future.microtask(() {
+      if (!mounted) return;
+      if (_isSubmitting) return;
+      _submitReply();
+    });
   }
 
   void _showAndFocusInput(int index) {

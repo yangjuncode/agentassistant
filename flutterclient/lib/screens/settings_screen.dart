@@ -486,6 +486,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         chatProvider.setUseInteractiveAskQuestion(value);
                       },
                     ),
+                    const Divider(height: 1),
+                    SwitchListTile(
+                      secondary: const Icon(Icons.flash_auto),
+                      title: Text(l10n.autoReplyAskQuestion),
+                      subtitle: Text(l10n.autoReplyAskQuestionDesc),
+                      value: chatProvider.autoReplyAskQuestion,
+                      onChanged: (value) {
+                        chatProvider.setAutoReplyAskQuestion(value);
+                      },
+                    ),
                   ],
                 ),
               ),
