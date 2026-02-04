@@ -698,8 +698,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
         final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
 
         return Container(
-          margin: const EdgeInsets.only(top: 8),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          margin: const EdgeInsets.only(top: 1),
+          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
@@ -723,7 +723,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                     onPressed: _isSubmitting ? null : _submitReply,
                     icon: _isSubmitting
                         ? const SizedBox(
-                            width: 16,
+                            width: 32,
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.send, size: 18),
@@ -750,60 +750,55 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (question.header.isNotEmpty)
+        if (question.header.isNotEmpty ||
+            question.question.isNotEmpty ||
+            (question.custom || true))
           Padding(
-            padding: const EdgeInsets.only(bottom: 2),
-            child: Text(
-              question.header,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                  ),
-            ),
-          ),
-        if (question.question.isNotEmpty || (question.custom || true))
-          Padding(
-            padding: const EdgeInsets.only(bottom: 2),
+            padding: const EdgeInsets.only(bottom: 1),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: question.question.isEmpty
-                      ? const SizedBox.shrink()
-                      : MarkdownBody(
-                          data: question.question,
-                          selectable: false,
-                          styleSheet: MarkdownStyleSheet.fromTheme(
-                            Theme.of(context),
-                          ).copyWith(
-                            p: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.w500),
-                            code: Theme.of(context)
-                                .textTheme
-                                .bodyMedium
-                                ?.copyWith(
-                                  fontFamily: 'monospace',
-                                  backgroundColor: Theme.of(context)
-                                      .colorScheme
-                                      .surfaceContainerHighest,
-                                ),
-                            codeblockDecoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
+                  child: MarkdownBody(
+                    data: [
+                      if (question.header.isNotEmpty)
+                        '**${question.header.trim()}**',
+                      if (question.question.isNotEmpty)
+                        question.question.trim(),
+                    ].join(' '),
+                    selectable: false,
+                    styleSheet: MarkdownStyleSheet.fromTheme(
+                      Theme.of(context),
+                    ).copyWith(
+                      strong: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
                           ),
-                        ),
+                      p: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w500),
+                      code: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontFamily: 'monospace',
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
+                          ),
+                      codeblockDecoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
                 ),
                 if ((question.custom || true) && !showCustom)
                   InkWell(
                     onTap: () => _showAndFocusInput(index),
                     borderRadius: BorderRadius.circular(4),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 1),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -829,14 +824,14 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
             final isSelected = selections.contains(optIndex);
 
             return Padding(
-              padding: const EdgeInsets.only(bottom: 2),
+              padding: const EdgeInsets.only(bottom: 1),
               child: InkWell(
                 onTap: () =>
                     _toggleSelection(index, optIndex, question.multiple),
                 borderRadius: BorderRadius.circular(6),
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? colorScheme.primaryContainer.withOpacity(0.3)
@@ -849,97 +844,93 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                     ),
                   ),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Checkbox or Radio icon
-                      Icon(
-                        question.multiple
-                            ? (isSelected
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank)
-                            : (isSelected
-                                ? Icons.radio_button_checked
-                                : Icons.radio_button_unchecked),
-                        size: 18,
-                        color: isSelected
-                            ? colorScheme.primary
-                            : colorScheme.outline,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 1),
+                        child: Icon(
+                          question.multiple
+                              ? (isSelected
+                                  ? Icons.check_box
+                                  : Icons.check_box_outline_blank)
+                              : (isSelected
+                                  ? Icons.radio_button_checked
+                                  : Icons.radio_button_unchecked),
+                          size: 18,
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.outline,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Column(
+                        child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    option.label,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.normal,
-                                      color: isSelected
-                                          ? colorScheme.onSurface
-                                          : colorScheme.onSurfaceVariant,
-                                    ),
+                            Expanded(
+                              child: MarkdownBody(
+                                data: [
+                                  if (option.label.isNotEmpty)
+                                    '**${option.label.trim()}**',
+                                  if (option.description.isNotEmpty)
+                                    option.description.trim(),
+                                ].join(' '),
+                                selectable: false,
+                                styleSheet: MarkdownStyleSheet.fromTheme(
+                                  Theme.of(context),
+                                ).copyWith(
+                                  strong: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w600
+                                        : FontWeight.bold,
+                                    color: isSelected
+                                        ? colorScheme.onSurface
+                                        : colorScheme.onSurfaceVariant,
                                   ),
-                                ),
-                                if (isSelected && !showCustom)
-                                  InkWell(
-                                    onTap: () => _showAndFocusInput(index),
-                                    borderRadius: BorderRadius.circular(4),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.edit_note,
-                                            size: 18,
-                                            color: colorScheme.secondary
-                                                .withOpacity(0.8),
-                                          ),
-                                          const SizedBox(width: 8),
-                                        ],
+                                  p: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontSize: 12,
+                                        color: isSelected
+                                            ? colorScheme.onSurface
+                                                .withOpacity(0.8)
+                                            : colorScheme.outline,
                                       ),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                            if (option.description.isNotEmpty)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 2),
-                                child: IgnorePointer(
-                                  child: MarkdownBody(
-                                    data: option.description,
-                                    selectable: false,
-                                    styleSheet: MarkdownStyleSheet.fromTheme(
-                                      Theme.of(context),
-                                    ).copyWith(
-                                      p: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            fontSize: 12,
-                                            color: colorScheme.outline,
-                                          ),
-                                      code: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            fontFamily: 'monospace',
-                                            backgroundColor: Theme.of(context)
-                                                .colorScheme
-                                                .surfaceContainerHighest,
-                                          ),
-                                      codeblockDecoration: BoxDecoration(
-                                        color: Theme.of(context)
+                                  code: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        fontFamily: 'monospace',
+                                        backgroundColor: Theme.of(context)
                                             .colorScheme
                                             .surfaceContainerHighest,
-                                        borderRadius: BorderRadius.circular(4),
                                       ),
+                                  codeblockDecoration: BoxDecoration(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .surfaceContainerHighest,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (isSelected && !showCustom)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 1),
+                                child: InkWell(
+                                  onTap: () => _showAndFocusInput(index),
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 1),
+                                    child: Icon(
+                                      Icons.edit_note,
+                                      size: 18,
+                                      color: colorScheme.secondary
+                                          .withOpacity(0.8),
                                     ),
                                   ),
                                 ),
@@ -957,7 +948,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
         // Custom Input Field
         if (showCustom)
           Padding(
-            padding: const EdgeInsets.only(top: 8),
+            padding: const EdgeInsets.only(top: 2),
             child: Focus(
               onKeyEvent: (node, event) =>
                   _handleKeyEvent(index, _focusNodes[index]!, event),
@@ -975,7 +966,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        contentPadding: const EdgeInsets.fromLTRB(12, 12, 56, 12),
+                        contentPadding:
+                            const EdgeInsets.fromLTRB(12, 12, 56, 12),
                       ),
                       maxLines: 3,
                       minLines: 1,
