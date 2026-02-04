@@ -38,6 +38,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   final Map<int, LayerLink> _layerLinks = {};
   // Map of question index to GlobalKey for overlay positioning context
   final Map<int, GlobalKey> _inputKeys = {};
+  // Map of question index to its measured height
+  final Map<int, double> _questionHeights = {};
 
   bool _isSubmitting = false;
 
@@ -699,7 +701,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
 
         return Container(
           margin: const EdgeInsets.only(top: 1),
-          padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 1),
+          padding: const EdgeInsets.all(4), // 保持较小内边距，不浪费空间
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
@@ -752,66 +754,73 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
       children: [
         if (question.header.isNotEmpty ||
             question.question.isNotEmpty ||
-            (question.custom || true))
+            question.custom)
           Padding(
-            padding: const EdgeInsets.only(bottom: 1),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Stack(
+              clipBehavior: Clip.none,
               children: [
-                Expanded(
-                  child: MarkdownBody(
-                    data: [
-                      if (question.header.isNotEmpty)
-                        '**${question.header.trim()}**',
-                      if (question.question.isNotEmpty)
-                        question.question.trim(),
-                    ].join(' '),
-                    selectable: false,
-                    styleSheet: MarkdownStyleSheet.fromTheme(
-                      Theme.of(context),
-                    ).copyWith(
-                      strong: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
-                      p: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w500),
-                      code: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontFamily: 'monospace',
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                          ),
-                      codeblockDecoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(4),
+                Padding(
+                  padding: EdgeInsets.zero, // 移除间距，允许文字覆盖
+                  child: _SizeReportingWidget(
+                    onSizeChanged: (size) {
+                      if (_questionHeights[index] != size.height) {
+                        setState(() {
+                          _questionHeights[index] = size.height;
+                        });
+                      }
+                    },
+                    child: MarkdownBody(
+                      data: [
+                        if (question.header.isNotEmpty)
+                          '**${question.header.trim()}**',
+                        if (question.question.isNotEmpty)
+                          question.question.trim(),
+                      ].join(' '),
+                      selectable: false,
+                      styleSheet: MarkdownStyleSheet.fromTheme(
+                        Theme.of(context),
+                      ).copyWith(
+                        strong:
+                            Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.primary,
+                                ),
+                        p: Theme.of(context)
+                            .textTheme
+                            .bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w500),
+                        code: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontFamily: 'monospace',
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                            ),
+                        codeblockDecoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
                       ),
                     ),
                   ),
                 ),
-                if ((question.custom || true) && !showCustom)
-                  InkWell(
-                    onTap: () => _showAndFocusInput(index),
-                    borderRadius: BorderRadius.circular(4),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.edit_note,
-                            size: 22,
-                            color: colorScheme.secondary.withOpacity(0.8),
-                          ),
-                          const SizedBox(width: 8),
-                        ],
-                      ),
-                    ),
+                if (question.custom && !showCustom) ...[
+                  // Top right button
+                  Positioned(
+                    top: -1,
+                    right: -4,
+                    child: _buildCustomInputIconButton(context, index),
                   ),
+                  // Bottom right button if content is tall
+                  if ((_questionHeights[index] ?? 0) > 120)
+                    Positioned(
+                      bottom: -1,
+                      right: -4,
+                      child: _buildCustomInputIconButton(context, index),
+                    ),
+                ],
               ],
             ),
           ),
@@ -867,71 +876,58 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Stack(
+                          clipBehavior: Clip.none,
                           children: [
-                            Expanded(
-                              child: MarkdownBody(
-                                data: [
-                                  if (option.label.isNotEmpty)
-                                    '**${option.label.trim()}**',
-                                  if (option.description.isNotEmpty)
-                                    option.description.trim(),
-                                ].join(' '),
-                                selectable: false,
-                                styleSheet: MarkdownStyleSheet.fromTheme(
-                                  Theme.of(context),
-                                ).copyWith(
-                                  strong: TextStyle(
-                                    fontSize: 13,
-                                    fontWeight: isSelected
-                                        ? FontWeight.w600
-                                        : FontWeight.bold,
-                                    color: colorScheme.onSurface,
-                                  ),
-                                  p: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 13,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                  code: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        fontFamily: 'monospace',
-                                        backgroundColor: Theme.of(context)
-                                            .colorScheme
-                                            .surfaceContainerHighest,
-                                      ),
-                                  codeblockDecoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
+                            MarkdownBody(
+                              data: [
+                                if (option.label.isNotEmpty)
+                                  '**${option.label.trim()}**',
+                                if (option.description.isNotEmpty)
+                                  option.description.trim(),
+                              ].join(' '),
+                              selectable: false,
+                              styleSheet: MarkdownStyleSheet.fromTheme(
+                                Theme.of(context),
+                              ).copyWith(
+                                strong: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.bold,
+                                  color: colorScheme.onSurface,
+                                ),
+                                p: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                      color: colorScheme.onSurface,
+                                    ),
+                                code: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      fontFamily: 'monospace',
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHighest,
+                                    ),
+                                codeblockDecoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
                             ),
                             if (isSelected && !showCustom)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 1),
-                                child: InkWell(
-                                  onTap: () => _showAndFocusInput(index),
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
-                                    child: Icon(
-                                      Icons.edit_note,
-                                      size: 18,
-                                      color: colorScheme.secondary
-                                          .withOpacity(0.8),
-                                    ),
-                                  ),
-                                ),
+                              Positioned(
+                                top: -1,
+                                right: -4,
+                                child:
+                                    _buildCustomInputIconButton(context, index),
                               ),
                           ],
                         ),
@@ -1038,6 +1034,39 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
       ],
     );
   }
+
+  Widget _buildCustomInputIconButton(BuildContext context, int index) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showAndFocusInput(index),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: colorScheme.surface.withOpacity(0.9), // 增加不透明度，确保覆盖文字时清晰
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+            border: Border.all(
+              color: colorScheme.primary.withOpacity(0.2),
+            ),
+          ),
+          child: Icon(
+            Icons.edit_note,
+            size: 20,
+            color: colorScheme.primary,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 // --- Helper classes copied from InlineReplyWidget ---
@@ -1139,4 +1168,39 @@ class _SuggestOverlayPlacement {
           offset: const Offset(0, _AskQuestionWidgetState._suggestOverlayGap),
           maxHeight: maxHeight,
         );
+}
+
+/// A helper widget that calls [onSizeChanged] when its layout size changes.
+class _SizeReportingWidget extends StatefulWidget {
+  final Widget child;
+  final ValueChanged<Size> onSizeChanged;
+
+  const _SizeReportingWidget({
+    required this.child,
+    required this.onSizeChanged,
+  });
+
+  @override
+  _SizeReportingWidgetState createState() => _SizeReportingWidgetState();
+}
+
+class _SizeReportingWidgetState extends State<_SizeReportingWidget> {
+  Size? _oldSize;
+
+  @override
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _notifySize());
+    return widget.child;
+  }
+
+  void _notifySize() {
+    if (!mounted) return;
+    final RenderBox? box = context.findRenderObject() as RenderBox?;
+    if (box != null && box.hasSize) {
+      if (_oldSize != box.size) {
+        _oldSize = box.size;
+        widget.onSizeChanged(box.size);
+      }
+    }
+  }
 }
