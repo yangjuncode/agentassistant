@@ -2,7 +2,7 @@ name: agentassistant
 description: "Agent Assistant Flutter Client - Mobile client for AI agent communication"
 publish_to: 'none'
 
-version: 1.15.1+1
+version: 1.15.2+1
 
 environment:
   sdk: ^3.5.0
