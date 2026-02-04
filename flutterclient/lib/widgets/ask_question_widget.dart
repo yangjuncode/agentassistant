@@ -798,7 +798,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                     onTap: () => _showAndFocusInput(index),
                     borderRadius: BorderRadius.circular(4),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 1),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -925,7 +925,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                   borderRadius: BorderRadius.circular(4),
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 1),
+                                        horizontal: 12),
                                     child: Icon(
                                       Icons.edit_note,
                                       size: 18,
