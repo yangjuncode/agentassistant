@@ -887,19 +887,15 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                     fontWeight: isSelected
                                         ? FontWeight.w600
                                         : FontWeight.bold,
-                                    color: isSelected
-                                        ? colorScheme.onSurface
-                                        : colorScheme.onSurfaceVariant,
+                                    color: colorScheme.onSurface,
                                   ),
                                   p: Theme.of(context)
                                       .textTheme
                                       .bodySmall
                                       ?.copyWith(
-                                        fontSize: 12,
-                                        color: isSelected
-                                            ? colorScheme.onSurface
-                                                .withOpacity(0.8)
-                                            : colorScheme.outline,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 13,
+                                        color: colorScheme.onSurface,
                                       ),
                                   code: Theme.of(context)
                                       .textTheme
