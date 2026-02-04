@@ -715,7 +715,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                 final question = entry.value;
                 return _buildQuestionItem(context, index, question);
               }),
-              const SizedBox(height: 12),
+              const SizedBox(height: 2),
               if (!(isCompact && isKeyboardOpen))
                 Align(
                   alignment: Alignment.center,
@@ -830,8 +830,10 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                     _toggleSelection(index, optIndex, question.multiple),
                 borderRadius: BorderRadius.circular(6),
                 child: Container(
+                  constraints: const BoxConstraints(minHeight: 32),
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  alignment: Alignment.centerLeft,
                   decoration: BoxDecoration(
                     color: isSelected
                         ? colorScheme.primaryContainer.withOpacity(0.3)
