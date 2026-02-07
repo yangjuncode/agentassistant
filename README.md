@@ -1,10 +1,11 @@
 # Agent Assistant
 
-Agent Assistant is a system that allows AI agents to interact with human users through a web interface. It consists of three main components:
+Agent Assistant is a system that allows AI agents to interact with human users through a web or mobile interface. It consists of four main components:
 
 1. **agentassistant-srv**: The main server that handles RPC requests and serves the web interface
 2. **agentassistant-mcp**: An MCP (Model Context Protocol) server that provides tools for AI agents
 3. **Web Interface**: A modern React-based web application for user interaction
+4. **Flutter Client**: A mobile and desktop application for real-time interaction
 
 ## Architecture
 
@@ -14,17 +15,18 @@ AI Agent (Claude, etc.)
 agentassistant-mcp
     ↓ (Connect-Go RPC)
 agentassistant-srv
-    ↓ (WebSocket)
-Web Interface (User)
+    ↙ (WebSocket) ↘
+Web Interface   Flutter Client
 ```
 
 ## Features
 
 - **MCP Integration**: Provides `ask_question` and `work_report` tools for AI agents
-- **Real-time Communication**: WebSocket-based communication between server and web interface
+- **Real-time Communication**: WebSocket-based communication between server and clients
 - **Modern Web UI**: React-based interface with Shadcn/ui components
+- **Cross-platform Mobile/Desktop**: Flutter-based application for Android, iOS, Linux, Windows, and macOS
 - **Token-based Authentication**: Simple token-based authentication system
-- **Cross-platform**: Works on Linux, macOS, and Windows
+- **Cross-platform Server**: Works on Linux, macOS, and Windows
 
 ## Quick Start
 
@@ -45,6 +47,7 @@ go build -o agentassistant-mcp ./cmd/agentassistant-mcp
 ```
 
 The server will start on port 8080 and serve:
+
 - Web interface at `http://localhost:8080`
 - WebSocket endpoint at `ws://localhost:8080/ws`
 - RPC endpoints for Connect-Go
@@ -52,6 +55,7 @@ The server will start on port 8080 and serve:
 ### 3. Configure and Start MCP Server
 
 Edit `agentassistant-mcp.toml`:
+
 ```toml
 agentassistant_server_host = "127.0.0.1"
 agentassistant_server_port = 8080
@@ -59,6 +63,7 @@ agentassistant_server_token = "test-token"
 ```
 
 Start the MCP server:
+
 ```bash
 ./agentassistant-mcp
 ```
@@ -66,6 +71,7 @@ Start the MCP server:
 ### 4. Access the Web Interface
 
 Open your browser and go to:
+
 ```
 http://localhost:8080?token=test-token
 ```
@@ -85,10 +91,52 @@ npm run build
 The built files will be placed in `web/dist/` and automatically served by the server.
 
 For development:
+
 ```bash
 cd web
 npm run dev
 ```
+
+### Building the Flutter Client
+
+The Flutter client is located in the `flutterclient/` directory.
+
+**Prerequisites:**
+
+- Flutter SDK (>= 3.32.0)
+- Protocol Buffers compiler (`protoc`)
+- `protoc-gen-dart` plugin (`dart pub global activate protoc_plugin`)
+
+**Steps:**
+
+1. Install dependencies:
+
+   ```bash
+   cd flutterclient
+   flutter pub get
+   ```
+
+2. Generate Protobuf files:
+
+   ```bash
+   ./generate_proto.sh
+   # or
+   protoc --proto_path=../proto --dart_out=lib/proto ../proto/agentassist.proto
+   ```
+
+3. Run the application:
+
+   ```bash
+   flutter run
+   ```
+
+4. Build for specific platforms:
+
+   ```bash
+   flutter build apk --release    # Android
+   flutter build ios --release    # iOS
+   flutter build linux --release  # Linux
+   ```
 
 ### Running Tests
 
@@ -101,6 +149,7 @@ go test ./...
 ### MCP Server Configuration
 
 Create `agentassistant-mcp.toml`:
+
 ```toml
 agentassistant_server_host = "127.0.0.1"
 agentassistant_server_port = 8080
@@ -110,6 +159,7 @@ agentassistant_server_token = "your-token-here"
 ### Command Line Options
 
 MCP Server:
+
 ```bash
 ./agentassistant-mcp -host localhost -port 8080 -token your-token -web
 ```
@@ -124,17 +174,21 @@ MCP Server:
 ### MCP Tools
 
 #### ask_question
+
 Ask a question to the user through the web interface.
 
 **Parameters:**
+
 - `project_directory` (string): Current project directory
 - `question` (string): Question to ask the user
 - `timeout` (number): Timeout in seconds (default: 600)
 
 #### work_report
+
 Notify the user that a task has been completed and send a work report.
 
 **Parameters:**
+
 - `project_directory` (string): Current project directory
 - `summary` (string): Summary of the completed task / work report
 - `timeout` (number): Timeout in seconds (default: 600)
@@ -142,6 +196,7 @@ Notify the user that a task has been completed and send a work report.
 ### RPC Services
 
 #### SrvAgentAssist
+
 - `AskQuestion(AskQuestionRequest) returns (AskQuestionResponse)`
 - `WorkReport(WorkReportRequest) returns (WorkReportResponse)`
 
