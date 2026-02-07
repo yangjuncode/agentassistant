@@ -7,6 +7,8 @@ Agent Assistant is a system that allows AI agents to interact with human users t
 3. **Web Interface**: A modern React-based web application for user interaction
 4. **Flutter Client**: A mobile and desktop application for real-time interaction
 
+> **Note**: There is an `interreactiveui-askquetion` branch, which is like an open-code question tool. You can just select the answer; no need for typing if the answer is provided by the agent.
+
 ## Architecture
 
 ```
