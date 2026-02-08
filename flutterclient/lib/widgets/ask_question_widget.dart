@@ -764,6 +764,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                   padding: EdgeInsets.zero, // 移除间距，允许文字覆盖
                   child: _SizeReportingWidget(
                     onSizeChanged: (size) {
+                      if (!mounted) return;
                       if (_questionHeights[index] != size.height) {
                         setState(() {
                           _questionHeights[index] = size.height;
@@ -809,15 +810,15 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                 if (question.custom && !showCustom) ...[
                   // Top right button
                   Positioned(
-                    top: -1,
-                    right: -4,
+                    top: 0,
+                    right: 0,
                     child: _buildCustomInputIconButton(context, index),
                   ),
                   // Bottom right button if content is tall
                   if ((_questionHeights[index] ?? 0) > 120)
                     Positioned(
-                      bottom: -1,
-                      right: -4,
+                      bottom: 0,
+                      right: 0,
                       child: _buildCustomInputIconButton(context, index),
                     ),
                 ],
@@ -924,8 +925,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                             ),
                             if (isSelected && !showCustom)
                               Positioned(
-                                top: -1,
-                                right: -4,
+                                top: 0,
+                                right: 0,
                                 child:
                                     _buildCustomInputIconButton(context, index),
                               ),
