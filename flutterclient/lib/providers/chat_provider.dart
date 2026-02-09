@@ -1801,6 +1801,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Auto forward message to system input
   Future<void> _autoForwardMessageToSystemInput(String content) async {
+    // Sanitize text: remove ANSI escape codes
+    content = content.replaceAll(RegExp(r'\x1B\[[0-9;]*[a-zA-Z]'), '');
+
     // Use print for debug output in all modes
     print('[AutoForward] Starting auto forward to system input');
     print('[AutoForward] Content length: ${content.length}');
