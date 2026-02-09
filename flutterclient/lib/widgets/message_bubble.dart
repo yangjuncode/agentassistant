@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:flutter_markdown_plus/flutter_markdown_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +26,7 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final chatProvider = context.watch<ChatProvider>();
     final useInteractive = chatProvider.useInteractiveAskQuestion;
-    
+
     // Check if we should use interactive widget
     final showInteractive = useInteractive &&
         message.type == MessageType.question &&
@@ -50,7 +50,7 @@ class MessageBubble extends StatelessWidget {
               AskQuestionWidget(message: message)
             else ...[
               _buildContent(context),
-              
+
               // Inline reply widget (if needs user action and not expired)
               if (message.needsUserAction &&
                   message.status != MessageStatus.expired) ...[
