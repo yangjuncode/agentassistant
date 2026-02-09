@@ -16,8 +16,11 @@ import 'screens/login_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/splash_screen.dart';
 import 'config/app_config.dart';
-import 'services/window_service.dart';
 import 'services/tray_service.dart';
+import 'services/window_service.dart';
+
+// Global navigator key for navigation/dialogs without context
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 // Global logger instance
 final Logger logger = Logger();
@@ -143,6 +146,7 @@ class AgentAssistantApp extends StatelessWidget {
       child: Consumer<LocaleProvider>(
         builder: (context, localeProvider, child) {
           return MaterialApp(
+            navigatorKey: navigatorKey,
             title: AppConfig.appName,
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(

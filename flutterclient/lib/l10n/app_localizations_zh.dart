@@ -57,6 +57,17 @@ class AppLocalizationsZh extends AppLocalizations {
   String get cancel => '取消';
 
   @override
+  String get confirm => '确定';
+
+  @override
+  String get forwardConfirmTitle => '转发到系统输入';
+
+  @override
+  String forwardConfirmMessage(int length) {
+    return '消息很长（$length 个字符），输入可能需要很长时间。是否继续？';
+  }
+
+  @override
   String get userSettings => '用户设置';
 
   @override
@@ -81,10 +92,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get useInteractiveModeDesc => '以交互式表单形式显示问题';
 
   @override
-  String get autoReplyAskQuestion => '单选自动回复';
+  String get autoReplyAskQuestion => '自动回复提问';
 
   @override
-  String get autoReplyAskQuestionDesc => '所有问题都是单选且已选择时，自动提交回复';
+  String get autoReplyAskQuestionDesc => '当只有一个选项时自动回复';
 
   @override
   String get messages => '消息';
@@ -151,8 +162,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackMessage => '请联系您的系统管理员反馈问题';
 
   @override
-  String get aboutAppDescription =>
-      'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
+  String get aboutAppDescription => 'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
 
   @override
   String get features => '功能特性：';
@@ -211,8 +221,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customIgnorePatternsDialogTitle => '编辑自定义忽略规则';
 
   @override
-  String get customIgnorePatternsHint =>
-      '# 每行一条规则\n*.log\nbuild/\nnode_modules/';
+  String get customIgnorePatternsHint => '# 每行一条规则\n*.log\nbuild/\nnode_modules/';
 
   @override
   String get slashCommands => 'Slash Commands';
@@ -236,8 +245,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slashSkillCompletionText => '/ 技能 (Skill) 补全文本';
 
   @override
-  String get slashCompletionTextDesc =>
-      '定制 / 命令自动补全时的输入文本。可用变量: %name%, %path%, %type%';
+  String get slashCompletionTextDesc => '定制 / 命令自动补全时的输入文本。可用变量: %name%, %path%, %type%';
 
   @override
   String get resetToDefault => '恢复默认';
@@ -443,8 +451,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nicknameTipsTitle => '提示：';
 
   @override
-  String get nicknameTipsBody =>
-      '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
+  String get nicknameTipsBody => '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
 
   @override
   String nicknameLoadFailed(String error) {

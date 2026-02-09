@@ -16,6 +16,16 @@
   "disconnectConfirmTitle": "Disconnect",
   "disconnectConfirmMessage": "Are you sure you want to disconnect from the server?",
   "cancel": "Cancel",
+  "confirm": "Confirm",
+  "forwardConfirmTitle": "Forward to System Input",
+  "forwardConfirmMessage": "The message is very long ({length} characters) and may take a long time to input. Do you want to proceed?",
+  "@forwardConfirmMessage": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
   "userSettings": "User Settings",
   "systemInput": "System Input",
   "autoForwardMessages": "Auto Forward Chat Messages",
@@ -25,6 +35,8 @@
   "autoForwardDisabled": "Auto forward disabled",
   "useInteractiveMode": "Interactive Question Mode",
   "useInteractiveModeDesc": "Render questions as interactive forms",
+  "autoReplyAskQuestion": "Auto Reply Questions",
+  "autoReplyAskQuestionDesc": "Automatically reply when there is only one option",
   "messages": "Messages",
   "messageStats": "Message Statistics",
   "totalMessages": "Total {count} messages",

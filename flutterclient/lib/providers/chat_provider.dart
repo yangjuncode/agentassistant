@@ -1,8 +1,11 @@
 import 'dart:async';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 import 'package:fixnum/fixnum.dart';
+
+import '../main.dart';
+import '../l10n/app_localizations.dart';
 
 import '../models/chat_message.dart';
 import '../models/display_online_user.dart';
@@ -1806,6 +1809,39 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     );
 
     try {
+      // Check message length, if > 1000, ask for confirmation
+      if (content.length > 1000) {
+        print('[AutoForward] Content length > 1000, asking for confirmation');
+        final context = navigatorKey.currentContext;
+        if (context != null) {
+          final l10n = AppLocalizations.of(context);
+          if (l10n != null) {
+            final confirmed = await showDialog<bool>(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: Text(l10n.forwardConfirmTitle),
+                content: Text(l10n.forwardConfirmMessage(content.length)),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: Text(l10n.cancel),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: Text(l10n.confirm),
+                  ),
+                ],
+              ),
+            );
+
+            if (confirmed != true) {
+              print('[AutoForward] User cancelled forward');
+              return;
+            }
+          }
+        }
+      }
+
       print('[AutoForward] Calling SystemInputService.sendToSystemInput...');
       final stopwatch = Stopwatch()..start();
       final success = await SystemInputService.sendToSystemInput(content);
