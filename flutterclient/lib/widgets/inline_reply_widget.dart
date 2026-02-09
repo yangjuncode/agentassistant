@@ -257,24 +257,26 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   }
 
   _AtToken? _findToken(String text, int cursor, int triggerCodeUnit) {
-    final before = text.substring(0, cursor);
-    var i = before.length - 1;
-    while (i >= 0) {
-      final c = before.codeUnitAt(i);
+    // Optimization: Search backwards from cursor without allocating substring
+    // and limit search distance to avoid freezing on large texts
+    final limit = cursor - 100 > 0 ? cursor - 100 : 0;
+
+    for (var i = cursor - 1; i >= limit; i--) {
+      final c = text.codeUnitAt(i);
       if (c == triggerCodeUnit) {
         if (i == 0) {
-          return _AtToken(atIndex: i, query: before.substring(i + 1));
+          return _AtToken(atIndex: i, query: text.substring(i + 1, cursor));
         }
-        final prev = before.codeUnitAt(i - 1);
+        final prev = text.codeUnitAt(i - 1);
         final isBoundary = prev == 32 || prev == 10 || prev == 9;
         if (isBoundary) {
-          return _AtToken(atIndex: i, query: before.substring(i + 1));
+          return _AtToken(atIndex: i, query: text.substring(i + 1, cursor));
         }
+        // Found trigger but not at boundary (e.g. email address), stop
         return null;
       }
-      // stop at whitespace
+      // Stop at whitespace
       if (c == 32 || c == 10 || c == 9) return null;
-      i--;
     }
     return null;
   }
@@ -498,8 +500,11 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   Future<void> _pasteTextFromClipboard() async {
     final data = await Clipboard.getData(Clipboard.kTextPlain);
-    final text = data?.text;
+    var text = data?.text;
     if (text == null || text.isEmpty) return;
+
+    // Sanitize text: remove ANSI escape codes
+    text = text.replaceAll(RegExp(r'\x1B\[[0-9;]*[a-zA-Z]'), '');
 
     final value = _controller.value;
     final selection = value.selection;
