@@ -8,6 +8,7 @@ import 'package:fixnum/fixnum.dart';
 
 import '../providers/chat_provider.dart';
 import '../models/display_online_user.dart';
+import '../l10n/app_localizations.dart';
 
 /// Widget that displays online users in a horizontal bar below the app bar
 class OnlineUsersBar extends StatelessWidget {
@@ -17,6 +18,7 @@ class OnlineUsersBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ChatProvider>(
       builder: (context, chatProvider, child) {
+        final l10n = AppLocalizations.of(context)!;
         final allOnlineUsers = chatProvider.onlineUsers;
 
         // Filter out current user per server
@@ -82,7 +84,7 @@ class OnlineUsersBar extends StatelessWidget {
                 onPressed: () => chatProvider.requestOnlineUsersAll(),
                 icon: const Icon(Icons.refresh),
                 iconSize: 16,
-                tooltip: '刷新在线用户',
+                tooltip: l10n.onlineUsersRefreshTooltip,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(
                   minWidth: 24,
@@ -188,6 +190,7 @@ class _ChatDialog extends StatefulWidget {
 }
 
 class _ChatDialogState extends State<_ChatDialog> {
+  static const String _focusedWindowValue = '__focused_window__';
   final TextEditingController _messageController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
@@ -209,6 +212,7 @@ class _ChatDialogState extends State<_ChatDialog> {
   // Safe initialization with error handling
   void _safeInitialize() {
     try {
+      widget.chatProvider.setActiveChatUser(widget.user.key);
       _inputFocusNode.requestFocus();
       _logger.d('Chat dialog initialized successfully');
     } catch (e, stack) {
@@ -223,6 +227,9 @@ class _ChatDialogState extends State<_ChatDialog> {
       _inputFocusNode.dispose();
       _scrollController.dispose();
       _clearAutoSendTimer();
+      if (widget.chatProvider.activeChatUserKey == widget.user.key) {
+        widget.chatProvider.setActiveChatUser(null);
+      }
     } catch (e, stack) {
       _logger.e('Error disposing chat dialog resources',
           error: e, stackTrace: stack);
@@ -424,6 +431,7 @@ class _ChatDialogState extends State<_ChatDialog> {
     try {
       // Determine if we're on a mobile platform
       final isMobile = MediaQuery.of(context).size.width < 600;
+      final l10n = AppLocalizations.of(context)!;
 
       final headerWidget = Row(
         children: [
@@ -442,6 +450,8 @@ class _ChatDialogState extends State<_ChatDialog> {
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           IconButton(
@@ -451,13 +461,141 @@ class _ChatDialogState extends State<_ChatDialog> {
         ],
       );
 
+      final forwardSelectorSection = Consumer<ChatProvider>(
+        builder: (context, chatProvider, _) {
+          final forwardSelectorVisible =
+              chatProvider.isForwardTargetSelectorVisible(
+                  widget.user.serverId, widget.user.user.clientId);
+          if (!forwardSelectorVisible) {
+            return const SizedBox.shrink();
+          }
+
+          final forwardWindows = chatProvider.getPeerForwardWindows(
+              widget.user.serverId, widget.user.user.clientId);
+          final selectedWindowId = chatProvider.getSelectedForwardWindowId(
+              widget.user.serverId, widget.user.user.clientId);
+          final selectedForwardValue = selectedWindowId ?? _focusedWindowValue;
+          final forwardOptions = <MapEntry<String, String>>[
+            MapEntry(_focusedWindowValue, l10n.forwardToFocusedDefault),
+            ...forwardWindows.map(
+              (w) =>
+                  MapEntry(w.windowId, w.title.isEmpty ? w.windowId : w.title),
+            ),
+          ];
+          final selectedLabel = forwardOptions
+              .firstWhere(
+                (option) => option.key == selectedForwardValue,
+                orElse: () => forwardOptions.first,
+              )
+              .value;
+
+          return Padding(
+            padding: EdgeInsets.only(bottom: isMobile ? 4 : 8),
+            child: isMobile
+                ? InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => _showMobileForwardTargetPicker(
+                      context,
+                      options: forwardOptions,
+                      selectedValue: selectedForwardValue,
+                      onSelected: (value) =>
+                          _applyForwardTargetSelection(chatProvider, value),
+                    ),
+                    child: InputDecorator(
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: const OutlineInputBorder(),
+                        labelText: l10n.forwardToLabel,
+                        prefixIcon: const Icon(Icons.alt_route, size: 18),
+                        suffixIcon: const Icon(Icons.arrow_drop_down),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 6,
+                        ),
+                      ),
+                      child: Text(
+                        selectedLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 12, height: 1),
+                      ),
+                    ),
+                  )
+                : Theme(
+                    data: Theme.of(context).copyWith(
+                      visualDensity:
+                          const VisualDensity(horizontal: -3, vertical: -4),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      initialValue: selectedForwardValue,
+                      isExpanded: true,
+                      itemHeight: null,
+                      menuMaxHeight: MediaQuery.of(context).size.height * 0.5,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: const OutlineInputBorder(),
+                        labelText: l10n.forwardToLabel,
+                        prefixIcon: const Icon(Icons.alt_route, size: 18),
+                        prefixIconConstraints: const BoxConstraints(
+                          minWidth: 32,
+                          minHeight: 32,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
+                      ),
+                      items: forwardOptions
+                          .map(
+                            (option) => DropdownMenuItem<String>(
+                              value: option.key,
+                              child: Text(
+                                option.value,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13, height: 1),
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      selectedItemBuilder: (context) {
+                        return forwardOptions
+                            .map(
+                              (option) => Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  option.value,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style:
+                                      const TextStyle(fontSize: 13, height: 1),
+                                ),
+                              ),
+                            )
+                            .toList();
+                      },
+                      onChanged: (value) {
+                        if (value == null) return;
+                        _applyForwardTargetSelection(chatProvider, value);
+                      },
+                    ),
+                  ),
+          );
+        },
+      );
+
       final messagesSection = Expanded(
         child: Consumer<ChatProvider>(
           builder: (context, chatProvider, child) {
             final messages = chatProvider.getChatMessages(
                 widget.user.serverId, widget.user.user.clientId);
             if (messages.isEmpty) {
-              return const Center(child: Text('还没有聊天消息'));
+              return Center(child: Text(l10n.chatNoMessages));
             }
             return ListView.builder(
               controller: _scrollController,
@@ -480,8 +618,8 @@ class _ChatDialogState extends State<_ChatDialog> {
                       Flexible(
                         child: Container(
                           constraints: BoxConstraints(
-                              maxWidth:
-                                  MediaQuery.of(context).size.width * 0.7),
+                              maxWidth: MediaQuery.of(context).size.width *
+                                  (isMobile ? 0.86 : 0.7)),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: isFromMe
@@ -507,7 +645,7 @@ class _ChatDialogState extends State<_ChatDialog> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    _formatMessageTime(message.sentAt),
+                                    _formatMessageTime(message.sentAt, l10n),
                                     style: TextStyle(
                                       fontSize: 11,
                                       color: isFromMe
@@ -567,13 +705,14 @@ class _ChatDialogState extends State<_ChatDialog> {
                 controller: _messageController,
                 focusNode: _inputFocusNode,
                 decoration: InputDecoration(
-                  hintText:
-                      '输入消息... (${widget.chatProvider.chatAutoSendInterval}秒后自动发送或Ctrl+Enter)',
+                  hintText: l10n.chatInputHint(
+                    widget.chatProvider.chatAutoSendInterval,
+                  ),
                   border: const OutlineInputBorder(),
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
-                maxLines: 4,
+                maxLines: 10,
                 minLines: 1,
                 keyboardType: TextInputType.multiline,
                 textInputAction: TextInputAction.newline,
@@ -588,7 +727,7 @@ class _ChatDialogState extends State<_ChatDialog> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Tooltip(
-                message: '发送回车键',
+                message: l10n.chatSendEnterKeyTooltip,
                 child: IconButton(
                   onPressed: () => _sendEnterKey(),
                   icon: const Icon(Icons.keyboard_return),
@@ -601,10 +740,16 @@ class _ChatDialogState extends State<_ChatDialog> {
                 ),
               ),
               Tooltip(
-                message: '快速发送',
+                message: l10n.chatQuickSendTooltip,
                 child: IconButton(
                   onPressed: () => _sendMessage(),
                   icon: const Icon(Icons.send),
+                  iconSize: 20,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                    minWidth: 36,
+                    minHeight: 36,
+                  ),
                 ),
               ),
             ],
@@ -615,31 +760,40 @@ class _ChatDialogState extends State<_ChatDialog> {
       // Build the layout based on the platform
       return Dialog(
         insetPadding: isMobile
-            ? const EdgeInsets.symmetric(horizontal: 8.0, vertical: 24.0)
+            ? EdgeInsets.zero
             : const EdgeInsets.symmetric(horizontal: 40.0, vertical: 24.0),
-        child: Container(
-          width: isMobile ? MediaQuery.of(context).size.width : 400,
-          height: isMobile ? MediaQuery.of(context).size.height * 0.8 : 500,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              headerWidget,
-              const Divider(),
-              if (isMobile) ...[
+        child: SafeArea(
+          minimum: EdgeInsets.symmetric(
+            horizontal: isMobile ? 2 : 0,
+            vertical: isMobile ? 2 : 0,
+          ),
+          child: Container(
+            width: isMobile ? MediaQuery.of(context).size.width : 400,
+            height: isMobile ? MediaQuery.of(context).size.height * 0.97 : 500,
+            padding: EdgeInsets.fromLTRB(
+              isMobile ? 8 : 16,
+              isMobile ? 8 : 16,
+              isMobile ? 8 : 16,
+              isMobile ? 6 : 16,
+            ),
+            child: Column(
+              children: [
+                headerWidget,
+                SizedBox(height: isMobile ? 4 : 0),
+                if (!isMobile) const Divider() else const SizedBox(height: 2),
+                forwardSelectorSection,
+                messagesSection,
+                SizedBox(height: isMobile ? 6 : 0),
+                if (!isMobile) const Divider(height: 12),
                 inputSection,
-                const SizedBox(height: 8),
               ],
-              messagesSection,
-              if (!isMobile) ...[
-                const Divider(),
-                inputSection,
-              ],
-            ],
+            ),
           ),
         ),
       );
     } catch (e, stack) {
       _logger.e('Error building chat dialog', error: e, stackTrace: stack);
+      final fallbackL10n = AppLocalizations.of(context);
       return Dialog(
         child: Container(
           width: 400,
@@ -650,13 +804,14 @@ class _ChatDialogState extends State<_ChatDialog> {
             children: [
               const Icon(Icons.error_outline, color: Colors.red, size: 48),
               const SizedBox(height: 16),
-              const Text('聊天窗口加载失败'),
+              Text(fallbackL10n?.chatDialogLoadFailed ??
+                  'Failed to load chat window'),
               const SizedBox(height: 8),
               Text(e.toString(), style: const TextStyle(fontSize: 12)),
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('关闭'),
+                child: Text(fallbackL10n?.close ?? 'Close'),
               ),
             ],
           ),
@@ -665,7 +820,7 @@ class _ChatDialogState extends State<_ChatDialog> {
     }
   }
 
-  String _formatMessageTime(Int64 sentAt) {
+  String _formatMessageTime(Int64 sentAt, AppLocalizations l10n) {
     final dateTime = DateTime.fromMillisecondsSinceEpoch(sentAt.toInt() * 1000);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -676,13 +831,92 @@ class _ChatDialogState extends State<_ChatDialog> {
       return DateFormat('HH:mm').format(dateTime);
     } else if (messageDate == today.subtract(const Duration(days: 1))) {
       // Yesterday
-      return '昨天 ${DateFormat('HH:mm').format(dateTime)}';
+      return l10n.chatYesterdayAt(DateFormat('HH:mm').format(dateTime));
     } else if (dateTime.year == now.year) {
       // This year: show month/day and time
       return DateFormat('MM/dd HH:mm').format(dateTime);
     } else {
       // Different year: show full date and time
       return DateFormat('yyyy/MM/dd HH:mm').format(dateTime);
+    }
+  }
+
+  void _applyForwardTargetSelection(ChatProvider chatProvider, String value) {
+    if (value == _focusedWindowValue) {
+      chatProvider.setForwardTargetFocused(
+        widget.user.serverId,
+        widget.user.user.clientId,
+      );
+      return;
+    }
+
+    chatProvider.setForwardTargetWindow(
+      widget.user.serverId,
+      widget.user.user.clientId,
+      value,
+    );
+  }
+
+  Future<void> _showMobileForwardTargetPicker(
+    BuildContext context, {
+    required List<MapEntry<String, String>> options,
+    required String selectedValue,
+    required ValueChanged<String> onSelected,
+  }) async {
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      useSafeArea: true,
+      builder: (sheetContext) {
+        final colorScheme = Theme.of(sheetContext).colorScheme;
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: options.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              final option = options[index];
+              final isSelected = option.key == selectedValue;
+              return Material(
+                color: isSelected
+                    ? colorScheme.primaryContainer
+                    : colorScheme.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(8),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => Navigator.of(sheetContext).pop(option.key),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            option.value,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14, height: 1),
+                          ),
+                        ),
+                        if (isSelected)
+                          Icon(
+                            Icons.check,
+                            size: 14,
+                            color: colorScheme.primary,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+
+    if (picked != null) {
+      onSelected(picked);
     }
   }
 }

@@ -300,6 +300,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notConnected => 'Not connected';
 
   @override
+  String get onlineUsersRefreshTooltip => 'Refresh online users';
+
+  @override
   String get loginSubtitle => 'Connect to your AI Agent assistant';
 
   @override
@@ -360,6 +363,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chatEmptySubtitle => 'Once connected, questions and tasks from the AI Agent will appear here.';
+
+  @override
+  String get chatNoMessages => 'No chat messages yet';
+
+  @override
+  String chatInputHint(int seconds) {
+    return 'Type a message... (auto send after ${seconds}s or Ctrl+Enter)';
+  }
+
+  @override
+  String get chatSendEnterKeyTooltip => 'Send Enter key';
+
+  @override
+  String get chatQuickSendTooltip => 'Quick send';
+
+  @override
+  String get chatDialogLoadFailed => 'Failed to load chat window';
+
+  @override
+  String chatYesterdayAt(String time) {
+    return 'Yesterday $time';
+  }
+
+  @override
+  String get forwardToLabel => 'Forward To';
+
+  @override
+  String get forwardToFocusedDefault => 'Focused Window (Default)';
 
   @override
   String get splashInitializing => 'Initializing...';

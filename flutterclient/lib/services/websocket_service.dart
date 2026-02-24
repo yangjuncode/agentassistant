@@ -244,15 +244,97 @@ class WebSocketService {
   }
 
   /// Send chat message to another user
-  Future<void> sendChatMessage(String receiverClientId, String content) async {
+  Future<void> sendChatMessage(
+    String receiverClientId,
+    String content, {
+    ForwardTarget? forwardTarget,
+  }) async {
     final message = WebsocketMessage()
       ..cmd = WebSocketCommands.sendChatMessage
       ..sendChatMessageRequest = (SendChatMessageRequest()
         ..receiverClientId = receiverClientId
         ..content = content);
 
+    if (forwardTarget != null) {
+      message.sendChatMessageRequest.forwardTarget = forwardTarget;
+    }
+
     await _sendMessage(message);
     _logger.d('Chat message sent to $receiverClientId: $content');
+  }
+
+  /// Query peer forward state and window list
+  Future<void> sendForwardStateQuery({
+    required String requestId,
+    required String targetClientId,
+  }) async {
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.forwardStateQuery
+      ..forwardStateQueryRequest = (ForwardStateQueryRequest()
+        ..requestId = requestId
+        ..targetClientId = targetClientId);
+
+    await _sendMessage(message);
+  }
+
+  /// Send response for peer forward state query
+  Future<void> sendForwardStateQueryResponse({
+    required String requestId,
+    required String targetClientId,
+    required String responderClientId,
+    required bool forwardEnabled,
+    required List<ForwardWindowItem> windows,
+  }) async {
+    final response = ForwardStateQueryResponse()
+      ..requestId = requestId
+      ..targetClientId = targetClientId
+      ..responderClientId = responderClientId
+      ..forwardEnabled = forwardEnabled
+      ..windows.addAll(windows);
+
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.forwardStateQueryResponse
+      ..forwardStateQueryResponse = response;
+
+    await _sendMessage(message);
+  }
+
+  /// Broadcast own forward state change to peers
+  Future<void> sendForwardStateChanged({
+    required String sourceClientId,
+    required bool forwardEnabled,
+    required List<ForwardWindowItem> windows,
+  }) async {
+    final notification = ForwardStateChangedNotification()
+      ..sourceClientId = sourceClientId
+      ..forwardEnabled = forwardEnabled
+      ..windows.addAll(windows);
+
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.forwardStateChanged
+      ..forwardStateChangedNotification = notification;
+
+    await _sendMessage(message);
+  }
+
+  /// Notify peer that selected forward target is invalid
+  Future<void> sendForwardDeliveryError({
+    required String targetClientId,
+    required String peerClientId,
+    required String invalidWindowId,
+    required String reason,
+  }) async {
+    final notification = ForwardDeliveryErrorNotification()
+      ..targetClientId = targetClientId
+      ..peerClientId = peerClientId
+      ..invalidWindowId = invalidWindowId
+      ..reason = reason;
+
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.forwardDeliveryError
+      ..forwardDeliveryErrorNotification = notification;
+
+    await _sendMessage(message);
   }
 
   /// Check message validity

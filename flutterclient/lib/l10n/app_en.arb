@@ -159,6 +159,7 @@
   },
   "online": "Online",
   "notConnected": "Not connected",
+  "onlineUsersRefreshTooltip": "Refresh online users",
 
   "loginSubtitle": "Connect to your AI Agent assistant",
   "loginFailed": "Login failed: {error}",
@@ -188,6 +189,28 @@
   "chatReconnect": "Reconnect",
   "chatEmptyTitle": "Waiting for messages from AI Agent...",
   "chatEmptySubtitle": "Once connected, questions and tasks from the AI Agent will appear here.",
+  "chatNoMessages": "No chat messages yet",
+  "chatInputHint": "Type a message... (auto send after {seconds}s or Ctrl+Enter)",
+  "@chatInputHint": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSendEnterKeyTooltip": "Send Enter key",
+  "chatQuickSendTooltip": "Quick send",
+  "chatDialogLoadFailed": "Failed to load chat window",
+  "chatYesterdayAt": "Yesterday {time}",
+  "@chatYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "forwardToLabel": "Forward To",
+  "forwardToFocusedDefault": "Focused Window (Default)",
 
   "splashInitializing": "Initializing...",
   "splashConnecting": "Connecting to server...",

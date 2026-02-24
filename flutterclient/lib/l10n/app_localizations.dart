@@ -641,6 +641,12 @@ abstract class AppLocalizations {
   /// **'Not connected'**
   String get notConnected;
 
+  /// No description provided for @onlineUsersRefreshTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh online users'**
+  String get onlineUsersRefreshTooltip;
+
   /// No description provided for @loginSubtitle.
   ///
   /// In en, this message translates to:
@@ -760,6 +766,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Once connected, questions and tasks from the AI Agent will appear here.'**
   String get chatEmptySubtitle;
+
+  /// No description provided for @chatNoMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'No chat messages yet'**
+  String get chatNoMessages;
+
+  /// No description provided for @chatInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a message... (auto send after {seconds}s or Ctrl+Enter)'**
+  String chatInputHint(int seconds);
+
+  /// No description provided for @chatSendEnterKeyTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Enter key'**
+  String get chatSendEnterKeyTooltip;
+
+  /// No description provided for @chatQuickSendTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick send'**
+  String get chatQuickSendTooltip;
+
+  /// No description provided for @chatDialogLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load chat window'**
+  String get chatDialogLoadFailed;
+
+  /// No description provided for @chatYesterdayAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday {time}'**
+  String chatYesterdayAt(String time);
+
+  /// No description provided for @forwardToLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Forward To'**
+  String get forwardToLabel;
+
+  /// No description provided for @forwardToFocusedDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Focused Window (Default)'**
+  String get forwardToFocusedDefault;
 
   /// No description provided for @splashInitializing.
   ///

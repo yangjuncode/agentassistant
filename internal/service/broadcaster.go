@@ -388,7 +388,7 @@ func (b *Broadcaster) GetOnlineUsers(token string, excludeClientID string) []*ag
 }
 
 // SendChatMessage sends a chat message from one client to another
-func (b *Broadcaster) SendChatMessage(senderClientID, receiverClientID, content string) error {
+func (b *Broadcaster) SendChatMessage(senderClientID, receiverClientID, content string, forwardTarget *agentassistproto.ForwardTarget) error {
 	b.mu.RLock()
 	defer b.mu.RUnlock()
 
@@ -426,6 +426,7 @@ func (b *Broadcaster) SendChatMessage(senderClientID, receiverClientID, content 
 		ReceiverNickname: receiverClient.GetNickname(),
 		Content:          content,
 		SentAt:           time.Now().Unix(),
+		ForwardTarget:    forwardTarget,
 	}
 
 	// Create notification message
@@ -447,6 +448,58 @@ func (b *Broadcaster) SendChatMessage(senderClientID, receiverClientID, content 
 		content)
 
 	return nil
+}
+
+// SendToClientWithSameToken sends a message to a specific client after same-token verification.
+func (b *Broadcaster) SendToClientWithSameToken(sender *WebClient, targetClientID string, message *agentassistproto.WebsocketMessage) error {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	if sender == nil || !sender.IsActive() {
+		return fmt.Errorf("sender is not active")
+	}
+
+	var targetClient *WebClient
+	for _, client := range b.clients {
+		if client.IsActive() && client.ID == targetClientID {
+			targetClient = client
+			break
+		}
+	}
+
+	if targetClient == nil {
+		return fmt.Errorf("target client not found: %s", targetClientID)
+	}
+
+	if sender.GetToken() == "" || sender.GetToken() != targetClient.GetToken() {
+		return fmt.Errorf("clients do not have the same token")
+	}
+
+	if !targetClient.Send(message) {
+		return fmt.Errorf("failed to send message to client: %s", targetClientID)
+	}
+
+	return nil
+}
+
+// BroadcastToTokenExcept broadcasts a message to active clients with the same token, excluding one client.
+func (b *Broadcaster) BroadcastToTokenExcept(message *agentassistproto.WebsocketMessage, token string, excludeClientID string) {
+	b.mu.RLock()
+	targets := make([]*WebClient, 0, len(b.clients))
+	for _, c := range b.clients {
+		if c.IsActive() && c.GetToken() == token && c.ID != excludeClientID {
+			targets = append(targets, c)
+		}
+	}
+	b.mu.RUnlock()
+
+	for _, c := range targets {
+		go func(cl *WebClient) {
+			if !cl.Send(message) {
+				b.unregister <- cl
+			}
+		}(c)
+	}
 }
 
 // Broadcast to all clients with the same token, excluding the user themselves

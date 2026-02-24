@@ -22,6 +22,25 @@ import '../proto/agentassist.pb.dart' as pb;
 
 enum DesktopMcpAttentionMode { none, tray, popup, popupOnTop, trayPopupOnTop }
 
+class _PeerForwardState {
+  final bool forwardEnabled;
+  final List<pb.ForwardWindowItem> windows;
+  final DateTime updatedAt;
+
+  const _PeerForwardState({
+    required this.forwardEnabled,
+    required this.windows,
+    required this.updatedAt,
+  });
+}
+
+class _ForwardSelection {
+  final pb.ForwardTarget_Mode mode;
+  final String? windowId;
+
+  const _ForwardSelection({required this.mode, this.windowId});
+}
+
 /// Chat provider for managing chat state and WebSocket communication
 class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   static final Logger _logger = Logger(level: Level.nothing);
@@ -40,6 +59,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   final List<ChatMessage> _messages = [];
   final List<DisplayOnlineUser> _onlineUsers = [];
   final Map<String, List<pb.ChatMessage>> _chatMessages = {};
+  final Map<String, _PeerForwardState> _peerForwardStates = {};
+  final Map<String, _ForwardSelection> _forwardSelections = {};
+  final Map<String, String> _forwardQueryRequestToSession = {};
   // Per-message reply/confirm drafts to persist inline editor content
   final Map<String, String> _replyDrafts = {};
   // In-memory history of reply/confirm texts (newest first)
@@ -126,6 +148,53 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   int get chatAutoSendInterval => _chatAutoSendInterval;
   String? get nickname => _nickname;
 
+  bool isForwardTargetSelectorVisible(String serverId, String peerClientId) {
+    final key = _chatKey(serverId, peerClientId);
+    final state = _peerForwardStates[key];
+    return state != null && state.forwardEnabled;
+  }
+
+  List<pb.ForwardWindowItem> getPeerForwardWindows(
+      String serverId, String peerClientId) {
+    final key = _chatKey(serverId, peerClientId);
+    return _peerForwardStates[key]?.windows ?? const [];
+  }
+
+  bool isForwardTargetFocused(String serverId, String peerClientId) {
+    final key = _chatKey(serverId, peerClientId);
+    final selection = _forwardSelections[key];
+    if (selection == null) return true;
+    return selection.mode != pb.ForwardTarget_Mode.SPECIFIC_WINDOW ||
+        (selection.windowId == null || selection.windowId!.isEmpty);
+  }
+
+  String? getSelectedForwardWindowId(String serverId, String peerClientId) {
+    final key = _chatKey(serverId, peerClientId);
+    final selection = _forwardSelections[key];
+    if (selection == null) return null;
+    if (selection.mode != pb.ForwardTarget_Mode.SPECIFIC_WINDOW) return null;
+    return selection.windowId;
+  }
+
+  void setForwardTargetFocused(String serverId, String peerClientId) {
+    final key = _chatKey(serverId, peerClientId);
+    _forwardSelections[key] = const _ForwardSelection(
+      mode: pb.ForwardTarget_Mode.FOCUSED_WINDOW,
+      windowId: null,
+    );
+    notifyListeners();
+  }
+
+  void setForwardTargetWindow(
+      String serverId, String peerClientId, String windowId) {
+    final key = _chatKey(serverId, peerClientId);
+    _forwardSelections[key] = _ForwardSelection(
+      mode: pb.ForwardTarget_Mode.SPECIFIC_WINDOW,
+      windowId: windowId,
+    );
+    notifyListeners();
+  }
+
   bool _isOnlineUsersVisible = true;
   bool get isOnlineUsersVisible => _isOnlineUsersVisible;
 
@@ -156,10 +225,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void toggleOnlineUsersVisibility() {
-    _isOnlineUsersVisible = !_isOnlineUsersVisible;
-    // When explicitly showing the bar, also reset input focus state
-    // so the bar is guaranteed to be visible
-    if (_isOnlineUsersVisible) {
+    final effectiveVisible = _isOnlineUsersVisible && !_isInputFocused;
+    final nextVisible = !effectiveVisible;
+    _isOnlineUsersVisible = nextVisible;
+    if (nextVisible) {
       _inputFocusDebounceTimer?.cancel();
       _inputFocusDebounceTimer = null;
       _isInputFocused = false;
@@ -168,14 +237,16 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   void setOnlineUsersVisible(bool visible) {
-    if (_isOnlineUsersVisible != visible) {
-      _isOnlineUsersVisible = visible;
-      // When explicitly showing the bar, also reset input focus state
-      if (visible) {
-        _inputFocusDebounceTimer?.cancel();
-        _inputFocusDebounceTimer = null;
-        _isInputFocused = false;
-      }
+    final wasVisible = _isOnlineUsersVisible;
+    final wasInputFocused = _isInputFocused;
+    _isOnlineUsersVisible = visible;
+    if (visible) {
+      _inputFocusDebounceTimer?.cancel();
+      _inputFocusDebounceTimer = null;
+      _isInputFocused = false;
+    }
+    if (wasVisible != _isOnlineUsersVisible ||
+        wasInputFocused != _isInputFocused) {
       notifyListeners();
     }
   }
@@ -357,6 +428,118 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   String _chatKey(String serverId, String clientId) => '$serverId|$clientId';
 
+  String _newForwardRequestId() {
+    return 'fwd-${DateTime.now().millisecondsSinceEpoch}-${DateTime.now().microsecondsSinceEpoch % 100000}';
+  }
+
+  _ForwardSelection _selectionForSession(String sessionKey) {
+    return _forwardSelections[sessionKey] ??
+        const _ForwardSelection(
+          mode: pb.ForwardTarget_Mode.FOCUSED_WINDOW,
+          windowId: null,
+        );
+  }
+
+  pb.ForwardTarget? _buildForwardTargetForSession(String sessionKey) {
+    final peerState = _peerForwardStates[sessionKey];
+    if (peerState == null || !peerState.forwardEnabled) {
+      return null;
+    }
+
+    final selection = _selectionForSession(sessionKey);
+    if (selection.mode == pb.ForwardTarget_Mode.SPECIFIC_WINDOW &&
+        selection.windowId != null &&
+        selection.windowId!.isNotEmpty) {
+      return pb.ForwardTarget()
+        ..mode = pb.ForwardTarget_Mode.SPECIFIC_WINDOW
+        ..windowId = selection.windowId!;
+    }
+
+    return pb.ForwardTarget()..mode = pb.ForwardTarget_Mode.FOCUSED_WINDOW;
+  }
+
+  Future<List<pb.ForwardWindowItem>> _listLocalForwardWindowsPb() async {
+    final windows = await SystemInputService.listForwardableWindows();
+    return windows
+        .map((w) => pb.ForwardWindowItem()
+          ..windowId = w.windowId
+          ..title = w.title)
+        .toList();
+  }
+
+  void _updatePeerForwardState(
+    String sessionKey, {
+    required bool forwardEnabled,
+    required List<pb.ForwardWindowItem> windows,
+  }) {
+    _peerForwardStates[sessionKey] = _PeerForwardState(
+      forwardEnabled: forwardEnabled,
+      windows: List<pb.ForwardWindowItem>.from(windows),
+      updatedAt: DateTime.now(),
+    );
+
+    if (!forwardEnabled) {
+      _forwardSelections.remove(sessionKey);
+      return;
+    }
+
+    final selection = _forwardSelections[sessionKey];
+    if (selection == null ||
+        selection.mode != pb.ForwardTarget_Mode.SPECIFIC_WINDOW ||
+        selection.windowId == null ||
+        selection.windowId!.isEmpty) {
+      return;
+    }
+
+    final stillExists = windows.any((w) => w.windowId == selection.windowId);
+    if (!stillExists) {
+      _forwardSelections[sessionKey] = const _ForwardSelection(
+        mode: pb.ForwardTarget_Mode.FOCUSED_WINDOW,
+        windowId: null,
+      );
+    }
+  }
+
+  Future<void> requestForwardStateForChat({
+    required String serverId,
+    required String peerClientId,
+  }) async {
+    final svc = _services[serverId];
+    if (svc == null || !svc.isConnected) {
+      return;
+    }
+
+    final requestId = _newForwardRequestId();
+    final sessionKey = _chatKey(serverId, peerClientId);
+    _forwardQueryRequestToSession[requestId] = sessionKey;
+    await svc.sendForwardStateQuery(
+      requestId: requestId,
+      targetClientId: peerClientId,
+    );
+  }
+
+  Future<void> _broadcastForwardStateChanged(String serverId) async {
+    final svc = _services[serverId];
+    if (svc == null || !svc.isConnected) {
+      return;
+    }
+
+    final sourceClientId = currentClientIdForServer(serverId);
+    if (sourceClientId == null || sourceClientId.isEmpty) {
+      return;
+    }
+
+    final windows = _autoForwardToSystemInput
+        ? await _listLocalForwardWindowsPb()
+        : <pb.ForwardWindowItem>[];
+
+    await svc.sendForwardStateChanged(
+      sourceClientId: sourceClientId,
+      forwardEnabled: _autoForwardToSystemInput,
+      windows: windows,
+    );
+  }
+
   Future<void> _loadServerConfigs() async {
     try {
       final configs = await _serverStorageService.loadServerConfigs();
@@ -415,6 +598,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
     _onlineUsers.removeWhere((u) => u.serverId == serverId);
     _chatMessages.removeWhere((k, _) => k.startsWith('$serverId|'));
+    _peerForwardStates.removeWhere((k, _) => k.startsWith('$serverId|'));
+    _forwardSelections.removeWhere((k, _) => k.startsWith('$serverId|'));
+    _forwardQueryRequestToSession
+        .removeWhere((_, sessionKey) => sessionKey.startsWith('$serverId|'));
     if (_activeChatUserKey != null &&
         _activeChatUserKey!.startsWith('$serverId|')) {
       _activeChatUserKey = null;
@@ -718,6 +905,34 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         break;
       case WebSocketCommands.userConnectionStatusNotification:
         _handleUserConnectionStatusNotification(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
+        break;
+      case WebSocketCommands.forwardStateQuery:
+        unawaited(_handleForwardStateQuery(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        ));
+        break;
+      case WebSocketCommands.forwardStateQueryResponse:
+        _handleForwardStateQueryResponse(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
+        break;
+      case WebSocketCommands.forwardStateChanged:
+        _handleForwardStateChangedNotification(
+          message,
+          serverId: serverId,
+          serverName: serverName,
+        );
+        break;
+      case WebSocketCommands.forwardDeliveryError:
+        _handleForwardDeliveryErrorNotification(
           message,
           serverId: serverId,
           serverName: serverName,
@@ -1457,6 +1672,140 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _logger.i('Updated online users list: ${_onlineUsers.length} users');
   }
 
+  Future<void> _handleForwardStateQuery(
+    pb.WebsocketMessage message, {
+    required String serverId,
+    required String serverName,
+  }) async {
+    _logger.d('Handle ForwardStateQuery from server: $serverName');
+    if (!message.hasForwardStateQueryRequest()) {
+      return;
+    }
+
+    final request = message.forwardStateQueryRequest;
+    final requesterClientId = request.requesterClientId;
+    if (requesterClientId.isEmpty) {
+      return;
+    }
+
+    final svc = _services[serverId];
+    if (svc == null || !svc.isConnected) {
+      return;
+    }
+
+    final windows = _autoForwardToSystemInput
+        ? await _listLocalForwardWindowsPb()
+        : <pb.ForwardWindowItem>[];
+
+    await svc.sendForwardStateQueryResponse(
+      requestId: request.requestId,
+      targetClientId: requesterClientId,
+      responderClientId: currentClientIdForServer(serverId) ?? '',
+      forwardEnabled: _autoForwardToSystemInput,
+      windows: windows,
+    );
+  }
+
+  void _handleForwardStateQueryResponse(
+    pb.WebsocketMessage message, {
+    required String serverId,
+    required String serverName,
+  }) {
+    _logger.d('Handle ForwardStateQueryResponse from server: $serverName');
+    if (!message.hasForwardStateQueryResponse()) {
+      return;
+    }
+
+    final response = message.forwardStateQueryResponse;
+    final targetClientId = currentClientIdForServer(serverId);
+    if (targetClientId == null || response.targetClientId != targetClientId) {
+      return;
+    }
+
+    final responderClientId = response.responderClientId;
+    if (responderClientId.isEmpty) {
+      return;
+    }
+
+    final sessionFromRequest =
+        _forwardQueryRequestToSession.remove(response.requestId);
+    final sessionKey =
+        sessionFromRequest ?? _chatKey(serverId, responderClientId);
+
+    _updatePeerForwardState(
+      sessionKey,
+      forwardEnabled: response.forwardEnabled,
+      windows: response.windows,
+    );
+    notifyListeners();
+  }
+
+  void _handleForwardStateChangedNotification(
+    pb.WebsocketMessage message, {
+    required String serverId,
+    required String serverName,
+  }) {
+    _logger.d('Handle ForwardStateChanged from server: $serverName');
+    if (!message.hasForwardStateChangedNotification()) {
+      return;
+    }
+
+    final notification = message.forwardStateChangedNotification;
+    final sourceClientId = notification.sourceClientId;
+    if (sourceClientId.isEmpty) {
+      return;
+    }
+
+    final sessionKey = _chatKey(serverId, sourceClientId);
+    _updatePeerForwardState(
+      sessionKey,
+      forwardEnabled: notification.forwardEnabled,
+      windows: notification.windows,
+    );
+    notifyListeners();
+  }
+
+  void _handleForwardDeliveryErrorNotification(
+    pb.WebsocketMessage message, {
+    required String serverId,
+    required String serverName,
+  }) {
+    _logger.d('Handle ForwardDeliveryError from server: $serverName');
+    if (!message.hasForwardDeliveryErrorNotification()) {
+      return;
+    }
+
+    final notification = message.forwardDeliveryErrorNotification;
+    final me = currentClientIdForServer(serverId);
+    if (me == null || notification.targetClientId != me) {
+      return;
+    }
+
+    final peerClientId = notification.peerClientId;
+    if (peerClientId.isEmpty) {
+      return;
+    }
+
+    final sessionKey = _chatKey(serverId, peerClientId);
+    final state = _peerForwardStates[sessionKey];
+    if (state != null) {
+      final filtered = state.windows
+          .where((w) => w.windowId != notification.invalidWindowId)
+          .toList();
+      _peerForwardStates[sessionKey] = _PeerForwardState(
+        forwardEnabled: state.forwardEnabled,
+        windows: filtered,
+        updatedAt: DateTime.now(),
+      );
+    }
+
+    _forwardSelections[sessionKey] = const _ForwardSelection(
+      mode: pb.ForwardTarget_Mode.FOCUSED_WINDOW,
+      windowId: null,
+    );
+    notifyListeners();
+  }
+
   /// Handle chat message notification
   void _handleChatMessageNotification(
     pb.WebsocketMessage message, {
@@ -1518,7 +1867,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         print(
           '[ChatNotification] Microtask executing, calling _autoForwardMessageToSystemInput...',
         );
-        _autoForwardMessageToSystemInput(chatMessage.content);
+        _autoForwardMessageToSystemInput(
+          chatMessage.content,
+          serverId: serverId,
+          senderClientId: senderId,
+          forwardTarget:
+              chatMessage.hasForwardTarget() ? chatMessage.forwardTarget : null,
+        );
       });
       // Don't bring window to front when auto-forwarding is enabled
       print(
@@ -1597,6 +1952,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       if (userIndex != -1) {
         final disconnectedUser = _onlineUsers[userIndex];
         _onlineUsers.removeAt(userIndex);
+        final disconnectedSessionKey = _chatKey(serverId, user.clientId);
+        _peerForwardStates.remove(disconnectedSessionKey);
+        _forwardSelections.remove(disconnectedSessionKey);
         _logger.i(
           '✅ User ${disconnectedUser.user.nickname} (${disconnectedUser.user.clientId}) removed from online users list',
         );
@@ -1700,6 +2058,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       ..content = content
       ..sentAt = Int64(DateTime.now().millisecondsSinceEpoch ~/ 1000);
 
+    final forwardTarget = _buildForwardTargetForSession(key);
+    if (forwardTarget != null) {
+      localMessage.forwardTarget = forwardTarget;
+    }
+
     _chatMessages[key]!.add(localMessage);
     if (notifyUI) {
       notifyListeners();
@@ -1715,7 +2078,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     try {
-      await svc.sendChatMessage(receiverClientId, content);
+      await svc.sendChatMessage(
+        receiverClientId,
+        content,
+        forwardTarget: forwardTarget,
+      );
       _logger.i(
         'Chat message sent to $receiverClientId: $content (UI notify: $notifyUI)',
       );
@@ -1736,6 +2103,15 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// Set active chat user
   void setActiveChatUser(String? userId) {
     _activeChatUserKey = userId;
+    if (userId != null) {
+      final parts = userId.split('|');
+      if (parts.length == 2) {
+        unawaited(requestForwardStateForChat(
+          serverId: parts[0],
+          peerClientId: parts[1],
+        ));
+      }
+    }
     notifyListeners();
   }
 
@@ -1767,6 +2143,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       _autoForwardToSystemInput = enabled;
       notifyListeners();
       _logger.i('Auto forward setting updated: $enabled');
+
+      for (final serverId in _services.keys) {
+        unawaited(_broadcastForwardStateChanged(serverId));
+      }
     } catch (error) {
       _logger.e('Failed to save auto forward setting: $error');
     }
@@ -1800,7 +2180,12 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Auto forward message to system input
-  Future<void> _autoForwardMessageToSystemInput(String content) async {
+  Future<void> _autoForwardMessageToSystemInput(
+    String content, {
+    required String serverId,
+    required String senderClientId,
+    pb.ForwardTarget? forwardTarget,
+  }) async {
     // Sanitize text: remove ANSI escape codes
     content = content.replaceAll(RegExp(r'\x1B\[[0-9;]*[a-zA-Z]'), '');
 
@@ -1845,22 +2230,44 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         }
       }
 
+      final String? targetWindowId = (forwardTarget != null &&
+              forwardTarget.mode == pb.ForwardTarget_Mode.SPECIFIC_WINDOW &&
+              forwardTarget.windowId.isNotEmpty)
+          ? forwardTarget.windowId
+          : null;
+
       print('[AutoForward] Calling SystemInputService.sendToSystemInput...');
       final stopwatch = Stopwatch()..start();
-      final success = await SystemInputService.sendToSystemInput(content);
+      final result = targetWindowId != null
+          ? await SystemInputService.sendToSystemWindow(targetWindowId, content)
+          : await SystemInputService.sendToSystemInputWithResult(content);
       stopwatch.stop();
       print(
         '[AutoForward] SystemInputService.sendToSystemInput returned in ${stopwatch.elapsedMilliseconds}ms',
       );
 
-      if (success) {
+      if (result.success) {
         print(
           '[AutoForward] ✅ Successfully auto forwarded message to system input: ${content.length} characters',
         );
       } else {
         print(
-          '[AutoForward] ❌ Failed to auto forward message to system input (returned false)',
+          '[AutoForward] ❌ Failed to auto forward message to system input: ${result.error}',
         );
+
+        if (result.windowNotFound &&
+            targetWindowId != null &&
+            targetWindowId.isNotEmpty) {
+          final svc = _services[serverId];
+          if (svc != null && svc.isConnected) {
+            await svc.sendForwardDeliveryError(
+              targetClientId: senderClientId,
+              peerClientId: currentClientIdForServer(serverId) ?? '',
+              invalidWindowId: targetWindowId,
+              reason: 'window_not_found',
+            );
+          }
+        }
       }
     } catch (error, stackTrace) {
       print(

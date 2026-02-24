@@ -21,6 +21,57 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type ForwardTarget_Mode int32
+
+const (
+	ForwardTarget_MODE_UNSPECIFIED ForwardTarget_Mode = 0
+	// forward to current focused window
+	ForwardTarget_FOCUSED_WINDOW ForwardTarget_Mode = 1
+	// forward to the specific window id
+	ForwardTarget_SPECIFIC_WINDOW ForwardTarget_Mode = 2
+)
+
+// Enum value maps for ForwardTarget_Mode.
+var (
+	ForwardTarget_Mode_name = map[int32]string{
+		0: "MODE_UNSPECIFIED",
+		1: "FOCUSED_WINDOW",
+		2: "SPECIFIC_WINDOW",
+	}
+	ForwardTarget_Mode_value = map[string]int32{
+		"MODE_UNSPECIFIED": 0,
+		"FOCUSED_WINDOW":   1,
+		"SPECIFIC_WINDOW":  2,
+	}
+)
+
+func (x ForwardTarget_Mode) Enum() *ForwardTarget_Mode {
+	p := new(ForwardTarget_Mode)
+	*p = x
+	return p
+}
+
+func (x ForwardTarget_Mode) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ForwardTarget_Mode) Descriptor() protoreflect.EnumDescriptor {
+	return file_agentassist_proto_enumTypes[0].Descriptor()
+}
+
+func (ForwardTarget_Mode) Type() protoreflect.EnumType {
+	return &file_agentassist_proto_enumTypes[0]
+}
+
+func (x ForwardTarget_Mode) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ForwardTarget_Mode.Descriptor instead.
+func (ForwardTarget_Mode) EnumDescriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{27, 0}
+}
+
 // TextContent represents text provided to or from an LLM.
 // It must have Type set to "text".
 type TextContent struct {
@@ -1706,7 +1757,9 @@ type ChatMessage struct {
 	// message content
 	Content string `protobuf:"bytes,6,opt,name=content,proto3" json:"content,omitempty"`
 	// timestamp when the message was sent
-	SentAt        int64 `protobuf:"varint,7,opt,name=sent_at,json=sentAt,proto3" json:"sent_at,omitempty"`
+	SentAt int64 `protobuf:"varint,7,opt,name=sent_at,json=sentAt,proto3" json:"sent_at,omitempty"`
+	// forward target selected by sender (optional)
+	ForwardTarget *ForwardTarget `protobuf:"bytes,8,opt,name=forward_target,json=forwardTarget,proto3" json:"forward_target,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1790,20 +1843,139 @@ func (x *ChatMessage) GetSentAt() int64 {
 	return 0
 }
 
+func (x *ChatMessage) GetForwardTarget() *ForwardTarget {
+	if x != nil {
+		return x.ForwardTarget
+	}
+	return nil
+}
+
+// ForwardTarget describes how receiver should forward content to system input
+type ForwardTarget struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// forwarding mode
+	Mode ForwardTarget_Mode `protobuf:"varint,1,opt,name=mode,proto3,enum=agentassistproto.ForwardTarget_Mode" json:"mode,omitempty"`
+	// target window id when mode is SPECIFIC_WINDOW
+	WindowId      string `protobuf:"bytes,2,opt,name=window_id,json=windowId,proto3" json:"window_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForwardTarget) Reset() {
+	*x = ForwardTarget{}
+	mi := &file_agentassist_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardTarget) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardTarget) ProtoMessage() {}
+
+func (x *ForwardTarget) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardTarget.ProtoReflect.Descriptor instead.
+func (*ForwardTarget) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *ForwardTarget) GetMode() ForwardTarget_Mode {
+	if x != nil {
+		return x.Mode
+	}
+	return ForwardTarget_MODE_UNSPECIFIED
+}
+
+func (x *ForwardTarget) GetWindowId() string {
+	if x != nil {
+		return x.WindowId
+	}
+	return ""
+}
+
+// ForwardWindowItem describes one forwardable system window
+type ForwardWindowItem struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// stable window id
+	WindowId string `protobuf:"bytes,1,opt,name=window_id,json=windowId,proto3" json:"window_id,omitempty"`
+	// display title
+	Title         string `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForwardWindowItem) Reset() {
+	*x = ForwardWindowItem{}
+	mi := &file_agentassist_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardWindowItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardWindowItem) ProtoMessage() {}
+
+func (x *ForwardWindowItem) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardWindowItem.ProtoReflect.Descriptor instead.
+func (*ForwardWindowItem) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *ForwardWindowItem) GetWindowId() string {
+	if x != nil {
+		return x.WindowId
+	}
+	return ""
+}
+
+func (x *ForwardWindowItem) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
 // SendChatMessageRequest represents a request to send a chat message
 type SendChatMessageRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// receiver client id
 	ReceiverClientId string `protobuf:"bytes,1,opt,name=receiver_client_id,json=receiverClientId,proto3" json:"receiver_client_id,omitempty"`
 	// message content
-	Content       string `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	Content string `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
+	// optional forward target to be used by receiver
+	ForwardTarget *ForwardTarget `protobuf:"bytes,3,opt,name=forward_target,json=forwardTarget,proto3" json:"forward_target,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SendChatMessageRequest) Reset() {
 	*x = SendChatMessageRequest{}
-	mi := &file_agentassist_proto_msgTypes[27]
+	mi := &file_agentassist_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1815,7 +1987,7 @@ func (x *SendChatMessageRequest) String() string {
 func (*SendChatMessageRequest) ProtoMessage() {}
 
 func (x *SendChatMessageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[27]
+	mi := &file_agentassist_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1828,7 +2000,7 @@ func (x *SendChatMessageRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatMessageRequest.ProtoReflect.Descriptor instead.
 func (*SendChatMessageRequest) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{27}
+	return file_agentassist_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *SendChatMessageRequest) GetReceiverClientId() string {
@@ -1845,6 +2017,13 @@ func (x *SendChatMessageRequest) GetContent() string {
 	return ""
 }
 
+func (x *SendChatMessageRequest) GetForwardTarget() *ForwardTarget {
+	if x != nil {
+		return x.ForwardTarget
+	}
+	return nil
+}
+
 // ChatMessageNotification represents a notification of a new chat message
 type ChatMessageNotification struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -1856,7 +2035,7 @@ type ChatMessageNotification struct {
 
 func (x *ChatMessageNotification) Reset() {
 	*x = ChatMessageNotification{}
-	mi := &file_agentassist_proto_msgTypes[28]
+	mi := &file_agentassist_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1868,7 +2047,7 @@ func (x *ChatMessageNotification) String() string {
 func (*ChatMessageNotification) ProtoMessage() {}
 
 func (x *ChatMessageNotification) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[28]
+	mi := &file_agentassist_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1881,7 +2060,7 @@ func (x *ChatMessageNotification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ChatMessageNotification.ProtoReflect.Descriptor instead.
 func (*ChatMessageNotification) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{28}
+	return file_agentassist_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *ChatMessageNotification) GetChatMessage() *ChatMessage {
@@ -1889,6 +2068,289 @@ func (x *ChatMessageNotification) GetChatMessage() *ChatMessage {
 		return x.ChatMessage
 	}
 	return nil
+}
+
+// ForwardStateQueryRequest asks target client to report forward capability and windows
+type ForwardStateQueryRequest struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// request id for matching response
+	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// query target client id
+	TargetClientId string `protobuf:"bytes,2,opt,name=target_client_id,json=targetClientId,proto3" json:"target_client_id,omitempty"`
+	// requester client id (filled by server)
+	RequesterClientId string `protobuf:"bytes,3,opt,name=requester_client_id,json=requesterClientId,proto3" json:"requester_client_id,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *ForwardStateQueryRequest) Reset() {
+	*x = ForwardStateQueryRequest{}
+	mi := &file_agentassist_proto_msgTypes[31]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardStateQueryRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardStateQueryRequest) ProtoMessage() {}
+
+func (x *ForwardStateQueryRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[31]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardStateQueryRequest.ProtoReflect.Descriptor instead.
+func (*ForwardStateQueryRequest) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{31}
+}
+
+func (x *ForwardStateQueryRequest) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *ForwardStateQueryRequest) GetTargetClientId() string {
+	if x != nil {
+		return x.TargetClientId
+	}
+	return ""
+}
+
+func (x *ForwardStateQueryRequest) GetRequesterClientId() string {
+	if x != nil {
+		return x.RequesterClientId
+	}
+	return ""
+}
+
+// ForwardStateQueryResponse returns forward capability and window list
+type ForwardStateQueryResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// request id from ForwardStateQueryRequest
+	RequestId string `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	// response target client id (who should receive this response)
+	TargetClientId string `protobuf:"bytes,2,opt,name=target_client_id,json=targetClientId,proto3" json:"target_client_id,omitempty"`
+	// responder client id
+	ResponderClientId string `protobuf:"bytes,3,opt,name=responder_client_id,json=responderClientId,proto3" json:"responder_client_id,omitempty"`
+	// whether responder has enabled auto forward to system input
+	ForwardEnabled bool `protobuf:"varint,4,opt,name=forward_enabled,json=forwardEnabled,proto3" json:"forward_enabled,omitempty"`
+	// current forwardable windows
+	Windows       []*ForwardWindowItem `protobuf:"bytes,5,rep,name=windows,proto3" json:"windows,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForwardStateQueryResponse) Reset() {
+	*x = ForwardStateQueryResponse{}
+	mi := &file_agentassist_proto_msgTypes[32]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardStateQueryResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardStateQueryResponse) ProtoMessage() {}
+
+func (x *ForwardStateQueryResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[32]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardStateQueryResponse.ProtoReflect.Descriptor instead.
+func (*ForwardStateQueryResponse) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{32}
+}
+
+func (x *ForwardStateQueryResponse) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *ForwardStateQueryResponse) GetTargetClientId() string {
+	if x != nil {
+		return x.TargetClientId
+	}
+	return ""
+}
+
+func (x *ForwardStateQueryResponse) GetResponderClientId() string {
+	if x != nil {
+		return x.ResponderClientId
+	}
+	return ""
+}
+
+func (x *ForwardStateQueryResponse) GetForwardEnabled() bool {
+	if x != nil {
+		return x.ForwardEnabled
+	}
+	return false
+}
+
+func (x *ForwardStateQueryResponse) GetWindows() []*ForwardWindowItem {
+	if x != nil {
+		return x.Windows
+	}
+	return nil
+}
+
+// ForwardStateChangedNotification notifies peers that sender's forward state changed
+type ForwardStateChangedNotification struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// source client id whose state changed
+	SourceClientId string `protobuf:"bytes,1,opt,name=source_client_id,json=sourceClientId,proto3" json:"source_client_id,omitempty"`
+	// whether source has enabled auto forward
+	ForwardEnabled bool `protobuf:"varint,2,opt,name=forward_enabled,json=forwardEnabled,proto3" json:"forward_enabled,omitempty"`
+	// current forwardable windows snapshot
+	Windows       []*ForwardWindowItem `protobuf:"bytes,3,rep,name=windows,proto3" json:"windows,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForwardStateChangedNotification) Reset() {
+	*x = ForwardStateChangedNotification{}
+	mi := &file_agentassist_proto_msgTypes[33]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardStateChangedNotification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardStateChangedNotification) ProtoMessage() {}
+
+func (x *ForwardStateChangedNotification) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[33]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardStateChangedNotification.ProtoReflect.Descriptor instead.
+func (*ForwardStateChangedNotification) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{33}
+}
+
+func (x *ForwardStateChangedNotification) GetSourceClientId() string {
+	if x != nil {
+		return x.SourceClientId
+	}
+	return ""
+}
+
+func (x *ForwardStateChangedNotification) GetForwardEnabled() bool {
+	if x != nil {
+		return x.ForwardEnabled
+	}
+	return false
+}
+
+func (x *ForwardStateChangedNotification) GetWindows() []*ForwardWindowItem {
+	if x != nil {
+		return x.Windows
+	}
+	return nil
+}
+
+// ForwardDeliveryErrorNotification reports receiver could not forward to selected window
+type ForwardDeliveryErrorNotification struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// receiver of this error (usually original sender of chat message)
+	TargetClientId string `protobuf:"bytes,1,opt,name=target_client_id,json=targetClientId,proto3" json:"target_client_id,omitempty"`
+	// peer client id where forwarding failed
+	PeerClientId string `protobuf:"bytes,2,opt,name=peer_client_id,json=peerClientId,proto3" json:"peer_client_id,omitempty"`
+	// invalid window id
+	InvalidWindowId string `protobuf:"bytes,3,opt,name=invalid_window_id,json=invalidWindowId,proto3" json:"invalid_window_id,omitempty"`
+	// error reason
+	Reason        string `protobuf:"bytes,4,opt,name=reason,proto3" json:"reason,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ForwardDeliveryErrorNotification) Reset() {
+	*x = ForwardDeliveryErrorNotification{}
+	mi := &file_agentassist_proto_msgTypes[34]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ForwardDeliveryErrorNotification) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ForwardDeliveryErrorNotification) ProtoMessage() {}
+
+func (x *ForwardDeliveryErrorNotification) ProtoReflect() protoreflect.Message {
+	mi := &file_agentassist_proto_msgTypes[34]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ForwardDeliveryErrorNotification.ProtoReflect.Descriptor instead.
+func (*ForwardDeliveryErrorNotification) Descriptor() ([]byte, []int) {
+	return file_agentassist_proto_rawDescGZIP(), []int{34}
+}
+
+func (x *ForwardDeliveryErrorNotification) GetTargetClientId() string {
+	if x != nil {
+		return x.TargetClientId
+	}
+	return ""
+}
+
+func (x *ForwardDeliveryErrorNotification) GetPeerClientId() string {
+	if x != nil {
+		return x.PeerClientId
+	}
+	return ""
+}
+
+func (x *ForwardDeliveryErrorNotification) GetInvalidWindowId() string {
+	if x != nil {
+		return x.InvalidWindowId
+	}
+	return ""
+}
+
+func (x *ForwardDeliveryErrorNotification) GetReason() string {
+	if x != nil {
+		return x.Reason
+	}
+	return ""
 }
 
 // UserLoginResponse represents the response to a user login
@@ -1906,7 +2368,7 @@ type UserLoginResponse struct {
 
 func (x *UserLoginResponse) Reset() {
 	*x = UserLoginResponse{}
-	mi := &file_agentassist_proto_msgTypes[29]
+	mi := &file_agentassist_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1918,7 +2380,7 @@ func (x *UserLoginResponse) String() string {
 func (*UserLoginResponse) ProtoMessage() {}
 
 func (x *UserLoginResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[29]
+	mi := &file_agentassist_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1931,7 +2393,7 @@ func (x *UserLoginResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserLoginResponse.ProtoReflect.Descriptor instead.
 func (*UserLoginResponse) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{29}
+	return file_agentassist_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *UserLoginResponse) GetClientId() string {
@@ -1971,7 +2433,7 @@ type UserConnectionStatusNotification struct {
 
 func (x *UserConnectionStatusNotification) Reset() {
 	*x = UserConnectionStatusNotification{}
-	mi := &file_agentassist_proto_msgTypes[30]
+	mi := &file_agentassist_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1983,7 +2445,7 @@ func (x *UserConnectionStatusNotification) String() string {
 func (*UserConnectionStatusNotification) ProtoMessage() {}
 
 func (x *UserConnectionStatusNotification) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[30]
+	mi := &file_agentassist_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1996,7 +2458,7 @@ func (x *UserConnectionStatusNotification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserConnectionStatusNotification.ProtoReflect.Descriptor instead.
 func (*UserConnectionStatusNotification) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{30}
+	return file_agentassist_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *UserConnectionStatusNotification) GetUser() *OnlineUser {
@@ -2036,6 +2498,10 @@ type WebsocketMessage struct {
 	// GetOnlineUsers: get online users with the same token
 	// SendChatMessage: send a chat message to another user
 	// ChatMessageNotification: notification of a new chat message
+	// ForwardStateQuery: query peer forward capability and windows
+	// ForwardStateQueryResponse: response for ForwardStateQuery
+	// ForwardStateChanged: notify peers that forward state changed
+	// ForwardDeliveryError: notify sender that selected target window is invalid
 	Cmd string `protobuf:"bytes,1,opt,name=Cmd,proto3" json:"Cmd,omitempty"`
 	// ask question
 	AskQuestionRequest *AskQuestionRequest `protobuf:"bytes,2,opt,name=AskQuestionRequest,proto3" json:"AskQuestionRequest,omitempty"`
@@ -2067,6 +2533,14 @@ type WebsocketMessage struct {
 	UserLoginResponse *UserLoginResponse `protobuf:"bytes,23,opt,name=UserLoginResponse,proto3" json:"UserLoginResponse,omitempty"`
 	// user connection status notification
 	UserConnectionStatusNotification *UserConnectionStatusNotification `protobuf:"bytes,24,opt,name=UserConnectionStatusNotification,proto3" json:"UserConnectionStatusNotification,omitempty"`
+	// forward state query request
+	ForwardStateQueryRequest *ForwardStateQueryRequest `protobuf:"bytes,25,opt,name=ForwardStateQueryRequest,proto3" json:"ForwardStateQueryRequest,omitempty"`
+	// forward state query response
+	ForwardStateQueryResponse *ForwardStateQueryResponse `protobuf:"bytes,26,opt,name=ForwardStateQueryResponse,proto3" json:"ForwardStateQueryResponse,omitempty"`
+	// forward state changed notification
+	ForwardStateChangedNotification *ForwardStateChangedNotification `protobuf:"bytes,27,opt,name=ForwardStateChangedNotification,proto3" json:"ForwardStateChangedNotification,omitempty"`
+	// forward delivery error notification
+	ForwardDeliveryErrorNotification *ForwardDeliveryErrorNotification `protobuf:"bytes,28,opt,name=ForwardDeliveryErrorNotification,proto3" json:"ForwardDeliveryErrorNotification,omitempty"`
 	// str param
 	StrParam string `protobuf:"bytes,12,opt,name=StrParam,proto3" json:"StrParam,omitempty"`
 	// user nickname (for UserLogin and notifications)
@@ -2077,7 +2551,7 @@ type WebsocketMessage struct {
 
 func (x *WebsocketMessage) Reset() {
 	*x = WebsocketMessage{}
-	mi := &file_agentassist_proto_msgTypes[31]
+	mi := &file_agentassist_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2089,7 +2563,7 @@ func (x *WebsocketMessage) String() string {
 func (*WebsocketMessage) ProtoMessage() {}
 
 func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_agentassist_proto_msgTypes[31]
+	mi := &file_agentassist_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2102,7 +2576,7 @@ func (x *WebsocketMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebsocketMessage.ProtoReflect.Descriptor instead.
 func (*WebsocketMessage) Descriptor() ([]byte, []int) {
-	return file_agentassist_proto_rawDescGZIP(), []int{31}
+	return file_agentassist_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *WebsocketMessage) GetCmd() string {
@@ -2213,6 +2687,34 @@ func (x *WebsocketMessage) GetUserLoginResponse() *UserLoginResponse {
 func (x *WebsocketMessage) GetUserConnectionStatusNotification() *UserConnectionStatusNotification {
 	if x != nil {
 		return x.UserConnectionStatusNotification
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetForwardStateQueryRequest() *ForwardStateQueryRequest {
+	if x != nil {
+		return x.ForwardStateQueryRequest
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetForwardStateQueryResponse() *ForwardStateQueryResponse {
+	if x != nil {
+		return x.ForwardStateQueryResponse
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetForwardStateChangedNotification() *ForwardStateChangedNotification {
+	if x != nil {
+		return x.ForwardStateChangedNotification
+	}
+	return nil
+}
+
+func (x *WebsocketMessage) GetForwardDeliveryErrorNotification() *ForwardDeliveryErrorNotification {
+	if x != nil {
+		return x.ForwardDeliveryErrorNotification
 	}
 	return nil
 }
@@ -2362,7 +2864,7 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x16GetOnlineUsersResponse\x12?\n" +
 	"\fonline_users\x18\x01 \x03(\v2\x1c.agentassistproto.OnlineUserR\vonlineUsers\x12\x1f\n" +
 	"\vtotal_count\x18\x02 \x01(\x05R\n" +
-	"totalCount\"\x8d\x02\n" +
+	"totalCount\"\xd5\x02\n" +
 	"\vChatMessage\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x01 \x01(\tR\tmessageId\x12(\n" +
@@ -2371,12 +2873,45 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x12receiver_client_id\x18\x04 \x01(\tR\x10receiverClientId\x12+\n" +
 	"\x11receiver_nickname\x18\x05 \x01(\tR\x10receiverNickname\x12\x18\n" +
 	"\acontent\x18\x06 \x01(\tR\acontent\x12\x17\n" +
-	"\asent_at\x18\a \x01(\x03R\x06sentAt\"`\n" +
+	"\asent_at\x18\a \x01(\x03R\x06sentAt\x12F\n" +
+	"\x0eforward_target\x18\b \x01(\v2\x1f.agentassistproto.ForwardTargetR\rforwardTarget\"\xad\x01\n" +
+	"\rForwardTarget\x128\n" +
+	"\x04mode\x18\x01 \x01(\x0e2$.agentassistproto.ForwardTarget.ModeR\x04mode\x12\x1b\n" +
+	"\twindow_id\x18\x02 \x01(\tR\bwindowId\"E\n" +
+	"\x04Mode\x12\x14\n" +
+	"\x10MODE_UNSPECIFIED\x10\x00\x12\x12\n" +
+	"\x0eFOCUSED_WINDOW\x10\x01\x12\x13\n" +
+	"\x0fSPECIFIC_WINDOW\x10\x02\"F\n" +
+	"\x11ForwardWindowItem\x12\x1b\n" +
+	"\twindow_id\x18\x01 \x01(\tR\bwindowId\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\"\xa8\x01\n" +
 	"\x16SendChatMessageRequest\x12,\n" +
 	"\x12receiver_client_id\x18\x01 \x01(\tR\x10receiverClientId\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\"[\n" +
+	"\acontent\x18\x02 \x01(\tR\acontent\x12F\n" +
+	"\x0eforward_target\x18\x03 \x01(\v2\x1f.agentassistproto.ForwardTargetR\rforwardTarget\"[\n" +
 	"\x17ChatMessageNotification\x12@\n" +
-	"\fchat_message\x18\x01 \x01(\v2\x1d.agentassistproto.ChatMessageR\vchatMessage\"o\n" +
+	"\fchat_message\x18\x01 \x01(\v2\x1d.agentassistproto.ChatMessageR\vchatMessage\"\x93\x01\n" +
+	"\x18ForwardStateQueryRequest\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12(\n" +
+	"\x10target_client_id\x18\x02 \x01(\tR\x0etargetClientId\x12.\n" +
+	"\x13requester_client_id\x18\x03 \x01(\tR\x11requesterClientId\"\xfc\x01\n" +
+	"\x19ForwardStateQueryResponse\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12(\n" +
+	"\x10target_client_id\x18\x02 \x01(\tR\x0etargetClientId\x12.\n" +
+	"\x13responder_client_id\x18\x03 \x01(\tR\x11responderClientId\x12'\n" +
+	"\x0fforward_enabled\x18\x04 \x01(\bR\x0eforwardEnabled\x12=\n" +
+	"\awindows\x18\x05 \x03(\v2#.agentassistproto.ForwardWindowItemR\awindows\"\xb3\x01\n" +
+	"\x1fForwardStateChangedNotification\x12(\n" +
+	"\x10source_client_id\x18\x01 \x01(\tR\x0esourceClientId\x12'\n" +
+	"\x0fforward_enabled\x18\x02 \x01(\bR\x0eforwardEnabled\x12=\n" +
+	"\awindows\x18\x03 \x03(\v2#.agentassistproto.ForwardWindowItemR\awindows\"\xb6\x01\n" +
+	" ForwardDeliveryErrorNotification\x12(\n" +
+	"\x10target_client_id\x18\x01 \x01(\tR\x0etargetClientId\x12$\n" +
+	"\x0epeer_client_id\x18\x02 \x01(\tR\fpeerClientId\x12*\n" +
+	"\x11invalid_window_id\x18\x03 \x01(\tR\x0finvalidWindowId\x12\x16\n" +
+	"\x06reason\x18\x04 \x01(\tR\x06reason\"o\n" +
 	"\x11UserLoginResponse\x12\x1b\n" +
 	"\tclient_id\x18\x01 \x01(\tR\bclientId\x12\x18\n" +
 	"\asuccess\x18\x02 \x01(\bR\asuccess\x12#\n" +
@@ -2384,7 +2919,7 @@ const file_agentassist_proto_rawDesc = "" +
 	" UserConnectionStatusNotification\x120\n" +
 	"\x04user\x18\x01 \x01(\v2\x1c.agentassistproto.OnlineUserR\x04user\x12\x16\n" +
 	"\x06status\x18\x02 \x01(\tR\x06status\x12\x1c\n" +
-	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"\xc1\f\n" +
+	"\ttimestamp\x18\x03 \x01(\x03R\ttimestamp\"\x91\x10\n" +
 	"\x10WebsocketMessage\x12\x10\n" +
 	"\x03Cmd\x18\x01 \x01(\tR\x03Cmd\x12T\n" +
 	"\x12AskQuestionRequest\x18\x02 \x01(\v2$.agentassistproto.AskQuestionRequestR\x12AskQuestionRequest\x12Q\n" +
@@ -2401,7 +2936,11 @@ const file_agentassist_proto_rawDesc = "" +
 	"\x16SendChatMessageRequest\x18\x15 \x01(\v2(.agentassistproto.SendChatMessageRequestR\x16SendChatMessageRequest\x12c\n" +
 	"\x17ChatMessageNotification\x18\x16 \x01(\v2).agentassistproto.ChatMessageNotificationR\x17ChatMessageNotification\x12Q\n" +
 	"\x11UserLoginResponse\x18\x17 \x01(\v2#.agentassistproto.UserLoginResponseR\x11UserLoginResponse\x12~\n" +
-	" UserConnectionStatusNotification\x18\x18 \x01(\v22.agentassistproto.UserConnectionStatusNotificationR UserConnectionStatusNotification\x12\x1a\n" +
+	" UserConnectionStatusNotification\x18\x18 \x01(\v22.agentassistproto.UserConnectionStatusNotificationR UserConnectionStatusNotification\x12f\n" +
+	"\x18ForwardStateQueryRequest\x18\x19 \x01(\v2*.agentassistproto.ForwardStateQueryRequestR\x18ForwardStateQueryRequest\x12i\n" +
+	"\x19ForwardStateQueryResponse\x18\x1a \x01(\v2+.agentassistproto.ForwardStateQueryResponseR\x19ForwardStateQueryResponse\x12{\n" +
+	"\x1fForwardStateChangedNotification\x18\x1b \x01(\v21.agentassistproto.ForwardStateChangedNotificationR\x1fForwardStateChangedNotification\x12~\n" +
+	" ForwardDeliveryErrorNotification\x18\x1c \x01(\v22.agentassistproto.ForwardDeliveryErrorNotificationR ForwardDeliveryErrorNotification\x12\x1a\n" +
 	"\bStrParam\x18\f \x01(\tR\bStrParam\x12\x1a\n" +
 	"\bNickname\x18\x12 \x01(\tR\bNickname2\xab\x02\n" +
 	"\x0eSrvAgentAssist\x12Z\n" +
@@ -2422,91 +2961,108 @@ func file_agentassist_proto_rawDescGZIP() []byte {
 	return file_agentassist_proto_rawDescData
 }
 
-var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 35)
+var file_agentassist_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_agentassist_proto_msgTypes = make([]protoimpl.MessageInfo, 41)
 var file_agentassist_proto_goTypes = []any{
-	(*TextContent)(nil),                      // 0: agentassistproto.TextContent
-	(*ImageContent)(nil),                     // 1: agentassistproto.ImageContent
-	(*AudioContent)(nil),                     // 2: agentassistproto.AudioContent
-	(*EmbeddedResource)(nil),                 // 3: agentassistproto.EmbeddedResource
-	(*McpResultContent)(nil),                 // 4: agentassistproto.McpResultContent
-	(*MsgEmpty)(nil),                         // 5: agentassistproto.MsgEmpty
-	(*Option)(nil),                           // 6: agentassistproto.Option
-	(*Question)(nil),                         // 7: agentassistproto.Question
-	(*McpAskQuestionRequest)(nil),            // 8: agentassistproto.McpAskQuestionRequest
-	(*AskQuestionRequest)(nil),               // 9: agentassistproto.AskQuestionRequest
-	(*AskQuestionResponse)(nil),              // 10: agentassistproto.AskQuestionResponse
-	(*McpWorkReportRequest)(nil),             // 11: agentassistproto.McpWorkReportRequest
-	(*WorkReportRequest)(nil),                // 12: agentassistproto.WorkReportRequest
-	(*WorkReportResponse)(nil),               // 13: agentassistproto.WorkReportResponse
-	(*McpClientInfoData)(nil),                // 14: agentassistproto.McpClientInfoData
-	(*McpClientInfoRequest)(nil),             // 15: agentassistproto.McpClientInfoRequest
-	(*McpClientInfoResponse)(nil),            // 16: agentassistproto.McpClientInfoResponse
-	(*CheckMessageValidityRequest)(nil),      // 17: agentassistproto.CheckMessageValidityRequest
-	(*CheckMessageValidityResponse)(nil),     // 18: agentassistproto.CheckMessageValidityResponse
-	(*GetPendingMessagesRequest)(nil),        // 19: agentassistproto.GetPendingMessagesRequest
-	(*PendingMessage)(nil),                   // 20: agentassistproto.PendingMessage
-	(*GetPendingMessagesResponse)(nil),       // 21: agentassistproto.GetPendingMessagesResponse
-	(*RequestCancelledNotification)(nil),     // 22: agentassistproto.RequestCancelledNotification
-	(*OnlineUser)(nil),                       // 23: agentassistproto.OnlineUser
-	(*GetOnlineUsersRequest)(nil),            // 24: agentassistproto.GetOnlineUsersRequest
-	(*GetOnlineUsersResponse)(nil),           // 25: agentassistproto.GetOnlineUsersResponse
-	(*ChatMessage)(nil),                      // 26: agentassistproto.ChatMessage
-	(*SendChatMessageRequest)(nil),           // 27: agentassistproto.SendChatMessageRequest
-	(*ChatMessageNotification)(nil),          // 28: agentassistproto.ChatMessageNotification
-	(*UserLoginResponse)(nil),                // 29: agentassistproto.UserLoginResponse
-	(*UserConnectionStatusNotification)(nil), // 30: agentassistproto.UserConnectionStatusNotification
-	(*WebsocketMessage)(nil),                 // 31: agentassistproto.WebsocketMessage
-	nil,                                      // 32: agentassistproto.AskQuestionResponse.MetaEntry
-	nil,                                      // 33: agentassistproto.WorkReportResponse.MetaEntry
-	nil,                                      // 34: agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	(ForwardTarget_Mode)(0),                  // 0: agentassistproto.ForwardTarget.Mode
+	(*TextContent)(nil),                      // 1: agentassistproto.TextContent
+	(*ImageContent)(nil),                     // 2: agentassistproto.ImageContent
+	(*AudioContent)(nil),                     // 3: agentassistproto.AudioContent
+	(*EmbeddedResource)(nil),                 // 4: agentassistproto.EmbeddedResource
+	(*McpResultContent)(nil),                 // 5: agentassistproto.McpResultContent
+	(*MsgEmpty)(nil),                         // 6: agentassistproto.MsgEmpty
+	(*Option)(nil),                           // 7: agentassistproto.Option
+	(*Question)(nil),                         // 8: agentassistproto.Question
+	(*McpAskQuestionRequest)(nil),            // 9: agentassistproto.McpAskQuestionRequest
+	(*AskQuestionRequest)(nil),               // 10: agentassistproto.AskQuestionRequest
+	(*AskQuestionResponse)(nil),              // 11: agentassistproto.AskQuestionResponse
+	(*McpWorkReportRequest)(nil),             // 12: agentassistproto.McpWorkReportRequest
+	(*WorkReportRequest)(nil),                // 13: agentassistproto.WorkReportRequest
+	(*WorkReportResponse)(nil),               // 14: agentassistproto.WorkReportResponse
+	(*McpClientInfoData)(nil),                // 15: agentassistproto.McpClientInfoData
+	(*McpClientInfoRequest)(nil),             // 16: agentassistproto.McpClientInfoRequest
+	(*McpClientInfoResponse)(nil),            // 17: agentassistproto.McpClientInfoResponse
+	(*CheckMessageValidityRequest)(nil),      // 18: agentassistproto.CheckMessageValidityRequest
+	(*CheckMessageValidityResponse)(nil),     // 19: agentassistproto.CheckMessageValidityResponse
+	(*GetPendingMessagesRequest)(nil),        // 20: agentassistproto.GetPendingMessagesRequest
+	(*PendingMessage)(nil),                   // 21: agentassistproto.PendingMessage
+	(*GetPendingMessagesResponse)(nil),       // 22: agentassistproto.GetPendingMessagesResponse
+	(*RequestCancelledNotification)(nil),     // 23: agentassistproto.RequestCancelledNotification
+	(*OnlineUser)(nil),                       // 24: agentassistproto.OnlineUser
+	(*GetOnlineUsersRequest)(nil),            // 25: agentassistproto.GetOnlineUsersRequest
+	(*GetOnlineUsersResponse)(nil),           // 26: agentassistproto.GetOnlineUsersResponse
+	(*ChatMessage)(nil),                      // 27: agentassistproto.ChatMessage
+	(*ForwardTarget)(nil),                    // 28: agentassistproto.ForwardTarget
+	(*ForwardWindowItem)(nil),                // 29: agentassistproto.ForwardWindowItem
+	(*SendChatMessageRequest)(nil),           // 30: agentassistproto.SendChatMessageRequest
+	(*ChatMessageNotification)(nil),          // 31: agentassistproto.ChatMessageNotification
+	(*ForwardStateQueryRequest)(nil),         // 32: agentassistproto.ForwardStateQueryRequest
+	(*ForwardStateQueryResponse)(nil),        // 33: agentassistproto.ForwardStateQueryResponse
+	(*ForwardStateChangedNotification)(nil),  // 34: agentassistproto.ForwardStateChangedNotification
+	(*ForwardDeliveryErrorNotification)(nil), // 35: agentassistproto.ForwardDeliveryErrorNotification
+	(*UserLoginResponse)(nil),                // 36: agentassistproto.UserLoginResponse
+	(*UserConnectionStatusNotification)(nil), // 37: agentassistproto.UserConnectionStatusNotification
+	(*WebsocketMessage)(nil),                 // 38: agentassistproto.WebsocketMessage
+	nil,                                      // 39: agentassistproto.AskQuestionResponse.MetaEntry
+	nil,                                      // 40: agentassistproto.WorkReportResponse.MetaEntry
+	nil,                                      // 41: agentassistproto.CheckMessageValidityResponse.ValidityEntry
 }
 var file_agentassist_proto_depIdxs = []int32{
-	0,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
-	1,  // 1: agentassistproto.McpResultContent.image:type_name -> agentassistproto.ImageContent
-	2,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
-	3,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
-	6,  // 4: agentassistproto.Question.options:type_name -> agentassistproto.Option
-	7,  // 5: agentassistproto.McpAskQuestionRequest.Questions:type_name -> agentassistproto.Question
-	8,  // 6: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
-	32, // 7: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
-	4,  // 8: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
-	11, // 9: agentassistproto.WorkReportRequest.Request:type_name -> agentassistproto.McpWorkReportRequest
-	33, // 10: agentassistproto.WorkReportResponse.Meta:type_name -> agentassistproto.WorkReportResponse.MetaEntry
-	4,  // 11: agentassistproto.WorkReportResponse.contents:type_name -> agentassistproto.McpResultContent
-	14, // 12: agentassistproto.McpClientInfoRequest.Request:type_name -> agentassistproto.McpClientInfoData
-	34, // 13: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
-	9,  // 14: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
-	12, // 15: agentassistproto.PendingMessage.work_report_request:type_name -> agentassistproto.WorkReportRequest
-	20, // 16: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
-	23, // 17: agentassistproto.GetOnlineUsersResponse.online_users:type_name -> agentassistproto.OnlineUser
-	26, // 18: agentassistproto.ChatMessageNotification.chat_message:type_name -> agentassistproto.ChatMessage
-	23, // 19: agentassistproto.UserConnectionStatusNotification.user:type_name -> agentassistproto.OnlineUser
-	9,  // 20: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
-	12, // 21: agentassistproto.WebsocketMessage.WorkReportRequest:type_name -> agentassistproto.WorkReportRequest
-	10, // 22: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
-	13, // 23: agentassistproto.WebsocketMessage.WorkReportResponse:type_name -> agentassistproto.WorkReportResponse
-	17, // 24: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
-	18, // 25: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
-	19, // 26: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
-	21, // 27: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
-	22, // 28: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
-	24, // 29: agentassistproto.WebsocketMessage.GetOnlineUsersRequest:type_name -> agentassistproto.GetOnlineUsersRequest
-	25, // 30: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
-	27, // 31: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
-	28, // 32: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
-	29, // 33: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
-	30, // 34: agentassistproto.WebsocketMessage.UserConnectionStatusNotification:type_name -> agentassistproto.UserConnectionStatusNotification
-	9,  // 35: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
-	12, // 36: agentassistproto.SrvAgentAssist.WorkReport:input_type -> agentassistproto.WorkReportRequest
-	15, // 37: agentassistproto.SrvAgentAssist.SendMcpClientInfo:input_type -> agentassistproto.McpClientInfoRequest
-	10, // 38: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
-	13, // 39: agentassistproto.SrvAgentAssist.WorkReport:output_type -> agentassistproto.WorkReportResponse
-	16, // 40: agentassistproto.SrvAgentAssist.SendMcpClientInfo:output_type -> agentassistproto.McpClientInfoResponse
-	38, // [38:41] is the sub-list for method output_type
-	35, // [35:38] is the sub-list for method input_type
-	35, // [35:35] is the sub-list for extension type_name
-	35, // [35:35] is the sub-list for extension extendee
-	0,  // [0:35] is the sub-list for field type_name
+	1,  // 0: agentassistproto.McpResultContent.text:type_name -> agentassistproto.TextContent
+	2,  // 1: agentassistproto.McpResultContent.image:type_name -> agentassistproto.ImageContent
+	3,  // 2: agentassistproto.McpResultContent.audio:type_name -> agentassistproto.AudioContent
+	4,  // 3: agentassistproto.McpResultContent.embedded_resource:type_name -> agentassistproto.EmbeddedResource
+	7,  // 4: agentassistproto.Question.options:type_name -> agentassistproto.Option
+	8,  // 5: agentassistproto.McpAskQuestionRequest.Questions:type_name -> agentassistproto.Question
+	9,  // 6: agentassistproto.AskQuestionRequest.Request:type_name -> agentassistproto.McpAskQuestionRequest
+	39, // 7: agentassistproto.AskQuestionResponse.Meta:type_name -> agentassistproto.AskQuestionResponse.MetaEntry
+	5,  // 8: agentassistproto.AskQuestionResponse.contents:type_name -> agentassistproto.McpResultContent
+	12, // 9: agentassistproto.WorkReportRequest.Request:type_name -> agentassistproto.McpWorkReportRequest
+	40, // 10: agentassistproto.WorkReportResponse.Meta:type_name -> agentassistproto.WorkReportResponse.MetaEntry
+	5,  // 11: agentassistproto.WorkReportResponse.contents:type_name -> agentassistproto.McpResultContent
+	15, // 12: agentassistproto.McpClientInfoRequest.Request:type_name -> agentassistproto.McpClientInfoData
+	41, // 13: agentassistproto.CheckMessageValidityResponse.validity:type_name -> agentassistproto.CheckMessageValidityResponse.ValidityEntry
+	10, // 14: agentassistproto.PendingMessage.ask_question_request:type_name -> agentassistproto.AskQuestionRequest
+	13, // 15: agentassistproto.PendingMessage.work_report_request:type_name -> agentassistproto.WorkReportRequest
+	21, // 16: agentassistproto.GetPendingMessagesResponse.pending_messages:type_name -> agentassistproto.PendingMessage
+	24, // 17: agentassistproto.GetOnlineUsersResponse.online_users:type_name -> agentassistproto.OnlineUser
+	28, // 18: agentassistproto.ChatMessage.forward_target:type_name -> agentassistproto.ForwardTarget
+	0,  // 19: agentassistproto.ForwardTarget.mode:type_name -> agentassistproto.ForwardTarget.Mode
+	28, // 20: agentassistproto.SendChatMessageRequest.forward_target:type_name -> agentassistproto.ForwardTarget
+	27, // 21: agentassistproto.ChatMessageNotification.chat_message:type_name -> agentassistproto.ChatMessage
+	29, // 22: agentassistproto.ForwardStateQueryResponse.windows:type_name -> agentassistproto.ForwardWindowItem
+	29, // 23: agentassistproto.ForwardStateChangedNotification.windows:type_name -> agentassistproto.ForwardWindowItem
+	24, // 24: agentassistproto.UserConnectionStatusNotification.user:type_name -> agentassistproto.OnlineUser
+	10, // 25: agentassistproto.WebsocketMessage.AskQuestionRequest:type_name -> agentassistproto.AskQuestionRequest
+	13, // 26: agentassistproto.WebsocketMessage.WorkReportRequest:type_name -> agentassistproto.WorkReportRequest
+	11, // 27: agentassistproto.WebsocketMessage.AskQuestionResponse:type_name -> agentassistproto.AskQuestionResponse
+	14, // 28: agentassistproto.WebsocketMessage.WorkReportResponse:type_name -> agentassistproto.WorkReportResponse
+	18, // 29: agentassistproto.WebsocketMessage.CheckMessageValidityRequest:type_name -> agentassistproto.CheckMessageValidityRequest
+	19, // 30: agentassistproto.WebsocketMessage.CheckMessageValidityResponse:type_name -> agentassistproto.CheckMessageValidityResponse
+	20, // 31: agentassistproto.WebsocketMessage.GetPendingMessagesRequest:type_name -> agentassistproto.GetPendingMessagesRequest
+	22, // 32: agentassistproto.WebsocketMessage.GetPendingMessagesResponse:type_name -> agentassistproto.GetPendingMessagesResponse
+	23, // 33: agentassistproto.WebsocketMessage.RequestCancelledNotification:type_name -> agentassistproto.RequestCancelledNotification
+	25, // 34: agentassistproto.WebsocketMessage.GetOnlineUsersRequest:type_name -> agentassistproto.GetOnlineUsersRequest
+	26, // 35: agentassistproto.WebsocketMessage.GetOnlineUsersResponse:type_name -> agentassistproto.GetOnlineUsersResponse
+	30, // 36: agentassistproto.WebsocketMessage.SendChatMessageRequest:type_name -> agentassistproto.SendChatMessageRequest
+	31, // 37: agentassistproto.WebsocketMessage.ChatMessageNotification:type_name -> agentassistproto.ChatMessageNotification
+	36, // 38: agentassistproto.WebsocketMessage.UserLoginResponse:type_name -> agentassistproto.UserLoginResponse
+	37, // 39: agentassistproto.WebsocketMessage.UserConnectionStatusNotification:type_name -> agentassistproto.UserConnectionStatusNotification
+	32, // 40: agentassistproto.WebsocketMessage.ForwardStateQueryRequest:type_name -> agentassistproto.ForwardStateQueryRequest
+	33, // 41: agentassistproto.WebsocketMessage.ForwardStateQueryResponse:type_name -> agentassistproto.ForwardStateQueryResponse
+	34, // 42: agentassistproto.WebsocketMessage.ForwardStateChangedNotification:type_name -> agentassistproto.ForwardStateChangedNotification
+	35, // 43: agentassistproto.WebsocketMessage.ForwardDeliveryErrorNotification:type_name -> agentassistproto.ForwardDeliveryErrorNotification
+	10, // 44: agentassistproto.SrvAgentAssist.AskQuestion:input_type -> agentassistproto.AskQuestionRequest
+	13, // 45: agentassistproto.SrvAgentAssist.WorkReport:input_type -> agentassistproto.WorkReportRequest
+	16, // 46: agentassistproto.SrvAgentAssist.SendMcpClientInfo:input_type -> agentassistproto.McpClientInfoRequest
+	11, // 47: agentassistproto.SrvAgentAssist.AskQuestion:output_type -> agentassistproto.AskQuestionResponse
+	14, // 48: agentassistproto.SrvAgentAssist.WorkReport:output_type -> agentassistproto.WorkReportResponse
+	17, // 49: agentassistproto.SrvAgentAssist.SendMcpClientInfo:output_type -> agentassistproto.McpClientInfoResponse
+	47, // [47:50] is the sub-list for method output_type
+	44, // [44:47] is the sub-list for method input_type
+	44, // [44:44] is the sub-list for extension type_name
+	44, // [44:44] is the sub-list for extension extendee
+	0,  // [0:44] is the sub-list for field type_name
 }
 
 func init() { file_agentassist_proto_init() }
@@ -2519,13 +3075,14 @@ func file_agentassist_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_agentassist_proto_rawDesc), len(file_agentassist_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   35,
+			NumEnums:      1,
+			NumMessages:   41,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_agentassist_proto_goTypes,
 		DependencyIndexes: file_agentassist_proto_depIdxs,
+		EnumInfos:         file_agentassist_proto_enumTypes,
 		MessageInfos:      file_agentassist_proto_msgTypes,
 	}.Build()
 	File_agentassist_proto = out.File

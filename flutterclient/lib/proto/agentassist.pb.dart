@@ -15,6 +15,10 @@ import 'dart:core' as $core;
 import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
+import 'agentassist.pbenum.dart';
+
+export 'agentassist.pbenum.dart';
+
 /// TextContent represents text provided to or from an LLM.
 /// It must have Type set to "text".
 class TextContent extends $pb.GeneratedMessage {
@@ -2136,6 +2140,7 @@ class ChatMessage extends $pb.GeneratedMessage {
     $core.String? receiverNickname,
     $core.String? content,
     $fixnum.Int64? sentAt,
+    ForwardTarget? forwardTarget,
   }) {
     final $result = create();
     if (messageId != null) {
@@ -2159,6 +2164,9 @@ class ChatMessage extends $pb.GeneratedMessage {
     if (sentAt != null) {
       $result.sentAt = sentAt;
     }
+    if (forwardTarget != null) {
+      $result.forwardTarget = forwardTarget;
+    }
     return $result;
   }
   ChatMessage._() : super();
@@ -2173,6 +2181,7 @@ class ChatMessage extends $pb.GeneratedMessage {
     ..aOS(5, _omitFieldNames ? '' : 'receiverNickname')
     ..aOS(6, _omitFieldNames ? '' : 'content')
     ..aInt64(7, _omitFieldNames ? '' : 'sentAt')
+    ..aOM<ForwardTarget>(8, _omitFieldNames ? '' : 'forwardTarget', subBuilder: ForwardTarget.create)
     ..hasRequiredFields = false
   ;
 
@@ -2266,6 +2275,152 @@ class ChatMessage extends $pb.GeneratedMessage {
   $core.bool hasSentAt() => $_has(6);
   @$pb.TagNumber(7)
   void clearSentAt() => clearField(7);
+
+  /// forward target selected by sender (optional)
+  @$pb.TagNumber(8)
+  ForwardTarget get forwardTarget => $_getN(7);
+  @$pb.TagNumber(8)
+  set forwardTarget(ForwardTarget v) { setField(8, v); }
+  @$pb.TagNumber(8)
+  $core.bool hasForwardTarget() => $_has(7);
+  @$pb.TagNumber(8)
+  void clearForwardTarget() => clearField(8);
+  @$pb.TagNumber(8)
+  ForwardTarget ensureForwardTarget() => $_ensure(7);
+}
+
+/// ForwardTarget describes how receiver should forward content to system input
+class ForwardTarget extends $pb.GeneratedMessage {
+  factory ForwardTarget({
+    ForwardTarget_Mode? mode,
+    $core.String? windowId,
+  }) {
+    final $result = create();
+    if (mode != null) {
+      $result.mode = mode;
+    }
+    if (windowId != null) {
+      $result.windowId = windowId;
+    }
+    return $result;
+  }
+  ForwardTarget._() : super();
+  factory ForwardTarget.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ForwardTarget.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ForwardTarget', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..e<ForwardTarget_Mode>(1, _omitFieldNames ? '' : 'mode', $pb.PbFieldType.OE, defaultOrMaker: ForwardTarget_Mode.MODE_UNSPECIFIED, valueOf: ForwardTarget_Mode.valueOf, enumValues: ForwardTarget_Mode.values)
+    ..aOS(2, _omitFieldNames ? '' : 'windowId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ForwardTarget clone() => ForwardTarget()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ForwardTarget copyWith(void Function(ForwardTarget) updates) => super.copyWith((message) => updates(message as ForwardTarget)) as ForwardTarget;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ForwardTarget create() => ForwardTarget._();
+  ForwardTarget createEmptyInstance() => create();
+  static $pb.PbList<ForwardTarget> createRepeated() => $pb.PbList<ForwardTarget>();
+  @$core.pragma('dart2js:noInline')
+  static ForwardTarget getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ForwardTarget>(create);
+  static ForwardTarget? _defaultInstance;
+
+  /// forwarding mode
+  @$pb.TagNumber(1)
+  ForwardTarget_Mode get mode => $_getN(0);
+  @$pb.TagNumber(1)
+  set mode(ForwardTarget_Mode v) { setField(1, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasMode() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearMode() => clearField(1);
+
+  /// target window id when mode is SPECIFIC_WINDOW
+  @$pb.TagNumber(2)
+  $core.String get windowId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set windowId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasWindowId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearWindowId() => clearField(2);
+}
+
+/// ForwardWindowItem describes one forwardable system window
+class ForwardWindowItem extends $pb.GeneratedMessage {
+  factory ForwardWindowItem({
+    $core.String? windowId,
+    $core.String? title,
+  }) {
+    final $result = create();
+    if (windowId != null) {
+      $result.windowId = windowId;
+    }
+    if (title != null) {
+      $result.title = title;
+    }
+    return $result;
+  }
+  ForwardWindowItem._() : super();
+  factory ForwardWindowItem.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ForwardWindowItem.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ForwardWindowItem', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'windowId')
+    ..aOS(2, _omitFieldNames ? '' : 'title')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ForwardWindowItem clone() => ForwardWindowItem()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ForwardWindowItem copyWith(void Function(ForwardWindowItem) updates) => super.copyWith((message) => updates(message as ForwardWindowItem)) as ForwardWindowItem;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ForwardWindowItem create() => ForwardWindowItem._();
+  ForwardWindowItem createEmptyInstance() => create();
+  static $pb.PbList<ForwardWindowItem> createRepeated() => $pb.PbList<ForwardWindowItem>();
+  @$core.pragma('dart2js:noInline')
+  static ForwardWindowItem getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ForwardWindowItem>(create);
+  static ForwardWindowItem? _defaultInstance;
+
+  /// stable window id
+  @$pb.TagNumber(1)
+  $core.String get windowId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set windowId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasWindowId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearWindowId() => clearField(1);
+
+  /// display title
+  @$pb.TagNumber(2)
+  $core.String get title => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set title($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTitle() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTitle() => clearField(2);
 }
 
 /// SendChatMessageRequest represents a request to send a chat message
@@ -2273,6 +2428,7 @@ class SendChatMessageRequest extends $pb.GeneratedMessage {
   factory SendChatMessageRequest({
     $core.String? receiverClientId,
     $core.String? content,
+    ForwardTarget? forwardTarget,
   }) {
     final $result = create();
     if (receiverClientId != null) {
@@ -2280,6 +2436,9 @@ class SendChatMessageRequest extends $pb.GeneratedMessage {
     }
     if (content != null) {
       $result.content = content;
+    }
+    if (forwardTarget != null) {
+      $result.forwardTarget = forwardTarget;
     }
     return $result;
   }
@@ -2290,6 +2449,7 @@ class SendChatMessageRequest extends $pb.GeneratedMessage {
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'SendChatMessageRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
     ..aOS(1, _omitFieldNames ? '' : 'receiverClientId')
     ..aOS(2, _omitFieldNames ? '' : 'content')
+    ..aOM<ForwardTarget>(3, _omitFieldNames ? '' : 'forwardTarget', subBuilder: ForwardTarget.create)
     ..hasRequiredFields = false
   ;
 
@@ -2333,6 +2493,18 @@ class SendChatMessageRequest extends $pb.GeneratedMessage {
   $core.bool hasContent() => $_has(1);
   @$pb.TagNumber(2)
   void clearContent() => clearField(2);
+
+  /// optional forward target to be used by receiver
+  @$pb.TagNumber(3)
+  ForwardTarget get forwardTarget => $_getN(2);
+  @$pb.TagNumber(3)
+  set forwardTarget(ForwardTarget v) { setField(3, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasForwardTarget() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearForwardTarget() => clearField(3);
+  @$pb.TagNumber(3)
+  ForwardTarget ensureForwardTarget() => $_ensure(2);
 }
 
 /// ChatMessageNotification represents a notification of a new chat message
@@ -2387,6 +2559,367 @@ class ChatMessageNotification extends $pb.GeneratedMessage {
   void clearChatMessage() => clearField(1);
   @$pb.TagNumber(1)
   ChatMessage ensureChatMessage() => $_ensure(0);
+}
+
+/// ForwardStateQueryRequest asks target client to report forward capability and windows
+class ForwardStateQueryRequest extends $pb.GeneratedMessage {
+  factory ForwardStateQueryRequest({
+    $core.String? requestId,
+    $core.String? targetClientId,
+    $core.String? requesterClientId,
+  }) {
+    final $result = create();
+    if (requestId != null) {
+      $result.requestId = requestId;
+    }
+    if (targetClientId != null) {
+      $result.targetClientId = targetClientId;
+    }
+    if (requesterClientId != null) {
+      $result.requesterClientId = requesterClientId;
+    }
+    return $result;
+  }
+  ForwardStateQueryRequest._() : super();
+  factory ForwardStateQueryRequest.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ForwardStateQueryRequest.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ForwardStateQueryRequest', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'requestId')
+    ..aOS(2, _omitFieldNames ? '' : 'targetClientId')
+    ..aOS(3, _omitFieldNames ? '' : 'requesterClientId')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ForwardStateQueryRequest clone() => ForwardStateQueryRequest()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ForwardStateQueryRequest copyWith(void Function(ForwardStateQueryRequest) updates) => super.copyWith((message) => updates(message as ForwardStateQueryRequest)) as ForwardStateQueryRequest;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ForwardStateQueryRequest create() => ForwardStateQueryRequest._();
+  ForwardStateQueryRequest createEmptyInstance() => create();
+  static $pb.PbList<ForwardStateQueryRequest> createRepeated() => $pb.PbList<ForwardStateQueryRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ForwardStateQueryRequest getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ForwardStateQueryRequest>(create);
+  static ForwardStateQueryRequest? _defaultInstance;
+
+  /// request id for matching response
+  @$pb.TagNumber(1)
+  $core.String get requestId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set requestId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRequestId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRequestId() => clearField(1);
+
+  /// query target client id
+  @$pb.TagNumber(2)
+  $core.String get targetClientId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set targetClientId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTargetClientId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTargetClientId() => clearField(2);
+
+  /// requester client id (filled by server)
+  @$pb.TagNumber(3)
+  $core.String get requesterClientId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set requesterClientId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasRequesterClientId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearRequesterClientId() => clearField(3);
+}
+
+/// ForwardStateQueryResponse returns forward capability and window list
+class ForwardStateQueryResponse extends $pb.GeneratedMessage {
+  factory ForwardStateQueryResponse({
+    $core.String? requestId,
+    $core.String? targetClientId,
+    $core.String? responderClientId,
+    $core.bool? forwardEnabled,
+    $core.Iterable<ForwardWindowItem>? windows,
+  }) {
+    final $result = create();
+    if (requestId != null) {
+      $result.requestId = requestId;
+    }
+    if (targetClientId != null) {
+      $result.targetClientId = targetClientId;
+    }
+    if (responderClientId != null) {
+      $result.responderClientId = responderClientId;
+    }
+    if (forwardEnabled != null) {
+      $result.forwardEnabled = forwardEnabled;
+    }
+    if (windows != null) {
+      $result.windows.addAll(windows);
+    }
+    return $result;
+  }
+  ForwardStateQueryResponse._() : super();
+  factory ForwardStateQueryResponse.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ForwardStateQueryResponse.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ForwardStateQueryResponse', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'requestId')
+    ..aOS(2, _omitFieldNames ? '' : 'targetClientId')
+    ..aOS(3, _omitFieldNames ? '' : 'responderClientId')
+    ..aOB(4, _omitFieldNames ? '' : 'forwardEnabled')
+    ..pc<ForwardWindowItem>(5, _omitFieldNames ? '' : 'windows', $pb.PbFieldType.PM, subBuilder: ForwardWindowItem.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ForwardStateQueryResponse clone() => ForwardStateQueryResponse()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ForwardStateQueryResponse copyWith(void Function(ForwardStateQueryResponse) updates) => super.copyWith((message) => updates(message as ForwardStateQueryResponse)) as ForwardStateQueryResponse;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ForwardStateQueryResponse create() => ForwardStateQueryResponse._();
+  ForwardStateQueryResponse createEmptyInstance() => create();
+  static $pb.PbList<ForwardStateQueryResponse> createRepeated() => $pb.PbList<ForwardStateQueryResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ForwardStateQueryResponse getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ForwardStateQueryResponse>(create);
+  static ForwardStateQueryResponse? _defaultInstance;
+
+  /// request id from ForwardStateQueryRequest
+  @$pb.TagNumber(1)
+  $core.String get requestId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set requestId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasRequestId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRequestId() => clearField(1);
+
+  /// response target client id (who should receive this response)
+  @$pb.TagNumber(2)
+  $core.String get targetClientId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set targetClientId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasTargetClientId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearTargetClientId() => clearField(2);
+
+  /// responder client id
+  @$pb.TagNumber(3)
+  $core.String get responderClientId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set responderClientId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasResponderClientId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearResponderClientId() => clearField(3);
+
+  /// whether responder has enabled auto forward to system input
+  @$pb.TagNumber(4)
+  $core.bool get forwardEnabled => $_getBF(3);
+  @$pb.TagNumber(4)
+  set forwardEnabled($core.bool v) { $_setBool(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasForwardEnabled() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearForwardEnabled() => clearField(4);
+
+  /// current forwardable windows
+  @$pb.TagNumber(5)
+  $core.List<ForwardWindowItem> get windows => $_getList(4);
+}
+
+/// ForwardStateChangedNotification notifies peers that sender's forward state changed
+class ForwardStateChangedNotification extends $pb.GeneratedMessage {
+  factory ForwardStateChangedNotification({
+    $core.String? sourceClientId,
+    $core.bool? forwardEnabled,
+    $core.Iterable<ForwardWindowItem>? windows,
+  }) {
+    final $result = create();
+    if (sourceClientId != null) {
+      $result.sourceClientId = sourceClientId;
+    }
+    if (forwardEnabled != null) {
+      $result.forwardEnabled = forwardEnabled;
+    }
+    if (windows != null) {
+      $result.windows.addAll(windows);
+    }
+    return $result;
+  }
+  ForwardStateChangedNotification._() : super();
+  factory ForwardStateChangedNotification.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ForwardStateChangedNotification.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ForwardStateChangedNotification', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'sourceClientId')
+    ..aOB(2, _omitFieldNames ? '' : 'forwardEnabled')
+    ..pc<ForwardWindowItem>(3, _omitFieldNames ? '' : 'windows', $pb.PbFieldType.PM, subBuilder: ForwardWindowItem.create)
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ForwardStateChangedNotification clone() => ForwardStateChangedNotification()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ForwardStateChangedNotification copyWith(void Function(ForwardStateChangedNotification) updates) => super.copyWith((message) => updates(message as ForwardStateChangedNotification)) as ForwardStateChangedNotification;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ForwardStateChangedNotification create() => ForwardStateChangedNotification._();
+  ForwardStateChangedNotification createEmptyInstance() => create();
+  static $pb.PbList<ForwardStateChangedNotification> createRepeated() => $pb.PbList<ForwardStateChangedNotification>();
+  @$core.pragma('dart2js:noInline')
+  static ForwardStateChangedNotification getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ForwardStateChangedNotification>(create);
+  static ForwardStateChangedNotification? _defaultInstance;
+
+  /// source client id whose state changed
+  @$pb.TagNumber(1)
+  $core.String get sourceClientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set sourceClientId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasSourceClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearSourceClientId() => clearField(1);
+
+  /// whether source has enabled auto forward
+  @$pb.TagNumber(2)
+  $core.bool get forwardEnabled => $_getBF(1);
+  @$pb.TagNumber(2)
+  set forwardEnabled($core.bool v) { $_setBool(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasForwardEnabled() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearForwardEnabled() => clearField(2);
+
+  /// current forwardable windows snapshot
+  @$pb.TagNumber(3)
+  $core.List<ForwardWindowItem> get windows => $_getList(2);
+}
+
+/// ForwardDeliveryErrorNotification reports receiver could not forward to selected window
+class ForwardDeliveryErrorNotification extends $pb.GeneratedMessage {
+  factory ForwardDeliveryErrorNotification({
+    $core.String? targetClientId,
+    $core.String? peerClientId,
+    $core.String? invalidWindowId,
+    $core.String? reason,
+  }) {
+    final $result = create();
+    if (targetClientId != null) {
+      $result.targetClientId = targetClientId;
+    }
+    if (peerClientId != null) {
+      $result.peerClientId = peerClientId;
+    }
+    if (invalidWindowId != null) {
+      $result.invalidWindowId = invalidWindowId;
+    }
+    if (reason != null) {
+      $result.reason = reason;
+    }
+    return $result;
+  }
+  ForwardDeliveryErrorNotification._() : super();
+  factory ForwardDeliveryErrorNotification.fromBuffer($core.List<$core.int> i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromBuffer(i, r);
+  factory ForwardDeliveryErrorNotification.fromJson($core.String i, [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) => create()..mergeFromJson(i, r);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(_omitMessageNames ? '' : 'ForwardDeliveryErrorNotification', package: const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'), createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'targetClientId')
+    ..aOS(2, _omitFieldNames ? '' : 'peerClientId')
+    ..aOS(3, _omitFieldNames ? '' : 'invalidWindowId')
+    ..aOS(4, _omitFieldNames ? '' : 'reason')
+    ..hasRequiredFields = false
+  ;
+
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.deepCopy] instead. '
+  'Will be removed in next major version')
+  ForwardDeliveryErrorNotification clone() => ForwardDeliveryErrorNotification()..mergeFromMessage(this);
+  @$core.Deprecated(
+  'Using this can add significant overhead to your binary. '
+  'Use [GeneratedMessageGenericExtensions.rebuild] instead. '
+  'Will be removed in next major version')
+  ForwardDeliveryErrorNotification copyWith(void Function(ForwardDeliveryErrorNotification) updates) => super.copyWith((message) => updates(message as ForwardDeliveryErrorNotification)) as ForwardDeliveryErrorNotification;
+
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ForwardDeliveryErrorNotification create() => ForwardDeliveryErrorNotification._();
+  ForwardDeliveryErrorNotification createEmptyInstance() => create();
+  static $pb.PbList<ForwardDeliveryErrorNotification> createRepeated() => $pb.PbList<ForwardDeliveryErrorNotification>();
+  @$core.pragma('dart2js:noInline')
+  static ForwardDeliveryErrorNotification getDefault() => _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<ForwardDeliveryErrorNotification>(create);
+  static ForwardDeliveryErrorNotification? _defaultInstance;
+
+  /// receiver of this error (usually original sender of chat message)
+  @$pb.TagNumber(1)
+  $core.String get targetClientId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set targetClientId($core.String v) { $_setString(0, v); }
+  @$pb.TagNumber(1)
+  $core.bool hasTargetClientId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearTargetClientId() => clearField(1);
+
+  /// peer client id where forwarding failed
+  @$pb.TagNumber(2)
+  $core.String get peerClientId => $_getSZ(1);
+  @$pb.TagNumber(2)
+  set peerClientId($core.String v) { $_setString(1, v); }
+  @$pb.TagNumber(2)
+  $core.bool hasPeerClientId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPeerClientId() => clearField(2);
+
+  /// invalid window id
+  @$pb.TagNumber(3)
+  $core.String get invalidWindowId => $_getSZ(2);
+  @$pb.TagNumber(3)
+  set invalidWindowId($core.String v) { $_setString(2, v); }
+  @$pb.TagNumber(3)
+  $core.bool hasInvalidWindowId() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearInvalidWindowId() => clearField(3);
+
+  /// error reason
+  @$pb.TagNumber(4)
+  $core.String get reason => $_getSZ(3);
+  @$pb.TagNumber(4)
+  set reason($core.String v) { $_setString(3, v); }
+  @$pb.TagNumber(4)
+  $core.bool hasReason() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearReason() => clearField(4);
 }
 
 /// UserLoginResponse represents the response to a user login
@@ -2576,6 +3109,10 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ChatMessageNotification? chatMessageNotification,
     UserLoginResponse? userLoginResponse,
     UserConnectionStatusNotification? userConnectionStatusNotification,
+    ForwardStateQueryRequest? forwardStateQueryRequest,
+    ForwardStateQueryResponse? forwardStateQueryResponse,
+    ForwardStateChangedNotification? forwardStateChangedNotification,
+    ForwardDeliveryErrorNotification? forwardDeliveryErrorNotification,
   }) {
     final $result = create();
     if (cmd != null) {
@@ -2632,6 +3169,18 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (userConnectionStatusNotification != null) {
       $result.userConnectionStatusNotification = userConnectionStatusNotification;
     }
+    if (forwardStateQueryRequest != null) {
+      $result.forwardStateQueryRequest = forwardStateQueryRequest;
+    }
+    if (forwardStateQueryResponse != null) {
+      $result.forwardStateQueryResponse = forwardStateQueryResponse;
+    }
+    if (forwardStateChangedNotification != null) {
+      $result.forwardStateChangedNotification = forwardStateChangedNotification;
+    }
+    if (forwardDeliveryErrorNotification != null) {
+      $result.forwardDeliveryErrorNotification = forwardDeliveryErrorNotification;
+    }
     return $result;
   }
   WebsocketMessage._() : super();
@@ -2657,6 +3206,10 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ..aOM<ChatMessageNotification>(22, _omitFieldNames ? '' : 'ChatMessageNotification', protoName: 'ChatMessageNotification', subBuilder: ChatMessageNotification.create)
     ..aOM<UserLoginResponse>(23, _omitFieldNames ? '' : 'UserLoginResponse', protoName: 'UserLoginResponse', subBuilder: UserLoginResponse.create)
     ..aOM<UserConnectionStatusNotification>(24, _omitFieldNames ? '' : 'UserConnectionStatusNotification', protoName: 'UserConnectionStatusNotification', subBuilder: UserConnectionStatusNotification.create)
+    ..aOM<ForwardStateQueryRequest>(25, _omitFieldNames ? '' : 'ForwardStateQueryRequest', protoName: 'ForwardStateQueryRequest', subBuilder: ForwardStateQueryRequest.create)
+    ..aOM<ForwardStateQueryResponse>(26, _omitFieldNames ? '' : 'ForwardStateQueryResponse', protoName: 'ForwardStateQueryResponse', subBuilder: ForwardStateQueryResponse.create)
+    ..aOM<ForwardStateChangedNotification>(27, _omitFieldNames ? '' : 'ForwardStateChangedNotification', protoName: 'ForwardStateChangedNotification', subBuilder: ForwardStateChangedNotification.create)
+    ..aOM<ForwardDeliveryErrorNotification>(28, _omitFieldNames ? '' : 'ForwardDeliveryErrorNotification', protoName: 'ForwardDeliveryErrorNotification', subBuilder: ForwardDeliveryErrorNotification.create)
     ..hasRequiredFields = false
   ;
 
@@ -2695,6 +3248,10 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// GetOnlineUsers: get online users with the same token
   /// SendChatMessage: send a chat message to another user
   /// ChatMessageNotification: notification of a new chat message
+  /// ForwardStateQuery: query peer forward capability and windows
+  /// ForwardStateQueryResponse: response for ForwardStateQuery
+  /// ForwardStateChanged: notify peers that forward state changed
+  /// ForwardDeliveryError: notify sender that selected target window is invalid
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -2903,6 +3460,54 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   void clearUserConnectionStatusNotification() => clearField(24);
   @$pb.TagNumber(24)
   UserConnectionStatusNotification ensureUserConnectionStatusNotification() => $_ensure(17);
+
+  /// forward state query request
+  @$pb.TagNumber(25)
+  ForwardStateQueryRequest get forwardStateQueryRequest => $_getN(18);
+  @$pb.TagNumber(25)
+  set forwardStateQueryRequest(ForwardStateQueryRequest v) { setField(25, v); }
+  @$pb.TagNumber(25)
+  $core.bool hasForwardStateQueryRequest() => $_has(18);
+  @$pb.TagNumber(25)
+  void clearForwardStateQueryRequest() => clearField(25);
+  @$pb.TagNumber(25)
+  ForwardStateQueryRequest ensureForwardStateQueryRequest() => $_ensure(18);
+
+  /// forward state query response
+  @$pb.TagNumber(26)
+  ForwardStateQueryResponse get forwardStateQueryResponse => $_getN(19);
+  @$pb.TagNumber(26)
+  set forwardStateQueryResponse(ForwardStateQueryResponse v) { setField(26, v); }
+  @$pb.TagNumber(26)
+  $core.bool hasForwardStateQueryResponse() => $_has(19);
+  @$pb.TagNumber(26)
+  void clearForwardStateQueryResponse() => clearField(26);
+  @$pb.TagNumber(26)
+  ForwardStateQueryResponse ensureForwardStateQueryResponse() => $_ensure(19);
+
+  /// forward state changed notification
+  @$pb.TagNumber(27)
+  ForwardStateChangedNotification get forwardStateChangedNotification => $_getN(20);
+  @$pb.TagNumber(27)
+  set forwardStateChangedNotification(ForwardStateChangedNotification v) { setField(27, v); }
+  @$pb.TagNumber(27)
+  $core.bool hasForwardStateChangedNotification() => $_has(20);
+  @$pb.TagNumber(27)
+  void clearForwardStateChangedNotification() => clearField(27);
+  @$pb.TagNumber(27)
+  ForwardStateChangedNotification ensureForwardStateChangedNotification() => $_ensure(20);
+
+  /// forward delivery error notification
+  @$pb.TagNumber(28)
+  ForwardDeliveryErrorNotification get forwardDeliveryErrorNotification => $_getN(21);
+  @$pb.TagNumber(28)
+  set forwardDeliveryErrorNotification(ForwardDeliveryErrorNotification v) { setField(28, v); }
+  @$pb.TagNumber(28)
+  $core.bool hasForwardDeliveryErrorNotification() => $_has(21);
+  @$pb.TagNumber(28)
+  void clearForwardDeliveryErrorNotification() => clearField(28);
+  @$pb.TagNumber(28)
+  ForwardDeliveryErrorNotification ensureForwardDeliveryErrorNotification() => $_ensure(21);
 }
 
 class SrvAgentAssistApi {

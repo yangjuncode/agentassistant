@@ -484,6 +484,7 @@ const ChatMessage$json = {
     {'1': 'receiver_nickname', '3': 5, '4': 1, '5': 9, '10': 'receiverNickname'},
     {'1': 'content', '3': 6, '4': 1, '5': 9, '10': 'content'},
     {'1': 'sent_at', '3': 7, '4': 1, '5': 3, '10': 'sentAt'},
+    {'1': 'forward_target', '3': 8, '4': 1, '5': 11, '6': '.agentassistproto.ForwardTarget', '10': 'forwardTarget'},
   ],
 };
 
@@ -493,7 +494,50 @@ final $typed_data.Uint8List chatMessageDescriptor = $convert.base64Decode(
     'NsaWVudF9pZBgCIAEoCVIOc2VuZGVyQ2xpZW50SWQSJwoPc2VuZGVyX25pY2tuYW1lGAMgASgJ'
     'Ug5zZW5kZXJOaWNrbmFtZRIsChJyZWNlaXZlcl9jbGllbnRfaWQYBCABKAlSEHJlY2VpdmVyQ2'
     'xpZW50SWQSKwoRcmVjZWl2ZXJfbmlja25hbWUYBSABKAlSEHJlY2VpdmVyTmlja25hbWUSGAoH'
-    'Y29udGVudBgGIAEoCVIHY29udGVudBIXCgdzZW50X2F0GAcgASgDUgZzZW50QXQ=');
+    'Y29udGVudBgGIAEoCVIHY29udGVudBIXCgdzZW50X2F0GAcgASgDUgZzZW50QXQSRgoOZm9yd2'
+    'FyZF90YXJnZXQYCCABKAsyHy5hZ2VudGFzc2lzdHByb3RvLkZvcndhcmRUYXJnZXRSDWZvcndh'
+    'cmRUYXJnZXQ=');
+
+@$core.Deprecated('Use forwardTargetDescriptor instead')
+const ForwardTarget$json = {
+  '1': 'ForwardTarget',
+  '2': [
+    {'1': 'mode', '3': 1, '4': 1, '5': 14, '6': '.agentassistproto.ForwardTarget.Mode', '10': 'mode'},
+    {'1': 'window_id', '3': 2, '4': 1, '5': 9, '10': 'windowId'},
+  ],
+  '4': [ForwardTarget_Mode$json],
+};
+
+@$core.Deprecated('Use forwardTargetDescriptor instead')
+const ForwardTarget_Mode$json = {
+  '1': 'Mode',
+  '2': [
+    {'1': 'MODE_UNSPECIFIED', '2': 0},
+    {'1': 'FOCUSED_WINDOW', '2': 1},
+    {'1': 'SPECIFIC_WINDOW', '2': 2},
+  ],
+};
+
+/// Descriptor for `ForwardTarget`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List forwardTargetDescriptor = $convert.base64Decode(
+    'Cg1Gb3J3YXJkVGFyZ2V0EjgKBG1vZGUYASABKA4yJC5hZ2VudGFzc2lzdHByb3RvLkZvcndhcm'
+    'RUYXJnZXQuTW9kZVIEbW9kZRIbCgl3aW5kb3dfaWQYAiABKAlSCHdpbmRvd0lkIkUKBE1vZGUS'
+    'FAoQTU9ERV9VTlNQRUNJRklFRBAAEhIKDkZPQ1VTRURfV0lORE9XEAESEwoPU1BFQ0lGSUNfV0'
+    'lORE9XEAI=');
+
+@$core.Deprecated('Use forwardWindowItemDescriptor instead')
+const ForwardWindowItem$json = {
+  '1': 'ForwardWindowItem',
+  '2': [
+    {'1': 'window_id', '3': 1, '4': 1, '5': 9, '10': 'windowId'},
+    {'1': 'title', '3': 2, '4': 1, '5': 9, '10': 'title'},
+  ],
+};
+
+/// Descriptor for `ForwardWindowItem`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List forwardWindowItemDescriptor = $convert.base64Decode(
+    'ChFGb3J3YXJkV2luZG93SXRlbRIbCgl3aW5kb3dfaWQYASABKAlSCHdpbmRvd0lkEhQKBXRpdG'
+    'xlGAIgASgJUgV0aXRsZQ==');
 
 @$core.Deprecated('Use sendChatMessageRequestDescriptor instead')
 const SendChatMessageRequest$json = {
@@ -501,13 +545,16 @@ const SendChatMessageRequest$json = {
   '2': [
     {'1': 'receiver_client_id', '3': 1, '4': 1, '5': 9, '10': 'receiverClientId'},
     {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
+    {'1': 'forward_target', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.ForwardTarget', '10': 'forwardTarget'},
   ],
 };
 
 /// Descriptor for `SendChatMessageRequest`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List sendChatMessageRequestDescriptor = $convert.base64Decode(
     'ChZTZW5kQ2hhdE1lc3NhZ2VSZXF1ZXN0EiwKEnJlY2VpdmVyX2NsaWVudF9pZBgBIAEoCVIQcm'
-    'VjZWl2ZXJDbGllbnRJZBIYCgdjb250ZW50GAIgASgJUgdjb250ZW50');
+    'VjZWl2ZXJDbGllbnRJZBIYCgdjb250ZW50GAIgASgJUgdjb250ZW50EkYKDmZvcndhcmRfdGFy'
+    'Z2V0GAMgASgLMh8uYWdlbnRhc3Npc3Rwcm90by5Gb3J3YXJkVGFyZ2V0Ug1mb3J3YXJkVGFyZ2'
+    'V0');
 
 @$core.Deprecated('Use chatMessageNotificationDescriptor instead')
 const ChatMessageNotification$json = {
@@ -521,6 +568,77 @@ const ChatMessageNotification$json = {
 final $typed_data.Uint8List chatMessageNotificationDescriptor = $convert.base64Decode(
     'ChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhJACgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudG'
     'Fzc2lzdHByb3RvLkNoYXRNZXNzYWdlUgtjaGF0TWVzc2FnZQ==');
+
+@$core.Deprecated('Use forwardStateQueryRequestDescriptor instead')
+const ForwardStateQueryRequest$json = {
+  '1': 'ForwardStateQueryRequest',
+  '2': [
+    {'1': 'request_id', '3': 1, '4': 1, '5': 9, '10': 'requestId'},
+    {'1': 'target_client_id', '3': 2, '4': 1, '5': 9, '10': 'targetClientId'},
+    {'1': 'requester_client_id', '3': 3, '4': 1, '5': 9, '10': 'requesterClientId'},
+  ],
+};
+
+/// Descriptor for `ForwardStateQueryRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List forwardStateQueryRequestDescriptor = $convert.base64Decode(
+    'ChhGb3J3YXJkU3RhdGVRdWVyeVJlcXVlc3QSHQoKcmVxdWVzdF9pZBgBIAEoCVIJcmVxdWVzdE'
+    'lkEigKEHRhcmdldF9jbGllbnRfaWQYAiABKAlSDnRhcmdldENsaWVudElkEi4KE3JlcXVlc3Rl'
+    'cl9jbGllbnRfaWQYAyABKAlSEXJlcXVlc3RlckNsaWVudElk');
+
+@$core.Deprecated('Use forwardStateQueryResponseDescriptor instead')
+const ForwardStateQueryResponse$json = {
+  '1': 'ForwardStateQueryResponse',
+  '2': [
+    {'1': 'request_id', '3': 1, '4': 1, '5': 9, '10': 'requestId'},
+    {'1': 'target_client_id', '3': 2, '4': 1, '5': 9, '10': 'targetClientId'},
+    {'1': 'responder_client_id', '3': 3, '4': 1, '5': 9, '10': 'responderClientId'},
+    {'1': 'forward_enabled', '3': 4, '4': 1, '5': 8, '10': 'forwardEnabled'},
+    {'1': 'windows', '3': 5, '4': 3, '5': 11, '6': '.agentassistproto.ForwardWindowItem', '10': 'windows'},
+  ],
+};
+
+/// Descriptor for `ForwardStateQueryResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List forwardStateQueryResponseDescriptor = $convert.base64Decode(
+    'ChlGb3J3YXJkU3RhdGVRdWVyeVJlc3BvbnNlEh0KCnJlcXVlc3RfaWQYASABKAlSCXJlcXVlc3'
+    'RJZBIoChB0YXJnZXRfY2xpZW50X2lkGAIgASgJUg50YXJnZXRDbGllbnRJZBIuChNyZXNwb25k'
+    'ZXJfY2xpZW50X2lkGAMgASgJUhFyZXNwb25kZXJDbGllbnRJZBInCg9mb3J3YXJkX2VuYWJsZW'
+    'QYBCABKAhSDmZvcndhcmRFbmFibGVkEj0KB3dpbmRvd3MYBSADKAsyIy5hZ2VudGFzc2lzdHBy'
+    'b3RvLkZvcndhcmRXaW5kb3dJdGVtUgd3aW5kb3dz');
+
+@$core.Deprecated('Use forwardStateChangedNotificationDescriptor instead')
+const ForwardStateChangedNotification$json = {
+  '1': 'ForwardStateChangedNotification',
+  '2': [
+    {'1': 'source_client_id', '3': 1, '4': 1, '5': 9, '10': 'sourceClientId'},
+    {'1': 'forward_enabled', '3': 2, '4': 1, '5': 8, '10': 'forwardEnabled'},
+    {'1': 'windows', '3': 3, '4': 3, '5': 11, '6': '.agentassistproto.ForwardWindowItem', '10': 'windows'},
+  ],
+};
+
+/// Descriptor for `ForwardStateChangedNotification`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List forwardStateChangedNotificationDescriptor = $convert.base64Decode(
+    'Ch9Gb3J3YXJkU3RhdGVDaGFuZ2VkTm90aWZpY2F0aW9uEigKEHNvdXJjZV9jbGllbnRfaWQYAS'
+    'ABKAlSDnNvdXJjZUNsaWVudElkEicKD2ZvcndhcmRfZW5hYmxlZBgCIAEoCFIOZm9yd2FyZEVu'
+    'YWJsZWQSPQoHd2luZG93cxgDIAMoCzIjLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFdpbmRvd0'
+    'l0ZW1SB3dpbmRvd3M=');
+
+@$core.Deprecated('Use forwardDeliveryErrorNotificationDescriptor instead')
+const ForwardDeliveryErrorNotification$json = {
+  '1': 'ForwardDeliveryErrorNotification',
+  '2': [
+    {'1': 'target_client_id', '3': 1, '4': 1, '5': 9, '10': 'targetClientId'},
+    {'1': 'peer_client_id', '3': 2, '4': 1, '5': 9, '10': 'peerClientId'},
+    {'1': 'invalid_window_id', '3': 3, '4': 1, '5': 9, '10': 'invalidWindowId'},
+    {'1': 'reason', '3': 4, '4': 1, '5': 9, '10': 'reason'},
+  ],
+};
+
+/// Descriptor for `ForwardDeliveryErrorNotification`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List forwardDeliveryErrorNotificationDescriptor = $convert.base64Decode(
+    'CiBGb3J3YXJkRGVsaXZlcnlFcnJvck5vdGlmaWNhdGlvbhIoChB0YXJnZXRfY2xpZW50X2lkGA'
+    'EgASgJUg50YXJnZXRDbGllbnRJZBIkCg5wZWVyX2NsaWVudF9pZBgCIAEoCVIMcGVlckNsaWVu'
+    'dElkEioKEWludmFsaWRfd2luZG93X2lkGAMgASgJUg9pbnZhbGlkV2luZG93SWQSFgoGcmVhc2'
+    '9uGAQgASgJUgZyZWFzb24=');
 
 @$core.Deprecated('Use userLoginResponseDescriptor instead')
 const UserLoginResponse$json = {
@@ -573,6 +691,10 @@ const WebsocketMessage$json = {
     {'1': 'ChatMessageNotification', '3': 22, '4': 1, '5': 11, '6': '.agentassistproto.ChatMessageNotification', '10': 'ChatMessageNotification'},
     {'1': 'UserLoginResponse', '3': 23, '4': 1, '5': 11, '6': '.agentassistproto.UserLoginResponse', '10': 'UserLoginResponse'},
     {'1': 'UserConnectionStatusNotification', '3': 24, '4': 1, '5': 11, '6': '.agentassistproto.UserConnectionStatusNotification', '10': 'UserConnectionStatusNotification'},
+    {'1': 'ForwardStateQueryRequest', '3': 25, '4': 1, '5': 11, '6': '.agentassistproto.ForwardStateQueryRequest', '10': 'ForwardStateQueryRequest'},
+    {'1': 'ForwardStateQueryResponse', '3': 26, '4': 1, '5': 11, '6': '.agentassistproto.ForwardStateQueryResponse', '10': 'ForwardStateQueryResponse'},
+    {'1': 'ForwardStateChangedNotification', '3': 27, '4': 1, '5': 11, '6': '.agentassistproto.ForwardStateChangedNotification', '10': 'ForwardStateChangedNotification'},
+    {'1': 'ForwardDeliveryErrorNotification', '3': 28, '4': 1, '5': 11, '6': '.agentassistproto.ForwardDeliveryErrorNotification', '10': 'ForwardDeliveryErrorNotification'},
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
     {'1': 'Nickname', '3': 18, '4': 1, '5': 9, '10': 'Nickname'},
   ],
@@ -607,8 +729,17 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'b24SUQoRVXNlckxvZ2luUmVzcG9uc2UYFyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlVzZXJMb2'
     'dpblJlc3BvbnNlUhFVc2VyTG9naW5SZXNwb25zZRJ+CiBVc2VyQ29ubmVjdGlvblN0YXR1c05v'
     'dGlmaWNhdGlvbhgYIAEoCzIyLmFnZW50YXNzaXN0cHJvdG8uVXNlckNvbm5lY3Rpb25TdGF0dX'
-    'NOb3RpZmljYXRpb25SIFVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEhoKCFN0clBh'
-    'cmFtGAwgASgJUghTdHJQYXJhbRIaCghOaWNrbmFtZRgSIAEoCVIITmlja25hbWU=');
+    'NOb3RpZmljYXRpb25SIFVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEmYKGEZvcndh'
+    'cmRTdGF0ZVF1ZXJ5UmVxdWVzdBgZIAEoCzIqLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFN0YX'
+    'RlUXVlcnlSZXF1ZXN0UhhGb3J3YXJkU3RhdGVRdWVyeVJlcXVlc3QSaQoZRm9yd2FyZFN0YXRl'
+    'UXVlcnlSZXNwb25zZRgaIAEoCzIrLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFN0YXRlUXVlcn'
+    'lSZXNwb25zZVIZRm9yd2FyZFN0YXRlUXVlcnlSZXNwb25zZRJ7Ch9Gb3J3YXJkU3RhdGVDaGFu'
+    'Z2VkTm90aWZpY2F0aW9uGBsgASgLMjEuYWdlbnRhc3Npc3Rwcm90by5Gb3J3YXJkU3RhdGVDaG'
+    'FuZ2VkTm90aWZpY2F0aW9uUh9Gb3J3YXJkU3RhdGVDaGFuZ2VkTm90aWZpY2F0aW9uEn4KIEZv'
+    'cndhcmREZWxpdmVyeUVycm9yTm90aWZpY2F0aW9uGBwgASgLMjIuYWdlbnRhc3Npc3Rwcm90by'
+    '5Gb3J3YXJkRGVsaXZlcnlFcnJvck5vdGlmaWNhdGlvblIgRm9yd2FyZERlbGl2ZXJ5RXJyb3JO'
+    'b3RpZmljYXRpb24SGgoIU3RyUGFyYW0YDCABKAlSCFN0clBhcmFtEhoKCE5pY2tuYW1lGBIgAS'
+    'gJUghOaWNrbmFtZQ==');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',

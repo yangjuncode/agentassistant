@@ -2,15 +2,15 @@
 // @generated from file agentassist.proto (package agentassistproto, syntax proto3)
 /* eslint-disable */
 
-import type { GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
-import { fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
+import type { GenEnum, GenFile, GenMessage, GenService } from "@bufbuild/protobuf/codegenv2";
+import { enumDesc, fileDesc, messageDesc, serviceDesc } from "@bufbuild/protobuf/codegenv2";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file agentassist.proto.
  */
 export const file_agentassist: GenFile = /*@__PURE__*/
-  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSIsCgZPcHRpb24SDQoFbGFiZWwYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkieQoIUXVlc3Rpb24SEAoIcXVlc3Rpb24YASABKAkSDgoGaGVhZGVyGAIgASgJEikKB29wdGlvbnMYAyADKAsyGC5hZ2VudGFzc2lzdHByb3RvLk9wdGlvbhIQCghtdWx0aXBsZRgEIAEoCBIOCgZjdXN0b20YBSABKAgizQEKFU1jcEFza1F1ZXN0aW9uUmVxdWVzdBIYChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJEhQKCFF1ZXN0aW9uGAIgASgJQgIYARIPCgdUaW1lb3V0GAMgASgFEhEKCUFnZW50TmFtZRgEIAEoCRIaChJSZWFzb25pbmdNb2RlbE5hbWUYBSABKAkSFQoNTWNwQ2xpZW50TmFtZRgGIAEoCRItCglRdWVzdGlvbnMYByADKAsyGi5hZ2VudGFzc2lzdHByb3RvLlF1ZXN0aW9uIoABChJBc2tRdWVzdGlvblJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjgKB1JlcXVlc3QYAyABKAsyJy5hZ2VudGFzc2lzdHByb3RvLk1jcEFza1F1ZXN0aW9uUmVxdWVzdBIRCglUaW1lc3RhbXAYBCABKAMi1AEKE0Fza1F1ZXN0aW9uUmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI9CgRNZXRhGAMgAygLMi8uYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlLk1ldGFFbnRyeRI0Cghjb250ZW50cxgEIAMoCzIiLmFnZW50YXNzaXN0cHJvdG8uTWNwUmVzdWx0Q29udGVudBorCglNZXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASKYAQoUTWNwV29ya1JlcG9ydFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUSEQoJQWdlbnROYW1lGAQgASgJEhoKElJlYXNvbmluZ01vZGVsTmFtZRgFIAEoCRIVCg1NY3BDbGllbnROYW1lGAYgASgJIn4KEVdvcmtSZXBvcnRSZXF1ZXN0EgoKAklEGAEgASgJEhEKCVVzZXJUb2tlbhgCIAEoCRI3CgdSZXF1ZXN0GAMgASgLMiYuYWdlbnRhc3Npc3Rwcm90by5NY3BXb3JrUmVwb3J0UmVxdWVzdBIRCglUaW1lc3RhbXAYBCABKAMi0gEKEldvcmtSZXBvcnRSZXNwb25zZRIKCgJJRBgBIAEoCRIPCgdJc0Vycm9yGAIgASgIEjwKBE1ldGEYAyADKAsyLi5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEicQoRTWNwQ2xpZW50SW5mb0RhdGESFwoPUHJvdG9jb2xWZXJzaW9uGAEgASgJEhgKEENhcGFiaWxpdGllc0pzb24YAiABKAkSEgoKQ2xpZW50TmFtZRgDIAEoCRIVCg1DbGllbnRWZXJzaW9uGAQgASgJIn4KFE1jcENsaWVudEluZm9SZXF1ZXN0EgoKAklEGAEgASgJEhEKCVVzZXJUb2tlbhgCIAEoCRI0CgdSZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5NY3BDbGllbnRJbmZvRGF0YRIRCglUaW1lc3RhbXAYBCABKAMiKAoVTWNwQ2xpZW50SW5mb1Jlc3BvbnNlEg8KB1N1Y2Nlc3MYASABKAgiMgobQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0EhMKC3JlcXVlc3RfaWRzGAEgAygJIp8BChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEk4KCHZhbGlkaXR5GAEgAygLMjwuYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlLlZhbGlkaXR5RW50cnkaLwoNVmFsaWRpdHlFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAg6AjgBIi8KGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSEgoKdXNlcl90b2tlbhgBIAEoCSLRAQoOUGVuZGluZ01lc3NhZ2USFAoMbWVzc2FnZV90eXBlGAEgASgJEkIKFGFza19xdWVzdGlvbl9yZXF1ZXN0GAIgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlcXVlc3QSQAoTd29ya19yZXBvcnRfcmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlcXVlc3QSEgoKY3JlYXRlZF9hdBgEIAEoAxIPCgd0aW1lb3V0GAUgASgFIm0KGkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlEjoKEHBlbmRpbmdfbWVzc2FnZXMYASADKAsyIC5hZ2VudGFzc2lzdHByb3RvLlBlbmRpbmdNZXNzYWdlEhMKC3RvdGFsX2NvdW50GAIgASgFIlgKHFJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24SEgoKcmVxdWVzdF9pZBgBIAEoCRIOCgZyZWFzb24YAiABKAkSFAoMbWVzc2FnZV90eXBlGAMgASgJIkcKCk9ubGluZVVzZXISEQoJY2xpZW50X2lkGAEgASgJEhAKCG5pY2tuYW1lGAIgASgJEhQKDGNvbm5lY3RlZF9hdBgDIAEoAyIrChVHZXRPbmxpbmVVc2Vyc1JlcXVlc3QSEgoKdXNlcl90b2tlbhgBIAEoCSJhChZHZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlEjIKDG9ubGluZV91c2VycxgBIAMoCzIcLmFnZW50YXNzaXN0cHJvdG8uT25saW5lVXNlchITCgt0b3RhbF9jb3VudBgCIAEoBSKtAQoLQ2hhdE1lc3NhZ2USEgoKbWVzc2FnZV9pZBgBIAEoCRIYChBzZW5kZXJfY2xpZW50X2lkGAIgASgJEhcKD3NlbmRlcl9uaWNrbmFtZRgDIAEoCRIaChJyZWNlaXZlcl9jbGllbnRfaWQYBCABKAkSGQoRcmVjZWl2ZXJfbmlja25hbWUYBSABKAkSDwoHY29udGVudBgGIAEoCRIPCgdzZW50X2F0GAcgASgDIkUKFlNlbmRDaGF0TWVzc2FnZVJlcXVlc3QSGgoScmVjZWl2ZXJfY2xpZW50X2lkGAEgASgJEg8KB2NvbnRlbnQYAiABKAkiTgoXQ2hhdE1lc3NhZ2VOb3RpZmljYXRpb24SMwoMY2hhdF9tZXNzYWdlGAEgASgLMh0uYWdlbnRhc3Npc3Rwcm90by5DaGF0TWVzc2FnZSJOChFVc2VyTG9naW5SZXNwb25zZRIRCgljbGllbnRfaWQYASABKAkSDwoHc3VjY2VzcxgCIAEoCBIVCg1lcnJvcl9tZXNzYWdlGAMgASgJInEKIFVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uEioKBHVzZXIYASABKAsyHC5hZ2VudGFzc2lzdHByb3RvLk9ubGluZVVzZXISDgoGc3RhdHVzGAIgASgJEhEKCXRpbWVzdGFtcBgDIAEoAyKzCQoQV2Vic29ja2V0TWVzc2FnZRILCgNDbWQYASABKAkSQAoSQXNrUXVlc3Rpb25SZXF1ZXN0GAIgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlcXVlc3QSPgoRV29ya1JlcG9ydFJlcXVlc3QYAyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0EkIKE0Fza1F1ZXN0aW9uUmVzcG9uc2UYBCABKAsyJS5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVzcG9uc2USQAoSV29ya1JlcG9ydFJlc3BvbnNlGAUgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2USUgobQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0GA0gASgLMi0uYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSVAocQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRgOIAEoCzIuLmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXNwb25zZRJOChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0GA8gASgLMisuYWdlbnRhc3Npc3Rwcm90by5HZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0ElAKGkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlGBAgASgLMiwuYWdlbnRhc3Npc3Rwcm90by5HZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJUChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uGBEgASgLMi4uYWdlbnRhc3Npc3Rwcm90by5SZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEkYKFUdldE9ubGluZVVzZXJzUmVxdWVzdBgTIAEoCzInLmFnZW50YXNzaXN0cHJvdG8uR2V0T25saW5lVXNlcnNSZXF1ZXN0EkgKFkdldE9ubGluZVVzZXJzUmVzcG9uc2UYFCABKAsyKC5hZ2VudGFzc2lzdHByb3RvLkdldE9ubGluZVVzZXJzUmVzcG9uc2USSAoWU2VuZENoYXRNZXNzYWdlUmVxdWVzdBgVIAEoCzIoLmFnZW50YXNzaXN0cHJvdG8uU2VuZENoYXRNZXNzYWdlUmVxdWVzdBJKChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhgWIAEoCzIpLmFnZW50YXNzaXN0cHJvdG8uQ2hhdE1lc3NhZ2VOb3RpZmljYXRpb24SPgoRVXNlckxvZ2luUmVzcG9uc2UYFyABKAsyIy5hZ2VudGFzc2lzdHByb3RvLlVzZXJMb2dpblJlc3BvbnNlElwKIFVzZXJDb25uZWN0aW9uU3RhdHVzTm90aWZpY2F0aW9uGBggASgLMjIuYWdlbnRhc3Npc3Rwcm90by5Vc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhIQCghTdHJQYXJhbRgMIAEoCRIQCghOaWNrbmFtZRgSIAEoCTKrAgoOU3J2QWdlbnRBc3Npc3QSWgoLQXNrUXVlc3Rpb24SJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBolLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJXCgpXb3JrUmVwb3J0EiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBokLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlEmQKEVNlbmRNY3BDbGllbnRJbmZvEiYuYWdlbnRhc3Npc3Rwcm90by5NY3BDbGllbnRJbmZvUmVxdWVzdBonLmFnZW50YXNzaXN0cHJvdG8uTWNwQ2xpZW50SW5mb1Jlc3BvbnNlQjhaNmdpdGh1Yi5jb20veWFuZ2p1bmNvZGUvYWdlbnRhc3Npc3RhbnQvYWdlbnRhc3Npc3Rwcm90b2IGcHJvdG8z");
+  fileDesc("ChFhZ2VudGFzc2lzdC5wcm90bxIQYWdlbnRhc3Npc3Rwcm90byIpCgtUZXh0Q29udGVudBIMCgR0eXBlGAEgASgJEgwKBHRleHQYAiABKAkiPQoMSW1hZ2VDb250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiPQoMQXVkaW9Db250ZW50EgwKBHR5cGUYASABKAkSDAoEZGF0YRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkiTgoQRW1iZWRkZWRSZXNvdXJjZRIMCgR0eXBlGAEgASgJEgsKA3VyaRgCIAEoCRIRCgltaW1lX3R5cGUYAyABKAkSDAoEZGF0YRgEIAEoDCLqAQoQTWNwUmVzdWx0Q29udGVudBIMCgR0eXBlGAEgASgFEisKBHRleHQYAiABKAsyHS5hZ2VudGFzc2lzdHByb3RvLlRleHRDb250ZW50Ei0KBWltYWdlGAMgASgLMh4uYWdlbnRhc3Npc3Rwcm90by5JbWFnZUNvbnRlbnQSLQoFYXVkaW8YBCABKAsyHi5hZ2VudGFzc2lzdHByb3RvLkF1ZGlvQ29udGVudBI9ChFlbWJlZGRlZF9yZXNvdXJjZRgFIAEoCzIiLmFnZW50YXNzaXN0cHJvdG8uRW1iZWRkZWRSZXNvdXJjZSIKCghNc2dFbXB0eSIsCgZPcHRpb24SDQoFbGFiZWwYASABKAkSEwoLZGVzY3JpcHRpb24YAiABKAkieQoIUXVlc3Rpb24SEAoIcXVlc3Rpb24YASABKAkSDgoGaGVhZGVyGAIgASgJEikKB29wdGlvbnMYAyADKAsyGC5hZ2VudGFzc2lzdHByb3RvLk9wdGlvbhIQCghtdWx0aXBsZRgEIAEoCBIOCgZjdXN0b20YBSABKAgizQEKFU1jcEFza1F1ZXN0aW9uUmVxdWVzdBIYChBQcm9qZWN0RGlyZWN0b3J5GAEgASgJEhQKCFF1ZXN0aW9uGAIgASgJQgIYARIPCgdUaW1lb3V0GAMgASgFEhEKCUFnZW50TmFtZRgEIAEoCRIaChJSZWFzb25pbmdNb2RlbE5hbWUYBSABKAkSFQoNTWNwQ2xpZW50TmFtZRgGIAEoCRItCglRdWVzdGlvbnMYByADKAsyGi5hZ2VudGFzc2lzdHByb3RvLlF1ZXN0aW9uIoABChJBc2tRdWVzdGlvblJlcXVlc3QSCgoCSUQYASABKAkSEQoJVXNlclRva2VuGAIgASgJEjgKB1JlcXVlc3QYAyABKAsyJy5hZ2VudGFzc2lzdHByb3RvLk1jcEFza1F1ZXN0aW9uUmVxdWVzdBIRCglUaW1lc3RhbXAYBCABKAMi1AEKE0Fza1F1ZXN0aW9uUmVzcG9uc2USCgoCSUQYASABKAkSDwoHSXNFcnJvchgCIAEoCBI9CgRNZXRhGAMgAygLMi8uYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlLk1ldGFFbnRyeRI0Cghjb250ZW50cxgEIAMoCzIiLmFnZW50YXNzaXN0cHJvdG8uTWNwUmVzdWx0Q29udGVudBorCglNZXRhRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASKYAQoUTWNwV29ya1JlcG9ydFJlcXVlc3QSGAoQUHJvamVjdERpcmVjdG9yeRgBIAEoCRIPCgdTdW1tYXJ5GAIgASgJEg8KB1RpbWVvdXQYAyABKAUSEQoJQWdlbnROYW1lGAQgASgJEhoKElJlYXNvbmluZ01vZGVsTmFtZRgFIAEoCRIVCg1NY3BDbGllbnROYW1lGAYgASgJIn4KEVdvcmtSZXBvcnRSZXF1ZXN0EgoKAklEGAEgASgJEhEKCVVzZXJUb2tlbhgCIAEoCRI3CgdSZXF1ZXN0GAMgASgLMiYuYWdlbnRhc3Npc3Rwcm90by5NY3BXb3JrUmVwb3J0UmVxdWVzdBIRCglUaW1lc3RhbXAYBCABKAMi0gEKEldvcmtSZXBvcnRSZXNwb25zZRIKCgJJRBgBIAEoCRIPCgdJc0Vycm9yGAIgASgIEjwKBE1ldGEYAyADKAsyLi5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXNwb25zZS5NZXRhRW50cnkSNAoIY29udGVudHMYBCADKAsyIi5hZ2VudGFzc2lzdHByb3RvLk1jcFJlc3VsdENvbnRlbnQaKwoJTWV0YUVudHJ5EgsKA2tleRgBIAEoCRINCgV2YWx1ZRgCIAEoCToCOAEicQoRTWNwQ2xpZW50SW5mb0RhdGESFwoPUHJvdG9jb2xWZXJzaW9uGAEgASgJEhgKEENhcGFiaWxpdGllc0pzb24YAiABKAkSEgoKQ2xpZW50TmFtZRgDIAEoCRIVCg1DbGllbnRWZXJzaW9uGAQgASgJIn4KFE1jcENsaWVudEluZm9SZXF1ZXN0EgoKAklEGAEgASgJEhEKCVVzZXJUb2tlbhgCIAEoCRI0CgdSZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5NY3BDbGllbnRJbmZvRGF0YRIRCglUaW1lc3RhbXAYBCABKAMiKAoVTWNwQ2xpZW50SW5mb1Jlc3BvbnNlEg8KB1N1Y2Nlc3MYASABKAgiMgobQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0EhMKC3JlcXVlc3RfaWRzGAEgAygJIp8BChxDaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlEk4KCHZhbGlkaXR5GAEgAygLMjwuYWdlbnRhc3Npc3Rwcm90by5DaGVja01lc3NhZ2VWYWxpZGl0eVJlc3BvbnNlLlZhbGlkaXR5RW50cnkaLwoNVmFsaWRpdHlFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAg6AjgBIi8KGUdldFBlbmRpbmdNZXNzYWdlc1JlcXVlc3QSEgoKdXNlcl90b2tlbhgBIAEoCSLRAQoOUGVuZGluZ01lc3NhZ2USFAoMbWVzc2FnZV90eXBlGAEgASgJEkIKFGFza19xdWVzdGlvbl9yZXF1ZXN0GAIgASgLMiQuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlcXVlc3QSQAoTd29ya19yZXBvcnRfcmVxdWVzdBgDIAEoCzIjLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlcXVlc3QSEgoKY3JlYXRlZF9hdBgEIAEoAxIPCgd0aW1lb3V0GAUgASgFIm0KGkdldFBlbmRpbmdNZXNzYWdlc1Jlc3BvbnNlEjoKEHBlbmRpbmdfbWVzc2FnZXMYASADKAsyIC5hZ2VudGFzc2lzdHByb3RvLlBlbmRpbmdNZXNzYWdlEhMKC3RvdGFsX2NvdW50GAIgASgFIlgKHFJlcXVlc3RDYW5jZWxsZWROb3RpZmljYXRpb24SEgoKcmVxdWVzdF9pZBgBIAEoCRIOCgZyZWFzb24YAiABKAkSFAoMbWVzc2FnZV90eXBlGAMgASgJIkcKCk9ubGluZVVzZXISEQoJY2xpZW50X2lkGAEgASgJEhAKCG5pY2tuYW1lGAIgASgJEhQKDGNvbm5lY3RlZF9hdBgDIAEoAyIrChVHZXRPbmxpbmVVc2Vyc1JlcXVlc3QSEgoKdXNlcl90b2tlbhgBIAEoCSJhChZHZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlEjIKDG9ubGluZV91c2VycxgBIAMoCzIcLmFnZW50YXNzaXN0cHJvdG8uT25saW5lVXNlchITCgt0b3RhbF9jb3VudBgCIAEoBSLmAQoLQ2hhdE1lc3NhZ2USEgoKbWVzc2FnZV9pZBgBIAEoCRIYChBzZW5kZXJfY2xpZW50X2lkGAIgASgJEhcKD3NlbmRlcl9uaWNrbmFtZRgDIAEoCRIaChJyZWNlaXZlcl9jbGllbnRfaWQYBCABKAkSGQoRcmVjZWl2ZXJfbmlja25hbWUYBSABKAkSDwoHY29udGVudBgGIAEoCRIPCgdzZW50X2F0GAcgASgDEjcKDmZvcndhcmRfdGFyZ2V0GAggASgLMh8uYWdlbnRhc3Npc3Rwcm90by5Gb3J3YXJkVGFyZ2V0Ip0BCg1Gb3J3YXJkVGFyZ2V0EjIKBG1vZGUYASABKA4yJC5hZ2VudGFzc2lzdHByb3RvLkZvcndhcmRUYXJnZXQuTW9kZRIRCgl3aW5kb3dfaWQYAiABKAkiRQoETW9kZRIUChBNT0RFX1VOU1BFQ0lGSUVEEAASEgoORk9DVVNFRF9XSU5ET1cQARITCg9TUEVDSUZJQ19XSU5ET1cQAiI1ChFGb3J3YXJkV2luZG93SXRlbRIRCgl3aW5kb3dfaWQYASABKAkSDQoFdGl0bGUYAiABKAkifgoWU2VuZENoYXRNZXNzYWdlUmVxdWVzdBIaChJyZWNlaXZlcl9jbGllbnRfaWQYASABKAkSDwoHY29udGVudBgCIAEoCRI3Cg5mb3J3YXJkX3RhcmdldBgDIAEoCzIfLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFRhcmdldCJOChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhIzCgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlImUKGEZvcndhcmRTdGF0ZVF1ZXJ5UmVxdWVzdBISCgpyZXF1ZXN0X2lkGAEgASgJEhgKEHRhcmdldF9jbGllbnRfaWQYAiABKAkSGwoTcmVxdWVzdGVyX2NsaWVudF9pZBgDIAEoCSK1AQoZRm9yd2FyZFN0YXRlUXVlcnlSZXNwb25zZRISCgpyZXF1ZXN0X2lkGAEgASgJEhgKEHRhcmdldF9jbGllbnRfaWQYAiABKAkSGwoTcmVzcG9uZGVyX2NsaWVudF9pZBgDIAEoCRIXCg9mb3J3YXJkX2VuYWJsZWQYBCABKAgSNAoHd2luZG93cxgFIAMoCzIjLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFdpbmRvd0l0ZW0iigEKH0ZvcndhcmRTdGF0ZUNoYW5nZWROb3RpZmljYXRpb24SGAoQc291cmNlX2NsaWVudF9pZBgBIAEoCRIXCg9mb3J3YXJkX2VuYWJsZWQYAiABKAgSNAoHd2luZG93cxgDIAMoCzIjLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFdpbmRvd0l0ZW0ifwogRm9yd2FyZERlbGl2ZXJ5RXJyb3JOb3RpZmljYXRpb24SGAoQdGFyZ2V0X2NsaWVudF9pZBgBIAEoCRIWCg5wZWVyX2NsaWVudF9pZBgCIAEoCRIZChFpbnZhbGlkX3dpbmRvd19pZBgDIAEoCRIOCgZyZWFzb24YBCABKAkiTgoRVXNlckxvZ2luUmVzcG9uc2USEQoJY2xpZW50X2lkGAEgASgJEg8KB3N1Y2Nlc3MYAiABKAgSFQoNZXJyb3JfbWVzc2FnZRgDIAEoCSJxCiBVc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhIqCgR1c2VyGAEgASgLMhwuYWdlbnRhc3Npc3Rwcm90by5PbmxpbmVVc2VyEg4KBnN0YXR1cxgCIAEoCRIRCgl0aW1lc3RhbXAYAyABKAMiiwwKEFdlYnNvY2tldE1lc3NhZ2USCwoDQ21kGAEgASgJEkAKEkFza1F1ZXN0aW9uUmVxdWVzdBgCIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXF1ZXN0Ej4KEVdvcmtSZXBvcnRSZXF1ZXN0GAMgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBJCChNBc2tRdWVzdGlvblJlc3BvbnNlGAQgASgLMiUuYWdlbnRhc3Npc3Rwcm90by5Bc2tRdWVzdGlvblJlc3BvbnNlEkAKEldvcmtSZXBvcnRSZXNwb25zZRgFIAEoCzIkLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlElIKG0NoZWNrTWVzc2FnZVZhbGlkaXR5UmVxdWVzdBgNIAEoCzItLmFnZW50YXNzaXN0cHJvdG8uQ2hlY2tNZXNzYWdlVmFsaWRpdHlSZXF1ZXN0ElQKHENoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2UYDiABKAsyLi5hZ2VudGFzc2lzdHByb3RvLkNoZWNrTWVzc2FnZVZhbGlkaXR5UmVzcG9uc2USTgoZR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBgPIAEoCzIrLmFnZW50YXNzaXN0cHJvdG8uR2V0UGVuZGluZ01lc3NhZ2VzUmVxdWVzdBJQChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRgQIAEoCzIsLmFnZW50YXNzaXN0cHJvdG8uR2V0UGVuZGluZ01lc3NhZ2VzUmVzcG9uc2USVAocUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhgRIAEoCzIuLmFnZW50YXNzaXN0cHJvdG8uUmVxdWVzdENhbmNlbGxlZE5vdGlmaWNhdGlvbhJGChVHZXRPbmxpbmVVc2Vyc1JlcXVlc3QYEyABKAsyJy5hZ2VudGFzc2lzdHByb3RvLkdldE9ubGluZVVzZXJzUmVxdWVzdBJIChZHZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlGBQgASgLMiguYWdlbnRhc3Npc3Rwcm90by5HZXRPbmxpbmVVc2Vyc1Jlc3BvbnNlEkgKFlNlbmRDaGF0TWVzc2FnZVJlcXVlc3QYFSABKAsyKC5hZ2VudGFzc2lzdHByb3RvLlNlbmRDaGF0TWVzc2FnZVJlcXVlc3QSSgoXQ2hhdE1lc3NhZ2VOb3RpZmljYXRpb24YFiABKAsyKS5hZ2VudGFzc2lzdHByb3RvLkNoYXRNZXNzYWdlTm90aWZpY2F0aW9uEj4KEVVzZXJMb2dpblJlc3BvbnNlGBcgASgLMiMuYWdlbnRhc3Npc3Rwcm90by5Vc2VyTG9naW5SZXNwb25zZRJcCiBVc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhgYIAEoCzIyLmFnZW50YXNzaXN0cHJvdG8uVXNlckNvbm5lY3Rpb25TdGF0dXNOb3RpZmljYXRpb24STAoYRm9yd2FyZFN0YXRlUXVlcnlSZXF1ZXN0GBkgASgLMiouYWdlbnRhc3Npc3Rwcm90by5Gb3J3YXJkU3RhdGVRdWVyeVJlcXVlc3QSTgoZRm9yd2FyZFN0YXRlUXVlcnlSZXNwb25zZRgaIAEoCzIrLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFN0YXRlUXVlcnlSZXNwb25zZRJaCh9Gb3J3YXJkU3RhdGVDaGFuZ2VkTm90aWZpY2F0aW9uGBsgASgLMjEuYWdlbnRhc3Npc3Rwcm90by5Gb3J3YXJkU3RhdGVDaGFuZ2VkTm90aWZpY2F0aW9uElwKIEZvcndhcmREZWxpdmVyeUVycm9yTm90aWZpY2F0aW9uGBwgASgLMjIuYWdlbnRhc3Npc3Rwcm90by5Gb3J3YXJkRGVsaXZlcnlFcnJvck5vdGlmaWNhdGlvbhIQCghTdHJQYXJhbRgMIAEoCRIQCghOaWNrbmFtZRgSIAEoCTKrAgoOU3J2QWdlbnRBc3Npc3QSWgoLQXNrUXVlc3Rpb24SJC5hZ2VudGFzc2lzdHByb3RvLkFza1F1ZXN0aW9uUmVxdWVzdBolLmFnZW50YXNzaXN0cHJvdG8uQXNrUXVlc3Rpb25SZXNwb25zZRJXCgpXb3JrUmVwb3J0EiMuYWdlbnRhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVxdWVzdBokLmFnZW50YXNzaXN0cHJvdG8uV29ya1JlcG9ydFJlc3BvbnNlEmQKEVNlbmRNY3BDbGllbnRJbmZvEiYuYWdlbnRhc3Npc3Rwcm90by5NY3BDbGllbnRJbmZvUmVxdWVzdBonLmFnZW50YXNzaXN0cHJvdG8uTWNwQ2xpZW50SW5mb1Jlc3BvbnNlQjhaNmdpdGh1Yi5jb20veWFuZ2p1bmNvZGUvYWdlbnRhc3Npc3RhbnQvYWdlbnRhc3Npc3Rwcm90b2IGcHJvdG8z");
 
 /**
  * TextContent represents text provided to or from an LLM.
@@ -966,6 +966,13 @@ export type ChatMessage = Message<"agentassistproto.ChatMessage"> & {
    * @generated from field: int64 sent_at = 7;
    */
   sentAt: bigint;
+
+  /**
+   * forward target selected by sender (optional)
+   *
+   * @generated from field: agentassistproto.ForwardTarget forward_target = 8;
+   */
+  forwardTarget?: ForwardTarget;
 };
 
 /**
@@ -974,6 +981,92 @@ export type ChatMessage = Message<"agentassistproto.ChatMessage"> & {
  */
 export const ChatMessageSchema: GenMessage<ChatMessage> = /*@__PURE__*/
   messageDesc(file_agentassist, 26);
+
+/**
+ * ForwardTarget describes how receiver should forward content to system input
+ *
+ * @generated from message agentassistproto.ForwardTarget
+ */
+export type ForwardTarget = Message<"agentassistproto.ForwardTarget"> & {
+  /**
+   * forwarding mode
+   *
+   * @generated from field: agentassistproto.ForwardTarget.Mode mode = 1;
+   */
+  mode: ForwardTarget_Mode;
+
+  /**
+   * target window id when mode is SPECIFIC_WINDOW
+   *
+   * @generated from field: string window_id = 2;
+   */
+  windowId: string;
+};
+
+/**
+ * Describes the message agentassistproto.ForwardTarget.
+ * Use `create(ForwardTargetSchema)` to create a new message.
+ */
+export const ForwardTargetSchema: GenMessage<ForwardTarget> = /*@__PURE__*/
+  messageDesc(file_agentassist, 27);
+
+/**
+ * @generated from enum agentassistproto.ForwardTarget.Mode
+ */
+export enum ForwardTarget_Mode {
+  /**
+   * @generated from enum value: MODE_UNSPECIFIED = 0;
+   */
+  MODE_UNSPECIFIED = 0,
+
+  /**
+   * forward to current focused window
+   *
+   * @generated from enum value: FOCUSED_WINDOW = 1;
+   */
+  FOCUSED_WINDOW = 1,
+
+  /**
+   * forward to the specific window id
+   *
+   * @generated from enum value: SPECIFIC_WINDOW = 2;
+   */
+  SPECIFIC_WINDOW = 2,
+}
+
+/**
+ * Describes the enum agentassistproto.ForwardTarget.Mode.
+ */
+export const ForwardTarget_ModeSchema: GenEnum<ForwardTarget_Mode> = /*@__PURE__*/
+  enumDesc(file_agentassist, 27, 0);
+
+/**
+ * ForwardWindowItem describes one forwardable system window
+ *
+ * @generated from message agentassistproto.ForwardWindowItem
+ */
+export type ForwardWindowItem = Message<"agentassistproto.ForwardWindowItem"> & {
+  /**
+   * stable window id
+   *
+   * @generated from field: string window_id = 1;
+   */
+  windowId: string;
+
+  /**
+   * display title
+   *
+   * @generated from field: string title = 2;
+   */
+  title: string;
+};
+
+/**
+ * Describes the message agentassistproto.ForwardWindowItem.
+ * Use `create(ForwardWindowItemSchema)` to create a new message.
+ */
+export const ForwardWindowItemSchema: GenMessage<ForwardWindowItem> = /*@__PURE__*/
+  messageDesc(file_agentassist, 28);
 
 /**
  * SendChatMessageRequest represents a request to send a chat message
@@ -994,6 +1087,13 @@ export type SendChatMessageRequest = Message<"agentassistproto.SendChatMessageRe
    * @generated from field: string content = 2;
    */
   content: string;
+
+  /**
+   * optional forward target to be used by receiver
+   *
+   * @generated from field: agentassistproto.ForwardTarget forward_target = 3;
+   */
+  forwardTarget?: ForwardTarget;
 };
 
 /**
@@ -1001,7 +1101,7 @@ export type SendChatMessageRequest = Message<"agentassistproto.SendChatMessageRe
  * Use `create(SendChatMessageRequestSchema)` to create a new message.
  */
 export const SendChatMessageRequestSchema: GenMessage<SendChatMessageRequest> = /*@__PURE__*/
-  messageDesc(file_agentassist, 27);
+  messageDesc(file_agentassist, 29);
 
 /**
  * ChatMessageNotification represents a notification of a new chat message
@@ -1022,7 +1122,168 @@ export type ChatMessageNotification = Message<"agentassistproto.ChatMessageNotif
  * Use `create(ChatMessageNotificationSchema)` to create a new message.
  */
 export const ChatMessageNotificationSchema: GenMessage<ChatMessageNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 28);
+  messageDesc(file_agentassist, 30);
+
+/**
+ * ForwardStateQueryRequest asks target client to report forward capability and windows
+ *
+ * @generated from message agentassistproto.ForwardStateQueryRequest
+ */
+export type ForwardStateQueryRequest = Message<"agentassistproto.ForwardStateQueryRequest"> & {
+  /**
+   * request id for matching response
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+
+  /**
+   * query target client id
+   *
+   * @generated from field: string target_client_id = 2;
+   */
+  targetClientId: string;
+
+  /**
+   * requester client id (filled by server)
+   *
+   * @generated from field: string requester_client_id = 3;
+   */
+  requesterClientId: string;
+};
+
+/**
+ * Describes the message agentassistproto.ForwardStateQueryRequest.
+ * Use `create(ForwardStateQueryRequestSchema)` to create a new message.
+ */
+export const ForwardStateQueryRequestSchema: GenMessage<ForwardStateQueryRequest> = /*@__PURE__*/
+  messageDesc(file_agentassist, 31);
+
+/**
+ * ForwardStateQueryResponse returns forward capability and window list
+ *
+ * @generated from message agentassistproto.ForwardStateQueryResponse
+ */
+export type ForwardStateQueryResponse = Message<"agentassistproto.ForwardStateQueryResponse"> & {
+  /**
+   * request id from ForwardStateQueryRequest
+   *
+   * @generated from field: string request_id = 1;
+   */
+  requestId: string;
+
+  /**
+   * response target client id (who should receive this response)
+   *
+   * @generated from field: string target_client_id = 2;
+   */
+  targetClientId: string;
+
+  /**
+   * responder client id
+   *
+   * @generated from field: string responder_client_id = 3;
+   */
+  responderClientId: string;
+
+  /**
+   * whether responder has enabled auto forward to system input
+   *
+   * @generated from field: bool forward_enabled = 4;
+   */
+  forwardEnabled: boolean;
+
+  /**
+   * current forwardable windows
+   *
+   * @generated from field: repeated agentassistproto.ForwardWindowItem windows = 5;
+   */
+  windows: ForwardWindowItem[];
+};
+
+/**
+ * Describes the message agentassistproto.ForwardStateQueryResponse.
+ * Use `create(ForwardStateQueryResponseSchema)` to create a new message.
+ */
+export const ForwardStateQueryResponseSchema: GenMessage<ForwardStateQueryResponse> = /*@__PURE__*/
+  messageDesc(file_agentassist, 32);
+
+/**
+ * ForwardStateChangedNotification notifies peers that sender's forward state changed
+ *
+ * @generated from message agentassistproto.ForwardStateChangedNotification
+ */
+export type ForwardStateChangedNotification = Message<"agentassistproto.ForwardStateChangedNotification"> & {
+  /**
+   * source client id whose state changed
+   *
+   * @generated from field: string source_client_id = 1;
+   */
+  sourceClientId: string;
+
+  /**
+   * whether source has enabled auto forward
+   *
+   * @generated from field: bool forward_enabled = 2;
+   */
+  forwardEnabled: boolean;
+
+  /**
+   * current forwardable windows snapshot
+   *
+   * @generated from field: repeated agentassistproto.ForwardWindowItem windows = 3;
+   */
+  windows: ForwardWindowItem[];
+};
+
+/**
+ * Describes the message agentassistproto.ForwardStateChangedNotification.
+ * Use `create(ForwardStateChangedNotificationSchema)` to create a new message.
+ */
+export const ForwardStateChangedNotificationSchema: GenMessage<ForwardStateChangedNotification> = /*@__PURE__*/
+  messageDesc(file_agentassist, 33);
+
+/**
+ * ForwardDeliveryErrorNotification reports receiver could not forward to selected window
+ *
+ * @generated from message agentassistproto.ForwardDeliveryErrorNotification
+ */
+export type ForwardDeliveryErrorNotification = Message<"agentassistproto.ForwardDeliveryErrorNotification"> & {
+  /**
+   * receiver of this error (usually original sender of chat message)
+   *
+   * @generated from field: string target_client_id = 1;
+   */
+  targetClientId: string;
+
+  /**
+   * peer client id where forwarding failed
+   *
+   * @generated from field: string peer_client_id = 2;
+   */
+  peerClientId: string;
+
+  /**
+   * invalid window id
+   *
+   * @generated from field: string invalid_window_id = 3;
+   */
+  invalidWindowId: string;
+
+  /**
+   * error reason
+   *
+   * @generated from field: string reason = 4;
+   */
+  reason: string;
+};
+
+/**
+ * Describes the message agentassistproto.ForwardDeliveryErrorNotification.
+ * Use `create(ForwardDeliveryErrorNotificationSchema)` to create a new message.
+ */
+export const ForwardDeliveryErrorNotificationSchema: GenMessage<ForwardDeliveryErrorNotification> = /*@__PURE__*/
+  messageDesc(file_agentassist, 34);
 
 /**
  * UserLoginResponse represents the response to a user login
@@ -1057,7 +1318,7 @@ export type UserLoginResponse = Message<"agentassistproto.UserLoginResponse"> & 
  * Use `create(UserLoginResponseSchema)` to create a new message.
  */
 export const UserLoginResponseSchema: GenMessage<UserLoginResponse> = /*@__PURE__*/
-  messageDesc(file_agentassist, 29);
+  messageDesc(file_agentassist, 35);
 
 /**
  * UserConnectionStatusNotification represents a notification when a user
@@ -1093,7 +1354,7 @@ export type UserConnectionStatusNotification = Message<"agentassistproto.UserCon
  * Use `create(UserConnectionStatusNotificationSchema)` to create a new message.
  */
 export const UserConnectionStatusNotificationSchema: GenMessage<UserConnectionStatusNotification> = /*@__PURE__*/
-  messageDesc(file_agentassist, 30);
+  messageDesc(file_agentassist, 36);
 
 /**
  * @generated from message agentassistproto.WebsocketMessage
@@ -1114,6 +1375,10 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
    * GetOnlineUsers: get online users with the same token
    * SendChatMessage: send a chat message to another user
    * ChatMessageNotification: notification of a new chat message
+   * ForwardStateQuery: query peer forward capability and windows
+   * ForwardStateQueryResponse: response for ForwardStateQuery
+   * ForwardStateChanged: notify peers that forward state changed
+   * ForwardDeliveryError: notify sender that selected target window is invalid
    *
    * @generated from field: string Cmd = 1;
    */
@@ -1225,6 +1490,34 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
   UserConnectionStatusNotification?: UserConnectionStatusNotification;
 
   /**
+   * forward state query request
+   *
+   * @generated from field: agentassistproto.ForwardStateQueryRequest ForwardStateQueryRequest = 25;
+   */
+  ForwardStateQueryRequest?: ForwardStateQueryRequest;
+
+  /**
+   * forward state query response
+   *
+   * @generated from field: agentassistproto.ForwardStateQueryResponse ForwardStateQueryResponse = 26;
+   */
+  ForwardStateQueryResponse?: ForwardStateQueryResponse;
+
+  /**
+   * forward state changed notification
+   *
+   * @generated from field: agentassistproto.ForwardStateChangedNotification ForwardStateChangedNotification = 27;
+   */
+  ForwardStateChangedNotification?: ForwardStateChangedNotification;
+
+  /**
+   * forward delivery error notification
+   *
+   * @generated from field: agentassistproto.ForwardDeliveryErrorNotification ForwardDeliveryErrorNotification = 28;
+   */
+  ForwardDeliveryErrorNotification?: ForwardDeliveryErrorNotification;
+
+  /**
    * str param
    *
    * @generated from field: string StrParam = 12;
@@ -1244,7 +1537,7 @@ export type WebsocketMessage = Message<"agentassistproto.WebsocketMessage"> & {
  * Use `create(WebsocketMessageSchema)` to create a new message.
  */
 export const WebsocketMessageSchema: GenMessage<WebsocketMessage> = /*@__PURE__*/
-  messageDesc(file_agentassist, 31);
+  messageDesc(file_agentassist, 37);
 
 /**
  * @generated from service agentassistproto.SrvAgentAssist

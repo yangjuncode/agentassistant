@@ -3,6 +3,32 @@ import 'dart:convert';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 
+class ForwardableWindow {
+  final String windowId;
+  final String title;
+
+  const ForwardableWindow({required this.windowId, required this.title});
+
+  factory ForwardableWindow.fromJson(Map<String, dynamic> json) {
+    return ForwardableWindow(
+      windowId: (json['window_id'] ?? '').toString(),
+      title: (json['title'] ?? '').toString(),
+    );
+  }
+}
+
+class SystemInputResult {
+  final bool success;
+  final bool windowNotFound;
+  final String? error;
+
+  const SystemInputResult({
+    required this.success,
+    this.windowNotFound = false,
+    this.error,
+  });
+}
+
 /// Service for handling system input functionality on Flutter PC
 /// This service allows sending text to the system's active input field
 class SystemInputService {
@@ -101,10 +127,25 @@ class SystemInputService {
   ///
   /// [content] - The text content to send to system input
   /// [isBase64Encoded] - Whether the content is already base64 encoded
+  /// [windowId] - Optional target window id for directed input
   ///
   /// Returns true if successful, false otherwise
   static Future<bool> sendToSystemInput(String content,
-      {bool isBase64Encoded = false}) async {
+      {bool isBase64Encoded = false, String? windowId}) async {
+    final result = await sendToSystemInputWithResult(
+      content,
+      isBase64Encoded: isBase64Encoded,
+      windowId: windowId,
+    );
+    return result.success;
+  }
+
+  /// Send text to system input and return structured result.
+  static Future<SystemInputResult> sendToSystemInputWithResult(
+    String content, {
+    bool isBase64Encoded = false,
+    String? windowId,
+  }) async {
     // Use print for debug output in all modes (Logger may not show in release)
     // print('[SystemInput] sendToSystemInput called');
     // print('[SystemInput] Content length: ${content.length}');
@@ -114,14 +155,15 @@ class SystemInputService {
     try {
       if (content.isEmpty) {
         // print('[SystemInput] ⚠️ Cannot send empty content to system input');
-        return false;
+        return const SystemInputResult(success: false, error: 'empty_content');
       }
 
       // Check if we're running on desktop platform
       // print('[SystemInput] Platform check - Windows: ${Platform.isWindows}, Linux: ${Platform.isLinux}, macOS: ${Platform.isMacOS}');
       if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) {
         // print('[SystemInput] ⚠️ System input is only supported on desktop platforms');
-        return false;
+        return const SystemInputResult(
+            success: false, error: 'unsupported_platform');
       }
 
       // Get the tool path using our smart path finder
@@ -134,7 +176,7 @@ class SystemInputService {
 
       if (!toolExists) {
         // print('[SystemInput] ❌ agentassistant-input tool not found at: $inputToolPath');
-        return false;
+        return const SystemInputResult(success: false, error: 'tool_not_found');
       }
 
       // Always use base64 encoding to prevent issues with special characters
@@ -149,6 +191,11 @@ class SystemInputService {
 
       // Always use -input64 argument for safety
       final args = ['-input64', encodedContent];
+      if (windowId != null && windowId.trim().isNotEmpty) {
+        args
+          ..add('-window-id')
+          ..add(windowId.trim());
+      }
       // print('[SystemInput] Command: $inputToolPath ${args[0]} <base64_content>');
       // print('[SystemInput] About to execute Process.run...');
 
@@ -164,16 +211,70 @@ class SystemInputService {
 
       if (result.exitCode == 0) {
         // print('[SystemInput] ✅ Successfully sent text to system input: ${content.length} characters');
-        return true;
+        return const SystemInputResult(success: true);
       } else {
         // print('[SystemInput] ❌ Failed to send text to system input. Exit code: ${result.exitCode}');
         // print('[SystemInput] Error output: ${result.stderr}');
-        return false;
+        final stderrText = (result.stderr ?? '').toString();
+        final windowNotFound = stderrText.contains('ERR_WINDOW_NOT_FOUND');
+        return SystemInputResult(
+          success: false,
+          windowNotFound: windowNotFound,
+          error: stderrText.isEmpty ? 'command_failed' : stderrText,
+        );
       }
     } catch (e) {
       // print('[SystemInput] ❌ Exception while sending text to system input: $e');
       // print('[SystemInput] Stack trace: $stackTrace');
-      return false;
+      return SystemInputResult(success: false, error: e.toString());
+    }
+  }
+
+  /// Send text to specified window id.
+  static Future<SystemInputResult> sendToSystemWindow(
+    String windowId,
+    String content,
+  ) async {
+    return sendToSystemInputWithResult(content, windowId: windowId);
+  }
+
+  /// List forwardable windows from local system.
+  static Future<List<ForwardableWindow>> listForwardableWindows() async {
+    try {
+      if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) {
+        return [];
+      }
+
+      final inputToolPath = _getInputToolPath();
+      final inputTool = File(inputToolPath);
+      if (!await inputTool.exists()) {
+        return [];
+      }
+
+      final result = await Process.run(inputToolPath, ['-list-windows']);
+      if (result.exitCode != 0) {
+        _logger.w('listForwardableWindows failed: ${result.stderr}');
+        return [];
+      }
+
+      final stdoutText = (result.stdout ?? '').toString().trim();
+      if (stdoutText.isEmpty) {
+        return [];
+      }
+
+      final decoded = jsonDecode(stdoutText);
+      if (decoded is! List) {
+        return [];
+      }
+
+      return decoded
+          .whereType<Map>()
+          .map((item) =>
+              ForwardableWindow.fromJson(item.cast<String, dynamic>()))
+          .where((item) => item.windowId.isNotEmpty)
+          .toList();
+    } catch (_) {
+      return [];
     }
   }
 

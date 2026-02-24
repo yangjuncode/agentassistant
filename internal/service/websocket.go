@@ -186,6 +186,14 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			h.handleGetOnlineUsers(client, &message)
 		case "SendChatMessage":
 			h.handleSendChatMessage(client, &message)
+		case "ForwardStateQuery":
+			h.handleForwardStateQuery(client, &message)
+		case "ForwardStateQueryResponse":
+			h.handleForwardStateQueryResponse(client, &message)
+		case "ForwardStateChanged":
+			h.handleForwardStateChanged(client, &message)
+		case "ForwardDeliveryError":
+			h.handleForwardDeliveryError(client, &message)
 
 		case "RequestCancelled":
 			// This is a notification message, clients don't send this to server
@@ -423,6 +431,117 @@ func (h *WebSocketHandler) handleGetOnlineUsers(client *WebClient, message *agen
 	}
 }
 
+// handleForwardStateQuery handles forward state query request relay
+func (h *WebSocketHandler) handleForwardStateQuery(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.ForwardStateQueryRequest == nil {
+		log.Printf("Client %s sent ForwardStateQuery with nil request", client.ID)
+		return
+	}
+
+	request := message.ForwardStateQueryRequest
+	if request.TargetClientId == "" {
+		log.Printf("Client %s sent ForwardStateQuery with empty target client", client.ID)
+		return
+	}
+
+	// Fill requester client id on server side to prevent spoofing
+	relay := &agentassistproto.WebsocketMessage{
+		Cmd: "ForwardStateQuery",
+		ForwardStateQueryRequest: &agentassistproto.ForwardStateQueryRequest{
+			RequestId:         request.RequestId,
+			TargetClientId:    request.TargetClientId,
+			RequesterClientId: client.ID,
+		},
+	}
+
+	if err := h.broadcaster.SendToClientWithSameToken(client, request.TargetClientId, relay); err != nil {
+		log.Printf("Failed to relay ForwardStateQuery from %s to %s: %v", client.ID, request.TargetClientId, err)
+	}
+}
+
+// handleForwardStateQueryResponse handles forward state query response relay
+func (h *WebSocketHandler) handleForwardStateQueryResponse(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.ForwardStateQueryResponse == nil {
+		log.Printf("Client %s sent ForwardStateQueryResponse with nil response", client.ID)
+		return
+	}
+
+	response := message.ForwardStateQueryResponse
+	if response.TargetClientId == "" {
+		log.Printf("Client %s sent ForwardStateQueryResponse with empty target client", client.ID)
+		return
+	}
+
+	// Fill responder id on server side to prevent spoofing
+	relay := &agentassistproto.WebsocketMessage{
+		Cmd: "ForwardStateQueryResponse",
+		ForwardStateQueryResponse: &agentassistproto.ForwardStateQueryResponse{
+			RequestId:         response.RequestId,
+			TargetClientId:    response.TargetClientId,
+			ResponderClientId: client.ID,
+			ForwardEnabled:    response.ForwardEnabled,
+			Windows:           response.Windows,
+		},
+	}
+
+	if err := h.broadcaster.SendToClientWithSameToken(client, response.TargetClientId, relay); err != nil {
+		log.Printf("Failed to relay ForwardStateQueryResponse from %s to %s: %v", client.ID, response.TargetClientId, err)
+	}
+}
+
+// handleForwardStateChanged broadcasts sender's forward state to same-token peers
+func (h *WebSocketHandler) handleForwardStateChanged(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.ForwardStateChangedNotification == nil {
+		log.Printf("Client %s sent ForwardStateChanged with nil notification", client.ID)
+		return
+	}
+
+	if client.GetToken() == "" {
+		log.Printf("Client %s has no token, skip ForwardStateChanged", client.ID)
+		return
+	}
+
+	n := message.ForwardStateChangedNotification
+	relay := &agentassistproto.WebsocketMessage{
+		Cmd: "ForwardStateChanged",
+		ForwardStateChangedNotification: &agentassistproto.ForwardStateChangedNotification{
+			SourceClientId: client.ID,
+			ForwardEnabled: n.ForwardEnabled,
+			Windows:        n.Windows,
+		},
+	}
+
+	h.broadcaster.BroadcastToTokenExcept(relay, client.GetToken(), client.ID)
+}
+
+// handleForwardDeliveryError relays forward delivery error to target sender
+func (h *WebSocketHandler) handleForwardDeliveryError(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	if message.ForwardDeliveryErrorNotification == nil {
+		log.Printf("Client %s sent ForwardDeliveryError with nil notification", client.ID)
+		return
+	}
+
+	n := message.ForwardDeliveryErrorNotification
+	if n.TargetClientId == "" {
+		log.Printf("Client %s sent ForwardDeliveryError with empty target client", client.ID)
+		return
+	}
+
+	relay := &agentassistproto.WebsocketMessage{
+		Cmd: "ForwardDeliveryError",
+		ForwardDeliveryErrorNotification: &agentassistproto.ForwardDeliveryErrorNotification{
+			TargetClientId:  n.TargetClientId,
+			PeerClientId:    client.ID,
+			InvalidWindowId: n.InvalidWindowId,
+			Reason:          n.Reason,
+		},
+	}
+
+	if err := h.broadcaster.SendToClientWithSameToken(client, n.TargetClientId, relay); err != nil {
+		log.Printf("Failed to relay ForwardDeliveryError from %s to %s: %v", client.ID, n.TargetClientId, err)
+	}
+}
+
 // handleSendChatMessage handles send chat message requests
 func (h *WebSocketHandler) handleSendChatMessage(client *WebClient, message *agentassistproto.WebsocketMessage) {
 	log.Printf("Client %s sending chat message", client.ID)
@@ -439,7 +558,7 @@ func (h *WebSocketHandler) handleSendChatMessage(client *WebClient, message *age
 	}
 
 	// Send chat message through broadcaster
-	err := h.broadcaster.SendChatMessage(client.ID, request.ReceiverClientId, request.Content)
+	err := h.broadcaster.SendChatMessage(client.ID, request.ReceiverClientId, request.Content, request.ForwardTarget)
 	if err != nil {
 		log.Printf("Failed to send chat message from client %s: %v", client.ID, err)
 	}

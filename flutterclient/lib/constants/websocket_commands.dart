@@ -17,6 +17,10 @@ class WebSocketCommands {
   static const String chatMessageNotification = 'ChatMessageNotification';
   static const String userConnectionStatusNotification =
       'UserConnectionStatusNotification';
+  static const String forwardStateQuery = 'ForwardStateQuery';
+  static const String forwardStateQueryResponse = 'ForwardStateQueryResponse';
+  static const String forwardStateChanged = 'ForwardStateChanged';
+  static const String forwardDeliveryError = 'ForwardDeliveryError';
 }
 
 /// Content type constants for McpResultContent

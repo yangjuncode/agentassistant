@@ -102,6 +102,7 @@
   "profileClientIdLabel": "客户端 ID: {clientId}",
   "online": "在线",
   "notConnected": "未连接",
+  "onlineUsersRefreshTooltip": "刷新在线用户",
 
   "loginSubtitle": "连接到您的 AI Agent 助手",
   "loginFailed": "登录失败: {error}",
@@ -124,6 +125,28 @@
   "chatReconnect": "重新连接",
   "chatEmptyTitle": "等待 AI Agent 的消息...",
   "chatEmptySubtitle": "连接成功后，AI Agent 的问题和任务将在这里显示",
+  "chatNoMessages": "还没有聊天消息",
+  "chatInputHint": "输入消息...（{seconds}秒后自动发送或Ctrl+Enter）",
+  "@chatInputHint": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "chatSendEnterKeyTooltip": "发送回车键",
+  "chatQuickSendTooltip": "快速发送",
+  "chatDialogLoadFailed": "聊天窗口加载失败",
+  "chatYesterdayAt": "昨天 {time}",
+  "@chatYesterdayAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "forwardToLabel": "转发到",
+  "forwardToFocusedDefault": "焦点窗口（默认）",
 
   "splashInitializing": "正在初始化...",
   "splashConnecting": "正在连接服务器...",

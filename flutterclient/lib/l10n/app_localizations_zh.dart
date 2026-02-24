@@ -300,6 +300,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get notConnected => '未连接';
 
   @override
+  String get onlineUsersRefreshTooltip => '刷新在线用户';
+
+  @override
   String get loginSubtitle => '连接到您的 AI Agent 助手';
 
   @override
@@ -360,6 +363,34 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get chatEmptySubtitle => '连接成功后，AI Agent 的问题和任务将在这里显示';
+
+  @override
+  String get chatNoMessages => '还没有聊天消息';
+
+  @override
+  String chatInputHint(int seconds) {
+    return '输入消息...（$seconds秒后自动发送或Ctrl+Enter）';
+  }
+
+  @override
+  String get chatSendEnterKeyTooltip => '发送回车键';
+
+  @override
+  String get chatQuickSendTooltip => '快速发送';
+
+  @override
+  String get chatDialogLoadFailed => '聊天窗口加载失败';
+
+  @override
+  String chatYesterdayAt(String time) {
+    return '昨天 $time';
+  }
+
+  @override
+  String get forwardToLabel => '转发到';
+
+  @override
+  String get forwardToFocusedDefault => '焦点窗口（默认）';
 
   @override
   String get splashInitializing => '正在初始化...';
