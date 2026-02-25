@@ -1,4 +1,4 @@
-.PHONY: build test clean run-srv run-client generate proto-gen help
+.PHONY: build test clean run-srv run-client generate proto-gen help flutter-linux flutter-apk
 
 # Default target
 help:
@@ -83,3 +83,9 @@ dirs:
 # Full build pipeline
 all: clean deps generate fmt test build
 	@echo "Full build pipeline complete!"
+
+flutter-linux:
+	bash ./build-flutterclient.sh linux
+
+flutter-apk:
+	bash ./build-flutterclient.sh apk

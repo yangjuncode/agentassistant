@@ -648,6 +648,17 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   }
 
   KeyEventResult _handleKeyEvent(int index, FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent &&
+        (event.logicalKey == LogicalKeyboardKey.enter ||
+            event.logicalKey == LogicalKeyboardKey.numpadEnter) &&
+        (HardwareKeyboard.instance.isControlPressed ||
+            HardwareKeyboard.instance.isMetaPressed)) {
+      _activeTokenIndex = null;
+      _removeSuggestOverlay();
+      _submitReply();
+      return KeyEventResult.handled;
+    }
+
     // Autocomplete handling has high priority
     if (_suggestOverlay != null && event is KeyDownEvent) {
       if (event.logicalKey == LogicalKeyboardKey.escape) {
