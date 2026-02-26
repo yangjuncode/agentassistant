@@ -726,7 +726,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
               ...questions.asMap().entries.map((entry) {
                 final index = entry.key;
                 final question = entry.value;
-                return _buildQuestionItem(context, index, question);
+                return _buildQuestionItem(context, index, question, isCompact);
               }),
               const SizedBox(height: 2),
               if (!(isCompact && isKeyboardOpen))
@@ -755,7 +755,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   }
 
   Widget _buildQuestionItem(
-      BuildContext context, int index, Question question) {
+      BuildContext context, int index, Question question, bool isCompact) {
     final colorScheme = Theme.of(context).colorScheme;
     final selections = _selections[index] ?? {};
     final showCustom = _showCustomInput[index] ?? false;
@@ -768,72 +768,88 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
             question.custom)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Padding(
-                  padding: EdgeInsets.zero, // 移除间距，允许文字覆盖
-                  child: _SizeReportingWidget(
-                    onSizeChanged: (size) {
-                      if (!mounted) return;
-                      if (_questionHeights[index] != size.height) {
-                        setState(() {
-                          _questionHeights[index] = size.height;
-                        });
-                      }
-                    },
-                    child: MarkdownBody(
-                      data: [
-                        if (question.header.isNotEmpty)
-                          '**${question.header.trim()}**',
-                        if (question.question.isNotEmpty)
-                          question.question.trim(),
-                      ].join(' '),
-                      selectable: false,
-                      styleSheet: MarkdownStyleSheet.fromTheme(
-                        Theme.of(context),
-                      ).copyWith(
-                        strong:
-                            Theme.of(context).textTheme.titleSmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: colorScheme.primary,
-                                ),
-                        p: Theme.of(context)
-                            .textTheme
-                            .bodyMedium
-                            ?.copyWith(fontWeight: FontWeight.w500),
-                        code: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              fontFamily: 'monospace',
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .surfaceContainerHighest,
-                            ),
-                        codeblockDecoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+            child: Builder(
+              builder: (context) {
+                final headerMarkdown = _SizeReportingWidget(
+                  onSizeChanged: (size) {
+                    if (!mounted) return;
+                    if (_questionHeights[index] != size.height) {
+                      setState(() {
+                        _questionHeights[index] = size.height;
+                      });
+                    }
+                  },
+                  child: MarkdownBody(
+                    data: [
+                      if (question.header.isNotEmpty)
+                        '**${question.header.trim()}**',
+                      if (question.question.isNotEmpty)
+                        question.question.trim(),
+                    ].join(' '),
+                    selectable: false,
+                    styleSheet: MarkdownStyleSheet.fromTheme(
+                      Theme.of(context),
+                    ).copyWith(
+                      strong: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.primary,
+                          ),
+                      p: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w500),
+                      code: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontFamily: 'monospace',
+                            backgroundColor: Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
+                          ),
+                      codeblockDecoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(4),
                       ),
                     ),
                   ),
-                ),
-                if (question.custom && !showCustom) ...[
-                  // Top right button
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: _buildCustomInputIconButton(context, index),
-                  ),
-                  // Bottom right button if content is tall
-                  if ((_questionHeights[index] ?? 0) > 120)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: _buildCustomInputIconButton(context, index),
-                    ),
-                ],
-              ],
+                );
+
+                if (isCompact) {
+                  return Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      headerMarkdown,
+                      if (question.custom && !showCustom) ...[
+                        // Top right button
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: _buildCustomInputIconButton(context, index),
+                        ),
+                        // Bottom right button if content is tall
+                        if ((_questionHeights[index] ?? 0) > 120)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: _buildCustomInputIconButton(context, index),
+                          ),
+                      ],
+                    ],
+                  );
+                } else {
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: headerMarkdown),
+                      if (question.custom && !showCustom)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12),
+                          child: _buildCustomInputIconButton(context, index),
+                        ),
+                    ],
+                  );
+                }
+              },
             ),
           ),
 
@@ -888,10 +904,9 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            MarkdownBody(
+                        child: Builder(
+                          builder: (context) {
+                            final optionMarkdown = MarkdownBody(
                               data: [
                                 if (option.label.isNotEmpty)
                                   '**${option.label.trim()}**',
@@ -933,15 +948,37 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
-                            ),
-                            if (isSelected && !showCustom)
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child:
-                                    _buildCustomInputIconButton(context, index),
-                              ),
-                          ],
+                            );
+
+                            if (isCompact) {
+                              return Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  optionMarkdown,
+                                  if (isSelected && !showCustom)
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: _buildCustomInputIconButton(
+                                          context, index),
+                                    ),
+                                ],
+                              );
+                            } else {
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(child: optionMarkdown),
+                                  if (isSelected && !showCustom)
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 8),
+                                      child: _buildCustomInputIconButton(
+                                          context, index),
+                                    ),
+                                ],
+                              );
+                            }
+                          },
                         ),
                       ),
                     ],
