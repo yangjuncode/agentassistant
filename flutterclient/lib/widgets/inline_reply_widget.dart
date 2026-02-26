@@ -33,6 +33,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   bool _isDragging = false;
   // -1 means no history selection (blank beyond newest)
   int _historyIndex = -1;
+  // Saved input before navigating history
+  String? _historySavedInput;
   // Attachments list
   final List<AttachmentItem> _attachments = [];
 
@@ -797,10 +799,20 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         setState(() {
                           if (history.isEmpty) {
                             // Toggle blanks: -1 -> 0(blank) -> -1 ...
-                            _historyIndex = (_historyIndex == -1) ? 0 : -1;
-                            _controller.clear();
+                            if (_historyIndex == -1) {
+                              _historySavedInput = _controller.text;
+                              _historyIndex = 0;
+                              _controller.clear();
+                            } else {
+                              _historyIndex = -1;
+                              _controller.text = _historySavedInput ?? '';
+                            }
                           } else {
-                            if (_historyIndex < history.length - 1) {
+                            if (_historyIndex == -1) {
+                              _historySavedInput = _controller.text;
+                              _historyIndex = 0;
+                              _controller.text = history[_historyIndex];
+                            } else if (_historyIndex < history.length - 1) {
                               _historyIndex += 1;
                               _controller.text = history[_historyIndex];
                             } else if (_historyIndex == history.length - 1) {
@@ -810,11 +822,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                             } else if (_historyIndex == history.length) {
                               // Wrap to blank-newest sentinel
                               _historyIndex = -1;
-                              _controller.clear();
-                            } else {
-                              // _historyIndex == -1 and history not empty
-                              _historyIndex = 0;
-                              _controller.text = history[_historyIndex];
+                              _controller.text = _historySavedInput ?? '';
                             }
                           }
                           _controller.selection = TextSelection.fromPosition(
@@ -827,18 +835,26 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         setState(() {
                           if (history.isEmpty) {
                             // Toggle blanks: -1 <-> 0(blank)
-                            _historyIndex = (_historyIndex == -1) ? 0 : -1;
-                            _controller.clear();
+                            if (_historyIndex == -1) {
+                              _historySavedInput = _controller.text;
+                              _historyIndex = 0;
+                              _controller.clear();
+                            } else {
+                              _historyIndex = -1;
+                              _controller.text = _historySavedInput ?? '';
+                            }
                           } else {
-                            if (_historyIndex > 0) {
+                            if (_historyIndex > 0 &&
+                                _historyIndex < history.length) {
                               _historyIndex -= 1; // newer item
                               _controller.text = history[_historyIndex];
                             } else if (_historyIndex == 0) {
                               // Move to blank-newest
                               _historyIndex = -1;
-                              _controller.clear();
+                              _controller.text = _historySavedInput ?? '';
                             } else if (_historyIndex == -1) {
                               // From blank-newest to blank-oldest (wrap via blank)
+                              _historySavedInput = _controller.text;
                               _historyIndex = history.length;
                               _controller.clear();
                             } else if (_historyIndex == history.length) {
