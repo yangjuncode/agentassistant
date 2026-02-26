@@ -792,82 +792,91 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                     if (event is KeyDownEvent &&
                         (event.logicalKey == LogicalKeyboardKey.arrowUp ||
                             event.logicalKey == LogicalKeyboardKey.arrowDown)) {
-                      final chatProvider = context.read<ChatProvider>();
-                      final history = chatProvider.replyHistory;
-                      // Allow cycling even if history is empty: toggles between blanks
-                      if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-                        setState(() {
-                          if (history.isEmpty) {
-                            // Toggle blanks: -1 -> 0(blank) -> -1 ...
-                            if (_historyIndex == -1) {
-                              _historySavedInput = _controller.text;
-                              _historyIndex = 0;
-                              _controller.clear();
+                      final isCtrlPressed =
+                          HardwareKeyboard.instance.isControlPressed ||
+                              HardwareKeyboard.instance.isMetaPressed;
+
+                      final shouldNavigateHistory =
+                          isCtrlPressed || _controller.text.isEmpty;
+
+                      if (shouldNavigateHistory) {
+                        final chatProvider = context.read<ChatProvider>();
+                        final history = chatProvider.replyHistory;
+                        // Allow cycling even if history is empty: toggles between blanks
+                        if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+                          setState(() {
+                            if (history.isEmpty) {
+                              // Toggle blanks: -1 -> 0(blank) -> -1 ...
+                              if (_historyIndex == -1) {
+                                _historySavedInput = _controller.text;
+                                _historyIndex = 0;
+                                _controller.clear();
+                              } else {
+                                _historyIndex = -1;
+                                _controller.text = _historySavedInput ?? '';
+                              }
                             } else {
-                              _historyIndex = -1;
-                              _controller.text = _historySavedInput ?? '';
+                              if (_historyIndex == -1) {
+                                _historySavedInput = _controller.text;
+                                _historyIndex = 0;
+                                _controller.text = history[_historyIndex];
+                              } else if (_historyIndex < history.length - 1) {
+                                _historyIndex += 1;
+                                _controller.text = history[_historyIndex];
+                              } else if (_historyIndex == history.length - 1) {
+                                // Move to blank-oldest sentinel
+                                _historyIndex = history.length;
+                                _controller.clear();
+                              } else if (_historyIndex == history.length) {
+                                // Wrap to blank-newest sentinel
+                                _historyIndex = -1;
+                                _controller.text = _historySavedInput ?? '';
+                              }
                             }
-                          } else {
-                            if (_historyIndex == -1) {
-                              _historySavedInput = _controller.text;
-                              _historyIndex = 0;
-                              _controller.text = history[_historyIndex];
-                            } else if (_historyIndex < history.length - 1) {
-                              _historyIndex += 1;
-                              _controller.text = history[_historyIndex];
-                            } else if (_historyIndex == history.length - 1) {
-                              // Move to blank-oldest sentinel
-                              _historyIndex = history.length;
-                              _controller.clear();
-                            } else if (_historyIndex == history.length) {
-                              // Wrap to blank-newest sentinel
-                              _historyIndex = -1;
-                              _controller.text = _historySavedInput ?? '';
-                            }
-                          }
-                          _controller.selection = TextSelection.fromPosition(
-                            TextPosition(offset: _controller.text.length),
-                          );
-                        });
-                        return KeyEventResult.handled;
-                      } else {
-                        // Arrow Down: towards newer; includes blank sentinels
-                        setState(() {
-                          if (history.isEmpty) {
-                            // Toggle blanks: -1 <-> 0(blank)
-                            if (_historyIndex == -1) {
-                              _historySavedInput = _controller.text;
-                              _historyIndex = 0;
-                              _controller.clear();
+                            _controller.selection = TextSelection.fromPosition(
+                              TextPosition(offset: _controller.text.length),
+                            );
+                          });
+                          return KeyEventResult.handled;
+                        } else {
+                          // Arrow Down: towards newer; includes blank sentinels
+                          setState(() {
+                            if (history.isEmpty) {
+                              // Toggle blanks: -1 <-> 0(blank)
+                              if (_historyIndex == -1) {
+                                _historySavedInput = _controller.text;
+                                _historyIndex = 0;
+                                _controller.clear();
+                              } else {
+                                _historyIndex = -1;
+                                _controller.text = _historySavedInput ?? '';
+                              }
                             } else {
-                              _historyIndex = -1;
-                              _controller.text = _historySavedInput ?? '';
+                              if (_historyIndex > 0 &&
+                                  _historyIndex < history.length) {
+                                _historyIndex -= 1; // newer item
+                                _controller.text = history[_historyIndex];
+                              } else if (_historyIndex == 0) {
+                                // Move to blank-newest
+                                _historyIndex = -1;
+                                _controller.text = _historySavedInput ?? '';
+                              } else if (_historyIndex == -1) {
+                                // From blank-newest to blank-oldest (wrap via blank)
+                                _historySavedInput = _controller.text;
+                                _historyIndex = history.length;
+                                _controller.clear();
+                              } else if (_historyIndex == history.length) {
+                                // From blank-oldest to last (oldest) item
+                                _historyIndex = history.length - 1;
+                                _controller.text = history[_historyIndex];
+                              }
                             }
-                          } else {
-                            if (_historyIndex > 0 &&
-                                _historyIndex < history.length) {
-                              _historyIndex -= 1; // newer item
-                              _controller.text = history[_historyIndex];
-                            } else if (_historyIndex == 0) {
-                              // Move to blank-newest
-                              _historyIndex = -1;
-                              _controller.text = _historySavedInput ?? '';
-                            } else if (_historyIndex == -1) {
-                              // From blank-newest to blank-oldest (wrap via blank)
-                              _historySavedInput = _controller.text;
-                              _historyIndex = history.length;
-                              _controller.clear();
-                            } else if (_historyIndex == history.length) {
-                              // From blank-oldest to last (oldest) item
-                              _historyIndex = history.length - 1;
-                              _controller.text = history[_historyIndex];
-                            }
-                          }
-                          _controller.selection = TextSelection.fromPosition(
-                            TextPosition(offset: _controller.text.length),
-                          );
-                        });
-                        return KeyEventResult.handled;
+                            _controller.selection = TextSelection.fromPosition(
+                              TextPosition(offset: _controller.text.length),
+                            );
+                          });
+                          return KeyEventResult.handled;
+                        }
                       }
                     }
                     return KeyEventResult.ignored;
@@ -895,7 +904,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           contentPadding: const EdgeInsets.all(12),
                           helperText: isCompact
                               ? null
-                              : '按 Ctrl+Enter 快速发送 · ↑/↓ 浏览历史 · Ctrl+V 粘贴图片',
+                              : '按 Ctrl+Enter 快速发送 · Ctrl+↑/↓ 浏览历史 · Ctrl+V 粘贴图片',
                           helperStyle: TextStyle(
                             fontSize: 12,
                             color:
