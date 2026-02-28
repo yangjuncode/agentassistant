@@ -22,26 +22,8 @@ if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "help"
 fi
 
 if [[ "${1:-}" == "" ]]; then
-  echo "请选择构建目标："
-  echo "1: linux"
-  echo "2: apk"
-  echo "3: exit"
-  read -r -p "请输入选项（默认 1）: " choice
-  case "${choice:-1}" in
-    1)
-      set -- linux
-      ;;
-    2)
-      set -- apk
-      ;;
-    3)
-      exit 0
-      ;;
-    *)
-      echo "错误: 无效选项: ${choice}"
-      exit 2
-      ;;
-  esac
+  echo "未提供构建参数，将执行默认动作：构建 linux，如果需要构建 apk，请执行 ./build-flutterclient.sh apk"
+  set -- linux
 fi
 
 TARGET="$1"
@@ -64,7 +46,7 @@ if [[ ! -d "$FLUTTER_DIR" ]]; then
 fi
 
 run_in_flutter_dir() {
-  ( 
+  (
     cd "$FLUTTER_DIR"
     if [[ "$DO_CLEAN" == "true" ]]; then
       flutter clean
@@ -82,7 +64,7 @@ case "$TARGET" in
     run_in_flutter_dir bash ./build-apk.sh "${ARGS[@]}"
     ;;
   *)
-    echo "错误: 不支持的构建目标: $TARGET"
+    echo "错误: 不支持构建目标: $TARGET"
     show_help
     exit 2
     ;;
