@@ -39,8 +39,8 @@ func TestAgentAssistService_AskQuestion(t *testing.T) {
 		t.Error("Expected error response when no clients available")
 	}
 
-	if resp.Msg.Meta["error"] != "no_clients" {
-		t.Errorf("Expected 'no_clients' error, got: %s", resp.Msg.Meta["error"])
+	if resp.Msg.Meta["error"] != "timeout" {
+		t.Errorf("Expected 'timeout' error, got: %s", resp.Msg.Meta["error"])
 	}
 }
 
@@ -74,8 +74,8 @@ func TestAgentAssistService_WorkReport(t *testing.T) {
 		t.Error("Expected error response when no clients available")
 	}
 
-	if resp.Msg.Meta["error"] != "no_clients" {
-		t.Errorf("Expected 'no_clients' error, got: %s", resp.Msg.Meta["error"])
+	if resp.Msg.Meta["error"] != "timeout" {
+		t.Errorf("Expected 'timeout' error, got: %s", resp.Msg.Meta["error"])
 	}
 }
 

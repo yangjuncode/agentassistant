@@ -194,25 +194,10 @@ func (b *Broadcaster) run() {
 			b.mu.RUnlock()
 
 			if len(targetClients) == 0 {
-				log.Printf("No web clients available to handle request %s", requestID)
-				// Send error response
-				go func() {
-					select {
-					case request.ResponseChan <- &WebResponse{
-						IsError: true,
-						Meta: map[string]string{
-							"error":   "no_clients",
-							"message": "No web clients available to handle the request",
-						},
-						Contents: nil,
-					}:
-					default:
-					}
-				}()
-				continue
+				log.Printf("No web clients available to handle request %s, storing in pending requests and waiting", requestID)
+			} else {
+				log.Printf("Broadcasting request %s to %d web clients", requestID, len(targetClients))
 			}
-
-			log.Printf("Broadcasting request %s to %d web clients", requestID, len(targetClients))
 
 			// Store the request for response matching
 			b.mu.Lock()
