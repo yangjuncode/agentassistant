@@ -138,6 +138,9 @@
   "mcpAttentionModePopup": "Popup only",
   "mcpAttentionModePopupOnTop": "Popup + Always on top",
   "mcpAttentionModeTrayPopupOnTop": "Systray info + Popup + Always on top",
+  "mcpPlayQuestionSound": "Play Ask Question Sound",
+  "mcpPlayWorkReportSound": "Play Work Report Sound",
+  "mcpSoundVolume": "Alert Sound Volume",
 
   "webSocketUrlHint": "ws://host:port/ws",
   "chatAutoSendInterval": "Chat Auto Send Interval",

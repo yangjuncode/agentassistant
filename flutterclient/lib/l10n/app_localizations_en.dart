@@ -278,6 +278,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mcpAttentionModeTrayPopupOnTop => 'Systray info + Popup + Always on top';
 
   @override
+  String get mcpPlayQuestionSound => 'Play Ask Question Sound';
+
+  @override
+  String get mcpPlayWorkReportSound => 'Play Work Report Sound';
+
+  @override
+  String get mcpSoundVolume => 'Alert Sound Volume';
+
+  @override
   String get webSocketUrlHint => 'ws://host:port/ws';
 
   @override

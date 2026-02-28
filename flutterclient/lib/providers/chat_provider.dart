@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 import '../main.dart';
 import '../l10n/app_localizations.dart';
@@ -83,6 +84,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       DesktopMcpAttentionMode.popupOnTop;
   DesktopMcpAttentionMode _workReportAttentionMode =
       DesktopMcpAttentionMode.popupOnTop;
+  bool _playMcpQuestionSound = true;
+  bool _playWorkReportSound = true;
+  double _mcpQuestionSoundVolume = 1.0;
+  double _mcpWorkReportSoundVolume = 1.0;
+  final AudioPlayer _audioPlayer = AudioPlayer();
   bool _showOnlyPendingMessages = false;
   bool _isInputFocused = false;
   Timer? _inputFocusDebounceTimer;
@@ -130,6 +136,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       _askQuestionAttentionMode;
   DesktopMcpAttentionMode get workReportAttentionMode =>
       _workReportAttentionMode;
+  bool get playMcpQuestionSound => _playMcpQuestionSound;
+  bool get playWorkReportSound => _playWorkReportSound;
+  double get mcpQuestionSoundVolume => _mcpQuestionSoundVolume;
+  double get mcpWorkReportSoundVolume => _mcpWorkReportSoundVolume;
   // Expose read-only view of drafts if needed
   Map<String, String> get replyDrafts => Map.unmodifiable(_replyDrafts);
   bool get hasAnyDraft => _replyDrafts.values.any((t) => t.trim().isNotEmpty);
@@ -326,6 +336,15 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         _workReportAttentionMode = _desktopMcpAttentionMode;
       }
 
+      _playMcpQuestionSound =
+          prefs.getBool(AppConfig.playMcpQuestionSoundStorageKey) ?? true;
+      _playWorkReportSound =
+          prefs.getBool(AppConfig.playWorkReportSoundStorageKey) ?? true;
+      _mcpQuestionSoundVolume =
+          prefs.getDouble(AppConfig.mcpQuestionSoundVolumeStorageKey) ?? 1.0;
+      _mcpWorkReportSoundVolume =
+          prefs.getDouble(AppConfig.mcpWorkReportSoundVolumeStorageKey) ?? 1.0;
+
       _useInteractiveAskQuestion =
           prefs.getBool('use_interactive_ask_question') ?? true;
       _autoReplyAskQuestion = prefs.getBool('auto_reply_ask_question') ?? true;
@@ -398,6 +417,34 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     } catch (error) {
       _logger.e('Failed to save work report attention mode: $error');
     }
+  }
+
+  Future<void> setPlayMcpQuestionSound(bool value) async {
+    _playMcpQuestionSound = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(AppConfig.playMcpQuestionSoundStorageKey, value);
+  }
+
+  Future<void> setPlayWorkReportSound(bool value) async {
+    _playWorkReportSound = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(AppConfig.playWorkReportSoundStorageKey, value);
+  }
+
+  Future<void> setMcpQuestionSoundVolume(double value) async {
+    _mcpQuestionSoundVolume = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(AppConfig.mcpQuestionSoundVolumeStorageKey, value);
+  }
+
+  Future<void> setMcpWorkReportSoundVolume(double value) async {
+    _mcpWorkReportSoundVolume = value;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(AppConfig.mcpWorkReportSoundVolumeStorageKey, value);
   }
 
   Future<void> setDesktopMcpAttentionMode(DesktopMcpAttentionMode mode) async {
@@ -959,6 +1006,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         request.request.questions.map((q) => q.question).join('\n\n');
     _logger.i('Received question: $questionText');
 
+    if (_playMcpQuestionSound) {
+      _audioPlayer.play(AssetSource('sounds/question.wav'),
+          volume: _mcpQuestionSoundVolume);
+    }
+
     _handleDesktopAttentionOnNewPendingItem(
       title: 'New question',
       body: questionText,
@@ -979,6 +1031,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     );
     _addMessage(chatMessage);
     _logger.i('Received work report: ${request.request.summary}');
+
+    if (_playWorkReportSound) {
+      _audioPlayer.play(AssetSource('sounds/report.wav'),
+          volume: _mcpWorkReportSoundVolume);
+    }
 
     _handleDesktopAttentionOnNewPendingItem(
       title: 'New Workreport',

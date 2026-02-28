@@ -605,6 +605,24 @@ abstract class AppLocalizations {
   /// **'Systray info + Popup + Always on top'**
   String get mcpAttentionModeTrayPopupOnTop;
 
+  /// No description provided for @mcpPlayQuestionSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Ask Question Sound'**
+  String get mcpPlayQuestionSound;
+
+  /// No description provided for @mcpPlayWorkReportSound.
+  ///
+  /// In en, this message translates to:
+  /// **'Play Work Report Sound'**
+  String get mcpPlayWorkReportSound;
+
+  /// No description provided for @mcpSoundVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert Sound Volume'**
+  String get mcpSoundVolume;
+
   /// No description provided for @webSocketUrlHint.
   ///
   /// In en, this message translates to:

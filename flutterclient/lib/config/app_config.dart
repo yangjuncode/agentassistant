@@ -29,6 +29,13 @@ class AppConfig {
       'ask_question_attention_mode';
   static const String workReportAttentionModeStorageKey =
       'work_report_attention_mode';
+  static const String playMcpQuestionSoundStorageKey =
+      'play_mcp_question_sound';
+  static const String playWorkReportSoundStorageKey = 'play_work_report_sound';
+  static const String mcpQuestionSoundVolumeStorageKey =
+      'mcp_question_sound_volume';
+  static const String mcpWorkReportSoundVolumeStorageKey =
+      'mcp_work_report_sound_volume';
   static const String nicknameStorageKey = 'user_nickname';
 
   // Default values

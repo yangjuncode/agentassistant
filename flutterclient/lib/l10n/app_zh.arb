@@ -85,6 +85,9 @@
   "mcpAttentionModePopup": "仅弹窗",
   "mcpAttentionModePopupOnTop": "弹窗 + 置顶",
   "mcpAttentionModeTrayPopupOnTop": "系统托盘通知 + 弹窗 + 置顶",
+  "mcpPlayQuestionSound": "播放 Ask Question 提示音",
+  "mcpPlayWorkReportSound": "播放 Work Report 提示音",
+  "mcpSoundVolume": "提示音音量",
 
   "slashCommands": "Slash Commands",
   "slashCommandsShow": "显示",

@@ -588,6 +588,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         chatProvider.workReportAttentionMode,
                         (mode) => chatProvider.setWorkReportAttentionMode(mode),
                       ),
+                      const Divider(height: 1),
+                      SwitchListTile(
+                        title: Text(l10n.mcpPlayQuestionSound),
+                        value: chatProvider.playMcpQuestionSound,
+                        onChanged: (value) =>
+                            chatProvider.setPlayMcpQuestionSound(value),
+                        subtitle: chatProvider.playMcpQuestionSound
+                            ? Row(
+                                children: [
+                                  const Icon(Icons.volume_down, size: 16),
+                                  SizedBox(
+                                    width: 150,
+                                    child: Slider(
+                                      value:
+                                          chatProvider.mcpQuestionSoundVolume,
+                                      divisions: 100,
+                                      label:
+                                          '${(chatProvider.mcpQuestionSoundVolume * 100).round()}%',
+                                      onChanged: (value) => chatProvider
+                                          .setMcpQuestionSoundVolume(value),
+                                    ),
+                                  ),
+                                  const Icon(Icons.volume_up, size: 16),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                      '${(chatProvider.mcpQuestionSoundVolume * 100).round()}%',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall),
+                                ],
+                              )
+                            : null,
+                      ),
+                      const Divider(height: 1),
+                      SwitchListTile(
+                        title: Text(l10n.mcpPlayWorkReportSound),
+                        value: chatProvider.playWorkReportSound,
+                        onChanged: (value) =>
+                            chatProvider.setPlayWorkReportSound(value),
+                        subtitle: chatProvider.playWorkReportSound
+                            ? Row(
+                                children: [
+                                  const Icon(Icons.volume_down, size: 16),
+                                  SizedBox(
+                                    width: 150,
+                                    child: Slider(
+                                      value:
+                                          chatProvider.mcpWorkReportSoundVolume,
+                                      divisions: 100,
+                                      label:
+                                          '${(chatProvider.mcpWorkReportSoundVolume * 100).round()}%',
+                                      onChanged: (value) => chatProvider
+                                          .setMcpWorkReportSoundVolume(value),
+                                    ),
+                                  ),
+                                  const Icon(Icons.volume_up, size: 16),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                      '${(chatProvider.mcpWorkReportSoundVolume * 100).round()}%',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall),
+                                ],
+                              )
+                            : null,
+                      ),
                     ],
                   ),
                 ),

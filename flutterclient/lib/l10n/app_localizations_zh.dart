@@ -278,6 +278,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get mcpAttentionModeTrayPopupOnTop => '系统托盘通知 + 弹窗 + 置顶';
 
   @override
+  String get mcpPlayQuestionSound => '播放 Ask Question 提示音';
+
+  @override
+  String get mcpPlayWorkReportSound => '播放 Work Report 提示音';
+
+  @override
+  String get mcpSoundVolume => '提示音音量';
+
+  @override
   String get webSocketUrlHint => 'ws://host:port/ws';
 
   @override
