@@ -66,10 +66,13 @@ class ServerStatusIcon extends StatelessWidget {
                 final cfg = chatProvider.serverConfigs[index];
                 final status = chatProvider.serverStatuses[cfg.id];
                 final err = chatProvider.serverErrors[cfg.id];
+                final version = chatProvider.serverVersions[cfg.id];
                 final statusLabel = _statusLabel(dialogL10n, status);
                 final subtitle = <String>[
                   cfg.url,
                   dialogL10n.serverStatusLine(statusLabel),
+                  if (version != null && version.trim().isNotEmpty)
+                    dialogL10n.version(version.trim()),
                   if (err != null && err.trim().isNotEmpty)
                     dialogL10n.serverErrorLine(err),
                 ].join('\n');

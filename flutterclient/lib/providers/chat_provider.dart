@@ -56,6 +56,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   final List<ServerConfig> _serverConfigs = [];
   final Map<String, WebSocketServiceStatus> _serverStatuses = {};
   final Map<String, String?> _serverErrors = {};
+  final Map<String, String?> _serverVersions = {};
 
   final List<ChatMessage> _messages = [];
   final List<DisplayOnlineUser> _onlineUsers = [];
@@ -126,6 +127,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       Map.unmodifiable(_serverStatuses);
 
   Map<String, String?> get serverErrors => Map.unmodifiable(_serverErrors);
+  Map<String, String?> get serverVersions => Map.unmodifiable(_serverVersions);
 
   bool get autoForwardToSystemInput => _autoForwardToSystemInput;
   bool get useInteractiveAskQuestion => _useInteractiveAskQuestion;
@@ -642,6 +644,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
     _serverStatuses[serverId] = WebSocketServiceStatus.disconnected;
     _serverErrors.remove(serverId);
+    _serverVersions.remove(serverId);
 
     _onlineUsers.removeWhere((u) => u.serverId == serverId);
     _chatMessages.removeWhere((k, _) => k.startsWith('$serverId|'));
@@ -720,9 +723,12 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       (connected) {
         if (connected) {
           _serverErrors.remove(config.id);
+          _serverVersions[config.id] = service.serverVersion;
           // Fetch pending messages and online users per server when connected
           fetchPendingMessages(serverId: config.id);
           requestOnlineUsersForServer(serverId: config.id);
+        } else {
+          _serverVersions.remove(config.id);
         }
         _refreshGlobalConnectionState();
         notifyListeners();
@@ -786,6 +792,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _attachServiceListeners(config, service);
     _serverStatuses[config.id] = WebSocketServiceStatus.connecting;
     _serverErrors.remove(config.id);
+    _serverVersions.remove(config.id);
     _refreshGlobalConnectionState();
     notifyListeners();
     await service.connect(config.url, token, nickname: nickname);

@@ -31,6 +31,7 @@ class WebSocketService {
   String? _token;
   String? _nickname;
   String? _clientId;
+  String? _serverVersion;
   int _reconnectAttempts = 0;
   bool _isManuallyDisconnected = false;
   bool _isConnecting = false;
@@ -60,6 +61,7 @@ class WebSocketService {
 
   /// Get current client ID
   String? get clientId => _clientId;
+  String? get serverVersion => _serverVersion;
 
   /// Connect to WebSocket server
   Future<void> connect(String url, String token,
@@ -72,6 +74,7 @@ class WebSocketService {
     _url = url;
     _token = token;
     _nickname = nickname;
+    _serverVersion = null;
     _isConnecting = true;
     _isManuallyDisconnected = false;
     _currentStatus = WebSocketServiceStatus.connecting;
@@ -416,7 +419,7 @@ class WebSocketService {
         _handleValidityCheckResponse(message.checkMessageValidityResponse);
       } else if (message.cmd == WebSocketCommands.userLogin &&
           message.hasUserLoginResponse()) {
-        _handleUserLoginResponse(message.userLoginResponse);
+        _handleUserLoginResponse(message.userLoginResponse, message.strParam);
       } else {
         _messageController.add(message);
       }
@@ -446,9 +449,12 @@ class WebSocketService {
   }
 
   /// Handle user login response
-  void _handleUserLoginResponse(UserLoginResponse response) {
+  void _handleUserLoginResponse(
+      UserLoginResponse response, String serverVersion) {
     if (response.success) {
       _clientId = response.clientId;
+      final trimmedVersion = serverVersion.trim();
+      _serverVersion = trimmedVersion.isEmpty ? null : trimmedVersion;
       _logger.i('User login successful, client ID: $_clientId');
       if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
         _loginCompleter!.complete();

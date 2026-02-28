@@ -815,6 +815,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final isEnabled = server.isEnabled;
+    final serverVersion = chatProvider.serverVersions[server.id];
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -890,16 +891,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Second row: URL (indented to align with name)
           Padding(
             padding: const EdgeInsets.only(left: 32, top: 4),
-            child: Text(
-              server.url,
-              style: TextStyle(
-                fontSize: 12,
-                color: isEnabled
-                    ? colorScheme.onSurfaceVariant
-                    : colorScheme.outline,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  server.url,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isEnabled
+                        ? colorScheme.onSurfaceVariant
+                        : colorScheme.outline,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (serverVersion != null && serverVersion.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(
+                      l10n.version(serverVersion),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isEnabled
+                            ? colorScheme.onSurfaceVariant
+                            : colorScheme.outline,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],

@@ -71,7 +71,7 @@ func TestBroadcastToAllExcept(t *testing.T) {
 
 func TestBroadcastAskQuestionReply(t *testing.T) {
 	broadcaster := NewBroadcaster()
-	handler := NewWebSocketHandler(broadcaster)
+	handler := NewWebSocketHandler(broadcaster, "test-version")
 
 	// Create test clients
 	sender := NewWebClient("sender")
@@ -138,7 +138,7 @@ func TestBroadcastAskQuestionReply(t *testing.T) {
 
 func TestBroadcastWorkReportReply(t *testing.T) {
 	broadcaster := NewBroadcaster()
-	handler := NewWebSocketHandler(broadcaster)
+	handler := NewWebSocketHandler(broadcaster, "test-version")
 
 	// Create test clients
 	sender := NewWebClient("sender")

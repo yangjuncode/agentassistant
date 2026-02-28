@@ -16,12 +16,14 @@ import (
 type WebSocketHandler struct {
 	broadcaster *Broadcaster
 	upgrader    websocket.Upgrader
+	serverVer   string
 }
 
 // NewWebSocketHandler creates a new WebSocket handler
-func NewWebSocketHandler(broadcaster *Broadcaster) *WebSocketHandler {
+func NewWebSocketHandler(broadcaster *Broadcaster, serverVersion string) *WebSocketHandler {
 	return &WebSocketHandler{
 		broadcaster: broadcaster,
+		serverVer:   serverVersion,
 		upgrader: websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				// Allow all origins for development - in production, you should restrict this
@@ -163,6 +165,7 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 					Success:      true,
 					ErrorMessage: "",
 				},
+				StrParam: h.serverVer,
 			}
 			if !client.Send(loginResponse) {
 				log.Printf("Failed to send login response to client %s", client.ID)

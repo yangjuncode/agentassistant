@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	_ "embed"
+	"encoding/json"
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/yangjuncode/agentassistant/www"
@@ -12,6 +14,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -21,9 +24,20 @@ import (
 	"golang.org/x/net/http2/h2c"
 )
 
+//go:embed version.txt
+var serverVersion string
+
 // Config represents the TOML configuration structure
 type Config struct {
 	AgentAssistantServerPort int `toml:"agentassistant_server_port"`
+}
+
+func normalizedServerVersion() string {
+	v := strings.TrimSpace(serverVersion)
+	if v == "" {
+		return "dev"
+	}
+	return v
 }
 
 // loadConfig loads configuration from the TOML file
@@ -73,13 +87,17 @@ func main() {
 	mux.Handle(path, handler)
 
 	// Register WebSocket handler for web interface
-	wsHandler := service.NewWebSocketHandler(svc.GetBroadcaster())
+	wsHandler := service.NewWebSocketHandler(svc.GetBroadcaster(), normalizedServerVersion())
 	mux.HandleFunc("/ws", wsHandler.HandleWebSocket)
 
 	// Add health check endpoint
 	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, "OK")
+		_ = json.NewEncoder(w).Encode(map[string]string{
+			"status":  "ok",
+			"version": normalizedServerVersion(),
+		})
 	})
 
 	// Serve static files from web/dist directory
@@ -108,7 +126,11 @@ func main() {
 
 	// Start server in a goroutine
 	go func() {
-		log.Printf("Starting Agent Assistant server on :%d", config.AgentAssistantServerPort)
+		log.Printf(
+			"Starting Agent Assistant server v%s on :%d",
+			normalizedServerVersion(),
+			config.AgentAssistantServerPort,
+		)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("Server failed to start: %v", err)
 		}
