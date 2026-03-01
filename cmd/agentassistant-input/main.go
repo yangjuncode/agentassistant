@@ -167,8 +167,8 @@ func typeWithNewlines(s string) {
 			// Press Enter key for newline
 			robotgo.KeyTap("enter")
 		} else if segment.text != "" {
-			// Type the text segment
-			robotgo.TypeStr(segment.text)
+			// Paste the text segment
+			robotgo.PasteStr(segment.text)
 		}
 		if i < len(segments)-1 {
 			// Small delay between segments to ensure proper input order
