@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 
@@ -80,6 +81,8 @@ func main() {
 			log.Fatalf("Error activating target window: %v", err)
 		}
 	}
+	restoreInputMethod := prepareEnglishInputMethod()
+	defer restoreInputMethod()
 	typeWithNewlines(stringToType)
 	elapsed := time.Since(startTime)
 	log.Printf("[DEBUG] typeWithNewlines() completed in %v", elapsed)
@@ -157,6 +160,143 @@ func activateWindow(windowID string) error {
 	// small delay to ensure target window is ready to receive input
 	time.Sleep(60 * time.Millisecond)
 	return nil
+}
+
+func prepareEnglishInputMethod() func() {
+	if restore, switched, err := switchFcitxToEnglish("fcitx5-remote"); err == nil {
+		if switched {
+			log.Printf("[DEBUG] Switched input method to English via fcitx5-remote")
+		}
+		return restore
+	}
+
+	if restore, switched, err := switchFcitxToEnglish("fcitx-remote"); err == nil {
+		if switched {
+			log.Printf("[DEBUG] Switched input method to English via fcitx-remote")
+		}
+		return restore
+	}
+
+	if restore, switched, err := switchIbusToEnglish(); err == nil {
+		if switched {
+			log.Printf("[DEBUG] Switched input method to English via ibus")
+		}
+		return restore
+	}
+
+	log.Printf("[DEBUG] No supported input method controller detected; continue without IME switch")
+	return func() {}
+}
+
+func switchFcitxToEnglish(binary string) (func(), bool, error) {
+	if _, err := exec.LookPath(binary); err != nil {
+		return nil, false, err
+	}
+
+	out, err := exec.Command(binary).Output()
+	if err != nil {
+		return nil, false, err
+	}
+
+	status, err := parseFcitxStatus(string(out))
+	if err != nil {
+		return nil, false, err
+	}
+
+	// fcitx status: 2 means input method active (typically non-English).
+	if status != 2 {
+		return func() {}, false, nil
+	}
+
+	if err := exec.Command(binary, "-c").Run(); err != nil {
+		return nil, false, err
+	}
+
+	return func() {
+		if err := exec.Command(binary, "-o").Run(); err != nil {
+			log.Printf("[DEBUG] Failed to restore fcitx input method: %v", err)
+		}
+	}, true, nil
+}
+
+func parseFcitxStatus(out string) (int, error) {
+	trimmed := strings.TrimSpace(out)
+	if trimmed == "" {
+		return 0, errors.New("empty fcitx status")
+	}
+
+	status, err := strconv.Atoi(trimmed)
+	if err != nil {
+		return 0, fmt.Errorf("invalid fcitx status %q: %w", trimmed, err)
+	}
+
+	return status, nil
+}
+
+func switchIbusToEnglish() (func(), bool, error) {
+	if _, err := exec.LookPath("ibus"); err != nil {
+		return nil, false, err
+	}
+
+	currentOut, err := exec.Command("ibus", "engine").Output()
+	if err != nil {
+		return nil, false, err
+	}
+
+	currentEngine := strings.TrimSpace(string(currentOut))
+	if currentEngine == "" {
+		return nil, false, errors.New("empty ibus current engine")
+	}
+
+	if isEnglishIbusEngine(currentEngine) {
+		return func() {}, false, nil
+	}
+
+	englishEngine := detectIbusEnglishEngine()
+	if err := exec.Command("ibus", "engine", englishEngine).Run(); err != nil {
+		return nil, false, err
+	}
+
+	return func() {
+		if err := exec.Command("ibus", "engine", currentEngine).Run(); err != nil {
+			log.Printf("[DEBUG] Failed to restore ibus engine to %s: %v", currentEngine, err)
+		}
+	}, true, nil
+}
+
+func detectIbusEnglishEngine() string {
+	const defaultEngine = "xkb:us::eng"
+
+	out, err := exec.Command("ibus", "list-engine").Output()
+	if err != nil {
+		return defaultEngine
+	}
+
+	var usCandidate string
+	for _, line := range strings.Split(string(out), "\n") {
+		fields := strings.Fields(strings.TrimSpace(line))
+		if len(fields) == 0 {
+			continue
+		}
+		engine := fields[0]
+		if engine == defaultEngine {
+			return engine
+		}
+		if usCandidate == "" && strings.HasPrefix(engine, "xkb:us::") {
+			usCandidate = engine
+		}
+	}
+
+	if usCandidate != "" {
+		return usCandidate
+	}
+
+	return defaultEngine
+}
+
+func isEnglishIbusEngine(engine string) bool {
+	engine = strings.ToLower(strings.TrimSpace(engine))
+	return strings.HasPrefix(engine, "xkb:us::")
 }
 
 // typeWithNewlines types a string, handling newline characters by pressing Enter
