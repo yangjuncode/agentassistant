@@ -165,10 +165,16 @@ func typeWithNewlines(s string) {
 	for i, segment := range segments {
 		if segment.isNewline {
 			// Press Enter key for newline
-			robotgo.KeyTap("enter")
+			if err := exec.Command("xdotool", "key", "Return").Run(); err != nil {
+				log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
+				robotgo.KeyTap("enter")
+			}
 		} else if segment.text != "" {
-			// Paste the text segment
-			robotgo.PasteStr(segment.text)
+			// Type the text segment using xdotool for better Linux compatibility
+			if err := exec.Command("xdotool", "type", "--clearmodifiers", segment.text).Run(); err != nil {
+				log.Printf("[DEBUG] xdotool type failed: %v, falling back to robotgo", err)
+				robotgo.TypeStr(segment.text)
+			}
 		}
 		if i < len(segments)-1 {
 			// Small delay between segments to ensure proper input order
