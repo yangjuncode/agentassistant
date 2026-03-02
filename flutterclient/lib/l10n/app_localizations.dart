@@ -245,6 +245,12 @@ abstract class AppLocalizations {
   /// **'Auto forward disabled'**
   String get autoForwardDisabled;
 
+  /// No description provided for @forwardInputMissingXdotool.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto forward depends on xdotool, but xdotool is not installed. Please install xdotool first.'**
+  String get forwardInputMissingXdotool;
+
   /// No description provided for @useInteractiveMode.
   ///
   /// In en, this message translates to:

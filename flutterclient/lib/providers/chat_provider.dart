@@ -94,6 +94,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   bool _isInputFocused = false;
   Timer? _inputFocusDebounceTimer;
   int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
+  bool _hasShownForwardDependencyWarningOnStartup = false;
 
   String? _nickname;
   Completer<String>? _nicknameLoadCompleter;
@@ -2193,9 +2194,42 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       _autoForwardToSystemInput =
           prefs.getBool('auto_forward_to_system_input') ?? false;
       _logger.i('Loaded auto forward setting: $_autoForwardToSystemInput');
+      if (_autoForwardToSystemInput) {
+        unawaited(_checkForwardInputDependencyOnStartup());
+      }
     } catch (error) {
       _logger.e('Failed to load auto forward setting: $error');
       _autoForwardToSystemInput = false;
+    }
+  }
+
+  Future<void> _checkForwardInputDependencyOnStartup() async {
+    if (_hasShownForwardDependencyWarningOnStartup) return;
+    _hasShownForwardDependencyWarningOnStartup = true;
+
+    final availability = await SystemInputService.getAvailability();
+    if (!availability.isMissingXdotool) return;
+
+    for (int i = 0; i < 10; i++) {
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        if (!context.mounted) {
+          await Future.delayed(const Duration(milliseconds: 300));
+          continue;
+        }
+        final l10n = AppLocalizations.of(context);
+        final messenger = ScaffoldMessenger.maybeOf(context);
+        if (l10n != null && messenger != null) {
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text(l10n.forwardInputMissingXdotool),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+          return;
+        }
+      }
+      await Future.delayed(const Duration(milliseconds: 300));
     }
   }
 

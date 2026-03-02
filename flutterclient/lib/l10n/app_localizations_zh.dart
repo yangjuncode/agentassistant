@@ -86,6 +86,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoForwardDisabled => '已关闭自动转发';
 
   @override
+  String get forwardInputMissingXdotool => '自动转发依赖 xdotool，但当前未安装。请先安装 xdotool。';
+
+  @override
   String get useInteractiveMode => '交互式提问模式';
 
   @override

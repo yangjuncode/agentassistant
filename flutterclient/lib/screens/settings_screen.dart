@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +12,7 @@ import '../providers/mcp_tool_index_provider.dart';
 import '../models/server_config.dart';
 
 import '../config/app_config.dart';
+import '../services/system_input_service.dart';
 import '../services/window_service.dart';
 import '../widgets/settings/nickname_settings.dart';
 import '../widgets/settings/slash_command_completion_settings.dart';
@@ -51,6 +54,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _loadAppInfo();
     _loadConnectionConfig();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkForwardInputDependencyOnOpen();
+    });
   }
 
   /// Load app information
@@ -82,6 +88,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } catch (_) {
       // keep defaults; do not crash settings
     }
+  }
+
+  Future<void> _checkForwardInputDependencyOnOpen() async {
+    if (!mounted) return;
+
+    final chatProvider = context.read<ChatProvider>();
+    if (!chatProvider.autoForwardToSystemInput) return;
+
+    final availability = await SystemInputService.getAvailability();
+    if (!mounted || !availability.isMissingXdotool) return;
+
+    final l10n = AppLocalizations.of(context)!;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.forwardInputMissingXdotool),
+        duration: const Duration(seconds: 4),
+      ),
+    );
   }
 
   /// Show disconnect confirmation dialog
@@ -465,7 +489,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       subtitle: Text(l10n.autoForwardMessagesDesc),
                       value: chatProvider.autoForwardToSystemInput,
                       onChanged: (value) {
-                        chatProvider.setAutoForwardToSystemInput(value);
+                        unawaited(
+                          chatProvider.setAutoForwardToSystemInput(value),
+                        );
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(value
@@ -474,6 +500,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             duration: const Duration(seconds: 2),
                           ),
                         );
+                        if (value) {
+                          unawaited(_checkForwardInputDependencyOnOpen());
+                        }
                       },
                     ),
                     const Divider(height: 1),

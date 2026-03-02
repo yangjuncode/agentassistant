@@ -86,6 +86,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoForwardDisabled => 'Auto forward disabled';
 
   @override
+  String get forwardInputMissingXdotool => 'Auto forward depends on xdotool, but xdotool is not installed. Please install xdotool first.';
+
+  @override
   String get useInteractiveMode => 'Interactive Question Mode';
 
   @override

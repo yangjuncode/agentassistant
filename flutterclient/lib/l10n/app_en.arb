@@ -33,6 +33,7 @@
 
   "autoForwardEnabled": "Auto forward enabled",
   "autoForwardDisabled": "Auto forward disabled",
+  "forwardInputMissingXdotool": "Auto forward depends on xdotool, but xdotool is not installed. Please install xdotool first.",
   "useInteractiveMode": "Interactive Question Mode",
   "useInteractiveModeDesc": "Render questions as interactive forms",
   "autoReplyAskQuestion": "Auto Reply Questions",

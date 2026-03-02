@@ -29,6 +29,27 @@ class SystemInputResult {
   });
 }
 
+class SystemInputAvailability {
+  final bool supportedPlatform;
+  final bool inputToolFound;
+  final bool requiresXdotool;
+  final bool xdotoolInstalled;
+
+  const SystemInputAvailability({
+    required this.supportedPlatform,
+    required this.inputToolFound,
+    required this.requiresXdotool,
+    required this.xdotoolInstalled,
+  });
+
+  bool get isAvailable =>
+      supportedPlatform &&
+      inputToolFound &&
+      (!requiresXdotool || xdotoolInstalled);
+
+  bool get isMissingXdotool => requiresXdotool && !xdotoolInstalled;
+}
+
 /// Service for handling system input functionality on Flutter PC
 /// This service allows sending text to the system's active input field
 class SystemInputService {
@@ -121,6 +142,31 @@ class SystemInputService {
     // print('[SystemInput] ⚠️ Tool not found in any standard locations');
     // print('[SystemInput] Returning tool name as fallback (will fail if not in PATH)');
     return toolName;
+  }
+
+  static bool _isCommandAvailable(String command) {
+    final pathEnv = Platform.environment['PATH'] ?? '';
+    if (pathEnv.isEmpty) {
+      return false;
+    }
+
+    final pathSeparator = Platform.isWindows ? ';' : ':';
+    final pathDirs = pathEnv.split(pathSeparator);
+
+    for (final dir in pathDirs) {
+      if (dir.isEmpty) continue;
+      final commandPath = path.join(dir, command);
+      if (File(commandPath).existsSync()) {
+        return true;
+      }
+      if (Platform.isWindows) {
+        final commandExePath = '$commandPath.exe';
+        if (File(commandExePath).existsSync()) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   /// Send text to system input using agentassistant-input tool
@@ -288,19 +334,45 @@ class SystemInputService {
   /// Check if system input functionality is available
   /// Returns true if the platform supports it and the tool is available
   static Future<bool> isAvailable() async {
+    final availability = await getAvailability();
+    return availability.isAvailable;
+  }
+
+  /// Check detailed system input availability, including xdotool on Linux.
+  static Future<SystemInputAvailability> getAvailability() async {
     try {
-      // Check platform support
-      if (!Platform.isWindows && !Platform.isLinux && !Platform.isMacOS) {
-        return false;
+      final supportedPlatform =
+          Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+      if (!supportedPlatform) {
+        return const SystemInputAvailability(
+          supportedPlatform: false,
+          inputToolFound: false,
+          requiresXdotool: false,
+          xdotoolInstalled: false,
+        );
       }
 
-      // Check if tool exists
       final inputToolPath = _getInputToolPath();
       final inputTool = File(inputToolPath);
-      return await inputTool.exists();
+      final inputToolFound = await inputTool.exists();
+
+      final requiresXdotool = Platform.isLinux;
+      final xdotoolInstalled =
+          !requiresXdotool || _isCommandAvailable('xdotool');
+
+      return SystemInputAvailability(
+        supportedPlatform: true,
+        inputToolFound: inputToolFound,
+        requiresXdotool: requiresXdotool,
+        xdotoolInstalled: xdotoolInstalled,
+      );
     } catch (e) {
-      // print('[SystemInput] Error checking system input availability: $e');
-      return false;
+      return const SystemInputAvailability(
+        supportedPlatform: false,
+        inputToolFound: false,
+        requiresXdotool: false,
+        xdotoolInstalled: false,
+      );
     }
   }
 

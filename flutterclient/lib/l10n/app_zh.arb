@@ -32,6 +32,7 @@
   "autoForwardMessagesDesc": "收到聊天消息时自动发送到系统输入",
   "autoForwardEnabled": "已开启自动转发",
   "autoForwardDisabled": "已关闭自动转发",
+  "forwardInputMissingXdotool": "自动转发依赖 xdotool，但当前未安装。请先安装 xdotool。",
   "useInteractiveMode": "交互式提问模式",
   "useInteractiveModeDesc": "以交互式表单形式显示问题",
   "autoReplyAskQuestion": "自动回复提问",
