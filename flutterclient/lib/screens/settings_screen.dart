@@ -15,6 +15,7 @@ import '../config/app_config.dart';
 import '../services/system_input_service.dart';
 import '../services/window_service.dart';
 import '../widgets/settings/nickname_settings.dart';
+import '../widgets/settings/suffix_text_settings.dart';
 import '../widgets/settings/slash_command_completion_settings.dart';
 import '../widgets/server_status_icon.dart';
 import '../widgets/settings/language_settings.dart';
@@ -472,6 +473,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
                       },
                     ),
+                    const Divider(indent: 16, endIndent: 16),
+                    SuffixTextSettings(
+                      onSuffixTextChanged: (suffixText) {
+                        // Handle suffix text change if needed
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('后缀文本已更新: $suffixText'),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                    ),
+                    const Divider(indent: 16, endIndent: 16),
                     const LanguageSettings(),
                   ],
                 ),
