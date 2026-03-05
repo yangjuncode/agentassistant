@@ -1055,6 +1055,72 @@ abstract class AppLocalizations {
   /// **'Nickname has been saved and synced to server'**
   String get nicknameSaved;
 
+  /// No description provided for @suffixTextSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Suffix Text Settings'**
+  String get suffixTextSettingsTitle;
+
+  /// No description provided for @suffixTextSettingsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a suffix that is automatically appended to your replies with a separating space.'**
+  String get suffixTextSettingsSubtitle;
+
+  /// No description provided for @suffixTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Suffix Text'**
+  String get suffixTextLabel;
+
+  /// No description provided for @suffixTextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For example: --sent from mobile'**
+  String get suffixTextHint;
+
+  /// No description provided for @suffixTextClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get suffixTextClear;
+
+  /// No description provided for @suffixTextSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get suffixTextSave;
+
+  /// No description provided for @suffixTextSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Suffix text saved'**
+  String get suffixTextSaved;
+
+  /// No description provided for @suffixTextSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save suffix text: {error}'**
+  String suffixTextSaveFailed(String error);
+
+  /// No description provided for @suffixTextPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview:'**
+  String get suffixTextPreviewTitle;
+
+  /// No description provided for @suffixTextPreviewExample.
+  ///
+  /// In en, this message translates to:
+  /// **'Input: \"Okay\" -> Sent: \"Okay {suffixText}\"'**
+  String suffixTextPreviewExample(String suffixText);
+
+  /// No description provided for @suffixTextUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Suffix text updated: {suffixText}'**
+  String suffixTextUpdated(String suffixText);
+
   /// No description provided for @servers.
   ///
   /// In en, this message translates to:

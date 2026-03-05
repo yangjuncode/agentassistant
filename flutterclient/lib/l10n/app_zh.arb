@@ -191,6 +191,18 @@
   "nicknameTooLongError": "昵称不能超过20个字符",
   "nicknameSaved": "昵称已保存并同步到服务器",
 
+  "suffixTextSettingsTitle": "后缀文本设置",
+  "suffixTextSettingsSubtitle": "设置回复时自动添加的后缀文本，会在输入后自动追加空格和后缀。",
+  "suffixTextLabel": "后缀文本",
+  "suffixTextHint": "例如：--来自手机",
+  "suffixTextClear": "清空",
+  "suffixTextSave": "保存",
+  "suffixTextSaved": "后缀文本已保存",
+  "suffixTextSaveFailed": "保存后缀文本失败: {error}",
+  "suffixTextPreviewTitle": "预览效果：",
+  "suffixTextPreviewExample": "用户输入：\"好的\" -> 实际发送：\"好的 {suffixText}\"",
+  "suffixTextUpdated": "后缀文本已更新: {suffixText}",
+
   "servers": "服务器",
   "addServer": "添加服务器",
   "editServer": "编辑服务器",

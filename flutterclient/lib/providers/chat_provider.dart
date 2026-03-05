@@ -98,6 +98,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   String? _nickname;
   Completer<String>? _nicknameLoadCompleter;
+  String _suffixText = '';
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
@@ -160,6 +161,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   bool get isInputFocused => _isInputFocused;
   int get chatAutoSendInterval => _chatAutoSendInterval;
   String? get nickname => _nickname;
+  String get suffixText => _suffixText;
 
   bool isForwardTargetSelectorVisible(String serverId, String peerClientId) {
     final key = _chatKey(serverId, peerClientId);
@@ -268,6 +270,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     Future.microtask(() async {
       await _loadNickname(); // Load nickname first
+      await _loadSuffixText(); // Load suffix text
       await _loadServerConfigs();
       await _loadAutoForwardSetting();
       await _loadDesktopMcpAttentionMode();
@@ -1393,6 +1396,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     String replyText, {
     List<AttachmentItem>? attachments,
   }) async {
+    // Apply suffix text to reply
+    final finalReplyText = _applySuffixText(replyText);
+    
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.question) return;
 
@@ -1409,13 +1415,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         ..isError = false;
 
       // Add text content if not empty
-      if (replyText.isNotEmpty) {
+      if (finalReplyText.isNotEmpty) {
         response.contents.add(
           pb.McpResultContent()
             ..type = 1 // text content type
             ..text = (pb.TextContent()
               ..type = 'text'
-              ..text = replyText),
+              ..text = finalReplyText),
         );
       }
 
@@ -1443,14 +1449,14 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       // Update message status
       final updatedMessage = message.copyWith(
         status: MessageStatus.replied,
-        replyText: replyText,
+        replyText: finalReplyText,
         repliedAt: DateTime.now(),
         repliedByCurrentUser: true,
       );
       _updateMessage(updatedMessage);
 
       // Save to in-memory history
-      _addReplyHistory(replyText);
+      _addReplyHistory(finalReplyText);
 
       _logger.i('Question reply sent: $messageId');
       // Clear draft after successful send
@@ -1475,6 +1481,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     String? confirmText, {
     List<AttachmentItem>? attachments,
   }) async {
+    // Apply suffix text to confirm text
+    final finalConfirmText = confirmText != null 
+        ? _applySuffixText(confirmText) 
+        : (_suffixText.trim().isNotEmpty ? _suffixText.trim() : null);
+        
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.task) return;
 
@@ -1490,13 +1501,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         ..iD = message.requestId
         ..isError = false;
 
-      if (confirmText != null && confirmText.isNotEmpty) {
+      if (finalConfirmText != null && finalConfirmText.isNotEmpty) {
         response.contents.add(
           pb.McpResultContent()
             ..type = 1 // text content type
             ..text = (pb.TextContent()
               ..type = 'text'
-              ..text = confirmText),
+              ..text = finalConfirmText),
         );
       }
 
@@ -1521,15 +1532,15 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       // Update message status
       final updatedMessage = message.copyWith(
         status: MessageStatus.confirmed,
-        replyText: confirmText,
+        replyText: finalConfirmText,
         repliedAt: DateTime.now(),
         repliedByCurrentUser: true,
       );
       _updateMessage(updatedMessage);
 
       // Save to in-memory history if provided
-      if (confirmText != null && confirmText.trim().isNotEmpty) {
-        _addReplyHistory(confirmText);
+      if (finalConfirmText != null && finalConfirmText.trim().isNotEmpty) {
+        _addReplyHistory(finalConfirmText);
       }
 
       _logger.i('Task confirmed: $messageId');
@@ -1693,6 +1704,49 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       _logger.e('Failed to update nickname: $error');
       rethrow;
     }
+  }
+
+  /// Load suffix text from SharedPreferences
+  Future<void> _loadSuffixText() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final suffix = prefs.getString(AppConfig.suffixTextStorageKey);
+      _suffixText = suffix ?? '';
+      notifyListeners();
+    } catch (error) {
+      _logger.e('Failed to load suffix text: $error');
+      _suffixText = '';
+    }
+  }
+
+  /// Update suffix text and save to SharedPreferences
+  Future<void> setSuffixText(String suffixText) async {
+    try {
+      _suffixText = suffixText;
+      notifyListeners();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppConfig.suffixTextStorageKey, suffixText);
+      _logger.i('Suffix text updated: $suffixText');
+    } catch (error) {
+      _logger.e('Failed to save suffix text: $error');
+      rethrow;
+    }
+  }
+
+  /// Apply suffix text to user input
+  String _applySuffixText(String userInput) {
+    final trimmedSuffix = _suffixText.trim();
+    if (trimmedSuffix.isEmpty) {
+      return userInput;
+    }
+    
+    final trimmedInput = userInput.trim();
+    if (trimmedInput.isEmpty) {
+      return trimmedSuffix;
+    }
+    
+    return '$trimmedInput $trimmedSuffix';
   }
 
   /// Show notification for reply/confirmation by another user

@@ -276,6 +276,39 @@
   "nicknameTooLongError": "Nickname cannot exceed 20 characters",
   "nicknameSaved": "Nickname has been saved and synced to server",
 
+  "suffixTextSettingsTitle": "Suffix Text Settings",
+  "suffixTextSettingsSubtitle": "Set a suffix that is automatically appended to your replies with a separating space.",
+  "suffixTextLabel": "Suffix Text",
+  "suffixTextHint": "For example: --sent from mobile",
+  "suffixTextClear": "Clear",
+  "suffixTextSave": "Save",
+  "suffixTextSaved": "Suffix text saved",
+  "suffixTextSaveFailed": "Failed to save suffix text: {error}",
+  "@suffixTextSaveFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "suffixTextPreviewTitle": "Preview:",
+  "suffixTextPreviewExample": "Input: \"Okay\" -> Sent: \"Okay {suffixText}\"",
+  "@suffixTextPreviewExample": {
+    "placeholders": {
+      "suffixText": {
+        "type": "String"
+      }
+    }
+  },
+  "suffixTextUpdated": "Suffix text updated: {suffixText}",
+  "@suffixTextUpdated": {
+    "placeholders": {
+      "suffixText": {
+        "type": "String"
+      }
+    }
+  },
+
   "servers": "Servers",
   "addServer": "Add Server",
   "editServer": "Edit Server",

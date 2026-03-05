@@ -37,6 +37,7 @@ class AppConfig {
   static const String mcpWorkReportSoundVolumeStorageKey =
       'mcp_work_report_sound_volume';
   static const String nicknameStorageKey = 'user_nickname';
+  static const String suffixTextStorageKey = 'suffix_text';
 
   // Default values
   static const String appName = 'Agent Assistant';
