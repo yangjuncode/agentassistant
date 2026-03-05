@@ -116,55 +116,51 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.post_add,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.suffixTextSettingsTitle,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-              ],
+          // Header with switch
+          SwitchListTile(
+            dense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+            secondary: Icon(
+              Icons.post_add,
+              color: Theme.of(context).colorScheme.primary,
             ),
-          ),
-          const SizedBox(height: 12),
-
-          // Description
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            child: Text(
+            title: Text(
+              l10n.suffixTextSettingsTitle,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            subtitle: Text(
               l10n.suffixTextSettingsSubtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
+            value: context.watch<ChatProvider>().suffixTextEnabled,
+            onChanged: (value) {
+              context.read<ChatProvider>().setSuffixTextEnabled(value);
+            },
           ),
-          const SizedBox(height: 12),
 
           // Input field
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             child: TextField(
               controller: _controller,
+              enabled: context.watch<ChatProvider>().suffixTextEnabled,
               decoration: InputDecoration(
                 labelText: l10n.suffixTextLabel,
                 hintText: l10n.suffixTextHint,
                 border: const OutlineInputBorder(),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                counterText: '',
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -182,7 +178,11 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.save),
-                      onPressed: _isLoading ? null : _saveSuffixText,
+                      onPressed:
+                          (!context.watch<ChatProvider>().suffixTextEnabled ||
+                                  _isLoading)
+                              ? null
+                              : _saveSuffixText,
                       tooltip: l10n.suffixTextSave,
                     ),
                   ],
@@ -197,19 +197,22 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
           // Preview
           if (_controller.text.isNotEmpty)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.only(left: 2, right: 2, bottom: 2),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                 decoration: BoxDecoration(
                   color: Theme.of(context)
                       .colorScheme
-                      .surfaceVariant
-                      .withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
+                      .surfaceContainerHighest
+                      .withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color:
-                        Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .outline
+                        .withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(

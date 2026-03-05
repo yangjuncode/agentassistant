@@ -99,6 +99,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   String? _nickname;
   Completer<String>? _nicknameLoadCompleter;
   String _suffixText = '';
+  bool _suffixTextEnabled = true;
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
@@ -162,6 +163,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   int get chatAutoSendInterval => _chatAutoSendInterval;
   String? get nickname => _nickname;
   String get suffixText => _suffixText;
+  bool get suffixTextEnabled => _suffixTextEnabled;
 
   bool isForwardTargetSelectorVisible(String serverId, String peerClientId) {
     final key = _chatKey(serverId, peerClientId);
@@ -1398,7 +1400,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   }) async {
     // Apply suffix text to reply
     final finalReplyText = _applySuffixText(replyText);
-    
+
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.question) return;
 
@@ -1482,10 +1484,12 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     List<AttachmentItem>? attachments,
   }) async {
     // Apply suffix text to confirm text
-    final finalConfirmText = confirmText != null 
-        ? _applySuffixText(confirmText) 
-        : (_suffixText.trim().isNotEmpty ? _suffixText.trim() : null);
-        
+    final finalConfirmText = confirmText != null
+        ? _applySuffixText(confirmText)
+        : (_suffixText.trim().isNotEmpty
+            ? _applySuffixText(confirmText ?? '')
+            : null);
+
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.task) return;
 
@@ -1711,11 +1715,14 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final prefs = await SharedPreferences.getInstance();
       final suffix = prefs.getString(AppConfig.suffixTextStorageKey);
-      _suffixText = suffix ?? '';
+      _suffixText = suffix ?? ',完成后调用agent assistant,timeout 360000';
+      _suffixTextEnabled =
+          prefs.getBool(AppConfig.suffixTextEnabledStorageKey) ?? true;
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load suffix text: $error');
-      _suffixText = '';
+      _suffixText = ',完成后调用agent assistant,timeout 360000';
+      _suffixTextEnabled = true;
     }
   }
 
@@ -1734,19 +1741,35 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Update suffix text enabled state and save to SharedPreferences
+  Future<void> setSuffixTextEnabled(bool enabled) async {
+    try {
+      _suffixTextEnabled = enabled;
+      notifyListeners();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(AppConfig.suffixTextEnabledStorageKey, enabled);
+      _logger.i('Suffix text enabled state updated: $enabled');
+    } catch (error) {
+      _logger.e('Failed to save suffix text enabled state: $error');
+      rethrow;
+    }
+  }
+
   /// Apply suffix text to user input
   String _applySuffixText(String userInput) {
+    if (!_suffixTextEnabled) return userInput;
     final trimmedSuffix = _suffixText.trim();
     if (trimmedSuffix.isEmpty) {
       return userInput;
     }
-    
+
     final trimmedInput = userInput.trim();
     if (trimmedInput.isEmpty) {
       return trimmedSuffix;
     }
-    
-    return '$trimmedInput $trimmedSuffix';
+
+    return '$trimmedInput\n$trimmedSuffix';
   }
 
   /// Show notification for reply/confirmation by another user
@@ -2313,6 +2336,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
               AppConfig.defaultChatAutoSendInterval;
       _useInteractiveAskQuestion =
           prefs.getBool('use_interactive_ask_question') ?? true;
+      _suffixTextEnabled =
+          prefs.getBool(AppConfig.suffixTextEnabledStorageKey) ?? true;
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load chat settings: $error');

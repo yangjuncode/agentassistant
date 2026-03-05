@@ -425,6 +425,18 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get language;
 
+  /// No description provided for @enableSuffixText.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable Suffix Text'**
+  String get enableSuffixText;
+
+  /// No description provided for @enableSuffixTextDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically append the configured suffix text when replying'**
+  String get enableSuffixTextDesc;
+
   /// No description provided for @languageSettings.
   ///
   /// In en, this message translates to:

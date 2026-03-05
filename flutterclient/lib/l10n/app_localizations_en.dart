@@ -186,6 +186,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get language => 'Language';
 
   @override
+  String get enableSuffixText => 'Enable Suffix Text';
+
+  @override
+  String get enableSuffixTextDesc => 'Automatically append the configured suffix text when replying';
+
+  @override
   String get languageSettings => 'Language Settings';
 
   @override

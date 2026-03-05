@@ -98,6 +98,8 @@
   "featureAutoReconnect": "Auto reconnection mechanism",
   "featureLocalStorage": "Local message storage",
   "language": "Language",
+  "enableSuffixText": "Enable Suffix Text",
+  "enableSuffixTextDesc": "Automatically append the configured suffix text when replying",
   "languageSettings": "Language Settings",
   "selectLanguage": "Select Language",
   "languageAuto": "System Default",

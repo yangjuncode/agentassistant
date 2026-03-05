@@ -61,6 +61,8 @@
   "featureMultiContent": "支持多种内容类型",
   "featureAutoReconnect": "自动重连机制",
   "featureLocalStorage": "本地消息存储",
+  "enableSuffixText": "自动应用后缀文本",
+  "enableSuffixTextDesc": "回复消息时自动追加下方配置的后缀文本",
   "language": "语言",
   "languageSettings": "语言设置",
   "selectLanguage": "选择语言",

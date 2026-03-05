@@ -186,6 +186,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get language => '语言';
 
   @override
+  String get enableSuffixText => '自动应用后缀文本';
+
+  @override
+  String get enableSuffixTextDesc => '回复消息时自动追加下方配置的后缀文本';
+
+  @override
   String get languageSettings => '语言设置';
 
   @override
