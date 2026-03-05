@@ -1759,6 +1759,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// Apply suffix text to user input
   String _applySuffixText(String userInput) {
     if (!_suffixTextEnabled) return userInput;
+
+    final lowerInput = userInput.trim().toLowerCase();
+    // Do not attach suffix text if the reply explicitly contains standby instructions
+    if (lowerInput.contains('standby.')) {
+      return userInput;
+    }
+
     final trimmedSuffix = _suffixText.trim();
     if (trimmedSuffix.isEmpty) {
       return userInput;
