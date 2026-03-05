@@ -519,6 +519,45 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nicknameSaved => '昵称已保存并同步到服务器';
 
   @override
+  String get suffixTextSettingsTitle => '后缀文本设置';
+
+  @override
+  String get suffixTextSettingsSubtitle => '设置回复时自动添加的后缀文本，会在输入后自动追加空格和后缀。';
+
+  @override
+  String get suffixTextLabel => '后缀文本';
+
+  @override
+  String get suffixTextHint => '例如：--来自手机';
+
+  @override
+  String get suffixTextClear => '清空';
+
+  @override
+  String get suffixTextSave => '保存';
+
+  @override
+  String get suffixTextSaved => '后缀文本已保存';
+
+  @override
+  String suffixTextSaveFailed(String error) {
+    return '保存后缀文本失败: $error';
+  }
+
+  @override
+  String get suffixTextPreviewTitle => '预览效果：';
+
+  @override
+  String suffixTextPreviewExample(String suffixText) {
+    return '用户输入：\"好的\" -> 实际发送：\"好的 $suffixText\"';
+  }
+
+  @override
+  String suffixTextUpdated(String suffixText) {
+    return '后缀文本已更新: $suffixText';
+  }
+
+  @override
   String get servers => '服务器';
 
   @override

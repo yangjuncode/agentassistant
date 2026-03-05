@@ -479,7 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         // Handle suffix text change if needed
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('后缀文本已更新: $suffixText'),
+                            content: Text(l10n.suffixTextUpdated(suffixText)),
                             duration: const Duration(seconds: 2),
                           ),
                         );

@@ -29,7 +29,8 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
     super.initState();
     _controller = TextEditingController(text: widget.initialSuffixText ?? '');
     // Schedule loading current suffix text after first frame
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadCurrentSuffixText());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _loadCurrentSuffixText());
   }
 
   @override
@@ -66,7 +67,7 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
     if (_isLoading) return;
 
     final suffixText = _controller.text.trim();
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -83,15 +84,16 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
         final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('后缀文本已保存'),
+            content: Text(l10n.suffixTextSaved),
             backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context)!;
         setState(() {
-          _errorMessage = '保存失败: $e';
+          _errorMessage = l10n.suffixTextSaveFailed(e.toString());
         });
       }
     } finally {
@@ -131,7 +133,7 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  '后缀文本设置',
+                  l10n.suffixTextSettingsTitle,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w600,
@@ -146,7 +148,7 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Text(
-              '设置回复时自动添加的后缀文本，会在你的输入后面自动加上空格和后缀',
+              l10n.suffixTextSettingsSubtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -160,8 +162,8 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
             child: TextField(
               controller: _controller,
               decoration: InputDecoration(
-                labelText: '后缀文本',
-                hintText: '例如：--来自手机',
+                labelText: l10n.suffixTextLabel,
+                hintText: l10n.suffixTextHint,
                 border: const OutlineInputBorder(),
                 suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -170,7 +172,7 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
                       IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: _clearSuffixText,
-                        tooltip: '清空',
+                        tooltip: l10n.suffixTextClear,
                       ),
                     IconButton(
                       icon: _isLoading
@@ -181,7 +183,7 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
                             )
                           : const Icon(Icons.save),
                       onPressed: _isLoading ? null : _saveSuffixText,
-                      tooltip: '保存',
+                      tooltip: l10n.suffixTextSave,
                     ),
                   ],
                 ),
@@ -200,24 +202,29 @@ class _SuffixTextSettingsState extends State<SuffixTextSettings> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .surfaceVariant
+                      .withOpacity(0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                    color:
+                        Theme.of(context).colorScheme.outline.withOpacity(0.2),
                   ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '预览效果：',
+                      l10n.suffixTextPreviewTitle,
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '用户输入："好的" → 实际发送："好的 ${_controller.text}"',
+                      l10n.suffixTextPreviewExample(_controller.text),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.onSurface,
                             fontFamily: 'monospace',

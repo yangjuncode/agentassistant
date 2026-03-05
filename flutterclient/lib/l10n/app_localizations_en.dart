@@ -519,6 +519,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nicknameSaved => 'Nickname has been saved and synced to server';
 
   @override
+  String get suffixTextSettingsTitle => 'Suffix Text Settings';
+
+  @override
+  String get suffixTextSettingsSubtitle => 'Set a suffix that is automatically appended to your replies with a separating space.';
+
+  @override
+  String get suffixTextLabel => 'Suffix Text';
+
+  @override
+  String get suffixTextHint => 'For example: --sent from mobile';
+
+  @override
+  String get suffixTextClear => 'Clear';
+
+  @override
+  String get suffixTextSave => 'Save';
+
+  @override
+  String get suffixTextSaved => 'Suffix text saved';
+
+  @override
+  String suffixTextSaveFailed(String error) {
+    return 'Failed to save suffix text: $error';
+  }
+
+  @override
+  String get suffixTextPreviewTitle => 'Preview:';
+
+  @override
+  String suffixTextPreviewExample(String suffixText) {
+    return 'Input: \"Okay\" -> Sent: \"Okay $suffixText\"';
+  }
+
+  @override
+  String suffixTextUpdated(String suffixText) {
+    return 'Suffix text updated: $suffixText';
+  }
+
+  @override
   String get servers => 'Servers';
 
   @override
