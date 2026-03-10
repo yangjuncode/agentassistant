@@ -1715,13 +1715,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final prefs = await SharedPreferences.getInstance();
       final suffix = prefs.getString(AppConfig.suffixTextStorageKey);
-      _suffixText = suffix ?? ',完成后调用agent assistant,timeout 360000';
+      _suffixText = suffix ?? ',完成后调用agent assistant,timeout参数=360000';
       _suffixTextEnabled =
           prefs.getBool(AppConfig.suffixTextEnabledStorageKey) ?? true;
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load suffix text: $error');
-      _suffixText = ',完成后调用agent assistant,timeout 360000';
+      _suffixText = ',完成后调用agent assistant,timeout参数=360000';
       _suffixTextEnabled = true;
     }
   }
