@@ -52,6 +52,7 @@ cmake-build-release/
 
   final Map<String, _RootCache> _caches = {};
   Timer? _cleanupTimer;
+  bool _isDisposed = false;
 
   int _ttlHours = defaultTtlHours;
   bool _watchEnabledDesktop = true;
@@ -85,6 +86,7 @@ cmake-build-release/
 
   @override
   void dispose() {
+    _isDisposed = true;
     _cleanupTimer?.cancel();
     for (final cache in _caches.values) {
       cache.dispose();
@@ -98,7 +100,9 @@ cmake-build-release/
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_ttlHoursKey, hours);
     _cleanupExpired();
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 
   Future<void> setUseGitIgnore(bool enabled) async {

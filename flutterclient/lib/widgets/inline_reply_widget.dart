@@ -602,7 +602,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     });
   }
 
-  Future<void> _handleSubmit([String? quickReply]) async {
+  bool _shouldSkipSuffixText() => HardwareKeyboard.instance.isShiftPressed;
+
+  Future<void> _handleSubmit({
+    String? quickReply,
+    bool skipSuffixText = false,
+  }) async {
     var replyText = quickReply ?? _controller.text.trim();
     // If input is empty and no attachments, use default reply text
     if (replyText.isEmpty && _attachments.isEmpty) {
@@ -625,12 +630,14 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
           widget.message.id,
           replyText,
           attachments: _attachments,
+          skipSuffixText: skipSuffixText,
         );
       } else if (widget.message.type == MessageType.task) {
         await chatProvider.confirmTask(
           widget.message.id,
           replyText,
           attachments: _attachments,
+          skipSuffixText: skipSuffixText,
         );
       }
 
@@ -784,7 +791,9 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         event.logicalKey == LogicalKeyboardKey.enter &&
                         (HardwareKeyboard.instance.isControlPressed ||
                             HardwareKeyboard.instance.isMetaPressed)) {
-                      _handleSubmit();
+                      _handleSubmit(
+                        skipSuffixText: _shouldSkipSuffixText(),
+                      );
                       return KeyEventResult.handled;
                     }
 
@@ -934,8 +943,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                     child: Row(
                       children: [
                         OutlinedButton(
-                          onPressed:
-                              _isSubmitting ? null : () => _handleSubmit('OK'),
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _handleSubmit(
+                                    quickReply: 'OK',
+                                    skipSuffixText: _shouldSkipSuffixText(),
+                                  ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 0),
@@ -945,8 +958,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         ),
                         const SizedBox(width: 8),
                         OutlinedButton(
-                          onPressed:
-                              _isSubmitting ? null : () => _handleSubmit('Yes'),
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => _handleSubmit(
+                                    quickReply: 'Yes',
+                                    skipSuffixText: _shouldSkipSuffixText(),
+                                  ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 0),
@@ -958,7 +975,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         OutlinedButton(
                           onPressed: _isSubmitting
                               ? null
-                              : () => _handleSubmit('Continue'),
+                              : () => _handleSubmit(
+                                    quickReply: 'Continue',
+                                    skipSuffixText: _shouldSkipSuffixText(),
+                                  ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 0),
@@ -971,7 +991,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           onPressed: _isSubmitting
                               ? null
                               : () => _handleSubmit(
-                                  'git commit current work, task is finished, standby.'),
+                                    quickReply:
+                                        'git commit current work, task is finished, standby.',
+                                    skipSuffixText: _shouldSkipSuffixText(),
+                                  ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 0),
@@ -983,7 +1006,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         OutlinedButton(
                           onPressed: _isSubmitting
                               ? null
-                              : () => _handleSubmit("ok, let's do it"),
+                              : () => _handleSubmit(
+                                    quickReply: "ok, let's do it",
+                                    skipSuffixText: _shouldSkipSuffixText(),
+                                  ),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 12, vertical: 0),
@@ -1004,7 +1030,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           OutlinedButton.icon(
                             onPressed: _isSubmitting
                                 ? null
-                                : () => _handleSubmit('OK'),
+                                : () => _handleSubmit(
+                                      quickReply: 'OK',
+                                      skipSuffixText: _shouldSkipSuffixText(),
+                                    ),
                             icon: const Icon(Icons.check, size: 16),
                             label: const Text('OK'),
                             style: OutlinedButton.styleFrom(
@@ -1019,7 +1048,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           OutlinedButton.icon(
                             onPressed: _isSubmitting
                                 ? null
-                                : () => _handleSubmit('Yes'),
+                                : () => _handleSubmit(
+                                      quickReply: 'Yes',
+                                      skipSuffixText: _shouldSkipSuffixText(),
+                                    ),
                             icon: const Icon(Icons.thumb_up, size: 16),
                             label: const Text('Yes'),
                             style: OutlinedButton.styleFrom(
@@ -1034,7 +1066,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           OutlinedButton.icon(
                             onPressed: _isSubmitting
                                 ? null
-                                : () => _handleSubmit('Continue'),
+                                : () => _handleSubmit(
+                                      quickReply: 'Continue',
+                                      skipSuffixText: _shouldSkipSuffixText(),
+                                    ),
                             icon: const Icon(Icons.arrow_forward, size: 16),
                             label: const Text('Continue'),
                             style: OutlinedButton.styleFrom(
@@ -1050,7 +1085,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                             onPressed: _isSubmitting
                                 ? null
                                 : () => _handleSubmit(
-                                    'git commit current work, task is finished, standby.'),
+                                      quickReply:
+                                          'git commit current work, task is finished, standby.',
+                                      skipSuffixText: _shouldSkipSuffixText(),
+                                    ),
                             icon: const Icon(Icons.commit, size: 16),
                             label: const Text('git commit'),
                             style: OutlinedButton.styleFrom(
@@ -1065,7 +1103,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                           OutlinedButton.icon(
                             onPressed: _isSubmitting
                                 ? null
-                                : () => _handleSubmit("ok, let's do it"),
+                                : () => _handleSubmit(
+                                      quickReply: "ok, let's do it",
+                                      skipSuffixText: _shouldSkipSuffixText(),
+                                    ),
                             icon: const Icon(Icons.play_arrow, size: 16),
                             label: const Text("OK, let's do it"),
                             style: OutlinedButton.styleFrom(
@@ -1082,7 +1123,11 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
                       // Send button
                       ElevatedButton.icon(
-                        onPressed: _isSubmitting ? null : () => _handleSubmit(),
+                        onPressed: _isSubmitting
+                            ? null
+                            : () => _handleSubmit(
+                                  skipSuffixText: _shouldSkipSuffixText(),
+                                ),
                         icon: _isSubmitting
                             ? SizedBox(
                                 width: 16,
@@ -1220,7 +1265,11 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
           ),
           // Send button in header for compact mode
           IconButton(
-            onPressed: _isSubmitting ? null : () => _handleSubmit(),
+            onPressed: _isSubmitting
+                ? null
+                : () => _handleSubmit(
+                      skipSuffixText: _shouldSkipSuffixText(),
+                    ),
             icon: _isSubmitting
                 ? SizedBox(
                     width: 20,

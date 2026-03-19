@@ -46,6 +46,7 @@ class McpToolIndexProvider extends ChangeNotifier {
 
   final Map<String, _ToolCache> _caches = {};
   Timer? _cleanupTimer;
+  bool _isDisposed = false;
 
   final int _ttlHours = defaultTtlHours;
   McpSlashSuggestContent _slashSuggestContent = McpSlashSuggestContent.command;
@@ -61,6 +62,7 @@ class McpToolIndexProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _cleanupTimer?.cancel();
     super.dispose();
   }
@@ -261,7 +263,9 @@ class McpToolIndexProvider extends ChangeNotifier {
         _slashSkillCompletionText = skillText;
       }
     } catch (_) {}
-    notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+    }
   }
 }
 

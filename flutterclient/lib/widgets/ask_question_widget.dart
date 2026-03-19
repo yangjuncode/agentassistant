@@ -56,6 +56,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   static const double _suggestOverlayGap = 8;
   static const double _suggestOverlayMaxHeight = 240;
 
+  bool _shouldSkipSuffixText() => HardwareKeyboard.instance.isShiftPressed;
+
   @override
   void initState() {
     super.initState();
@@ -490,7 +492,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   }
   // --- Autocomplete Logic End ---
 
-  Future<void> _submitReply() async {
+  Future<void> _submitReply({bool skipSuffixText = false}) async {
     if (_isSubmitting) return;
 
     final questions = widget.message.rawQuestions;
@@ -561,6 +563,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
       await context.read<ChatProvider>().replyToQuestion(
             widget.message.id,
             replyText,
+            skipSuffixText: skipSuffixText,
           );
     } catch (e) {
       if (mounted) {
@@ -594,14 +597,14 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     });
 
     // 检查是否应该自动提交
-    _checkAutoReply();
+    _checkAutoReply(skipSuffixText: _shouldSkipSuffixText());
   }
 
   /// 检查是否满足自动回复条件：
   /// 1. 设置中开启了自动回复
   /// 2. 所有问题都是单选
   /// 3. 每个问题都已有选择，或自定义输入框有内容
-  void _checkAutoReply() {
+  void _checkAutoReply({bool skipSuffixText = false}) {
     final chatProvider = context.read<ChatProvider>();
     if (!chatProvider.autoReplyAskQuestion) return;
     if (_isSubmitting) return;
@@ -633,7 +636,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     Future.microtask(() {
       if (!mounted) return;
       if (_isSubmitting) return;
-      _submitReply();
+      _submitReply(skipSuffixText: skipSuffixText);
     });
   }
 
@@ -655,7 +658,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
             HardwareKeyboard.instance.isMetaPressed)) {
       _activeTokenIndex = null;
       _removeSuggestOverlay();
-      _submitReply();
+      _submitReply(skipSuffixText: _shouldSkipSuffixText());
       return KeyEventResult.handled;
     }
 
@@ -733,7 +736,11 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                 Align(
                   alignment: Alignment.center,
                   child: ElevatedButton.icon(
-                    onPressed: _isSubmitting ? null : _submitReply,
+                    onPressed: _isSubmitting
+                        ? null
+                        : () => _submitReply(
+                              skipSuffixText: _shouldSkipSuffixText(),
+                            ),
                     icon: _isSubmitting
                         ? const SizedBox(
                             width: 32,

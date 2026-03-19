@@ -89,7 +89,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   bool _playWorkReportSound = true;
   double _mcpQuestionSoundVolume = 1.0;
   double _mcpWorkReportSoundVolume = 1.0;
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  AudioPlayer? _audioPlayer;
   bool _showOnlyPendingMessages = false;
   bool _isInputFocused = false;
   Timer? _inputFocusDebounceTimer;
@@ -1020,8 +1020,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _logger.i('Received question: $questionText');
 
     if (_playMcpQuestionSound) {
-      _audioPlayer.play(AssetSource('sounds/question.wav'),
-          volume: _mcpQuestionSoundVolume);
+      _getAudioPlayer().play(
+        AssetSource('sounds/question.wav'),
+        volume: _mcpQuestionSoundVolume,
+      );
     }
 
     _handleDesktopAttentionOnNewPendingItem(
@@ -1046,8 +1048,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _logger.i('Received work report: ${request.request.summary}');
 
     if (_playWorkReportSound) {
-      _audioPlayer.play(AssetSource('sounds/report.wav'),
-          volume: _mcpWorkReportSoundVolume);
+      _getAudioPlayer().play(
+        AssetSource('sounds/report.wav'),
+        volume: _mcpWorkReportSoundVolume,
+      );
     }
 
     _handleDesktopAttentionOnNewPendingItem(
@@ -1055,6 +1059,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       body: request.request.summary,
       mode: _workReportAttentionMode,
     );
+  }
+
+  AudioPlayer _getAudioPlayer() {
+    return _audioPlayer ??= AudioPlayer();
   }
 
   Future<void> _handleDesktopAttentionOnNewPendingItem({
@@ -1397,9 +1405,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     String messageId,
     String replyText, {
     List<AttachmentItem>? attachments,
+    bool skipSuffixText = false,
   }) async {
     // Apply suffix text to reply
-    final finalReplyText = _applySuffixText(replyText);
+    final finalReplyText = applySuffixText(
+      replyText,
+      skipSuffixText: skipSuffixText,
+    );
 
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.question) return;
@@ -1482,12 +1494,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     String messageId,
     String? confirmText, {
     List<AttachmentItem>? attachments,
+    bool skipSuffixText = false,
   }) async {
     // Apply suffix text to confirm text
     final finalConfirmText = confirmText != null
-        ? _applySuffixText(confirmText)
-        : (_suffixText.trim().isNotEmpty
-            ? _applySuffixText(confirmText ?? '')
+        ? applySuffixText(confirmText, skipSuffixText: skipSuffixText)
+        : (!skipSuffixText && _suffixText.trim().isNotEmpty
+            ? applySuffixText(confirmText ?? '')
             : null);
 
     final message = _messages.firstWhere((m) => m.id == messageId);
@@ -1759,8 +1772,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   /// Apply suffix text to user input
-  String _applySuffixText(String userInput) {
-    if (!_suffixTextEnabled) return userInput;
+  String applySuffixText(String userInput, {bool skipSuffixText = false}) {
+    if (skipSuffixText || !_suffixTextEnabled) return userInput;
 
     final lowerInput = userInput.trim().toLowerCase();
     // Do not attach suffix text if the reply explicitly contains standby instructions
