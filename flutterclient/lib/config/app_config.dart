@@ -23,6 +23,10 @@ class AppConfig {
   static const String settingsStorageKey = 'app_settings';
   static const String chatAutoSendIntervalStorageKey =
       'chat_auto_send_interval';
+  static const String replyTextPrefixStorageKey = 'reply_text_prefix';
+  static const String replyTextSuffixStorageKey = 'reply_text_suffix';
+  static const String replyTextWrappingEnabledStorageKey =
+      'reply_text_wrapping_enabled';
   static const String desktopMcpAttentionModeStorageKey =
       'desktop_mcp_attention_mode';
   static const String askQuestionAttentionModeStorageKey =

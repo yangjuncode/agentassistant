@@ -134,6 +134,15 @@
       }
     }
   },
+  "replyTextWrappingTitle": "Reply Text Prefix & Suffix",
+  "replyTextWrappingSubtitle": "Configure text that is automatically added before and after replies to questions or task confirmations.",
+  "replyTextPrefixLabel": "Reply Text Prefix",
+  "replyTextPrefixHint": "For example: Please reply in the following format:",
+  "replyTextSuffixLabel": "Reply Text Suffix",
+  "replyTextSuffixHint": "For example: \\n-- Sent from Agent Assistant",
+  "replyTextWrappingSaved": "Reply text prefix and suffix settings saved",
+  "replyTextWrappingToggleLabel": "Apply reply text prefix/suffix",
+  "replyTextWrappingToggleSubtitle": "When enabled, replies include the configured prefix and suffix. When disabled, send raw text.",
   "profileClientIdLabel": "Client ID: {clientId}",
   "@profileClientIdLabel": {
     "placeholders": {

@@ -139,7 +139,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackMessage => '请联系您的系统管理员反馈问题';
 
   @override
-  String get aboutAppDescription => 'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
+  String get aboutAppDescription =>
+      'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
 
   @override
   String get features => '功能特性：';
@@ -198,7 +199,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customIgnorePatternsDialogTitle => '编辑自定义忽略规则';
 
   @override
-  String get customIgnorePatternsHint => '# 每行一条规则\n*.log\nbuild/\nnode_modules/';
+  String get customIgnorePatternsHint =>
+      '# 每行一条规则\n*.log\nbuild/\nnode_modules/';
 
   @override
   String get slashCommands => 'Slash Commands';
@@ -222,7 +224,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slashSkillCompletionText => '/ 技能 (Skill) 补全文本';
 
   @override
-  String get slashCompletionTextDesc => '定制 / 命令自动补全时的输入文本。可用变量: %name%, %path%, %type%';
+  String get slashCompletionTextDesc =>
+      '定制 / 命令自动补全时的输入文本。可用变量: %name%, %path%, %type%';
 
   @override
   String get resetToDefault => '恢复默认';
@@ -264,6 +267,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String chatAutoSendIntervalSeconds(int seconds) {
     return '$seconds 秒';
   }
+
+  @override
+  String get replyTextWrappingTitle => '回复文本前后置';
+
+  @override
+  String get replyTextWrappingSubtitle => '设置回复问题或确认任务时，自动附加在回复文本前后的内容。';
+
+  @override
+  String get replyTextPrefixLabel => '回复文本前置';
+
+  @override
+  String get replyTextPrefixHint => '例如：请按以下格式回复：';
+
+  @override
+  String get replyTextSuffixLabel => '回复文本后置';
+
+  @override
+  String get replyTextSuffixHint => '例如：\\n-- 来自 Agent Assistant';
+
+  @override
+  String get replyTextWrappingSaved => '回复文本前后置设置已保存';
+
+  @override
+  String get replyTextWrappingToggleLabel => '应用回复文本前后置';
+
+  @override
+  String get replyTextWrappingToggleSubtitle => '开启后回复会自动附加前后置，关闭则按原文发送';
 
   @override
   String profileClientIdLabel(String clientId) {
@@ -428,7 +458,8 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nicknameTipsTitle => '提示：';
 
   @override
-  String get nicknameTipsBody => '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
+  String get nicknameTipsBody =>
+      '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
 
   @override
   String nicknameLoadFailed(String error) {
