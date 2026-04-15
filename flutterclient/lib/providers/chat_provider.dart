@@ -66,6 +66,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   bool _isInputFocused = false;
   Timer? _inputFocusDebounceTimer;
   int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
+  String _replyTextPrefix = '';
+  String _replyTextSuffix = '';
+  bool _replyTextWrappingEnabled = true;
+  bool _replyTextWrappingEnabledInitialized = false;
   String? _nickname;
   Completer<String>? _nicknameLoadCompleter;
 
@@ -119,6 +123,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   bool get showOnlyPendingMessages => _showOnlyPendingMessages;
   bool get isInputFocused => _isInputFocused;
   int get chatAutoSendInterval => _chatAutoSendInterval;
+  String get replyTextPrefix => _replyTextPrefix;
+  String get replyTextSuffix => _replyTextSuffix;
+  bool get replyTextWrappingEnabled => _replyTextWrappingEnabled;
   String? get nickname => _nickname;
 
   bool _isOnlineUsersVisible = true;
@@ -609,6 +616,19 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  String formatReplyText(String text, {bool? applyWrapping}) {
+    if (text.isEmpty) {
+      return text;
+    }
+
+    final shouldApplyWrapping = applyWrapping ?? _replyTextWrappingEnabled;
+    if (!shouldApplyWrapping) {
+      return text;
+    }
+
+    return '$_replyTextPrefix$text$_replyTextSuffix';
+  }
+
   /// Disconnect from WebSocket server
   void disconnect() {
     for (final id in _services.keys.toList()) {
@@ -1031,6 +1051,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     String messageId,
     String replyText, {
     List<AttachmentItem>? attachments,
+    bool? applyWrapping,
   }) async {
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.question) return;
@@ -1042,19 +1063,24 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     try {
+      final formattedReplyText = formatReplyText(
+        replyText,
+        applyWrapping: applyWrapping,
+      );
+
       // Create response
       final response = pb.AskQuestionResponse()
         ..iD = message.requestId
         ..isError = false;
 
       // Add text content if not empty
-      if (replyText.isNotEmpty) {
+      if (formattedReplyText.isNotEmpty) {
         response.contents.add(
           pb.McpResultContent()
             ..type = 1 // text content type
             ..text = (pb.TextContent()
               ..type = 'text'
-              ..text = replyText),
+              ..text = formattedReplyText),
         );
       }
 
@@ -1080,13 +1106,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       // Update message status
       final updatedMessage = message.copyWith(
         status: MessageStatus.replied,
-        replyText: replyText,
+        replyText: formattedReplyText,
         repliedAt: DateTime.now(),
         repliedByCurrentUser: true,
       );
       _updateMessage(updatedMessage);
 
-      // Save to in-memory history
+      // Keep history as raw user input so prefix/suffix are not duplicated
       _addReplyHistory(replyText);
 
       _logger.i('Question reply sent: $messageId');
@@ -1110,6 +1136,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     String messageId,
     String? confirmText, {
     List<AttachmentItem>? attachments,
+    bool? applyWrapping,
   }) async {
     final message = _messages.firstWhere((m) => m.id == messageId);
     if (message.type != MessageType.task) return;
@@ -1121,18 +1148,22 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
 
     try {
+      final formattedConfirmText = confirmText == null
+          ? null
+          : formatReplyText(confirmText, applyWrapping: applyWrapping);
+
       // Create response
       final response = pb.WorkReportResponse()
         ..iD = message.requestId
         ..isError = false;
 
-      if (confirmText != null && confirmText.isNotEmpty) {
+      if (formattedConfirmText != null && formattedConfirmText.isNotEmpty) {
         response.contents.add(
           pb.McpResultContent()
             ..type = 1 // text content type
             ..text = (pb.TextContent()
               ..type = 'text'
-              ..text = confirmText),
+              ..text = formattedConfirmText),
         );
       }
 
@@ -1157,7 +1188,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       // Update message status
       final updatedMessage = message.copyWith(
         status: MessageStatus.confirmed,
-        replyText: confirmText,
+        replyText: formattedConfirmText,
         repliedAt: DateTime.now(),
         repliedByCurrentUser: true,
       );
@@ -1656,6 +1687,16 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       _chatAutoSendInterval =
           prefs.getInt(AppConfig.chatAutoSendIntervalStorageKey) ??
               AppConfig.defaultChatAutoSendInterval;
+      _replyTextPrefix =
+          prefs.getString(AppConfig.replyTextPrefixStorageKey) ?? '';
+      _replyTextSuffix =
+          prefs.getString(AppConfig.replyTextSuffixStorageKey) ?? '';
+      final loadedReplyTextWrappingEnabled =
+          prefs.getBool(AppConfig.replyTextWrappingEnabledStorageKey) ?? true;
+      if (!_replyTextWrappingEnabledInitialized) {
+        _replyTextWrappingEnabled = loadedReplyTextWrappingEnabled;
+      }
+      _replyTextWrappingEnabledInitialized = true;
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load chat settings: $error');
@@ -1671,6 +1712,35 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to save chat auto send interval: $error');
+    }
+  }
+
+  Future<void> setReplyTextWrapping({
+    required String prefix,
+    required String suffix,
+  }) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppConfig.replyTextPrefixStorageKey, prefix);
+      await prefs.setString(AppConfig.replyTextSuffixStorageKey, suffix);
+      _replyTextPrefix = prefix;
+      _replyTextSuffix = suffix;
+      notifyListeners();
+    } catch (error) {
+      _logger.e('Failed to save reply text wrapping: $error');
+    }
+  }
+
+  Future<void> setReplyTextWrappingEnabled(bool enabled) async {
+    _replyTextWrappingEnabled = enabled;
+    _replyTextWrappingEnabledInitialized = true;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(
+          AppConfig.replyTextWrappingEnabledStorageKey, enabled);
+    } catch (error) {
+      _logger.e('Failed to save reply text wrapping enabled: $error');
     }
   }
 

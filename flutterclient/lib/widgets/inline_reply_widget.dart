@@ -12,6 +12,7 @@ import '../providers/project_directory_index_provider.dart';
 import '../providers/mcp_tool_index_provider.dart';
 import '../constants/websocket_commands.dart';
 import '../services/attachment_service.dart';
+import '../l10n/app_localizations.dart';
 
 /// Inline reply widget for replying to messages without dialog
 class InlineReplyWidget extends StatefulWidget {
@@ -94,10 +95,10 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     // Initialize from saved draft if any
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final chatProvider = context.read<ChatProvider>();
-      final pathIndexProvider = context.read<ProjectDirectoryIndexProvider>();
-      final toolIndexProvider = context.read<McpToolIndexProvider>();
       final root = widget.message.projectDirectory;
       if (root != null && root.isNotEmpty) {
+        final pathIndexProvider = context.read<ProjectDirectoryIndexProvider>();
+        final toolIndexProvider = context.read<McpToolIndexProvider>();
         pathIndexProvider.touchRoot(root);
         toolIndexProvider.touchContext(root, widget.message.mcpClientName);
       }
@@ -612,18 +613,21 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       _focusNode.unfocus();
 
       final chatProvider = context.read<ChatProvider>();
+      final applyReplyTextWrapping = chatProvider.replyTextWrappingEnabled;
 
       if (widget.message.type == MessageType.question) {
         await chatProvider.replyToQuestion(
           widget.message.id,
           replyText,
           attachments: _attachments,
+          applyWrapping: applyReplyTextWrapping,
         );
       } else if (widget.message.type == MessageType.task) {
         await chatProvider.confirmTask(
           widget.message.id,
           replyText,
           attachments: _attachments,
+          applyWrapping: applyReplyTextWrapping,
         );
       }
 
@@ -667,6 +671,8 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final chatProvider = context.watch<ChatProvider>();
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < 500;
@@ -888,11 +894,29 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         ),
                         maxLines: 3,
                         minLines: isCompact ? 1 : 2,
-                        autofocus: !context.read<ChatProvider>().hasAnyDraft,
+                        autofocus: !chatProvider.hasAnyDraft,
                         enabled: !_isSubmitting,
                       ),
                     ),
                   ),
+                ),
+                const SizedBox(height: 4),
+                SwitchListTile.adaptive(
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  title: Text(
+                    l10n?.replyTextWrappingToggleLabel ?? '应用前后置',
+                  ),
+                  subtitle: Text(
+                    l10n?.replyTextWrappingToggleSubtitle ??
+                        '开启后自动添加前后置，关闭则按原文发送',
+                  ),
+                  value: chatProvider.replyTextWrappingEnabled,
+                  onChanged: _isSubmitting
+                      ? null
+                      : (value) {
+                          chatProvider.setReplyTextWrappingEnabled(value);
+                        },
                 ),
                 const SizedBox(height: 4),
 
