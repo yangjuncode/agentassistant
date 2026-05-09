@@ -50,6 +50,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  String _volumeLabel(double volume) => '${(volume * 100).round()}%';
+
+  Widget _buildSoundSubtitle({
+    required BuildContext context,
+    required double volume,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Row(
+      children: [
+        const Icon(Icons.volume_down, size: 16),
+        Expanded(
+          child: Slider(
+            value: volume,
+            divisions: 100,
+            label: _volumeLabel(volume),
+            onChanged: onChanged,
+          ),
+        ),
+        const Icon(Icons.volume_up, size: 16),
+        const SizedBox(width: 8),
+        Text(
+          _volumeLabel(volume),
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSoundTile({
+    required BuildContext context,
+    required String title,
+    required bool enabled,
+    required ValueChanged<bool> onToggle,
+    required double volume,
+    required ValueChanged<double> onVolumeChanged,
+  }) {
+    return SwitchListTile(
+      secondary: Icon(enabled ? Icons.volume_up : Icons.volume_off),
+      title: Text(title),
+      value: enabled,
+      onChanged: onToggle,
+      subtitle: enabled
+          ? _buildSoundSubtitle(
+              context: context,
+              volume: volume,
+              onChanged: onVolumeChanged,
+            )
+          : null,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -631,76 +682,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         chatProvider.workReportAttentionMode,
                         (mode) => chatProvider.setWorkReportAttentionMode(mode),
                       ),
-                      const Divider(height: 1),
-                      SwitchListTile(
-                        title: Text(l10n.mcpPlayQuestionSound),
-                        value: chatProvider.playMcpQuestionSound,
-                        onChanged: (value) =>
-                            chatProvider.setPlayMcpQuestionSound(value),
-                        subtitle: chatProvider.playMcpQuestionSound
-                            ? Row(
-                                children: [
-                                  const Icon(Icons.volume_down, size: 16),
-                                  SizedBox(
-                                    width: 150,
-                                    child: Slider(
-                                      value:
-                                          chatProvider.mcpQuestionSoundVolume,
-                                      divisions: 100,
-                                      label:
-                                          '${(chatProvider.mcpQuestionSoundVolume * 100).round()}%',
-                                      onChanged: (value) => chatProvider
-                                          .setMcpQuestionSoundVolume(value),
-                                    ),
-                                  ),
-                                  const Icon(Icons.volume_up, size: 16),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                      '${(chatProvider.mcpQuestionSoundVolume * 100).round()}%',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
-                                ],
-                              )
-                            : null,
-                      ),
-                      const Divider(height: 1),
-                      SwitchListTile(
-                        title: Text(l10n.mcpPlayWorkReportSound),
-                        value: chatProvider.playWorkReportSound,
-                        onChanged: (value) =>
-                            chatProvider.setPlayWorkReportSound(value),
-                        subtitle: chatProvider.playWorkReportSound
-                            ? Row(
-                                children: [
-                                  const Icon(Icons.volume_down, size: 16),
-                                  SizedBox(
-                                    width: 150,
-                                    child: Slider(
-                                      value:
-                                          chatProvider.mcpWorkReportSoundVolume,
-                                      divisions: 100,
-                                      label:
-                                          '${(chatProvider.mcpWorkReportSoundVolume * 100).round()}%',
-                                      onChanged: (value) => chatProvider
-                                          .setMcpWorkReportSoundVolume(value),
-                                    ),
-                                  ),
-                                  const Icon(Icons.volume_up, size: 16),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                      '${(chatProvider.mcpWorkReportSoundVolume * 100).round()}%',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall),
-                                ],
-                              )
-                            : null,
-                      ),
                     ],
                   ),
                 ),
               ],
+
+              _buildSectionHeader(l10n.mcpMessageAttention),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: Column(
+                  children: [
+                    _buildSoundTile(
+                      context: context,
+                      title: l10n.mcpPlayQuestionSound,
+                      enabled: chatProvider.playMcpQuestionSound,
+                      onToggle: chatProvider.setPlayMcpQuestionSound,
+                      volume: chatProvider.mcpQuestionSoundVolume,
+                      onVolumeChanged: chatProvider.setMcpQuestionSoundVolume,
+                    ),
+                    const Divider(height: 1),
+                    _buildSoundTile(
+                      context: context,
+                      title: l10n.mcpPlayWorkReportSound,
+                      enabled: chatProvider.playWorkReportSound,
+                      onToggle: chatProvider.setPlayWorkReportSound,
+                      volume: chatProvider.mcpWorkReportSoundVolume,
+                      onVolumeChanged: chatProvider.setMcpWorkReportSoundVolume,
+                    ),
+                  ],
+                ),
+              ),
 
               // Messages section
               _buildSectionHeader(l10n.messages),
