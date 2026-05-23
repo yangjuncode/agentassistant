@@ -12,7 +12,9 @@ import 'package:agentassistant/main.dart';
 
 void main() {
   testWidgets('App starts with login screen', (WidgetTester tester) async {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({
+      'app_locale': 'zh_CN',
+    });
 
     // Build our app and trigger a frame.
     await tester.pumpWidget(const AgentAssistantApp());
