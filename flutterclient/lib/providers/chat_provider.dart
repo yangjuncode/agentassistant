@@ -61,6 +61,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   final List<ChatMessage> _messages = [];
   final List<DisplayOnlineUser> _onlineUsers = [];
   final Map<String, List<pb.ChatMessage>> _chatMessages = {};
+  final Set<String> _processedChatNotificationKeys = {};
   final Map<String, _PeerForwardState> _peerForwardStates = {};
   final Map<String, _ForwardSelection> _forwardSelections = {};
   final Map<String, String> _forwardQueryRequestToSession = {};
@@ -483,6 +484,16 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   String _chatKey(String serverId, String clientId) => '$serverId|$clientId';
 
+  String _chatNotificationKey(String serverId, pb.ChatMessage message) {
+    final messageId = message.messageId.trim();
+    if (messageId.isNotEmpty) {
+      return '$serverId|$messageId';
+    }
+
+    return '$serverId|${message.senderClientId}|${message.receiverClientId}|'
+        '${message.sentAt}|${message.content}';
+  }
+
   String _newForwardRequestId() {
     return 'fwd-${DateTime.now().millisecondsSinceEpoch}-${DateTime.now().microsecondsSinceEpoch % 100000}';
   }
@@ -654,6 +665,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
     _onlineUsers.removeWhere((u) => u.serverId == serverId);
     _chatMessages.removeWhere((k, _) => k.startsWith('$serverId|'));
+    _processedChatNotificationKeys
+        .removeWhere((key) => key.startsWith('$serverId|'));
     _peerForwardStates.removeWhere((k, _) => k.startsWith('$serverId|'));
     _forwardSelections.removeWhere((k, _) => k.startsWith('$serverId|'));
     _forwardQueryRequestToSession
@@ -1975,6 +1988,12 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
     final notification = message.chatMessageNotification;
     final chatMessage = notification.chatMessage;
+    final notificationKey = _chatNotificationKey(serverId, chatMessage);
+    if (_processedChatNotificationKeys.contains(notificationKey)) {
+      _logger.d('Duplicate chat notification ignored: $notificationKey');
+      return;
+    }
+    _processedChatNotificationKeys.add(notificationKey);
 
     print(
       '[ChatNotification] Message from ${chatMessage.senderNickname} (${chatMessage.senderClientId})',

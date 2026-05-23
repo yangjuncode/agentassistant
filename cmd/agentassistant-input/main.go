@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -69,8 +70,9 @@ func main() {
 		fmt.Println("Using base64 decoded input.")
 	}
 
-	// Type the determined string with newline handling
-	log.Printf("[DEBUG] Calling typeWithNewlines()...")
+	// Paste the determined string; fall back to simulated typing if clipboard
+	// integration is unavailable.
+	log.Printf("[DEBUG] Calling pasteWithClipboard()...")
 	startTime := time.Now()
 	if *windowIDPtr != "" {
 		if err := activateWindow(*windowIDPtr); err != nil {
@@ -81,11 +83,19 @@ func main() {
 			log.Fatalf("Error activating target window: %v", err)
 		}
 	}
-	restoreInputMethod := prepareEnglishInputMethod()
-	defer restoreInputMethod()
-	typeWithNewlines(stringToType)
+	if attempted, err := pasteWithClipboard(stringToType); err != nil {
+		log.Printf("[DEBUG] clipboard paste failed: %v; falling back to key typing", err)
+		if attempted {
+			log.Fatal("Error: clipboard paste failed after partial input; aborting to avoid duplicate text")
+		}
+		restoreInputMethod := prepareEnglishInputMethod()
+		defer restoreInputMethod()
+		typeWithNewlines(stringToType)
+	} else {
+		log.Printf("[DEBUG] clipboard paste completed successfully")
+	}
 	elapsed := time.Since(startTime)
-	log.Printf("[DEBUG] typeWithNewlines() completed in %v", elapsed)
+	log.Printf("[DEBUG] input delivery completed in %v", elapsed)
 
 	fmt.Println("Successfully typed the string.")
 	log.Printf("[DEBUG] agentassistant-input completed successfully")
@@ -160,6 +170,87 @@ func activateWindow(windowID string) error {
 	// small delay to ensure target window is ready to receive input
 	time.Sleep(60 * time.Millisecond)
 	return nil
+}
+
+func pasteWithClipboard(s string) (bool, error) {
+	previousClipboard, readErr := robotgo.ReadAll()
+	hasPreviousClipboard := readErr == nil
+	if readErr != nil {
+		log.Printf("[DEBUG] Failed to read clipboard before paste: %v", readErr)
+	}
+
+	attemptedInput := false
+	segments := splitByNewlines(s)
+	if firstText := firstTextSegment(segments); firstText != "" {
+		if err := robotgo.WriteAll(firstText); err != nil {
+			restoreClipboard(hasPreviousClipboard, previousClipboard)
+			return false, err
+		}
+	}
+
+	for i, segment := range segments {
+		if segment.isNewline {
+			attemptedInput = true
+			pressEnterKey()
+		} else if segment.text != "" {
+			if err := robotgo.WriteAll(segment.text); err != nil {
+				restoreClipboard(hasPreviousClipboard, previousClipboard)
+				return attemptedInput, err
+			}
+
+			if err := robotgo.KeyTap(pasteKey(), pasteModifier()); err != nil {
+				restoreClipboard(hasPreviousClipboard, previousClipboard)
+				return attemptedInput, err
+			}
+			attemptedInput = true
+		}
+
+		if i < len(segments)-1 {
+			time.Sleep(10 * time.Millisecond)
+		}
+	}
+
+	time.Sleep(150 * time.Millisecond)
+	restoreClipboard(hasPreviousClipboard, previousClipboard)
+	return attemptedInput, nil
+}
+
+func firstTextSegment(segments []textSegment) string {
+	for _, segment := range segments {
+		if !segment.isNewline && segment.text != "" {
+			return segment.text
+		}
+	}
+	return ""
+}
+
+func pasteKey() string {
+	return "v"
+}
+
+func pasteModifier() string {
+	if runtime.GOOS == "darwin" {
+		return "command"
+	}
+	return "control"
+}
+
+func restoreClipboard(hasPreviousClipboard bool, previousClipboard string) {
+	if !hasPreviousClipboard {
+		return
+	}
+	if err := robotgo.WriteAll(previousClipboard); err != nil {
+		log.Printf("[DEBUG] Failed to restore clipboard after paste: %v", err)
+	}
+}
+
+func pressEnterKey() {
+	if err := exec.Command("xdotool", "key", "Return").Run(); err != nil {
+		log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
+		if keyErr := robotgo.KeyTap("enter"); keyErr != nil {
+			log.Printf("[DEBUG] robotgo enter failed: %v", keyErr)
+		}
+	}
 }
 
 func prepareEnglishInputMethod() func() {

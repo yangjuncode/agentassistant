@@ -196,7 +196,8 @@ class _ChatDialogState extends State<_ChatDialog> {
   final ScrollController _scrollController = ScrollController();
   final Logger _logger = Logger();
   Timer? _autoSendTimer;
-  int _lastSentTextLength = 0;
+  Timer? _sentTextResetTimer;
+  String _lastSentText = '';
 
   @override
   void initState() {
@@ -227,6 +228,7 @@ class _ChatDialogState extends State<_ChatDialog> {
       _inputFocusNode.dispose();
       _scrollController.dispose();
       _clearAutoSendTimer();
+      _clearSentTextResetTimer();
       if (widget.chatProvider.activeChatUserKey == widget.user.key) {
         widget.chatProvider.setActiveChatUser(null);
       }
@@ -264,6 +266,54 @@ class _ChatDialogState extends State<_ChatDialog> {
     }
   }
 
+  void _clearSentTextResetTimer() {
+    _sentTextResetTimer?.cancel();
+    _sentTextResetTimer = null;
+  }
+
+  void _resetSentTextTracker() {
+    _clearSentTextResetTimer();
+    _lastSentText = '';
+  }
+
+  void _scheduleSentTextResetIfStillEmpty() {
+    _clearSentTextResetTimer();
+    _sentTextResetTimer = Timer(const Duration(milliseconds: 1200), () {
+      if (!mounted || _messageController.text.isNotEmpty) {
+        return;
+      }
+      _resetSentTextTracker();
+      _logger.d('Reset sent-text tracker after input stayed empty');
+    });
+  }
+
+  String _unsentTextFor(String content) {
+    if (_lastSentText.isEmpty) {
+      return content.trim();
+    }
+    if (content == _lastSentText) {
+      return '';
+    }
+    if (content.startsWith(_lastSentText)) {
+      return content.substring(_lastSentText.length).trim();
+    }
+
+    final commonPrefixLength = _commonPrefixLength(content, _lastSentText);
+    if (commonPrefixLength >= content.length) {
+      return '';
+    }
+    return content.substring(commonPrefixLength).trim();
+  }
+
+  int _commonPrefixLength(String a, String b) {
+    final max = a.length < b.length ? a.length : b.length;
+    var index = 0;
+    while (index < max && a.codeUnitAt(index) == b.codeUnitAt(index)) {
+      index++;
+    }
+    return index;
+  }
+
   void _scheduleAutoSend() {
     try {
       _clearAutoSendTimer();
@@ -284,16 +334,27 @@ class _ChatDialogState extends State<_ChatDialog> {
 
   void _onInputChanged(String value) {
     _logger.d(
-        'Input changed: length=${value.length}, lastSent=$_lastSentTextLength');
+        'Input changed: length=${value.length}, lastSent=${_lastSentText.length}');
     if (value.isNotEmpty) {
+      final wasWaitingForEmptyReset = _sentTextResetTimer != null;
+      _clearSentTextResetTimer();
+      if (_lastSentText.isNotEmpty &&
+          (!_sharesPrefixWithSentText(value) ||
+              (wasWaitingForEmptyReset && !value.startsWith(_lastSentText)))) {
+        _resetSentTextTracker();
+      }
       _scheduleAutoSend();
     } else {
       _clearAutoSendTimer();
-      _lastSentTextLength = 0; // Reset when input is cleared
+      _scheduleSentTextResetIfStillEmpty();
     }
     if (mounted) {
       setState(() {});
     }
+  }
+
+  bool _sharesPrefixWithSentText(String value) {
+    return value.startsWith(_lastSentText) || _lastSentText.startsWith(value);
   }
 
   void _sendMessage({bool isAutoSend = false}) {
@@ -302,47 +363,37 @@ class _ChatDialogState extends State<_ChatDialog> {
       _clearAutoSendTimer();
       final content = _messageController.text;
       _logger.d(
-          'Content length: ${content.length}, lastSentLength: $_lastSentTextLength');
+          'Content length: ${content.length}, lastSentLength: ${_lastSentText.length}');
       if (content.trim().isEmpty) {
         _logger.d('Content is empty after trim, returning');
         if (!isAutoSend) {
           _messageController.clear();
-          _lastSentTextLength = 0;
+          _resetSentTextTracker();
         }
         return;
       }
 
+      final newText = _unsentTextFor(content);
       if (isAutoSend) {
         // Auto-send only the new text since the last send
-        _logger.d(
-            'Checking auto-send condition: content.length(${content.length}) > lastSent($_lastSentTextLength) = ${content.length > _lastSentTextLength}');
-        if (content.length > _lastSentTextLength) {
-          final newText = content.substring(_lastSentTextLength).trim();
-          _logger.d('New text to send: "$newText" (length: ${newText.length})');
-          if (newText.isNotEmpty) {
-            final messageToSend = newText.endsWith(',') ? newText : '$newText,';
-            _logger.i(
-                'Auto-sending message: "$messageToSend" to ${widget.user.user.clientId}');
-            widget.chatProvider.sendChatMessageSilent(
-                widget.user.user.clientId, messageToSend,
-                serverId: widget.user.serverId);
-            // Update the length of sent text, but don't clear the controller
-            _lastSentTextLength = content.length;
-            _logger.d(
-                'Auto-sent new text: "$newText", total length now: $_lastSentTextLength');
-          } else {
-            _logger.d('New text is empty after trim, skipping auto-send');
-          }
+        _logger.d('New text to send: "$newText" (length: ${newText.length})');
+        if (newText.isNotEmpty) {
+          final messageToSend = newText.endsWith(',') ? newText : '$newText,';
+          _logger.i(
+              'Auto-sending message: "$messageToSend" to ${widget.user.user.clientId}');
+          widget.chatProvider.sendChatMessageSilent(
+              widget.user.user.clientId, messageToSend,
+              serverId: widget.user.serverId);
+          // Keep a snapshot of sent text so temporary IME/voice-input rewrites
+          // do not resend text that was already forwarded.
+          _lastSentText = content;
+          _logger.d(
+              'Auto-sent new text: "$newText", total sent snapshot length: ${_lastSentText.length}');
         } else {
-          _logger
-              .d('No new text to auto-send (content.length <= lastSentLength)');
+          _logger.d('No new text to auto-send');
         }
       } else {
         // Manual send should only send the part not already auto-sent
-        String newText = '';
-        if (content.length > _lastSentTextLength) {
-          newText = content.substring(_lastSentTextLength).trim();
-        }
         if (newText.isEmpty) {
           // Nothing new to send; avoid duplicate sending
           _logger.d('Manual send: no new text since last auto-send, skipping');
@@ -353,7 +404,7 @@ class _ChatDialogState extends State<_ChatDialog> {
             widget.user.user.clientId, messageToSend,
             serverId: widget.user.serverId);
         _messageController.clear();
-        _lastSentTextLength = 0; // Reset tracker
+        _resetSentTextTracker();
         _logger.d('Manual send: sent only new text and cleared input');
 
         // Handle UI updates for manual send
@@ -386,9 +437,9 @@ class _ChatDialogState extends State<_ChatDialog> {
       final content = _messageController.text;
       String messageToSend;
 
-      if (content.length > _lastSentTextLength) {
+      final unsentText = _unsentTextFor(content);
+      if (unsentText.isNotEmpty) {
         // There is unsent text: send [unsent text] + newline
-        final unsentText = content.substring(_lastSentTextLength);
         messageToSend = '$unsentText\n';
         _logger.d('Sending unsent text + newline: "$messageToSend"');
       } else {
@@ -405,7 +456,7 @@ class _ChatDialogState extends State<_ChatDialog> {
 
       // Clear input and reset tracker
       _messageController.clear();
-      _lastSentTextLength = 0;
+      _resetSentTextTracker();
 
       // Handle UI updates
       WidgetsBinding.instance.addPostFrameCallback((_) {
