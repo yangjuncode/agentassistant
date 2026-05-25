@@ -308,7 +308,7 @@ function sendMessage() {
   clearAutoSendTimer()
 
   // Check if the message ends with a comma, if not, append one
-  if (!content.endsWith(',')) {
+  if (!/[\p{P}]$/u.test(content)) {
     content = `${content},`
   }
 

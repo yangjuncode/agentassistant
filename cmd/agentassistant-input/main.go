@@ -84,8 +84,21 @@ func main() {
 	if runtime.GOOS == "linux" {
 		restoreInputMethod := prepareEnglishInputMethod()
 		defer restoreInputMethod()
-		if err := typeWithNewlines(stringToType); err != nil {
-			log.Fatalf("Error typing string on Linux: %v", err)
+		log.Printf("[DEBUG] Calling pasteWithClipboard() on Linux...")
+		if attempted, err := pasteWithClipboard(stringToType); err != nil {
+			log.Printf("[DEBUG] Linux clipboard paste failed: %v", err)
+			if attempted {
+				log.Fatal("Error: Linux clipboard paste failed after partial input; aborting to avoid duplicate text")
+			}
+			if isASCIIOnly(stringToType) {
+				if err := typeWithNewlines(stringToType); err != nil {
+					log.Fatalf("Error typing ASCII string on Linux fallback: %v", err)
+				}
+			} else {
+				log.Fatalf("Error: Linux clipboard paste failed for non-ASCII text: %v", err)
+			}
+		} else {
+			log.Printf("[DEBUG] Linux clipboard paste completed successfully")
 		}
 	} else {
 		// Paste the determined string; fall back to simulated typing if clipboard
@@ -251,7 +264,7 @@ func pasteWithClipboard(s string) (bool, error) {
 				return attemptedInput, err
 			}
 
-			if err := robotgo.KeyTap(pasteKey(), pasteModifier()); err != nil {
+			if err := sendPasteShortcut(); err != nil {
 				restoreClipboard(hasPreviousClipboard, previousClipboard)
 				return attemptedInput, err
 			}
@@ -266,6 +279,15 @@ func pasteWithClipboard(s string) (bool, error) {
 	time.Sleep(150 * time.Millisecond)
 	restoreClipboard(hasPreviousClipboard, previousClipboard)
 	return attemptedInput, nil
+}
+
+func isASCIIOnly(s string) bool {
+	for _, r := range s {
+		if r > 127 {
+			return false
+		}
+	}
+	return true
 }
 
 func firstTextSegment(segments []textSegment) string {
@@ -288,6 +310,13 @@ func pasteModifier() string {
 	return "control"
 }
 
+func sendPasteShortcut() error {
+	if runtime.GOOS == "linux" {
+		return runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "ctrl+v")
+	}
+	return robotgo.KeyTap(pasteKey(), pasteModifier())
+}
+
 func restoreClipboard(hasPreviousClipboard bool, previousClipboard string) {
 	if !hasPreviousClipboard {
 		return
@@ -297,13 +326,19 @@ func restoreClipboard(hasPreviousClipboard bool, previousClipboard string) {
 	}
 }
 
-func pressEnterKey() {
-	if err := exec.Command("xdotool", "key", "Return").Run(); err != nil {
-		log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
-		if keyErr := robotgo.KeyTap("enter"); keyErr != nil {
-			log.Printf("[DEBUG] robotgo enter failed: %v", keyErr)
+func pressEnterKey() error {
+	if runtime.GOOS == "linux" {
+		if err := runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "Return"); err == nil {
+			return nil
+		} else {
+			log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
 		}
 	}
+	if keyErr := robotgo.KeyTap("enter"); keyErr != nil {
+		log.Printf("[DEBUG] robotgo enter failed: %v", keyErr)
+		return keyErr
+	}
+	return nil
 }
 
 func prepareEnglishInputMethod() func() {
@@ -448,7 +483,7 @@ func typeWithNewlines(s string) error {
 	segments := splitByNewlines(s)
 	for i, segment := range segments {
 		if segment.isNewline {
-			if err := runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "Return"); err != nil {
+			if err := pressEnterKey(); err != nil {
 				return err
 			}
 		} else if segment.text != "" {
