@@ -247,7 +247,8 @@ class SystemInputService {
 
       // Execute the command
       final stopwatch = Stopwatch()..start();
-      final result = await Process.run(inputToolPath, args);
+      final result = await Process.run(inputToolPath, args)
+          .timeout(const Duration(seconds: 20));
       stopwatch.stop();
 
       // print('[SystemInput] Process.run completed in ${stopwatch.elapsedMilliseconds}ms');
