@@ -3,6 +3,19 @@ import 'dart:convert';
 import 'package:logger/logger.dart';
 import 'package:path/path.dart' as path;
 
+String _decodeProcessOutput(dynamic output) {
+  if (output == null) {
+    return '';
+  }
+  if (output is String) {
+    return output;
+  }
+  if (output is List<int>) {
+    return utf8.decode(output, allowMalformed: true);
+  }
+  return output.toString();
+}
+
 class ForwardableWindow {
   final String windowId;
   final String title;
@@ -247,7 +260,12 @@ class SystemInputService {
 
       // Execute the command
       final stopwatch = Stopwatch()..start();
-      final result = await Process.run(inputToolPath, args);
+      final result = await Process.run(
+        inputToolPath,
+        args,
+        stdoutEncoding: null,
+        stderrEncoding: null,
+      ).timeout(const Duration(seconds: 20));
       stopwatch.stop();
 
       // print('[SystemInput] Process.run completed in ${stopwatch.elapsedMilliseconds}ms');
@@ -261,7 +279,7 @@ class SystemInputService {
       } else {
         // print('[SystemInput] ❌ Failed to send text to system input. Exit code: ${result.exitCode}');
         // print('[SystemInput] Error output: ${result.stderr}');
-        final stderrText = (result.stderr ?? '').toString();
+        final stderrText = _decodeProcessOutput(result.stderr);
         final windowNotFound = stderrText.contains('ERR_WINDOW_NOT_FOUND');
         return SystemInputResult(
           success: false,
@@ -303,7 +321,7 @@ class SystemInputService {
         return [];
       }
 
-      final stdoutText = (result.stdout ?? '').toString().trim();
+      final stdoutText = _decodeProcessOutput(result.stdout).trim();
       if (stdoutText.isEmpty) {
         return [];
       }

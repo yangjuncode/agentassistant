@@ -62,6 +62,44 @@ case "$TARGET" in
     ;;
   apk)
     run_in_flutter_dir bash ./build-apk.sh "${ARGS[@]}"
+    
+    # Check if adb is installed and there are devices connected
+    if command -v adb &> /dev/null; then
+      # Check if any device is connected and in 'device' state (excluding headers)
+      devices=$(adb devices | grep -v "List of devices" | grep -w "device" || true)
+      if [[ -n "$devices" ]]; then
+        echo -e "\n============================================="
+        echo "检测到已连接的 adb 设备:"
+        echo "$devices"
+        echo "============================================="
+        
+        # Find the built APK
+        APK_PATH=""
+        if [[ -f "$FLUTTER_DIR/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" ]]; then
+          APK_PATH="$FLUTTER_DIR/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
+        elif [[ -f "$FLUTTER_DIR/build/app/outputs/flutter-apk/app-release.apk" ]]; then
+          APK_PATH="$FLUTTER_DIR/build/app/outputs/flutter-apk/app-release.apk"
+        else
+          # Fallback to finding any release APK in the outputs directory
+          APK_PATH=$(find "$FLUTTER_DIR/build/app/outputs/flutter-apk" -name "*release.apk" -type f | head -n 1 || true)
+        fi
+        
+        if [[ -n "$APK_PATH" ]] && [[ -f "$APK_PATH" ]]; then
+          # Prompt for installation
+          install_confirm="y"
+          read -p "是否要将生成的 APK 安装到设备上? [Y/n]: " install_confirm < /dev/tty || install_confirm="y"
+          if [[ -z "$install_confirm" ]] || [[ "$install_confirm" =~ ^[Yy]$ ]]; then
+            echo "正在安装 $APK_PATH ..."
+            adb install -r "$APK_PATH"
+            echo "安装完成！"
+          else
+            echo "已跳过安装。"
+          fi
+        else
+          echo "警告: 未能找到生成的 APK 文件，无法进行 adb 安装。"
+        fi
+      fi
+    fi
     ;;
   *)
     echo "错误: 不支持构建目标: $TARGET"

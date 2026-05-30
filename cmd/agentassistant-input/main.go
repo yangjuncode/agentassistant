@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -70,9 +71,6 @@ func main() {
 		fmt.Println("Using base64 decoded input.")
 	}
 
-	// Paste the determined string; fall back to simulated typing if clipboard
-	// integration is unavailable.
-	log.Printf("[DEBUG] Calling pasteWithClipboard()...")
 	startTime := time.Now()
 	if *windowIDPtr != "" {
 		if err := activateWindow(*windowIDPtr); err != nil {
@@ -83,16 +81,42 @@ func main() {
 			log.Fatalf("Error activating target window: %v", err)
 		}
 	}
-	if attempted, err := pasteWithClipboard(stringToType); err != nil {
-		log.Printf("[DEBUG] clipboard paste failed: %v; falling back to key typing", err)
-		if attempted {
-			log.Fatal("Error: clipboard paste failed after partial input; aborting to avoid duplicate text")
-		}
+	if runtime.GOOS == "linux" {
 		restoreInputMethod := prepareEnglishInputMethod()
 		defer restoreInputMethod()
-		typeWithNewlines(stringToType)
+		log.Printf("[DEBUG] Calling pasteWithClipboard() on Linux...")
+		if attempted, err := pasteWithClipboard(stringToType); err != nil {
+			log.Printf("[DEBUG] Linux clipboard paste failed: %v", err)
+			if attempted {
+				log.Fatal("Error: Linux clipboard paste failed after partial input; aborting to avoid duplicate text")
+			}
+			if isASCIIOnly(stringToType) {
+				if err := typeWithNewlines(stringToType); err != nil {
+					log.Fatalf("Error typing ASCII string on Linux fallback: %v", err)
+				}
+			} else {
+				log.Fatalf("Error: Linux clipboard paste failed for non-ASCII text: %v", err)
+			}
+		} else {
+			log.Printf("[DEBUG] Linux clipboard paste completed successfully")
+		}
 	} else {
-		log.Printf("[DEBUG] clipboard paste completed successfully")
+		// Paste the determined string; fall back to simulated typing if clipboard
+		// integration is unavailable.
+		log.Printf("[DEBUG] Calling pasteWithClipboard()...")
+		if attempted, err := pasteWithClipboard(stringToType); err != nil {
+			log.Printf("[DEBUG] clipboard paste failed: %v; falling back to key typing", err)
+			if attempted {
+				log.Fatal("Error: clipboard paste failed after partial input; aborting to avoid duplicate text")
+			}
+			restoreInputMethod := prepareEnglishInputMethod()
+			defer restoreInputMethod()
+			if err := typeWithNewlines(stringToType); err != nil {
+				log.Fatalf("Error typing string after clipboard fallback: %v", err)
+			}
+		} else {
+			log.Printf("[DEBUG] clipboard paste completed successfully")
+		}
 	}
 	elapsed := time.Since(startTime)
 	log.Printf("[DEBUG] input delivery completed in %v", elapsed)
@@ -102,6 +126,12 @@ func main() {
 }
 
 var errWindowNotFound = errors.New("window not found")
+
+const (
+	xdotoolQueryTimeout    = 2 * time.Second
+	xdotoolTypeBaseTimeout = 3 * time.Second
+	xdotoolTypeMaxTimeout  = 15 * time.Second
+)
 
 type windowInfo struct {
 	WindowID string `json:"window_id"`
@@ -124,7 +154,7 @@ func outputWindowListAsJSON() error {
 }
 
 func listWindows() ([]windowInfo, error) {
-	out, err := exec.Command("xdotool", "search", "--onlyvisible", "--name", ".").Output()
+	out, err := runCommandOutput(xdotoolQueryTimeout, "xdotool", "search", "--onlyvisible", "--name", ".")
 	if err != nil {
 		return nil, fmt.Errorf("xdotool search failed: %w", err)
 	}
@@ -142,7 +172,7 @@ func listWindows() ([]windowInfo, error) {
 		}
 		seen[id] = struct{}{}
 
-		titleOut, titleErr := exec.Command("xdotool", "getwindowname", id).Output()
+		titleOut, titleErr := runCommandOutput(xdotoolQueryTimeout, "xdotool", "getwindowname", id)
 		title := strings.TrimSpace(string(titleOut))
 		if titleErr != nil {
 			continue
@@ -159,17 +189,53 @@ func activateWindow(windowID string) error {
 		return errWindowNotFound
 	}
 
-	if err := exec.Command("xdotool", "getwindowname", windowID).Run(); err != nil {
+	if err := runCommand(xdotoolQueryTimeout, "xdotool", "getwindowname", windowID); err != nil {
 		return errWindowNotFound
 	}
 
-	if err := exec.Command("xdotool", "windowactivate", "--sync", windowID).Run(); err != nil {
+	if err := runCommand(4*time.Second, "xdotool", "windowactivate", "--sync", windowID); err != nil {
 		return fmt.Errorf("xdotool windowactivate failed: %w", err)
 	}
 
-	// small delay to ensure target window is ready to receive input
 	time.Sleep(60 * time.Millisecond)
 	return nil
+}
+
+func runCommand(timeout time.Duration, name string, args ...string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, name, args...)
+	if err := cmd.Run(); err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return fmt.Errorf("command timed out after %v", timeout)
+		}
+		return err
+	}
+
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		return fmt.Errorf("command timed out after %v", timeout)
+	}
+	return nil
+}
+
+func runCommandOutput(timeout time.Duration, name string, args ...string) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	cmd := exec.CommandContext(ctx, name, args...)
+	out, err := cmd.Output()
+	if err != nil {
+		if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+			return nil, fmt.Errorf("command timed out after %v", timeout)
+		}
+		return nil, err
+	}
+
+	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
+		return nil, fmt.Errorf("command timed out after %v", timeout)
+	}
+	return out, nil
 }
 
 func pasteWithClipboard(s string) (bool, error) {
@@ -198,7 +264,7 @@ func pasteWithClipboard(s string) (bool, error) {
 				return attemptedInput, err
 			}
 
-			if err := robotgo.KeyTap(pasteKey(), pasteModifier()); err != nil {
+			if err := sendPasteShortcut(); err != nil {
 				restoreClipboard(hasPreviousClipboard, previousClipboard)
 				return attemptedInput, err
 			}
@@ -213,6 +279,15 @@ func pasteWithClipboard(s string) (bool, error) {
 	time.Sleep(150 * time.Millisecond)
 	restoreClipboard(hasPreviousClipboard, previousClipboard)
 	return attemptedInput, nil
+}
+
+func isASCIIOnly(s string) bool {
+	for _, r := range s {
+		if r > 127 {
+			return false
+		}
+	}
+	return true
 }
 
 func firstTextSegment(segments []textSegment) string {
@@ -235,6 +310,13 @@ func pasteModifier() string {
 	return "control"
 }
 
+func sendPasteShortcut() error {
+	if runtime.GOOS == "linux" {
+		return runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "ctrl+v")
+	}
+	return robotgo.KeyTap(pasteKey(), pasteModifier())
+}
+
 func restoreClipboard(hasPreviousClipboard bool, previousClipboard string) {
 	if !hasPreviousClipboard {
 		return
@@ -244,13 +326,19 @@ func restoreClipboard(hasPreviousClipboard bool, previousClipboard string) {
 	}
 }
 
-func pressEnterKey() {
-	if err := exec.Command("xdotool", "key", "Return").Run(); err != nil {
-		log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
-		if keyErr := robotgo.KeyTap("enter"); keyErr != nil {
-			log.Printf("[DEBUG] robotgo enter failed: %v", keyErr)
+func pressEnterKey() error {
+	if runtime.GOOS == "linux" {
+		if err := runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "Return"); err == nil {
+			return nil
+		} else {
+			log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
 		}
 	}
+	if keyErr := robotgo.KeyTap("enter"); keyErr != nil {
+		log.Printf("[DEBUG] robotgo enter failed: %v", keyErr)
+		return keyErr
+	}
+	return nil
 }
 
 func prepareEnglishInputMethod() func() {
@@ -391,27 +479,31 @@ func isEnglishIbusEngine(engine string) bool {
 }
 
 // typeWithNewlines types a string, handling newline characters by pressing Enter
-func typeWithNewlines(s string) {
+func typeWithNewlines(s string) error {
 	segments := splitByNewlines(s)
 	for i, segment := range segments {
 		if segment.isNewline {
-			// Press Enter key for newline
-			if err := exec.Command("xdotool", "key", "Return").Run(); err != nil {
-				log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
-				robotgo.KeyTap("enter")
+			if err := pressEnterKey(); err != nil {
+				return err
 			}
 		} else if segment.text != "" {
-			// Type the text segment using xdotool for better Linux compatibility
-			if err := exec.Command("xdotool", "type", "--clearmodifiers", segment.text).Run(); err != nil {
-				log.Printf("[DEBUG] xdotool type failed: %v, falling back to robotgo", err)
-				robotgo.TypeStr(segment.text)
+			if err := runCommand(typeTimeoutFor(segment.text), "xdotool", "type", "--clearmodifiers", "--delay", "1", segment.text); err != nil {
+				return err
 			}
 		}
 		if i < len(segments)-1 {
-			// Small delay between segments to ensure proper input order
 			time.Sleep(10 * time.Millisecond)
 		}
 	}
+	return nil
+}
+
+func typeTimeoutFor(text string) time.Duration {
+	timeout := xdotoolTypeBaseTimeout + time.Duration(len([]rune(text)))*5*time.Millisecond
+	if timeout > xdotoolTypeMaxTimeout {
+		return xdotoolTypeMaxTimeout
+	}
+	return timeout
 }
 
 // textSegment represents a segment of text (either text or a newline marker)

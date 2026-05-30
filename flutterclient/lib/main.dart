@@ -154,6 +154,11 @@ class AgentAssistantApp extends StatelessWidget {
                 brightness: Brightness.light,
               ),
               useMaterial3: true,
+              textSelectionTheme: TextSelectionThemeData(
+                selectionColor: Colors.amber.withOpacity(0.4),
+                selectionHandleColor: Colors.amber,
+                cursorColor: Colors.blue,
+              ),
               appBarTheme: const AppBarTheme(
                 centerTitle: true,
                 elevation: 0,
@@ -177,6 +182,11 @@ class AgentAssistantApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
               useMaterial3: true,
+              textSelectionTheme: TextSelectionThemeData(
+                selectionColor: Colors.amber.withOpacity(0.3),
+                selectionHandleColor: Colors.amber,
+                cursorColor: Colors.blue,
+              ),
               appBarTheme: const AppBarTheme(
                 centerTitle: true,
                 elevation: 0,
