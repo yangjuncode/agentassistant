@@ -824,14 +824,14 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                         Positioned(
                           top: 0,
                           right: 0,
-                          child: _buildCustomInputIconButton(context, index),
+                          child: _buildCustomInputIconButton(context, index, isCompact: true),
                         ),
                         // Bottom right button if content is tall
                         if ((_questionHeights[index] ?? 0) > 120)
                           Positioned(
                             bottom: 0,
                             right: 0,
-                            child: _buildCustomInputIconButton(context, index),
+                            child: _buildCustomInputIconButton(context, index, isCompact: true),
                           ),
                       ],
                     ],
@@ -844,7 +844,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                       if (question.custom && !showCustom)
                         Padding(
                           padding: const EdgeInsets.only(left: 12),
-                          child: _buildCustomInputIconButton(context, index),
+                          child: _buildCustomInputIconButton(context, index, isCompact: false),
                         ),
                     ],
                   );
@@ -960,7 +960,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                       top: 0,
                                       right: 0,
                                       child: _buildCustomInputIconButton(
-                                          context, index),
+                                          context, index, isCompact: true),
                                     ),
                                 ],
                               );
@@ -973,7 +973,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8),
                                       child: _buildCustomInputIconButton(
-                                          context, index),
+                                          context, index, isCompact: false),
                                     ),
                                 ],
                               );
@@ -1084,7 +1084,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     );
   }
 
-  Widget _buildCustomInputIconButton(BuildContext context, int index) {
+  Widget _buildCustomInputIconButton(BuildContext context, int index,
+      {bool isCompact = false}) {
     final colorScheme = Theme.of(context).colorScheme;
     return Material(
       color: Colors.transparent,
@@ -1093,24 +1094,31 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: const EdgeInsets.all(4),
-          decoration: BoxDecoration(
-            color: colorScheme.surface.withOpacity(0.9), // 增加不透明度，确保覆盖文字时清晰
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-            border: Border.all(
-              color: colorScheme.primary.withOpacity(0.2),
-            ),
-          ),
+          decoration: isCompact
+              ? const BoxDecoration(
+                  color: Colors.transparent,
+                  shape: BoxShape.circle,
+                )
+              : BoxDecoration(
+                  color: colorScheme.surface.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  border: Border.all(
+                    color: colorScheme.primary.withOpacity(0.2),
+                  ),
+                ),
           child: Icon(
             Icons.edit_note,
             size: 20,
-            color: colorScheme.primary,
+            color: isCompact
+                ? colorScheme.primary.withValues(alpha: 0.4)
+                : colorScheme.primary,
           ),
         ),
       ),
