@@ -177,8 +177,9 @@ func main() {
 		log.Fatalf("Failed to register MCP tools: %v", err)
 	}
 
-	// Start the stdio server
-	if err := server.ServeStdio(s); err != nil {
+	// Start the stdio server. The local wrapper keeps reading stdin while
+	// long-running tools wait for user input.
+	if err := serveConcurrentStdio(s); err != nil {
 		fmt.Printf("Server error: %v\n", err)
 	}
 }

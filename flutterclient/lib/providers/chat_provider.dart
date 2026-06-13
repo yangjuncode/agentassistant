@@ -1584,6 +1584,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _updatePendingState();
   }
 
+  @visibleForTesting
+  void addMessageForTesting(ChatMessage message) {
+    _addMessage(message);
+  }
+
   /// Update existing message
   void _updateMessage(ChatMessage updatedMessage) {
     final index = _messages.indexWhere((m) => m.id == updatedMessage.id);
@@ -2512,17 +2517,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     } catch (_) {}
   }
 
-  // Update pending-related UI state: tray count + auto-toggle of pending filter
+  // Update pending-related UI state: tray count + pending filter cleanup
   void _updatePendingState() {
     _updateTrayPendingCount();
 
     final int totalPending = pendingQuestions.length + pendingTasks.length;
-
-    // Auto-enable filter only when there are multiple pending items
-    if (totalPending > 1 && !_showOnlyPendingMessages) {
-      _showOnlyPendingMessages = true;
-      notifyListeners();
-    }
 
     // Auto-disable filter when there are no pending items
     if (totalPending == 0 && _showOnlyPendingMessages) {

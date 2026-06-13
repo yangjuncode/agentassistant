@@ -31,6 +31,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   late FocusNode _focusNode;
   bool _isSubmitting = false;
   bool _isDragging = false;
+  int _lastPendingActionCount = 0;
   // -1 means no history selection (blank beyond newest)
   int _historyIndex = -1;
   // Saved input before navigating history
@@ -674,6 +675,24 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final chatProvider = context.watch<ChatProvider>();
+    final totalPendingActions =
+        chatProvider.pendingQuestions.length + chatProvider.pendingTasks.length;
+    final shouldAutofocus =
+        totalPendingActions <= 1 && !chatProvider.hasAnyDraft;
+    final shouldReleaseAutoFocus = _lastPendingActionCount <= 1 &&
+        totalPendingActions > 1 &&
+        _focusNode.hasFocus;
+    _lastPendingActionCount = totalPendingActions;
+
+    if (shouldReleaseAutoFocus) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _focusNode.hasFocus) {
+          _focusNode.unfocus();
+        }
+      });
+    }
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isCompact = constraints.maxWidth < 500;
@@ -918,7 +937,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         ),
                         maxLines: 3,
                         minLines: isCompact ? 1 : 2,
-                        autofocus: !context.read<ChatProvider>().hasAnyDraft,
+                        autofocus: shouldAutofocus,
                         enabled: !_isSubmitting,
                       ),
                     ),
