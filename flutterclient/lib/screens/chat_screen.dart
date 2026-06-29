@@ -27,6 +27,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final Map<String, GlobalKey> _messageKeys = {};
   bool _hasInitialized = false;
   List<ChatMessage> _previousMessages = [];
+  // 跟踪上一次的"仅显示待处理消息"过滤状态，用于检测过滤被自动关闭的情况
+  bool _previousShowOnlyPending = false;
 
   @override
   void initState() {
@@ -173,6 +175,17 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  /// Scroll to the bottom of the list (newest messages)
+  Future<void> _scrollToBottom() async {
+    if (!_scrollController.hasClients) return;
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    await _scrollController.animateTo(
+      maxExtent,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
+
   /// Check for new replyable messages and auto-scroll if needed
   void _checkForNewReplyableMessages(List<ChatMessage> currentMessages) {
     // Skip if not initialized yet
@@ -180,6 +193,25 @@ class _ChatScreenState extends State<ChatScreen> {
       // print('⏳ Not initialized yet, skipping message check');
       return;
     }
+
+    final chatProvider = context.read<ChatProvider>();
+    final currentShowOnlyPending = chatProvider.showOnlyPendingMessages;
+
+    // 检测"仅显示待处理消息"过滤被自动关闭的情况：
+    // 当用户回复了最后一条待处理消息后，过滤会被关闭，visibleMessages
+    // 从"仅待处理"切换为"全部消息"，列表内容大幅变化会导致滚动位置重置到顶部。
+    // 此时应该滚动到底部（最新消息处），保持焦点在最新内容上。
+    if (_previousShowOnlyPending && !currentShowOnlyPending) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.delayed(const Duration(milliseconds: 100), () {
+          _scrollToBottom();
+        });
+      });
+      _previousShowOnlyPending = currentShowOnlyPending;
+      _previousMessages = List.from(currentMessages);
+      return;
+    }
+    _previousShowOnlyPending = currentShowOnlyPending;
 
     // print('🔍 Checking messages. Total: ${currentMessages.length}');
     // print('🗝️ Available message keys: ${_messageKeys.keys.toList()}');
