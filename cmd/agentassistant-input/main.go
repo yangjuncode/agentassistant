@@ -14,8 +14,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/go-vgo/robotgo"
 )
 
 func main() {
@@ -84,39 +82,27 @@ func main() {
 	if runtime.GOOS == "linux" {
 		restoreInputMethod := prepareEnglishInputMethod()
 		defer restoreInputMethod()
-		log.Printf("[DEBUG] Calling pasteWithClipboard() on Linux...")
-		if attempted, err := pasteWithClipboard(stringToType); err != nil {
-			log.Printf("[DEBUG] Linux clipboard paste failed: %v", err)
-			if attempted {
-				log.Fatal("Error: Linux clipboard paste failed after partial input; aborting to avoid duplicate text")
-			}
+		log.Printf("[DEBUG] Calling inputText() on Linux...")
+		if err := inputText(stringToType); err != nil {
+			log.Printf("[DEBUG] Linux inputText failed: %v", err)
 			if isASCIIOnly(stringToType) {
 				if err := typeWithNewlines(stringToType); err != nil {
 					log.Fatalf("Error typing ASCII string on Linux fallback: %v", err)
 				}
 			} else {
-				log.Fatalf("Error: Linux clipboard paste failed for non-ASCII text: %v", err)
+				log.Fatalf("Error: Linux inputText failed for non-ASCII text: %v", err)
 			}
 		} else {
-			log.Printf("[DEBUG] Linux clipboard paste completed successfully")
+			log.Printf("[DEBUG] Linux inputText completed successfully")
 		}
 	} else {
-		// Paste the determined string; fall back to simulated typing if clipboard
-		// integration is unavailable.
-		log.Printf("[DEBUG] Calling pasteWithClipboard()...")
-		if attempted, err := pasteWithClipboard(stringToType); err != nil {
-			log.Printf("[DEBUG] clipboard paste failed: %v; falling back to key typing", err)
-			if attempted {
-				log.Fatal("Error: clipboard paste failed after partial input; aborting to avoid duplicate text")
-			}
-			restoreInputMethod := prepareEnglishInputMethod()
-			defer restoreInputMethod()
-			if err := typeWithNewlines(stringToType); err != nil {
-				log.Fatalf("Error typing string after clipboard fallback: %v", err)
-			}
-		} else {
-			log.Printf("[DEBUG] clipboard paste completed successfully")
+		// Windows 使用 SendInput 直接输入，macOS 使用剪贴板粘贴，
+		// 两者均不需要 xdotool 回退。
+		log.Printf("[DEBUG] Calling inputText()...")
+		if err := inputText(stringToType); err != nil {
+			log.Fatalf("Error: inputText failed: %v", err)
 		}
+		log.Printf("[DEBUG] inputText completed successfully")
 	}
 	elapsed := time.Since(startTime)
 	log.Printf("[DEBUG] input delivery completed in %v", elapsed)
@@ -238,49 +224,6 @@ func runCommandOutput(timeout time.Duration, name string, args ...string) ([]byt
 	return out, nil
 }
 
-func pasteWithClipboard(s string) (bool, error) {
-	previousClipboard, readErr := robotgo.ReadAll()
-	hasPreviousClipboard := readErr == nil
-	if readErr != nil {
-		log.Printf("[DEBUG] Failed to read clipboard before paste: %v", readErr)
-	}
-
-	attemptedInput := false
-	segments := splitByNewlines(s)
-	if firstText := firstTextSegment(segments); firstText != "" {
-		if err := robotgo.WriteAll(firstText); err != nil {
-			restoreClipboard(hasPreviousClipboard, previousClipboard)
-			return false, err
-		}
-	}
-
-	for i, segment := range segments {
-		if segment.isNewline {
-			attemptedInput = true
-			pressEnterKey()
-		} else if segment.text != "" {
-			if err := robotgo.WriteAll(segment.text); err != nil {
-				restoreClipboard(hasPreviousClipboard, previousClipboard)
-				return attemptedInput, err
-			}
-
-			if err := sendPasteShortcut(); err != nil {
-				restoreClipboard(hasPreviousClipboard, previousClipboard)
-				return attemptedInput, err
-			}
-			attemptedInput = true
-		}
-
-		if i < len(segments)-1 {
-			time.Sleep(10 * time.Millisecond)
-		}
-	}
-
-	time.Sleep(150 * time.Millisecond)
-	restoreClipboard(hasPreviousClipboard, previousClipboard)
-	return attemptedInput, nil
-}
-
 func isASCIIOnly(s string) bool {
 	for _, r := range s {
 		if r > 127 {
@@ -290,53 +233,10 @@ func isASCIIOnly(s string) bool {
 	return true
 }
 
-func firstTextSegment(segments []textSegment) string {
-	for _, segment := range segments {
-		if !segment.isNewline && segment.text != "" {
-			return segment.text
-		}
-	}
-	return ""
-}
-
-func pasteKey() string {
-	return "v"
-}
-
-func pasteModifier() string {
-	if runtime.GOOS == "darwin" {
-		return "command"
-	}
-	return "control"
-}
-
-func sendPasteShortcut() error {
-	if runtime.GOOS == "linux" {
-		return runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "ctrl+v")
-	}
-	return robotgo.KeyTap(pasteKey(), pasteModifier())
-}
-
-func restoreClipboard(hasPreviousClipboard bool, previousClipboard string) {
-	if !hasPreviousClipboard {
-		return
-	}
-	if err := robotgo.WriteAll(previousClipboard); err != nil {
-		log.Printf("[DEBUG] Failed to restore clipboard after paste: %v", err)
-	}
-}
-
+// pressEnterKey 按下回车键，仅用于 Linux 上 typeWithNewlines 的 ASCII 回退路径。
 func pressEnterKey() error {
-	if runtime.GOOS == "linux" {
-		if err := runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "Return"); err == nil {
-			return nil
-		} else {
-			log.Printf("[DEBUG] xdotool key Return failed: %v, falling back to robotgo", err)
-		}
-	}
-	if keyErr := robotgo.KeyTap("enter"); keyErr != nil {
-		log.Printf("[DEBUG] robotgo enter failed: %v", keyErr)
-		return keyErr
+	if err := runCommand(xdotoolQueryTimeout, "xdotool", "key", "--clearmodifiers", "Return"); err != nil {
+		return fmt.Errorf("xdotool key Return: %w", err)
 	}
 	return nil
 }
