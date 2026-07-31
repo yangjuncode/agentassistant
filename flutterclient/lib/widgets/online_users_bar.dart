@@ -9,6 +9,7 @@ import 'package:fixnum/fixnum.dart';
 import '../providers/chat_provider.dart';
 import '../models/display_online_user.dart';
 import '../l10n/app_localizations.dart';
+import 'chat_input_auto_send_controller.dart';
 
 /// Widget that displays online users in a horizontal bar below the app bar
 class OnlineUsersBar extends StatelessWidget {
@@ -195,13 +196,23 @@ class _ChatDialogState extends State<_ChatDialog> {
   final FocusNode _inputFocusNode = FocusNode();
   final ScrollController _scrollController = ScrollController();
   final Logger _logger = Logger();
-  Timer? _autoSendTimer;
+  late final ChatInputAutoSendController _autoSendController;
   Timer? _sentTextResetTimer;
   String _lastSentText = '';
 
   @override
   void initState() {
     super.initState();
+    _autoSendController = ChatInputAutoSendController(
+      idleDelay: () =>
+          Duration(seconds: widget.chatProvider.chatAutoSendInterval),
+      onReady: () {
+        if (!mounted) return;
+        _logger.d('IME-aware auto-send timer fired');
+        _sendMessage(isAutoSend: true);
+      },
+    );
+    _messageController.addListener(_onEditingValueChanged);
     // Defer focus request to post-frame callback
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -224,11 +235,12 @@ class _ChatDialogState extends State<_ChatDialog> {
   @override
   void dispose() {
     try {
+      _messageController.removeListener(_onEditingValueChanged);
+      _autoSendController.dispose();
+      _clearSentTextResetTimer();
       _messageController.dispose();
       _inputFocusNode.dispose();
       _scrollController.dispose();
-      _clearAutoSendTimer();
-      _clearSentTextResetTimer();
       if (widget.chatProvider.activeChatUserKey == widget.user.key) {
         widget.chatProvider.setActiveChatUser(null);
       }
@@ -251,18 +263,6 @@ class _ChatDialogState extends State<_ChatDialog> {
       }
     } catch (e, stack) {
       _logger.e('Error scrolling to bottom', error: e, stackTrace: stack);
-    }
-  }
-
-  // Auto-send functionality
-  void _clearAutoSendTimer() {
-    try {
-      if (_autoSendTimer != null) {
-        _autoSendTimer?.cancel();
-        _autoSendTimer = null;
-      }
-    } catch (e, stack) {
-      _logger.e('Error clearing auto-send timer', error: e, stackTrace: stack);
     }
   }
 
@@ -314,27 +314,14 @@ class _ChatDialogState extends State<_ChatDialog> {
     return index;
   }
 
-  void _scheduleAutoSend() {
-    try {
-      _clearAutoSendTimer();
-      final interval = widget.chatProvider.chatAutoSendInterval;
-      _autoSendTimer = Timer(Duration(seconds: interval), () {
-        _logger.d('Auto-send timer fired, mounted: $mounted');
-        if (mounted) {
-          _sendMessage(isAutoSend: true);
-        } else {
-          _logger.w('Auto-send timer fired but widget not mounted, skipping');
-        }
-      });
-      _logger.d('Auto-send timer scheduled for 2 seconds');
-    } catch (e, stack) {
-      _logger.e('Error scheduling auto-send', error: e, stackTrace: stack);
-    }
-  }
-
-  void _onInputChanged(String value) {
+  void _onEditingValueChanged() {
+    final editingValue = _messageController.value;
+    final value = editingValue.text;
     _logger.d(
-        'Input changed: length=${value.length}, lastSent=${_lastSentText.length}');
+      'Input changed: length=${value.length}, '
+      'composing=${ChatInputAutoSendController.hasActiveComposition(editingValue)}, '
+      'lastSent=${_lastSentText.length}',
+    );
     if (value.isNotEmpty) {
       final wasWaitingForEmptyReset = _sentTextResetTimer != null;
       _clearSentTextResetTimer();
@@ -343,9 +330,9 @@ class _ChatDialogState extends State<_ChatDialog> {
               (wasWaitingForEmptyReset && !value.startsWith(_lastSentText)))) {
         _resetSentTextTracker();
       }
-      _scheduleAutoSend();
+      _autoSendController.handleValueChanged(editingValue);
     } else {
-      _clearAutoSendTimer();
+      _autoSendController.handleValueChanged(editingValue);
       _scheduleSentTextResetIfStillEmpty();
     }
     if (mounted) {
@@ -360,7 +347,7 @@ class _ChatDialogState extends State<_ChatDialog> {
   void _sendMessage({bool isAutoSend = false}) {
     try {
       _logger.d('_sendMessage called: isAutoSend=$isAutoSend');
-      _clearAutoSendTimer();
+      _autoSendController.cancel();
       final content = _messageController.text;
       _logger.d(
           'Content length: ${content.length}, lastSentLength: ${_lastSentText.length}');
@@ -432,7 +419,7 @@ class _ChatDialogState extends State<_ChatDialog> {
   void _sendEnterKey() {
     try {
       _logger.d('_sendEnterKey called');
-      _clearAutoSendTimer();
+      _autoSendController.cancel();
 
       final content = _messageController.text;
       String messageToSend;
@@ -747,6 +734,11 @@ class _ChatDialogState extends State<_ChatDialog> {
                     event.logicalKey == LogicalKeyboardKey.enter &&
                     (HardwareKeyboard.instance.isControlPressed ||
                         HardwareKeyboard.instance.isMetaPressed)) {
+                  if (ChatInputAutoSendController.hasActiveComposition(
+                    _messageController.value,
+                  )) {
+                    return KeyEventResult.ignored;
+                  }
                   _sendMessage();
                   return KeyEventResult.handled;
                 }
@@ -767,7 +759,6 @@ class _ChatDialogState extends State<_ChatDialog> {
                 minLines: 1,
                 keyboardType: TextInputType.multiline,
                 textInputAction: TextInputAction.newline,
-                onChanged: (value) => _onInputChanged(value),
                 onSubmitted:
                     null, // Disable Enter to send, use Ctrl+Enter instead
               ),
