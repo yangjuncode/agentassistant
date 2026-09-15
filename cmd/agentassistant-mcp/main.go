@@ -5,15 +5,18 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync/atomic"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/BurntSushi/toml"
@@ -31,6 +34,20 @@ type Config struct {
 	AgentAssistantServerHost  string `toml:"agentassistant_server_host"`
 	AgentAssistantServerPort  int    `toml:"agentassistant_server_port"`
 	AgentAssistantServerToken string `toml:"agentassistant_server_token"`
+	WorkReportTimeout         int    `toml:"work_report_timeout"`
+	WorkReportTimeoutSeconds  int    `toml:"work_report_timeout_seconds"`
+}
+
+const defaultWorkReportTimeout = 300 // 5 minutes (in seconds)
+
+func getWorkReportTimeout() int {
+	if config.WorkReportTimeout > 0 {
+		return config.WorkReportTimeout
+	}
+	if config.WorkReportTimeoutSeconds > 0 {
+		return config.WorkReportTimeoutSeconds
+	}
+	return defaultWorkReportTimeout
 }
 
 type cachedMcpClientInfo struct {
@@ -106,6 +123,7 @@ func main() {
 		web                = flag.Bool("web", false, "Open web interface in browser")
 		disableWorkReport  = flag.Bool("disable-workreport", false, "Hide the work_report MCP tool")
 		disableAskQuestion = flag.Bool("disable-ask-question", false, "Hide the ask_question MCP tool")
+		workReportTimeout  = flag.Int("work-report-timeout", 0, "Timeout for work_report tool in seconds (default: 300)")
 	)
 	flag.Parse()
 
@@ -130,6 +148,9 @@ func main() {
 	if *token != "" {
 		config.AgentAssistantServerToken = *token
 	}
+	if *workReportTimeout > 0 {
+		config.WorkReportTimeout = *workReportTimeout
+	}
 
 	// Set defaults if not configured
 	if config.AgentAssistantServerHost == "" {
@@ -140,6 +161,13 @@ func main() {
 	}
 	if config.AgentAssistantServerToken == "" {
 		config.AgentAssistantServerToken = "test-token"
+	}
+	if config.WorkReportTimeout <= 0 {
+		if config.WorkReportTimeoutSeconds > 0 {
+			config.WorkReportTimeout = config.WorkReportTimeoutSeconds
+		} else {
+			config.WorkReportTimeout = defaultWorkReportTimeout
+		}
 	}
 
 	// Initialize RPC client
@@ -187,6 +215,14 @@ func main() {
 // loadConfig loads configuration from agentassistant-mcp.toml file
 func loadConfig() {
 	configFile := "agentassistant-mcp.toml"
+	if _, err := os.Stat(configFile); os.IsNotExist(err) {
+		if execPath, err := os.Executable(); err == nil {
+			p := filepath.Join(filepath.Dir(execPath), "agentassistant-mcp.toml")
+			if _, err := os.Stat(p); err == nil {
+				configFile = p
+			}
+		}
+	}
 	if _, err := os.Stat(configFile); err == nil {
 		if _, err := toml.DecodeFile(configFile, &config); err != nil {
 			log.Printf("Warning: Failed to load config file %s: %v", configFile, err)
@@ -378,9 +414,10 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
+	maxTimeout := getWorkReportTimeout()
 	timeout, err := request.RequireInt("timeout")
-	if err != nil {
-		timeout = 3600 // Default timeout (1 hour)
+	if err != nil || timeout <= 0 || timeout > maxTimeout {
+		timeout = maxTimeout
 	}
 
 	// Get optional agent_name and reasoning_model_name
@@ -408,14 +445,55 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 		},
 	}
 
-	// Call the WorkReport RPC
-	resp, err := client.WorkReport(context.Background(), connect.NewRequest(req))
+	// Call the WorkReport RPC with timeout (give server small grace period before client-side cutoff)
+	rpcCtx, rpcCancel := context.WithTimeout(ctx, time.Duration(timeout+5)*time.Second)
+	defer rpcCancel()
+
+	resp, err := client.WorkReport(rpcCtx, connect.NewRequest(req))
 	if err != nil {
+		if isTimeoutError(err, rpcCtx, ctx) {
+			log.Printf("WorkReport call timed out after %d seconds, returning ok", timeout)
+			return mcp.NewToolResultText("ok"), nil
+		}
 		return mcp.NewToolResultError(fmt.Sprintf("RPC call failed: %v", err)), nil
+	}
+
+	if isTimeoutResponse(resp.Msg) {
+		log.Printf("WorkReport request timed out after %d seconds, returning ok", timeout)
+		return mcp.NewToolResultText("ok"), nil
 	}
 
 	// Convert response to MCP result
 	return convertToMCPResult(resp.Msg), nil
+}
+
+func isTimeoutError(err error, rpcCtx context.Context, parentCtx context.Context) bool {
+	if err == nil {
+		return false
+	}
+	if errors.Is(err, context.DeadlineExceeded) ||
+		connect.CodeOf(err) == connect.CodeDeadlineExceeded ||
+		(rpcCtx != nil && errors.Is(rpcCtx.Err(), context.DeadlineExceeded)) ||
+		(parentCtx != nil && errors.Is(parentCtx.Err(), context.DeadlineExceeded)) {
+		return true
+	}
+	errStr := strings.ToLower(err.Error())
+	return strings.Contains(errStr, "deadline exceeded") || strings.Contains(errStr, "timed out") || strings.Contains(errStr, "timeout")
+}
+
+func isTimeoutResponse(resp *agentassistproto.WorkReportResponse) bool {
+	if resp == nil || !resp.IsError {
+		return false
+	}
+	if resp.Meta != nil {
+		if resp.Meta["error"] == "timeout" {
+			return true
+		}
+		if strings.Contains(strings.ToLower(resp.Meta["message"]), "timed out") || strings.Contains(strings.ToLower(resp.Meta["message"]), "timeout") {
+			return true
+		}
+	}
+	return false
 }
 
 // generateRequestID generates a unique request ID using UUID V7

@@ -6,3 +6,6 @@ agentassistant_server_port = 8080
 
 # 令牌
 agentassistant_server_token = "test"
+
+# work_report 超时时间（秒），默认 300 秒（5 分钟），最多5分钟就超时，超时返回 ok
+work_report_timeout = 300

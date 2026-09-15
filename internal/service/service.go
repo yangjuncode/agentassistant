@@ -198,7 +198,7 @@ func (s *AgentAssistService) WorkReport(
 	// Set default timeout if not provided
 	timeout := req.Msg.Request.Timeout
 	if timeout <= 0 {
-		timeout = 600 // Default 600 seconds
+		timeout = 300 // Default 300 seconds (5 minutes)
 	}
 
 	// Create a context with timeout

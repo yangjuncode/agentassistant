@@ -143,8 +143,14 @@ Usage notes:
 
 // newWorkReportTool builds the work_report MCP tool definition.
 func newWorkReportTool() mcp.Tool {
+	timeoutDefault := getWorkReportTimeout()
+	timeoutDesc := fmt.Sprintf("%ds", timeoutDefault)
+	if timeoutDefault%60 == 0 {
+		timeoutDesc = fmt.Sprintf("%ds (%d minutes)", timeoutDefault, timeoutDefault/60)
+	}
+
 	return mcp.NewTool("work_report",
-		mcp.WithDescription(`
+		mcp.WithDescription(fmt.Sprintf(`
 before finish task/work, send a work report to Agent-Assistant/User asking for confirmation/approval.
 
 This tool allows you to ask for confirmation/approval from Agent-Assistant/User by sending a work report.
@@ -152,13 +158,13 @@ This tool allows you to ask for confirmation/approval from Agent-Assistant/User 
 Args:
 - project_directory: The current project directory
 - summary: The summary of the task/work report
-- timeout: The timeout in seconds, default is 3600s (1 hour)
+- timeout: The timeout in seconds (default and maximum: %s). If timeout occurs, "ok" will be returned.
 - agent_name: The name of the AI agent/client calling this tool (e.g., Antigravity, Cascade)
 - reasoning_model_name: The name of the actual LLM/inference model currently being used for this task (e.g., GPT-4, Gemini 3 Pro)
 
 Returns:
-- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from Agent-Assistant
-`),
+- List of TextContent, ImageContent, AudioContent, or EmbeddedResource from Agent-Assistant. On timeout, returns "ok".
+`, timeoutDesc)),
 		mcp.WithString("project_directory",
 			mcp.Required(),
 			mcp.Description("Current project directory"),
@@ -168,8 +174,8 @@ Returns:
 			mcp.Description("Summary of the task/work report"),
 		),
 		mcp.WithNumber("timeout",
-			mcp.DefaultNumber(3600),
-			mcp.Description("Timeout in seconds, default is 3600s (1 hour)"),
+			mcp.DefaultNumber(float64(timeoutDefault)),
+			mcp.Description(fmt.Sprintf("Timeout in seconds, default and maximum is %s", timeoutDesc)),
 		),
 		mcp.WithString("agent_name",
 			mcp.Required(),
