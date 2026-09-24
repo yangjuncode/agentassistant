@@ -5,19 +5,16 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:logger/logger.dart';
 
 import '../proto/agentassist.pb.dart';
-import '../constants/websocket_commands.dart';
 import '../config/app_config.dart';
+import 'ws_transport.dart';
 
-enum WebSocketServiceStatus {
-  disconnected,
-  connecting,
-  connected,
-  reconnecting,
-  error,
-}
+// 保持旧导入路径可用（WebSocketServiceStatus 已移到 ws_transport.dart）
+export 'ws_transport.dart' show WebSocketServiceStatus;
 
-/// WebSocket service for Agent Assistant communication
-class WebSocketService {
+/// 直连 WebSocket 传输：桌面/移动通用默认实现。
+/// 协议语义（发送助手、帧分发）继承自 [WsTransport]，
+/// 这里只管链路：建连、登录等待、心跳、重连。
+class WebSocketService extends WsTransport {
   static final Logger _logger = Logger(level: Level.nothing);
 
   WebSocketChannel? _channel;
@@ -27,43 +24,12 @@ class WebSocketService {
   Completer<void>? _loginCompleter;
   Timer? _loginTimeoutTimer;
 
-  String? _url;
-  String? _token;
-  String? _nickname;
-  String? _clientId;
-  String? _serverVersion;
   int _reconnectAttempts = 0;
   bool _isManuallyDisconnected = false;
   bool _isConnecting = false;
-  WebSocketServiceStatus _currentStatus = WebSocketServiceStatus.disconnected;
-
-  // Stream controllers
-  final StreamController<WebsocketMessage> _messageController =
-      StreamController<WebsocketMessage>.broadcast();
-  final StreamController<bool> _connectionController =
-      StreamController<bool>.broadcast();
-  final StreamController<String> _errorController =
-      StreamController<String>.broadcast();
-  final StreamController<WebSocketServiceStatus> _statusController =
-      StreamController<WebSocketServiceStatus>.broadcast();
-
-  // Pending validity check requests
-  final Map<String, Completer<Map<String, bool>>> _pendingValidityChecks = {};
-
-  // Public streams
-  Stream<WebsocketMessage> get messageStream => _messageController.stream;
-  Stream<bool> get connectionStream => _connectionController.stream;
-  Stream<String> get errorStream => _errorController.stream;
-  Stream<WebSocketServiceStatus> get statusStream => _statusController.stream;
-
-  /// Check if WebSocket is connected
-  bool get isConnected => _currentStatus == WebSocketServiceStatus.connected;
-
-  /// Get current client ID
-  String? get clientId => _clientId;
-  String? get serverVersion => _serverVersion;
 
   /// Connect to WebSocket server
+  @override
   Future<void> connect(String url, String token,
       {String? nickname, bool force = false}) async {
     if (_isConnecting && !force) return;
@@ -71,14 +37,14 @@ class WebSocketService {
     // Clean up any existing connection before creating a new one
     _cleanup();
 
-    _url = url;
-    _token = token;
-    _nickname = nickname;
-    _serverVersion = null;
+    this.url = url;
+    this.token = token;
+    this.nickname = nickname;
+    serverVersion = null;
     _isConnecting = true;
     _isManuallyDisconnected = false;
-    _currentStatus = WebSocketServiceStatus.connecting;
-    _statusController.add(WebSocketServiceStatus.connecting);
+    currentStatus = WebSocketServiceStatus.connecting;
+    emitStatus(WebSocketServiceStatus.connecting);
 
     // Reset login wait state
     _loginCompleter = Completer<void>();
@@ -104,7 +70,7 @@ class WebSocketService {
       );
 
       // Send login message
-      await _sendUserLogin();
+      await sendUserLogin();
 
       // Wait for login response before marking as connected.
       await _loginCompleter!.future;
@@ -114,18 +80,18 @@ class WebSocketService {
 
       _isConnecting = false;
       _reconnectAttempts = 0;
-      _connectionController.add(true);
-      _currentStatus = WebSocketServiceStatus.connected;
-      _statusController.add(WebSocketServiceStatus.connected);
+      emitConnection(true);
+      currentStatus = WebSocketServiceStatus.connected;
+      emitStatus(WebSocketServiceStatus.connected);
 
       _logger.i('WebSocket connected successfully');
     } catch (error) {
       _isConnecting = false;
       _logger.e('WebSocket connection failed: $error');
-      _errorController.add('Connection failed: $error');
-      _connectionController.add(false);
-      _currentStatus = WebSocketServiceStatus.error;
-      _statusController.add(WebSocketServiceStatus.error);
+      emitError('Connection failed: $error');
+      emitConnection(false);
+      currentStatus = WebSocketServiceStatus.error;
+      emitStatus(WebSocketServiceStatus.error);
 
       if (!_isManuallyDisconnected) {
         _scheduleReconnect();
@@ -134,14 +100,15 @@ class WebSocketService {
   }
 
   /// Force reconnection irrespective of current state
+  @override
   Future<void> forceReconnect() async {
     _logger.i('Forcing reconnection...');
-    if (_url != null && _token != null) {
+    if (url != null && token != null) {
       // Cancel any pending reconnect timer
       _reconnectTimer?.cancel();
       // Reset attempts so we don't have a long delay if this fails
       _reconnectAttempts = 0;
-      await connect(_url!, _token!, nickname: _nickname, force: true);
+      await connect(url!, token!, nickname: nickname, force: true);
     }
   }
 
@@ -152,236 +119,31 @@ class WebSocketService {
   }
 
   /// Disconnect from WebSocket server
+  @override
   void disconnect() {
     _isManuallyDisconnected = true;
     _failLoginIfPending(StateError('Disconnected'));
     _cleanup();
-    _connectionController.add(false);
-    _statusController.add(WebSocketServiceStatus.disconnected);
+    emitConnection(false);
+    emitStatus(WebSocketServiceStatus.disconnected);
     _logger.i('WebSocket disconnected manually');
   }
 
-  /// Send user login message
-  Future<void> _sendUserLogin() async {
-    if (_token == null) {
-      _logger.w('Cannot send UserLogin: token is null');
-      return;
-    }
-
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.userLogin
-      ..strParam = _token!
-      ..nickname = _nickname ?? '';
-
-    _logger
-        .i('Sending UserLogin command - Nickname: "${_nickname ?? "[empty]"}"');
-    await _sendMessage(message);
-  }
-
-  /// Send ask question reply
-  Future<void> sendAskQuestionReply(
-    AskQuestionRequest originalRequest,
-    AskQuestionResponse response,
-  ) async {
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.askQuestionReply
-      ..askQuestionRequest = originalRequest
-      ..askQuestionResponse = response;
-
-    await _sendMessage(message);
-    _logger.d('Ask question reply sent: ${response.iD}');
-  }
-
-  /// Send work report reply
-  Future<void> sendWorkReportReply(
-    WorkReportRequest originalRequest,
-    WorkReportResponse response,
-  ) async {
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.workReportReply
-      ..workReportRequest = originalRequest
-      ..workReportResponse = response;
-
-    await _sendMessage(message);
-    _logger.d('Work report reply sent: ${response.iD}');
-  }
-
-  /// Update nickname and send to server
-  Future<void> updateNickname(String nickname) async {
-    final oldNickname = _nickname;
-    _nickname = nickname;
-
-    if (isConnected) {
-      try {
-        _logger.i(
-            'Sending nickname update to server: "$oldNickname" -> "$nickname"');
-        // Send updated login message to server
-        await _sendUserLogin();
-      } catch (error) {
-        _logger.e('Failed to send nickname update to server: $error');
+  /// 登录结果：完成 connect() 等待
+  @override
+  void onLoginResult(bool success, String? errorMessage) {
+    if (success) {
+      if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
+        _loginCompleter!.complete();
       }
     } else {
-      _logger.i(
-          'Nickname updated locally while disconnected: "$oldNickname" -> "$nickname"');
-    }
-  }
-
-  /// Send get pending messages request
-  Future<void> sendGetPendingMessages() async {
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.getPendingMessages;
-
-    await _sendMessage(message);
-    _logger.d('Get pending messages request sent');
-  }
-
-  /// Send get online users request
-  Future<void> sendGetOnlineUsers() async {
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.getOnlineUsers
-      ..getOnlineUsersRequest =
-          (GetOnlineUsersRequest()..userToken = _token ?? '');
-
-    await _sendMessage(message);
-    _logger.d('Get online users request sent');
-  }
-
-  /// Send chat message to another user
-  Future<void> sendChatMessage(
-    String receiverClientId,
-    String content, {
-    ForwardTarget? forwardTarget,
-  }) async {
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.sendChatMessage
-      ..sendChatMessageRequest = (SendChatMessageRequest()
-        ..receiverClientId = receiverClientId
-        ..content = content);
-
-    if (forwardTarget != null) {
-      message.sendChatMessageRequest.forwardTarget = forwardTarget;
-    }
-
-    await _sendMessage(message);
-    _logger.d('Chat message sent to $receiverClientId: $content');
-  }
-
-  /// Query peer forward state and window list
-  Future<void> sendForwardStateQuery({
-    required String requestId,
-    required String targetClientId,
-  }) async {
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.forwardStateQuery
-      ..forwardStateQueryRequest = (ForwardStateQueryRequest()
-        ..requestId = requestId
-        ..targetClientId = targetClientId);
-
-    await _sendMessage(message);
-  }
-
-  /// Send response for peer forward state query
-  Future<void> sendForwardStateQueryResponse({
-    required String requestId,
-    required String targetClientId,
-    required String responderClientId,
-    required bool forwardEnabled,
-    required List<ForwardWindowItem> windows,
-  }) async {
-    final response = ForwardStateQueryResponse()
-      ..requestId = requestId
-      ..targetClientId = targetClientId
-      ..responderClientId = responderClientId
-      ..forwardEnabled = forwardEnabled
-      ..windows.addAll(windows);
-
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.forwardStateQueryResponse
-      ..forwardStateQueryResponse = response;
-
-    await _sendMessage(message);
-  }
-
-  /// Broadcast own forward state change to peers
-  Future<void> sendForwardStateChanged({
-    required String sourceClientId,
-    required bool forwardEnabled,
-    required List<ForwardWindowItem> windows,
-  }) async {
-    final notification = ForwardStateChangedNotification()
-      ..sourceClientId = sourceClientId
-      ..forwardEnabled = forwardEnabled
-      ..windows.addAll(windows);
-
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.forwardStateChanged
-      ..forwardStateChangedNotification = notification;
-
-    await _sendMessage(message);
-  }
-
-  /// Notify peer that selected forward target is invalid
-  Future<void> sendForwardDeliveryError({
-    required String targetClientId,
-    required String peerClientId,
-    required String invalidWindowId,
-    required String reason,
-  }) async {
-    final notification = ForwardDeliveryErrorNotification()
-      ..targetClientId = targetClientId
-      ..peerClientId = peerClientId
-      ..invalidWindowId = invalidWindowId
-      ..reason = reason;
-
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.forwardDeliveryError
-      ..forwardDeliveryErrorNotification = notification;
-
-    await _sendMessage(message);
-  }
-
-  /// Check message validity
-  Future<Map<String, bool>> checkMessageValidity(
-      List<String> requestIds) async {
-    if (_channel == null) {
-      throw Exception('WebSocket not connected');
-    }
-
-    final completer = Completer<Map<String, bool>>();
-
-    // Store the completer for this request
-    final requestKey =
-        'validity_check_${DateTime.now().millisecondsSinceEpoch}';
-    _pendingValidityChecks[requestKey] = completer;
-
-    final message = WebsocketMessage()
-      ..cmd = WebSocketCommands.checkMessageValidity
-      ..checkMessageValidityRequest =
-          (CheckMessageValidityRequest()..requestIds.addAll(requestIds));
-
-    try {
-      await _sendMessage(message);
-      _logger.d(
-          'Message validity check sent for ${requestIds.length} request IDs');
-
-      // Set a timeout for the request
-      Timer(const Duration(seconds: 10), () {
-        if (!completer.isCompleted) {
-          _pendingValidityChecks.remove(requestKey);
-          completer.completeError(TimeoutException(
-              'Message validity check timeout', const Duration(seconds: 10)));
-        }
-      });
-
-      return completer.future;
-    } catch (error) {
-      _pendingValidityChecks.remove(requestKey);
-      rethrow;
+      _failLoginIfPending(StateError('Login failed: $errorMessage'));
     }
   }
 
   /// Send protobuf message
-  Future<void> _sendMessage(WebsocketMessage message) async {
+  @override
+  Future<void> sendFrame(WebsocketMessage message) async {
     if (_channel == null) {
       throw Exception('WebSocket not connected');
     }
@@ -391,7 +153,7 @@ class WebSocketService {
       _channel!.sink.add(data);
     } catch (error) {
       _logger.e('Failed to send message: $error');
-      _errorController.add('Failed to send message: $error');
+      emitError('Failed to send message: $error');
       rethrow;
     }
   }
@@ -411,68 +173,20 @@ class WebSocketService {
         return;
       }
 
-      final message = WebsocketMessage.fromBuffer(bytes);
-
-      // Handle validity check responses
-      if (message.cmd == WebSocketCommands.checkMessageValidity &&
-          message.hasCheckMessageValidityResponse()) {
-        _handleValidityCheckResponse(message.checkMessageValidityResponse);
-      } else if (message.cmd == WebSocketCommands.userLogin &&
-          message.hasUserLoginResponse()) {
-        _handleUserLoginResponse(message.userLoginResponse, message.strParam);
-      } else {
-        _messageController.add(message);
-      }
-
-      _logger.d('Received message: ${message.cmd}');
+      dispatchFrame(bytes);
     } catch (error) {
       _logger.e('Failed to parse message: $error');
-      _errorController.add('Failed to parse message: $error');
-    }
-  }
-
-  /// Handle validity check response
-  void _handleValidityCheckResponse(CheckMessageValidityResponse response) {
-    _logger.d(
-        'Received validity check response for ${response.validity.length} request IDs');
-
-    // Complete all pending validity check requests
-    // Since we don't have a specific request ID for validity checks,
-    // we complete the first pending request (FIFO)
-    if (_pendingValidityChecks.isNotEmpty) {
-      final firstKey = _pendingValidityChecks.keys.first;
-      final completer = _pendingValidityChecks.remove(firstKey);
-      if (completer != null && !completer.isCompleted) {
-        completer.complete(response.validity);
-      }
-    }
-  }
-
-  /// Handle user login response
-  void _handleUserLoginResponse(
-      UserLoginResponse response, String serverVersion) {
-    if (response.success) {
-      _clientId = response.clientId;
-      final trimmedVersion = serverVersion.trim();
-      _serverVersion = trimmedVersion.isEmpty ? null : trimmedVersion;
-      _logger.i('User login successful, client ID: $_clientId');
-      if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
-        _loginCompleter!.complete();
-      }
-    } else {
-      _logger.e('User login failed: ${response.errorMessage}');
-      _errorController.add('Login failed: ${response.errorMessage}');
-      _failLoginIfPending(StateError('Login failed: ${response.errorMessage}'));
+      emitError('Failed to parse message: $error');
     }
   }
 
   /// Handle WebSocket errors
   void _handleError(error) {
     _logger.e('WebSocket error: $error');
-    _errorController.add('Connection error: $error');
-    _connectionController.add(false);
-    _currentStatus = WebSocketServiceStatus.error;
-    _statusController.add(WebSocketServiceStatus.error);
+    emitError('Connection error: $error');
+    emitConnection(false);
+    currentStatus = WebSocketServiceStatus.error;
+    emitStatus(WebSocketServiceStatus.error);
 
     _failLoginIfPending(StateError('WebSocket error: $error'));
 
@@ -487,9 +201,9 @@ class WebSocketService {
   /// Handle WebSocket disconnection
   void _handleDisconnection() {
     _logger.w('WebSocket disconnected');
-    _connectionController.add(false);
-    _currentStatus = WebSocketServiceStatus.disconnected;
-    _statusController.add(WebSocketServiceStatus.disconnected);
+    emitConnection(false);
+    currentStatus = WebSocketServiceStatus.disconnected;
+    emitStatus(WebSocketServiceStatus.disconnected);
 
     _failLoginIfPending(StateError('WebSocket disconnected'));
 
@@ -519,13 +233,13 @@ class WebSocketService {
     _logger.i(
         'Scheduling reconnect attempt $_reconnectAttempts in ${delay.inSeconds}s');
 
-    _currentStatus = WebSocketServiceStatus.reconnecting;
-    _statusController.add(WebSocketServiceStatus.reconnecting);
+    currentStatus = WebSocketServiceStatus.reconnecting;
+    emitStatus(WebSocketServiceStatus.reconnecting);
 
     _reconnectTimer = Timer(delay, () {
-      if (!_isManuallyDisconnected && _url != null && _token != null) {
+      if (!_isManuallyDisconnected && url != null && token != null) {
         _logger.i('Attempting reconnect $_reconnectAttempts');
-        connect(_url!, _token!, nickname: _nickname);
+        connect(url!, token!, nickname: nickname);
       }
     });
   }
@@ -588,11 +302,9 @@ class WebSocketService {
   }
 
   /// Dispose service
+  @override
   void dispose() {
     _cleanup();
-    _messageController.close();
-    _connectionController.close();
-    _errorController.close();
-    _statusController.close();
+    super.dispose();
   }
 }

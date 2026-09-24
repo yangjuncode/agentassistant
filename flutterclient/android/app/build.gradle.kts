@@ -78,6 +78,13 @@ android {
     }
 }
 
+dependencies {
+    // WebSocket 前台服务使用的网络与序列化库
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.google.protobuf:protobuf-javalite:4.36.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
+}
+
 flutter {
     source = "../.."
 }

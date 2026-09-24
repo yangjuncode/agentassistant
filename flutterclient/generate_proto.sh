@@ -38,6 +38,14 @@ protoc \
     --dart_out=lib/proto \
     ../proto/agentassist.proto
 
+# Generate Java lite files for Android foreground service
+echo -e "${GREEN}Generating Java lite protobuf files for Android...${NC}"
+mkdir -p android/app/src/main/java
+protoc \
+    --proto_path=../proto \
+    --java_out=lite:android/app/src/main/java \
+    ../proto/agentassist.proto
+
 echo -e "${GREEN}Protobuf generation completed successfully!${NC}"
 echo -e "${YELLOW}Generated files:${NC}"
 ls -la lib/proto/

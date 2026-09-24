@@ -355,5 +355,12 @@
   "serverStatusConnecting": "connecting",
   "serverStatusReconnecting": "reconnecting",
   "serverStatusError": "error",
-  "serverStatusDisconnected": "disconnected"
+  "serverStatusDisconnected": "disconnected",
+
+  "backgroundService": "Background",
+  "batteryOptimization": "Ignore battery optimization",
+  "batteryOptimizationOn": "Battery optimization is on; the system may kill background connection",
+  "batteryOptimizationOff": "Battery optimization ignored",
+  "openAppSettings": "App system settings",
+  "openAppSettingsDesc": "Enable autostart / background permission (required on some devices)"
 }

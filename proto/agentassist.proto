@@ -3,6 +3,9 @@ syntax = "proto3";
 package agentassistproto;
 
 option go_package = "github.com/yangjuncode/agentassistant/agentassistproto";
+option java_package = "code.agentassistant.flutter.flutterclient.proto";
+option java_multiple_files = true;
+option java_outer_classname = "AgentAssistProto";
 
 // TextContent represents text provided to or from an LLM.
 // It must have Type set to "text".

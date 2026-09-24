@@ -228,5 +228,12 @@
   "serverStatusConnecting": "连接中",
   "serverStatusReconnecting": "重连中",
   "serverStatusError": "错误",
-  "serverStatusDisconnected": "未连接"
+  "serverStatusDisconnected": "未连接",
+
+  "backgroundService": "后台运行",
+  "batteryOptimization": "忽略电池优化",
+  "batteryOptimizationOn": "电池优化生效中，系统可能会断开后台连接",
+  "batteryOptimizationOff": "已忽略电池优化",
+  "openAppSettings": "应用系统设置",
+  "openAppSettingsDesc": "手动开启自启动/后台运行权限（部分机型需要）"
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:logger/logger.dart';
@@ -12,6 +13,8 @@ import '../models/chat_message.dart';
 import '../models/display_online_user.dart';
 import '../models/server_config.dart';
 import '../services/websocket_service.dart';
+import '../services/ws_transport.dart';
+import '../services/android_ws_transport.dart';
 import '../services/server_storage_service.dart';
 import '../services/window_service.dart';
 import '../services/system_input_service.dart';
@@ -47,7 +50,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   static final Logger _logger = Logger(level: Level.nothing);
 
   final ServerStorageService _serverStorageService = ServerStorageService();
-  final Map<String, WebSocketService> _services = {};
+  final Map<String, WsTransport> _services = {};
   final Map<String, StreamSubscription> _messageSubscriptions = {};
   final Map<String, StreamSubscription> _connectionSubscriptions = {};
   final Map<String, StreamSubscription> _statusSubscriptions = {};
@@ -93,6 +96,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _showOnlyPendingMessages = false;
   bool _isInputFocused = false;
+  bool _appResumed = true;
   Timer? _inputFocusDebounceTimer;
   int _chatAutoSendInterval = AppConfig.defaultChatAutoSendInterval;
   bool _hasShownForwardDependencyWarningOnStartup = false;
@@ -271,6 +275,12 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   ChatProvider() {
     WidgetsBinding.instance.addObserver(this);
+    // Android：启动时上报当前前后台状态（observer 注册前的状态不会回调）
+    if (Platform.isAndroid) {
+      _appResumed =
+          WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
+      unawaited(AndroidWsBridge.setUiForeground(_appResumed));
+    }
     Future.microtask(() async {
       await _loadNickname(); // Load nickname first
       await _loadSuffixText(); // Load suffix text
@@ -284,11 +294,19 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Android：上报前后台状态，后台时前台 Service 改走系统通知
+    if (Platform.isAndroid) {
+      _appResumed = state == AppLifecycleState.resumed;
+      unawaited(AndroidWsBridge.setUiForeground(_appResumed));
+    }
     if (state == AppLifecycleState.resumed) {
       _logger.i('App resumed - checking connections');
       _checkAndRestoreConnections();
     }
   }
+
+  /// 应用内提示音是否播放：Android 后台时由系统通知音代替，避免双响
+  bool get _shouldPlayInAppSound => !Platform.isAndroid || _appResumed;
 
   Future<void> _checkAndRestoreConnections() async {
     for (final config in _serverConfigs) {
@@ -725,7 +743,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  void _attachServiceListeners(ServerConfig config, WebSocketService service) {
+  void _attachServiceListeners(ServerConfig config, WsTransport service) {
     _messageSubscriptions[config.id]?.cancel();
     _connectionSubscriptions[config.id]?.cancel();
     _statusSubscriptions[config.id]?.cancel();
@@ -807,7 +825,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _connectServer(ServerConfig config, String token) async {
     final nickname = _nickname ?? await _loadNickname();
-    final service = _services.putIfAbsent(config.id, () => WebSocketService());
+    final service =
+        _services.putIfAbsent(config.id, () => _createTransport(config.id));
     _attachServiceListeners(config, service);
     _serverStatuses[config.id] = WebSocketServiceStatus.connecting;
     _serverErrors.remove(config.id);
@@ -815,6 +834,14 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _refreshGlobalConnectionState();
     notifyListeners();
     await service.connect(config.url, token, nickname: nickname);
+  }
+
+  /// 按平台创建传输实现：Android 由前台 Service 持有 socket
+  WsTransport _createTransport(String serverId) {
+    if (Platform.isAndroid) {
+      return AndroidWsTransport(serverId);
+    }
+    return WebSocketService();
   }
 
   /// Connect to all enabled server configurations
@@ -878,7 +905,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// Fetch pending messages from server
   Future<void> fetchPendingMessages({String? serverId}) async {
     final targets = serverId != null
-        ? <MapEntry<String, WebSocketService>>[
+        ? <MapEntry<String, WsTransport>>[
             if (_services.containsKey(serverId))
               MapEntry(serverId, _services[serverId]!),
           ]
@@ -1032,7 +1059,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         request.request.questions.map((q) => q.question).join('\n\n');
     _logger.i('Received question: $questionText');
 
-    if (_playMcpQuestionSound) {
+    if (_playMcpQuestionSound && _shouldPlayInAppSound) {
       _audioPlayer.play(AssetSource('sounds/question.wav'),
           volume: _mcpQuestionSoundVolume);
     }
@@ -1058,7 +1085,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _addMessage(chatMessage);
     _logger.i('Received work report: ${request.request.summary}');
 
-    if (_playWorkReportSound) {
+    if (_playWorkReportSound && _shouldPlayInAppSound) {
       _audioPlayer.play(AssetSource('sounds/report.wav'),
           volume: _mcpWorkReportSoundVolume);
     }

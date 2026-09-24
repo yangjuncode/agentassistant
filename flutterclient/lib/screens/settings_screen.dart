@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,7 @@ import '../providers/mcp_tool_index_provider.dart';
 import '../models/server_config.dart';
 
 import '../config/app_config.dart';
+import '../services/android_ws_transport.dart';
 import '../services/system_input_service.dart';
 import '../services/window_service.dart';
 import '../widgets/settings/nickname_settings.dart';
@@ -33,6 +35,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _appVersion = '';
   String? _serverUrl;
   String? _token;
+  bool? _batteryOptIgnored;
 
   String _desktopMcpAttentionModeLabel(
       AppLocalizations l10n, DesktopMcpAttentionMode mode) {
@@ -106,9 +109,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _loadAppInfo();
     _loadConnectionConfig();
+    _loadBatteryOptState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkForwardInputDependencyOnOpen();
     });
+  }
+
+  /// 读取电池优化豁免状态（仅 Android）
+  Future<void> _loadBatteryOptState() async {
+    if (!Platform.isAndroid) return;
+    final ignored = await AndroidWsBridge.isIgnoringBatteryOptimizations();
+    if (!mounted) return;
+    setState(() => _batteryOptIgnored = ignored);
   }
 
   /// Load app information
@@ -757,6 +769,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
+
+              // Android 后台运行设置
+              if (Platform.isAndroid) ...[
+                _buildSectionHeader(l10n.backgroundService),
+                Card(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: Icon(
+                          _batteryOptIgnored == true
+                              ? Icons.battery_saver
+                              : Icons.battery_alert,
+                          color: _batteryOptIgnored == true
+                              ? Colors.green
+                              : Colors.orange,
+                        ),
+                        title: Text(l10n.batteryOptimization),
+                        subtitle: Text(
+                          _batteryOptIgnored == true
+                              ? l10n.batteryOptimizationOff
+                              : l10n.batteryOptimizationOn,
+                        ),
+                        onTap: () async {
+                          await AndroidWsBridge
+                              .requestIgnoreBatteryOptimizations();
+                          await _loadBatteryOptState();
+                        },
+                      ),
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.settings_applications),
+                        title: Text(l10n.openAppSettings),
+                        subtitle: Text(l10n.openAppSettingsDesc),
+                        onTap: () {
+                          unawaited(AndroidWsBridge.openAppSettings());
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
 
               // App section
               _buildSectionHeader(l10n.app),
