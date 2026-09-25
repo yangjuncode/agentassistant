@@ -34,6 +34,9 @@ class AgentAssistantService : Service() {
         private const val KEY_SERVERS = "servers"
         private const val MAX_BUFFERED_FRAMES = 500
 
+        /** 常驻通知「退出」按钮触发的 action：断开连接并结束整个进程 */
+        const val ACTION_EXIT = "code.agentassistant.flutter.flutterclient.ACTION_EXIT"
+
         /** Dart 侧事件回调（同进程直传，由插件层设置/清除） */
         var eventSink: ((Map<String, Any?>) -> Unit)? = null
 
@@ -75,6 +78,11 @@ class AgentAssistantService : Service() {
     override fun onBind(intent: Intent?): IBinder = binder
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == ACTION_EXIT) {
+            exitApp()
+            // NOT_STICKY：进程被杀后不允许系统再把服务拉起来
+            return START_NOT_STICKY
+        }
         goForeground()
         // 进程重启后（无 Dart 介入）按持久化配置恢复连接
         if (connections.isEmpty()) {
@@ -95,6 +103,23 @@ class AgentAssistantService : Service() {
         connections.clear()
         Log.i(TAG, "service destroyed")
         super.onDestroy()
+    }
+
+    /**
+     * 通知栏「退出」按钮：断开所有连接、移除全部通知，
+     * 然后结束整个进程（UI 与 Service 同进程，一并退出）。
+     */
+    private fun exitApp() {
+        Log.i(TAG, "exit requested from notification")
+        // 清掉自愈重连配置，防止进程死后服务被拉起又自动连上
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().clear().apply()
+        for (conn in connections.values) conn.disconnect()
+        connections.clear()
+        (getSystemService(NOTIFICATION_SERVICE) as? android.app.NotificationManager)
+            ?.cancelAll()
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
+        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
     private fun goForeground() {

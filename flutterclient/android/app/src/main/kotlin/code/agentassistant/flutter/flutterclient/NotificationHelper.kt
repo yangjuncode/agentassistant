@@ -6,9 +6,11 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Icon
 import android.media.AudioAttributes
 import android.net.Uri
 import android.os.Build
+import android.widget.RemoteViews
 
 /**
  * 前台服务与消息通知的统一管理。
@@ -120,6 +122,19 @@ object NotificationHelper {
         )
     }
 
+    /** 常驻通知上的「退出」按钮：交给 Service 关闭整个进程 */
+    private fun exitPendingIntent(context: Context): PendingIntent {
+        val intent = Intent(context, AgentAssistantService::class.java).apply {
+            action = AgentAssistantService.ACTION_EXIT
+        }
+        return PendingIntent.getService(
+            context,
+            1,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+    }
+
     /** 常驻服务通知（显示当前连接状态） */
     fun buildServiceNotification(context: Context, contentText: String): Notification {
         ensureChannels(context)
@@ -129,10 +144,31 @@ object NotificationHelper {
             @Suppress("DEPRECATION")
             Notification.Builder(context)
         }
+        val exitIntent = exitPendingIntent(context)
+        // 收起态自定义布局：右侧圆形退出按钮；展开态走系统模板 + 「退出」操作
+        val contentView = RemoteViews(
+            context.packageName,
+            R.layout.notification_service,
+        ).apply {
+            setTextViewText(R.id.notify_status, contentText)
+            setOnClickPendingIntent(R.id.notify_exit, exitIntent)
+        }
         return builder
             .setSmallIcon(context.applicationInfo.icon)
             .setContentTitle("Agent Assistant")
             .setContentText(contentText)
+            .setCustomContentView(contentView)
+            .setStyle(Notification.DecoratedCustomViewStyle())
+            .addAction(
+                Notification.Action.Builder(
+                    Icon.createWithResource(
+                        context,
+                        android.R.drawable.ic_lock_power_off,
+                    ),
+                    "退出",
+                    exitIntent,
+                ).build(),
+            )
             .setContentIntent(launchPendingIntent(context, emptyMap()))
             .setOngoing(true)
             .setCategory(Notification.CATEGORY_SERVICE)
