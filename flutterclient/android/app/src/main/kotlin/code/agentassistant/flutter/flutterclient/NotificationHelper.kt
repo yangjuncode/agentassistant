@@ -87,6 +87,15 @@ object NotificationHelper {
         return Uri.parse("android.resource://${context.packageName}/raw/$name")
     }
 
+    /** 与通知渠道声音保持一致（API < 26 无渠道机制时用） */
+    private fun channelMessageSound(context: Context, channel: String): Uri {
+        return when (channel) {
+            CHANNEL_QUESTIONS -> resourceSoundUri(context, "question")
+            CHANNEL_REPORTS -> resourceSoundUri(context, "report")
+            else -> android.provider.Settings.System.DEFAULT_NOTIFICATION_URI
+        }
+    }
+
     private fun messageAudioAttributes(): AudioAttributes {
         return AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_NOTIFICATION)
@@ -146,6 +155,8 @@ object NotificationHelper {
         } else {
             @Suppress("DEPRECATION")
             Notification.Builder(context)
+                // 无通知渠道的旧系统：声音只能在通知本身上设置
+                .setSound(channelMessageSound(context, channel))
         }
         val notification = builder
             .setSmallIcon(context.applicationInfo.icon)
