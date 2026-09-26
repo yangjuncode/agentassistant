@@ -41,6 +41,9 @@ const (
 	// SrvAgentAssistSendMcpClientInfoProcedure is the fully-qualified name of the SrvAgentAssist's
 	// SendMcpClientInfo RPC.
 	SrvAgentAssistSendMcpClientInfoProcedure = "/agentassistproto.SrvAgentAssist/SendMcpClientInfo"
+	// SrvAgentAssistHeartbeatProcedure is the fully-qualified name of the SrvAgentAssist's Heartbeat
+	// RPC.
+	SrvAgentAssistHeartbeatProcedure = "/agentassistproto.SrvAgentAssist/Heartbeat"
 )
 
 // SrvAgentAssistClient is a client for the agentassistproto.SrvAgentAssist service.
@@ -48,6 +51,7 @@ type SrvAgentAssistClient interface {
 	AskQuestion(context.Context, *connect.Request[AskQuestionRequest]) (*connect.Response[AskQuestionResponse], error)
 	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
 	SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error)
+	Heartbeat(context.Context, *connect.Request[McpHeartbeatRequest]) (*connect.Response[McpHeartbeatResponse], error)
 }
 
 // NewSrvAgentAssistClient constructs a client for the agentassistproto.SrvAgentAssist service. By
@@ -79,6 +83,12 @@ func NewSrvAgentAssistClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(srvAgentAssistMethods.ByName("SendMcpClientInfo")),
 			connect.WithClientOptions(opts...),
 		),
+		heartbeat: connect.NewClient[McpHeartbeatRequest, McpHeartbeatResponse](
+			httpClient,
+			baseURL+SrvAgentAssistHeartbeatProcedure,
+			connect.WithSchema(srvAgentAssistMethods.ByName("Heartbeat")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -87,6 +97,7 @@ type srvAgentAssistClient struct {
 	askQuestion       *connect.Client[AskQuestionRequest, AskQuestionResponse]
 	workReport        *connect.Client[WorkReportRequest, WorkReportResponse]
 	sendMcpClientInfo *connect.Client[McpClientInfoRequest, McpClientInfoResponse]
+	heartbeat         *connect.Client[McpHeartbeatRequest, McpHeartbeatResponse]
 }
 
 // AskQuestion calls agentassistproto.SrvAgentAssist.AskQuestion.
@@ -104,11 +115,17 @@ func (c *srvAgentAssistClient) SendMcpClientInfo(ctx context.Context, req *conne
 	return c.sendMcpClientInfo.CallUnary(ctx, req)
 }
 
+// Heartbeat calls agentassistproto.SrvAgentAssist.Heartbeat.
+func (c *srvAgentAssistClient) Heartbeat(ctx context.Context, req *connect.Request[McpHeartbeatRequest]) (*connect.Response[McpHeartbeatResponse], error) {
+	return c.heartbeat.CallUnary(ctx, req)
+}
+
 // SrvAgentAssistHandler is an implementation of the agentassistproto.SrvAgentAssist service.
 type SrvAgentAssistHandler interface {
 	AskQuestion(context.Context, *connect.Request[AskQuestionRequest]) (*connect.Response[AskQuestionResponse], error)
 	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
 	SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error)
+	Heartbeat(context.Context, *connect.Request[McpHeartbeatRequest]) (*connect.Response[McpHeartbeatResponse], error)
 }
 
 // NewSrvAgentAssistHandler builds an HTTP handler from the service implementation. It returns the
@@ -136,6 +153,12 @@ func NewSrvAgentAssistHandler(svc SrvAgentAssistHandler, opts ...connect.Handler
 		connect.WithSchema(srvAgentAssistMethods.ByName("SendMcpClientInfo")),
 		connect.WithHandlerOptions(opts...),
 	)
+	srvAgentAssistHeartbeatHandler := connect.NewUnaryHandler(
+		SrvAgentAssistHeartbeatProcedure,
+		svc.Heartbeat,
+		connect.WithSchema(srvAgentAssistMethods.ByName("Heartbeat")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/agentassistproto.SrvAgentAssist/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SrvAgentAssistAskQuestionProcedure:
@@ -144,6 +167,8 @@ func NewSrvAgentAssistHandler(svc SrvAgentAssistHandler, opts ...connect.Handler
 			srvAgentAssistWorkReportHandler.ServeHTTP(w, r)
 		case SrvAgentAssistSendMcpClientInfoProcedure:
 			srvAgentAssistSendMcpClientInfoHandler.ServeHTTP(w, r)
+		case SrvAgentAssistHeartbeatProcedure:
+			srvAgentAssistHeartbeatHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -163,4 +188,8 @@ func (UnimplementedSrvAgentAssistHandler) WorkReport(context.Context, *connect.R
 
 func (UnimplementedSrvAgentAssistHandler) SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.SendMcpClientInfo is not implemented"))
+}
+
+func (UnimplementedSrvAgentAssistHandler) Heartbeat(context.Context, *connect.Request[McpHeartbeatRequest]) (*connect.Response[McpHeartbeatResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.Heartbeat is not implemented"))
 }

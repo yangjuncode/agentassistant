@@ -172,6 +172,7 @@
   "statusError": "错误",
   "statusExpired": "已过期",
   "statusCancelled": "已取消",
+  "initiatorDisconnected": "发起方已断开",
   "yourReply": "您的回复",
   "otherUser": "其他用户",
   "replyFrom": "{nickname}的回复",

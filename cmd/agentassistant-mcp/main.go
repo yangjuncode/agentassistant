@@ -110,9 +110,48 @@ func cacheMcpClientInfo(params mcp.InitializeParams) {
 var config Config
 var client agentassistproto.SrvAgentAssistClient
 
+// mcpSessionID identifies this MCP process to the server. The server uses it
+// to expire pending requests whose initiator has stopped heartbeating.
+var mcpSessionID = uuid.Must(uuid.NewV7()).String()
+
 var mcpClientName atomic.Value
 var mcpClientInfo atomic.Value
 var mcpClientInfoSent atomic.Bool
+
+const heartbeatInterval = 15 * time.Second
+
+// heartbeatLoop periodically reports this process's session id to the server
+// so pending requests can be associated with a live initiator. It runs until
+// the provided context is cancelled (stdio session ended or shutdown).
+func heartbeatLoop(ctx context.Context) {
+	beat := func() {
+		beatCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		req := &agentassistproto.McpHeartbeatRequest{
+			SessionId: mcpSessionID,
+			UserToken: config.AgentAssistantServerToken,
+			Timestamp: time.Now().UnixMilli(),
+		}
+		if _, err := client.Heartbeat(beatCtx, connect.NewRequest(req)); err != nil {
+			log.Printf("Heartbeat to server failed: %v", err)
+		}
+	}
+
+	beat() // report immediately at startup
+
+	ticker := time.NewTicker(heartbeatInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			beat()
+		}
+	}
+}
 
 func main() {
 	// Parse command line arguments
@@ -380,6 +419,7 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 	req := &agentassistproto.AskQuestionRequest{
 		ID:        generateRequestID(),
 		UserToken: config.AgentAssistantServerToken,
+		SessionId: mcpSessionID,
 		Request: &agentassistproto.McpAskQuestionRequest{
 			ProjectDirectory:   input.ProjectDirectory,
 			Question:           legacyQuestion,
@@ -391,8 +431,13 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		},
 	}
 
-	// Call the AskQuestion RPC
-	resp, err := client.AskQuestion(context.Background(), connect.NewRequest(req))
+	// Call the AskQuestion RPC with timeout (give server small grace period
+	// before client-side cutoff). Using the handler context lets shutdown
+	// abort the in-flight RPC so the server can release the pending request.
+	rpcCtx, rpcCancel := context.WithTimeout(ctx, time.Duration(input.Timeout+5)*time.Second)
+	defer rpcCancel()
+
+	resp, err := client.AskQuestion(rpcCtx, connect.NewRequest(req))
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("RPC call failed: %v", err)), nil
 	}
@@ -435,6 +480,7 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	req := &agentassistproto.WorkReportRequest{
 		ID:        generateRequestID(),
 		UserToken: config.AgentAssistantServerToken,
+		SessionId: mcpSessionID,
 		Request: &agentassistproto.McpWorkReportRequest{
 			ProjectDirectory:   projectDirectory,
 			Summary:            summary,

@@ -98,6 +98,8 @@ message AskQuestionRequest {
   McpAskQuestionRequest Request = 3;
   // timestamp (UTC)
   int64 Timestamp = 4;
+  // initiator (mcp process) session id, used for liveness tracking
+  string SessionId = 5;
 }
 
 message AskQuestionResponse {
@@ -134,6 +136,8 @@ message WorkReportRequest {
   McpWorkReportRequest Request = 3;
   // timestamp (UTC)
   int64 Timestamp = 4;
+  // initiator (mcp process) session id, used for liveness tracking
+  string SessionId = 5;
 }
 
 message WorkReportResponse {
@@ -217,7 +221,24 @@ message RequestCancelledNotification {
   string reason = 2;
   // message type: "AskQuestion" or "WorkReport"
   string message_type = 3;
+  // machine-readable reason code, e.g. "timeout", "cancelled",
+  // "initiator_disconnected"
+  string reason_code = 4;
 }
+
+// McpHeartbeatRequest represents a heartbeat sent by an MCP initiator process
+// to keep its pending requests alive. Each MCP process generates a unique
+// session id at startup and heartbeats it periodically while it is alive.
+message McpHeartbeatRequest {
+  // initiator (mcp process) session id
+  string SessionId = 1;
+  // user token
+  string UserToken = 2;
+  // timestamp (UTC)
+  int64 Timestamp = 3;
+}
+
+message McpHeartbeatResponse { bool Success = 1; }
 
 // OnlineUser represents an online user with the same token
 message OnlineUser {
@@ -460,6 +481,7 @@ service SrvAgentAssist {
   rpc AskQuestion(AskQuestionRequest) returns (AskQuestionResponse);
   rpc WorkReport(WorkReportRequest) returns (WorkReportResponse);
   rpc SendMcpClientInfo(McpClientInfoRequest) returns (McpClientInfoResponse);
+  rpc Heartbeat(McpHeartbeatRequest) returns (McpHeartbeatResponse);
 }
 
 // WebsocketMessage defines the message structure for WebSocket communication

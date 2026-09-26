@@ -123,6 +123,21 @@ class MessageBubble extends StatelessWidget {
                 children: [
                   _buildStatusChip(context),
                   const SizedBox(width: 4),
+                  // Cancellation reason, e.g. "initiator disconnected"
+                  if (message.status == MessageStatus.cancelled &&
+                      _cancelReasonText(context) != null) ...[
+                    Flexible(
+                      child: Text(
+                        _cancelReasonText(context)!,
+                        overflow: TextOverflow.ellipsis,
+                        style:
+                            Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.orange,
+                                ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
                   Text(
                     DateFormat('MM/dd HH:mm').format(message.timestamp),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -360,6 +375,17 @@ class MessageBubble extends StatelessWidget {
             ),
       ),
     );
+  }
+
+  /// Localized cancellation reason shown next to the cancelled status chip
+  String? _cancelReasonText(BuildContext context) {
+    if (message.cancelReasonCode == CancelReasonCodes.initiatorDisconnected) {
+      return AppLocalizations.of(context)!.initiatorDisconnected;
+    }
+    if (message.cancelReason != null && message.cancelReason!.isNotEmpty) {
+      return message.cancelReason!;
+    }
+    return null;
   }
 
   /// Get icon for message type

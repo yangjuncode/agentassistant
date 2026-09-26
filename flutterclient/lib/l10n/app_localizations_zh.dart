@@ -86,8 +86,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoForwardDisabled => '已关闭自动转发';
 
   @override
-  String get forwardInputMissingXdotool =>
-      '自动转发依赖 xdotool，但当前未安装。请先安装 xdotool。';
+  String get forwardInputMissingXdotool => '自动转发依赖 xdotool，但当前未安装。请先安装 xdotool。';
 
   @override
   String get useInteractiveMode => '交互式提问模式';
@@ -166,8 +165,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get feedbackMessage => '请联系您的系统管理员反馈问题';
 
   @override
-  String get aboutAppDescription =>
-      'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
+  String get aboutAppDescription => 'Agent Assistant 是一个移动客户端应用，用于与 AI Agent 进行实时通信。';
 
   @override
   String get features => '功能特性：';
@@ -232,8 +230,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customIgnorePatternsDialogTitle => '编辑自定义忽略规则';
 
   @override
-  String get customIgnorePatternsHint =>
-      '# 每行一条规则\n*.log\nbuild/\nnode_modules/';
+  String get customIgnorePatternsHint => '# 每行一条规则\n*.log\nbuild/\nnode_modules/';
 
   @override
   String get slashCommands => 'Slash Commands';
@@ -257,8 +254,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get slashSkillCompletionText => '/ 技能 (Skill) 补全文本';
 
   @override
-  String get slashCompletionTextDesc =>
-      '定制 / 命令自动补全时的输入文本。可用变量: %name%, %path%, %type%';
+  String get slashCompletionTextDesc => '定制 / 命令自动补全时的输入文本。可用变量: %name%, %path%, %type%';
 
   @override
   String get resetToDefault => '恢复默认';
@@ -466,6 +462,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get statusCancelled => '已取消';
 
   @override
+  String get initiatorDisconnected => '发起方已断开';
+
+  @override
   String get yourReply => '您的回复';
 
   @override
@@ -504,8 +503,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get nicknameTipsTitle => '提示：';
 
   @override
-  String get nicknameTipsBody =>
-      '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
+  String get nicknameTipsBody => '• 昵称长度为2-20个字符\n• 昵称将显示在您的回复中\n• 其他用户可以看到您的昵称';
 
   @override
   String nicknameLoadFailed(String error) {

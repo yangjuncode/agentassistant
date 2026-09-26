@@ -17,6 +17,7 @@ public  final class AskQuestionRequest extends
   private AskQuestionRequest() {
     iD_ = "";
     userToken_ = "";
+    sessionId_ = "";
   }
   private int bitField0_;
   public static final int ID_FIELD_NUMBER = 1;
@@ -256,6 +257,73 @@ public  final class AskQuestionRequest extends
   private void clearTimestamp() {
 
     timestamp_ = 0L;
+  }
+
+  public static final int SESSIONID_FIELD_NUMBER = 5;
+  private java.lang.String sessionId_;
+  /**
+   * <pre>
+   * initiator (mcp process) session id, used for liveness tracking
+   * </pre>
+   *
+   * <code>string SessionId = 5;</code>
+   * @return The sessionId.
+   */
+  @java.lang.Override
+  public java.lang.String getSessionId() {
+    return sessionId_;
+  }
+  /**
+   * <pre>
+   * initiator (mcp process) session id, used for liveness tracking
+   * </pre>
+   *
+   * <code>string SessionId = 5;</code>
+   * @return The bytes for sessionId.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getSessionIdBytes() {
+    return com.google.protobuf.ByteString.copyFromUtf8(sessionId_);
+  }
+  /**
+   * <pre>
+   * initiator (mcp process) session id, used for liveness tracking
+   * </pre>
+   *
+   * <code>string SessionId = 5;</code>
+   * @param value The sessionId to set.
+   */
+  private void setSessionId(
+      java.lang.String value) {
+    java.util.Objects.requireNonNull(value);
+
+    sessionId_ = value;
+  }
+  /**
+   * <pre>
+   * initiator (mcp process) session id, used for liveness tracking
+   * </pre>
+   *
+   * <code>string SessionId = 5;</code>
+   */
+  private void clearSessionId() {
+
+    sessionId_ = getDefaultInstance().getSessionId();
+  }
+  /**
+   * <pre>
+   * initiator (mcp process) session id, used for liveness tracking
+   * </pre>
+   *
+   * <code>string SessionId = 5;</code>
+   * @param value The bytes for sessionId to set.
+   */
+  private void setSessionIdBytes(
+      com.google.protobuf.ByteString value) {
+    checkByteStringIsUtf8(value);
+    sessionId_ = value.toStringUtf8();
+
   }
 
   public static code.agentassistant.flutter.flutterclient.proto.AskQuestionRequest parseFrom(
@@ -604,6 +672,75 @@ public  final class AskQuestionRequest extends
       return this;
     }
 
+    /**
+     * <pre>
+     * initiator (mcp process) session id, used for liveness tracking
+     * </pre>
+     *
+     * <code>string SessionId = 5;</code>
+     * @return The sessionId.
+     */
+    @java.lang.Override
+    public java.lang.String getSessionId() {
+      return instance.getSessionId();
+    }
+    /**
+     * <pre>
+     * initiator (mcp process) session id, used for liveness tracking
+     * </pre>
+     *
+     * <code>string SessionId = 5;</code>
+     * @return The bytes for sessionId.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getSessionIdBytes() {
+      return instance.getSessionIdBytes();
+    }
+    /**
+     * <pre>
+     * initiator (mcp process) session id, used for liveness tracking
+     * </pre>
+     *
+     * <code>string SessionId = 5;</code>
+     * @param value The sessionId to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSessionId(
+        java.lang.String value) {
+      copyOnWrite();
+      instance.setSessionId(value);
+      return this;
+    }
+    /**
+     * <pre>
+     * initiator (mcp process) session id, used for liveness tracking
+     * </pre>
+     *
+     * <code>string SessionId = 5;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearSessionId() {
+      copyOnWrite();
+      instance.clearSessionId();
+      return this;
+    }
+    /**
+     * <pre>
+     * initiator (mcp process) session id, used for liveness tracking
+     * </pre>
+     *
+     * <code>string SessionId = 5;</code>
+     * @param value The bytes for sessionId to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSessionIdBytes(
+        com.google.protobuf.ByteString value) {
+      copyOnWrite();
+      instance.setSessionIdBytes(value);
+      return this;
+    }
+
     // @@protoc_insertion_point(builder_scope:agentassistproto.AskQuestionRequest)
   }
   @java.lang.Override
@@ -625,10 +762,11 @@ public  final class AskQuestionRequest extends
             "userToken_",
             "request_",
             "timestamp_",
+            "sessionId_",
           };
           java.lang.String info =
-              "\u0000\u0004\u0000\u0001\u0001\u0004\u0004\u0000\u0000\u0000\u0001\u0208\u0002\u0208" +
-              "\u0003\u1009\u0000\u0004\u0002";
+              "\u0000\u0005\u0000\u0001\u0001\u0005\u0005\u0000\u0000\u0000\u0001\u0208\u0002\u0208" +
+              "\u0003\u1009\u0000\u0004\u0002\u0005\u0208";
           return newMessageInfo(DEFAULT_INSTANCE, info, objects);
       }
       case GET_DEFAULT_INSTANCE: {

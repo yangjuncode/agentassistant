@@ -69,4 +69,26 @@ public interface RequestCancelledNotificationOrBuilder extends
    */
   com.google.protobuf.ByteString
       getMessageTypeBytes();
+
+  /**
+   * <pre>
+   * machine-readable reason code, e.g. "timeout", "cancelled",
+   * "initiator_disconnected"
+   * </pre>
+   *
+   * <code>string reason_code = 4;</code>
+   * @return The reasonCode.
+   */
+  java.lang.String getReasonCode();
+  /**
+   * <pre>
+   * machine-readable reason code, e.g. "timeout", "cancelled",
+   * "initiator_disconnected"
+   * </pre>
+   *
+   * <code>string reason_code = 4;</code>
+   * @return The bytes for reasonCode.
+   */
+  com.google.protobuf.ByteString
+      getReasonCodeBytes();
 }

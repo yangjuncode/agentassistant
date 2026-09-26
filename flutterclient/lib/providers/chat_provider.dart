@@ -1341,9 +1341,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final notification = message.requestCancelledNotification;
     final requestId = notification.requestId;
     final reason = notification.reason;
+    final reasonCode = notification.reasonCode;
     final messageType = notification.messageType;
 
-    _logger.i('Request $requestId ($messageType) was cancelled: $reason');
+    _logger.i('Request $requestId ($messageType) was cancelled: $reason ($reasonCode)');
 
     // Find and update the existing message
     final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
@@ -1351,6 +1352,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       final existingMessage = _messages[messageIndex];
       final updatedMessage = existingMessage.copyWith(
         status: MessageStatus.cancelled,
+        cancelReason: reason.isNotEmpty ? reason : null,
+        cancelReasonCode: reasonCode.isNotEmpty ? reasonCode : null,
       );
       _messages[messageIndex] = updatedMessage;
 

@@ -202,3 +202,105 @@ func TestBroadcastWorkReportReply(t *testing.T) {
 	broadcaster.UnregisterClient(sender)
 	broadcaster.UnregisterClient(receiver)
 }
+
+func TestExpireStaleSessionRequests(t *testing.T) {
+	broadcaster := NewBroadcaster()
+
+	client := NewWebClient("client1")
+	broadcaster.RegisterClient(client)
+	time.Sleep(100 * time.Millisecond)
+
+	old := time.Now().Add(-2 * mcpSessionExpireAfter)
+
+	// stale request: session exists but heartbeat is old
+	broadcaster.mu.Lock()
+	broadcaster.pendingRequests["stale"] = &WebsocketRequest{
+		Message: &agentassistproto.WebsocketMessage{
+			Cmd: "AskQuestion",
+			AskQuestionRequest: &agentassistproto.AskQuestionRequest{
+				ID:        "stale",
+				SessionId: "session-stale",
+			},
+		},
+		ResponseChan: make(chan *WebResponse, 1),
+		CreatedAt:    old,
+		SessionID:    "session-stale",
+	}
+	// fresh request: created long ago but session still beating
+	broadcaster.pendingRequests["fresh"] = &WebsocketRequest{
+		Message: &agentassistproto.WebsocketMessage{
+			Cmd: "AskQuestion",
+			AskQuestionRequest: &agentassistproto.AskQuestionRequest{
+				ID:        "fresh",
+				SessionId: "session-fresh",
+			},
+		},
+		ResponseChan: make(chan *WebResponse, 1),
+		CreatedAt:    old,
+		SessionID:    "session-fresh",
+	}
+	// legacy request without session id: must never be expired
+	broadcaster.pendingRequests["legacy"] = &WebsocketRequest{
+		Message: &agentassistproto.WebsocketMessage{
+			Cmd: "AskQuestion",
+			AskQuestionRequest: &agentassistproto.AskQuestionRequest{
+				ID: "legacy",
+			},
+		},
+		ResponseChan: make(chan *WebResponse, 1),
+		CreatedAt:    old,
+	}
+	broadcaster.sessionActivity["session-stale"] = old
+	broadcaster.sessionActivity["session-fresh"] = time.Now()
+	broadcaster.mu.Unlock()
+
+	broadcaster.expireStaleSessionRequests()
+	time.Sleep(100 * time.Millisecond)
+
+	// stale cancelled, fresh and legacy still pending
+	if _, ok := broadcaster.pendingRequests["stale"]; ok {
+		t.Error("stale request should have been cancelled")
+	}
+	if _, ok := broadcaster.pendingRequests["fresh"]; !ok {
+		t.Error("fresh request should still be pending")
+	}
+	if _, ok := broadcaster.pendingRequests["legacy"]; !ok {
+		t.Error("legacy request without session should still be pending")
+	}
+
+	// client should have received a RequestCancelled notification
+	select {
+	case msg := <-client.SendChan:
+		if msg.Cmd != "RequestCancelled" {
+			t.Fatalf("expected RequestCancelled, got %s", msg.Cmd)
+		}
+		n := msg.RequestCancelledNotification
+		if n.RequestId != "stale" {
+			t.Errorf("expected cancelled request id 'stale', got %s", n.RequestId)
+		}
+		if n.ReasonCode != CancelReasonInitiatorDisconnected {
+			t.Errorf("expected reason code %q, got %q", CancelReasonInitiatorDisconnected, n.ReasonCode)
+		}
+		if n.MessageType != "AskQuestion" {
+			t.Errorf("expected message type AskQuestion, got %s", n.MessageType)
+		}
+	default:
+		t.Error("client should have received RequestCancelled notification")
+	}
+
+	broadcaster.UnregisterClient(client)
+}
+
+func TestReportSessionActivity(t *testing.T) {
+	broadcaster := NewBroadcaster()
+
+	broadcaster.ReportSessionActivity("")
+	if len(broadcaster.sessionActivity) != 0 {
+		t.Error("empty session id should not be tracked")
+	}
+
+	broadcaster.ReportSessionActivity("s1")
+	if _, ok := broadcaster.sessionActivity["s1"]; !ok {
+		t.Error("session s1 should be tracked")
+	}
+}

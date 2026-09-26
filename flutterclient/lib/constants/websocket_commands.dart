@@ -31,6 +31,13 @@ class ContentTypes {
   static const int embeddedResource = 4;
 }
 
+/// Request cancellation reason codes sent by the server
+class CancelReasonCodes {
+  static const String timeout = 'timeout';
+  static const String cancelled = 'cancelled';
+  static const String initiatorDisconnected = 'initiator_disconnected';
+}
+
 /// Message status constants
 enum MessageStatus {
   pending,

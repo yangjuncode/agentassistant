@@ -236,6 +236,7 @@
   "statusError": "Error",
   "statusExpired": "Expired",
   "statusCancelled": "Cancelled",
+  "initiatorDisconnected": "Initiator disconnected",
   "yourReply": "Your reply",
   "otherUser": "Other user",
   "replyFrom": "Reply from {nickname}",

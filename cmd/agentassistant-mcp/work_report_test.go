@@ -14,6 +14,7 @@ type mockAgentAssistClient struct {
 	askQuestionFunc       func(context.Context, *connect.Request[agentassistproto.AskQuestionRequest]) (*connect.Response[agentassistproto.AskQuestionResponse], error)
 	workReportFunc        func(context.Context, *connect.Request[agentassistproto.WorkReportRequest]) (*connect.Response[agentassistproto.WorkReportResponse], error)
 	sendMcpClientInfoFunc func(context.Context, *connect.Request[agentassistproto.McpClientInfoRequest]) (*connect.Response[agentassistproto.McpClientInfoResponse], error)
+	heartbeatFunc         func(context.Context, *connect.Request[agentassistproto.McpHeartbeatRequest]) (*connect.Response[agentassistproto.McpHeartbeatResponse], error)
 }
 
 func (m *mockAgentAssistClient) AskQuestion(ctx context.Context, req *connect.Request[agentassistproto.AskQuestionRequest]) (*connect.Response[agentassistproto.AskQuestionResponse], error) {
@@ -33,6 +34,13 @@ func (m *mockAgentAssistClient) WorkReport(ctx context.Context, req *connect.Req
 func (m *mockAgentAssistClient) SendMcpClientInfo(ctx context.Context, req *connect.Request[agentassistproto.McpClientInfoRequest]) (*connect.Response[agentassistproto.McpClientInfoResponse], error) {
 	if m.sendMcpClientInfoFunc != nil {
 		return m.sendMcpClientInfoFunc(ctx, req)
+	}
+	return nil, errors.New("unimplemented")
+}
+
+func (m *mockAgentAssistClient) Heartbeat(ctx context.Context, req *connect.Request[agentassistproto.McpHeartbeatRequest]) (*connect.Response[agentassistproto.McpHeartbeatResponse], error) {
+	if m.heartbeatFunc != nil {
+		return m.heartbeatFunc(ctx, req)
 	}
 	return nil, errors.New("unimplemented")
 }

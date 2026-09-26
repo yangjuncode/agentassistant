@@ -124,7 +124,7 @@ func (s *AgentAssistService) AskQuestion(
 		if timeoutCtx.Err() == context.DeadlineExceeded {
 			log.Printf("AskQuestion request timed out after %d seconds", timeout)
 			// Cancel the request in broadcaster and notify clients
-			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "AskQuestion")
+			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "AskQuestion", CancelReasonTimeout)
 			return &connect.Response[agentassistproto.AskQuestionResponse]{
 				Msg: &agentassistproto.AskQuestionResponse{
 					ID:      requestID,
@@ -137,10 +137,10 @@ func (s *AgentAssistService) AskQuestion(
 				},
 			}, nil
 		}
-		// Context was cancelled (not timeout)
+		// Context was cancelled (not timeout) — the RPC caller went away
 		log.Printf("AskQuestion request was cancelled: %s", requestID)
 		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "AskQuestion")
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "AskQuestion", CancelReasonInitiatorDisconnected)
 		return &connect.Response[agentassistproto.AskQuestionResponse]{
 			Msg: &agentassistproto.AskQuestionResponse{
 				ID:      requestID,
@@ -154,10 +154,10 @@ func (s *AgentAssistService) AskQuestion(
 		}, nil
 
 	case <-ctx.Done():
-		// Original context was cancelled
+		// Original context was cancelled — the RPC caller went away
 		log.Printf("AskQuestion request was cancelled by original context: %s", requestID)
 		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "AskQuestion")
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "AskQuestion", CancelReasonInitiatorDisconnected)
 		return &connect.Response[agentassistproto.AskQuestionResponse]{
 			Msg: &agentassistproto.AskQuestionResponse{
 				ID:      requestID,
@@ -249,7 +249,7 @@ func (s *AgentAssistService) WorkReport(
 		if timeoutCtx.Err() == context.DeadlineExceeded {
 			log.Printf("WorkReport request timed out after %d seconds", timeout)
 			// Cancel the request in broadcaster and notify clients
-			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "WorkReport")
+			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "WorkReport", CancelReasonTimeout)
 			return &connect.Response[agentassistproto.WorkReportResponse]{
 				Msg: &agentassistproto.WorkReportResponse{
 					ID:      requestID,
@@ -262,10 +262,10 @@ func (s *AgentAssistService) WorkReport(
 				},
 			}, nil
 		}
-		// Context was cancelled (not timeout)
+		// Context was cancelled (not timeout) — the RPC caller went away
 		log.Printf("WorkReport request was cancelled: %s", requestID)
 		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "WorkReport")
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "WorkReport", CancelReasonInitiatorDisconnected)
 		return &connect.Response[agentassistproto.WorkReportResponse]{
 			Msg: &agentassistproto.WorkReportResponse{
 				ID:      requestID,
@@ -279,10 +279,10 @@ func (s *AgentAssistService) WorkReport(
 		}, nil
 
 	case <-ctx.Done():
-		// Original context was cancelled
+		// Original context was cancelled — the RPC caller went away
 		log.Printf("WorkReport request was cancelled by original context: %s", requestID)
 		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "WorkReport")
+		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "WorkReport", CancelReasonInitiatorDisconnected)
 		return &connect.Response[agentassistproto.WorkReportResponse]{
 			Msg: &agentassistproto.WorkReportResponse{
 				ID:      requestID,
@@ -295,6 +295,23 @@ func (s *AgentAssistService) WorkReport(
 			},
 		}, nil
 	}
+}
+
+// Heartbeat implements the Heartbeat RPC method. MCP initiator processes call
+// this periodically to keep their pending requests alive; requests whose
+// session stops heartbeating are expired by the broadcaster sweeper.
+func (s *AgentAssistService) Heartbeat(
+	ctx context.Context,
+	req *connect.Request[agentassistproto.McpHeartbeatRequest],
+) (*connect.Response[agentassistproto.McpHeartbeatResponse], error) {
+	sessionID := req.Msg.SessionId
+	if sessionID == "" {
+		log.Printf("Received Heartbeat request with empty session id")
+		return connect.NewResponse(&agentassistproto.McpHeartbeatResponse{Success: false}), nil
+	}
+
+	s.broadcaster.ReportSessionActivity(sessionID)
+	return connect.NewResponse(&agentassistproto.McpHeartbeatResponse{Success: true}), nil
 }
 
 // GetBroadcaster returns the broadcaster instance for web interface integration

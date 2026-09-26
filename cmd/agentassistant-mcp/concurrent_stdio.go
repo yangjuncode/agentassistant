@@ -98,6 +98,14 @@ func serveConcurrentStdio(mcpServer *server.MCPServer) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// The heartbeat is tied to the stdio session's liveness, not the process
+	// lifetime: after stdin closes the MCP client is gone, so we stop beating
+	// while in-flight tool handlers drain and the server can expire the
+	// session's pending requests.
+	heartbeatCtx, stopHeartbeat := context.WithCancel(context.Background())
+	defer stopHeartbeat()
+	go heartbeatLoop(heartbeatCtx)
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGTERM, syscall.SIGINT)
 	defer signal.Stop(sigChan)
@@ -110,7 +118,7 @@ func serveConcurrentStdio(mcpServer *server.MCPServer) error {
 		}
 	}()
 
-	return listenConcurrentStdio(ctx, os.Stdin, os.Stdout, mcpServer)
+	return listenConcurrentStdio(ctx, os.Stdin, os.Stdout, mcpServer, stopHeartbeat)
 }
 
 func listenConcurrentStdio(
@@ -118,6 +126,7 @@ func listenConcurrentStdio(
 	stdin io.Reader,
 	stdout io.Writer,
 	mcpServer *server.MCPServer,
+	stopHeartbeat func(),
 ) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -135,7 +144,7 @@ func listenConcurrentStdio(
 	}
 
 	go stdioServer.handleNotifications(ctx, session, stdout)
-	return stdioServer.processInputStream(ctx, bufio.NewReader(stdin), stdout)
+	return stdioServer.processInputStream(ctx, bufio.NewReader(stdin), stdout, stopHeartbeat)
 }
 
 func (s *concurrentStdioServer) handleNotifications(
@@ -159,9 +168,24 @@ func (s *concurrentStdioServer) processInputStream(
 	ctx context.Context,
 	reader *bufio.Reader,
 	stdout io.Writer,
+	stopHeartbeat func(),
 ) error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
+	// stopHeartbeat may be nil in tests; guard all call sites
+	stopBeat := func() {
+		if stopHeartbeat != nil {
+			stopHeartbeat()
+		}
+	}
+	defer stopBeat()
+
+	// In-flight tool handlers get their own context so the whole batch can be
+	// aborted as soon as the MCP client (stdin) goes away — their results
+	// could no longer be delivered anyway.
+	handlerCtx, cancelHandlers := context.WithCancel(ctx)
+	defer cancelHandlers()
 
 	var wg sync.WaitGroup
 	errCh := make(chan error, 1)
@@ -179,6 +203,8 @@ func (s *concurrentStdioServer) processInputStream(
 		line, err := readNextStdioLine(ctx, reader)
 		if err != nil {
 			if err == io.EOF {
+				stopBeat()
+				cancelHandlers()
 				return waitForConcurrentStdioHandlers(ctx, &wg)
 			}
 			return err
@@ -188,7 +214,7 @@ func (s *concurrentStdioServer) processInputStream(
 			wg.Add(1)
 			go func(line string) {
 				defer wg.Done()
-				if err := s.processMessage(ctx, line, stdout); err != nil {
+				if err := s.processMessage(handlerCtx, line, stdout); err != nil {
 					select {
 					case errCh <- err:
 						cancel()
@@ -201,6 +227,8 @@ func (s *concurrentStdioServer) processInputStream(
 
 		if err := s.processMessage(ctx, line, stdout); err != nil {
 			if err == io.EOF {
+				stopBeat()
+				cancelHandlers()
 				return waitForConcurrentStdioHandlers(ctx, &wg)
 			}
 			return err

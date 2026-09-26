@@ -1,13 +1,14 @@
+// This is a generated file - do not edit.
 //
-//  Generated code. Do not modify.
-//  source: agentassist.proto
-//
-// @dart = 2.12
+// Generated from agentassist.proto.
+
+// @dart = 3.3
 
 // ignore_for_file: annotate_overrides, camel_case_types, comment_references
-// ignore_for_file: constant_identifier_names, library_prefixes
-// ignore_for_file: non_constant_identifier_names, prefer_final_fields
-// ignore_for_file: unnecessary_import, unnecessary_this, unused_import
+// ignore_for_file: constant_identifier_names
+// ignore_for_file: curly_braces_in_flow_control_structures
+// ignore_for_file: deprecated_member_use_from_same_package, library_prefixes
+// ignore_for_file: non_constant_identifier_names, unused_import
 
 import 'dart:convert' as $convert;
 import 'dart:core' as $core;
@@ -77,10 +78,38 @@ const McpResultContent$json = {
   '1': 'McpResultContent',
   '2': [
     {'1': 'type', '3': 1, '4': 1, '5': 5, '10': 'type'},
-    {'1': 'text', '3': 2, '4': 1, '5': 11, '6': '.agentassistproto.TextContent', '10': 'text'},
-    {'1': 'image', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.ImageContent', '10': 'image'},
-    {'1': 'audio', '3': 4, '4': 1, '5': 11, '6': '.agentassistproto.AudioContent', '10': 'audio'},
-    {'1': 'embedded_resource', '3': 5, '4': 1, '5': 11, '6': '.agentassistproto.EmbeddedResource', '10': 'embeddedResource'},
+    {
+      '1': 'text',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.TextContent',
+      '10': 'text'
+    },
+    {
+      '1': 'image',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ImageContent',
+      '10': 'image'
+    },
+    {
+      '1': 'audio',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.AudioContent',
+      '10': 'audio'
+    },
+    {
+      '1': 'embedded_resource',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.EmbeddedResource',
+      '10': 'embeddedResource'
+    },
   ],
 };
 
@@ -99,8 +128,8 @@ const MsgEmpty$json = {
 };
 
 /// Descriptor for `MsgEmpty`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List msgEmptyDescriptor = $convert.base64Decode(
-    'CghNc2dFbXB0eQ==');
+final $typed_data.Uint8List msgEmptyDescriptor =
+    $convert.base64Decode('CghNc2dFbXB0eQ==');
 
 @$core.Deprecated('Use optionDescriptor instead')
 const Option$json = {
@@ -122,7 +151,14 @@ const Question$json = {
   '2': [
     {'1': 'question', '3': 1, '4': 1, '5': 9, '10': 'question'},
     {'1': 'header', '3': 2, '4': 1, '5': 9, '10': 'header'},
-    {'1': 'options', '3': 3, '4': 3, '5': 11, '6': '.agentassistproto.Option', '10': 'options'},
+    {
+      '1': 'options',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.Option',
+      '10': 'options'
+    },
     {'1': 'multiple', '3': 4, '4': 1, '5': 8, '10': 'multiple'},
     {'1': 'custom', '3': 5, '4': 1, '5': 8, '10': 'custom'},
   ],
@@ -150,9 +186,22 @@ const McpAskQuestionRequest$json = {
     },
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
     {'1': 'AgentName', '3': 4, '4': 1, '5': 9, '10': 'AgentName'},
-    {'1': 'ReasoningModelName', '3': 5, '4': 1, '5': 9, '10': 'ReasoningModelName'},
+    {
+      '1': 'ReasoningModelName',
+      '3': 5,
+      '4': 1,
+      '5': 9,
+      '10': 'ReasoningModelName'
+    },
     {'1': 'McpClientName', '3': 6, '4': 1, '5': 9, '10': 'McpClientName'},
-    {'1': 'Questions', '3': 7, '4': 3, '5': 11, '6': '.agentassistproto.Question', '10': 'Questions'},
+    {
+      '1': 'Questions',
+      '3': 7,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.Question',
+      '10': 'Questions'
+    },
   ],
 };
 
@@ -171,8 +220,16 @@ const AskQuestionRequest$json = {
   '2': [
     {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
     {'1': 'UserToken', '3': 2, '4': 1, '5': 9, '10': 'UserToken'},
-    {'1': 'Request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.McpAskQuestionRequest', '10': 'Request'},
+    {
+      '1': 'Request',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.McpAskQuestionRequest',
+      '10': 'Request'
+    },
     {'1': 'Timestamp', '3': 4, '4': 1, '5': 3, '10': 'Timestamp'},
+    {'1': 'SessionId', '3': 5, '4': 1, '5': 9, '10': 'SessionId'},
   ],
 };
 
@@ -180,7 +237,8 @@ const AskQuestionRequest$json = {
 final $typed_data.Uint8List askQuestionRequestDescriptor = $convert.base64Decode(
     'ChJBc2tRdWVzdGlvblJlcXVlc3QSDgoCSUQYASABKAlSAklEEhwKCVVzZXJUb2tlbhgCIAEoCV'
     'IJVXNlclRva2VuEkEKB1JlcXVlc3QYAyABKAsyJy5hZ2VudGFzc2lzdHByb3RvLk1jcEFza1F1'
-    'ZXN0aW9uUmVxdWVzdFIHUmVxdWVzdBIcCglUaW1lc3RhbXAYBCABKANSCVRpbWVzdGFtcA==');
+    'ZXN0aW9uUmVxdWVzdFIHUmVxdWVzdBIcCglUaW1lc3RhbXAYBCABKANSCVRpbWVzdGFtcBIcCg'
+    'lTZXNzaW9uSWQYBSABKAlSCVNlc3Npb25JZA==');
 
 @$core.Deprecated('Use askQuestionResponseDescriptor instead')
 const AskQuestionResponse$json = {
@@ -188,8 +246,22 @@ const AskQuestionResponse$json = {
   '2': [
     {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
     {'1': 'IsError', '3': 2, '4': 1, '5': 8, '10': 'IsError'},
-    {'1': 'Meta', '3': 3, '4': 3, '5': 11, '6': '.agentassistproto.AskQuestionResponse.MetaEntry', '10': 'Meta'},
-    {'1': 'contents', '3': 4, '4': 3, '5': 11, '6': '.agentassistproto.McpResultContent', '10': 'contents'},
+    {
+      '1': 'Meta',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.AskQuestionResponse.MetaEntry',
+      '10': 'Meta'
+    },
+    {
+      '1': 'contents',
+      '3': 4,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.McpResultContent',
+      '10': 'contents'
+    },
   ],
   '3': [AskQuestionResponse_MetaEntry$json],
 };
@@ -220,7 +292,13 @@ const McpWorkReportRequest$json = {
     {'1': 'Summary', '3': 2, '4': 1, '5': 9, '10': 'Summary'},
     {'1': 'Timeout', '3': 3, '4': 1, '5': 5, '10': 'Timeout'},
     {'1': 'AgentName', '3': 4, '4': 1, '5': 9, '10': 'AgentName'},
-    {'1': 'ReasoningModelName', '3': 5, '4': 1, '5': 9, '10': 'ReasoningModelName'},
+    {
+      '1': 'ReasoningModelName',
+      '3': 5,
+      '4': 1,
+      '5': 9,
+      '10': 'ReasoningModelName'
+    },
     {'1': 'McpClientName', '3': 6, '4': 1, '5': 9, '10': 'McpClientName'},
   ],
 };
@@ -239,8 +317,16 @@ const WorkReportRequest$json = {
   '2': [
     {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
     {'1': 'UserToken', '3': 2, '4': 1, '5': 9, '10': 'UserToken'},
-    {'1': 'Request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.McpWorkReportRequest', '10': 'Request'},
+    {
+      '1': 'Request',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.McpWorkReportRequest',
+      '10': 'Request'
+    },
     {'1': 'Timestamp', '3': 4, '4': 1, '5': 3, '10': 'Timestamp'},
+    {'1': 'SessionId', '3': 5, '4': 1, '5': 9, '10': 'SessionId'},
   ],
 };
 
@@ -248,7 +334,8 @@ const WorkReportRequest$json = {
 final $typed_data.Uint8List workReportRequestDescriptor = $convert.base64Decode(
     'ChFXb3JrUmVwb3J0UmVxdWVzdBIOCgJJRBgBIAEoCVICSUQSHAoJVXNlclRva2VuGAIgASgJUg'
     'lVc2VyVG9rZW4SQAoHUmVxdWVzdBgDIAEoCzImLmFnZW50YXNzaXN0cHJvdG8uTWNwV29ya1Jl'
-    'cG9ydFJlcXVlc3RSB1JlcXVlc3QSHAoJVGltZXN0YW1wGAQgASgDUglUaW1lc3RhbXA=');
+    'cG9ydFJlcXVlc3RSB1JlcXVlc3QSHAoJVGltZXN0YW1wGAQgASgDUglUaW1lc3RhbXASHAoJU2'
+    'Vzc2lvbklkGAUgASgJUglTZXNzaW9uSWQ=');
 
 @$core.Deprecated('Use workReportResponseDescriptor instead')
 const WorkReportResponse$json = {
@@ -256,8 +343,22 @@ const WorkReportResponse$json = {
   '2': [
     {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
     {'1': 'IsError', '3': 2, '4': 1, '5': 8, '10': 'IsError'},
-    {'1': 'Meta', '3': 3, '4': 3, '5': 11, '6': '.agentassistproto.WorkReportResponse.MetaEntry', '10': 'Meta'},
-    {'1': 'contents', '3': 4, '4': 3, '5': 11, '6': '.agentassistproto.McpResultContent', '10': 'contents'},
+    {
+      '1': 'Meta',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.WorkReportResponse.MetaEntry',
+      '10': 'Meta'
+    },
+    {
+      '1': 'contents',
+      '3': 4,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.McpResultContent',
+      '10': 'contents'
+    },
   ],
   '3': [WorkReportResponse_MetaEntry$json],
 };
@@ -304,7 +405,14 @@ const McpClientInfoRequest$json = {
   '2': [
     {'1': 'ID', '3': 1, '4': 1, '5': 9, '10': 'ID'},
     {'1': 'UserToken', '3': 2, '4': 1, '5': 9, '10': 'UserToken'},
-    {'1': 'Request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.McpClientInfoData', '10': 'Request'},
+    {
+      '1': 'Request',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.McpClientInfoData',
+      '10': 'Request'
+    },
     {'1': 'Timestamp', '3': 4, '4': 1, '5': 3, '10': 'Timestamp'},
   ],
 };
@@ -324,8 +432,9 @@ const McpClientInfoResponse$json = {
 };
 
 /// Descriptor for `McpClientInfoResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List mcpClientInfoResponseDescriptor = $convert.base64Decode(
-    'ChVNY3BDbGllbnRJbmZvUmVzcG9uc2USGAoHU3VjY2VzcxgBIAEoCFIHU3VjY2Vzcw==');
+final $typed_data.Uint8List mcpClientInfoResponseDescriptor =
+    $convert.base64Decode(
+        'ChVNY3BDbGllbnRJbmZvUmVzcG9uc2USGAoHU3VjY2VzcxgBIAEoCFIHU3VjY2Vzcw==');
 
 @$core.Deprecated('Use checkMessageValidityRequestDescriptor instead')
 const CheckMessageValidityRequest$json = {
@@ -336,15 +445,23 @@ const CheckMessageValidityRequest$json = {
 };
 
 /// Descriptor for `CheckMessageValidityRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List checkMessageValidityRequestDescriptor = $convert.base64Decode(
-    'ChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSHwoLcmVxdWVzdF9pZHMYASADKAlSCnJlcX'
-    'Vlc3RJZHM=');
+final $typed_data.Uint8List checkMessageValidityRequestDescriptor =
+    $convert.base64Decode(
+        'ChtDaGVja01lc3NhZ2VWYWxpZGl0eVJlcXVlc3QSHwoLcmVxdWVzdF9pZHMYASADKAlSCnJlcX'
+        'Vlc3RJZHM=');
 
 @$core.Deprecated('Use checkMessageValidityResponseDescriptor instead')
 const CheckMessageValidityResponse$json = {
   '1': 'CheckMessageValidityResponse',
   '2': [
-    {'1': 'validity', '3': 1, '4': 3, '5': 11, '6': '.agentassistproto.CheckMessageValidityResponse.ValidityEntry', '10': 'validity'},
+    {
+      '1': 'validity',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.CheckMessageValidityResponse.ValidityEntry',
+      '10': 'validity'
+    },
   ],
   '3': [CheckMessageValidityResponse_ValidityEntry$json],
 };
@@ -375,17 +492,32 @@ const GetPendingMessagesRequest$json = {
 };
 
 /// Descriptor for `GetPendingMessagesRequest`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getPendingMessagesRequestDescriptor = $convert.base64Decode(
-    'ChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0Eh0KCnVzZXJfdG9rZW4YASABKAlSCXVzZXJUb2'
-    'tlbg==');
+final $typed_data.Uint8List getPendingMessagesRequestDescriptor =
+    $convert.base64Decode(
+        'ChlHZXRQZW5kaW5nTWVzc2FnZXNSZXF1ZXN0Eh0KCnVzZXJfdG9rZW4YASABKAlSCXVzZXJUb2'
+        'tlbg==');
 
 @$core.Deprecated('Use pendingMessageDescriptor instead')
 const PendingMessage$json = {
   '1': 'PendingMessage',
   '2': [
     {'1': 'message_type', '3': 1, '4': 1, '5': 9, '10': 'messageType'},
-    {'1': 'ask_question_request', '3': 2, '4': 1, '5': 11, '6': '.agentassistproto.AskQuestionRequest', '10': 'askQuestionRequest'},
-    {'1': 'work_report_request', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.WorkReportRequest', '10': 'workReportRequest'},
+    {
+      '1': 'ask_question_request',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.AskQuestionRequest',
+      '10': 'askQuestionRequest'
+    },
+    {
+      '1': 'work_report_request',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.WorkReportRequest',
+      '10': 'workReportRequest'
+    },
     {'1': 'created_at', '3': 4, '4': 1, '5': 3, '10': 'createdAt'},
     {'1': 'timeout', '3': 5, '4': 1, '5': 5, '10': 'timeout'},
   ],
@@ -404,16 +536,24 @@ final $typed_data.Uint8List pendingMessageDescriptor = $convert.base64Decode(
 const GetPendingMessagesResponse$json = {
   '1': 'GetPendingMessagesResponse',
   '2': [
-    {'1': 'pending_messages', '3': 1, '4': 3, '5': 11, '6': '.agentassistproto.PendingMessage', '10': 'pendingMessages'},
+    {
+      '1': 'pending_messages',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.PendingMessage',
+      '10': 'pendingMessages'
+    },
     {'1': 'total_count', '3': 2, '4': 1, '5': 5, '10': 'totalCount'},
   ],
 };
 
 /// Descriptor for `GetPendingMessagesResponse`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List getPendingMessagesResponseDescriptor = $convert.base64Decode(
-    'ChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJLChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMi'
-    'AuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZVIPcGVuZGluZ01lc3NhZ2VzEh8KC3Rv'
-    'dGFsX2NvdW50GAIgASgFUgp0b3RhbENvdW50');
+final $typed_data.Uint8List getPendingMessagesResponseDescriptor =
+    $convert.base64Decode(
+        'ChpHZXRQZW5kaW5nTWVzc2FnZXNSZXNwb25zZRJLChBwZW5kaW5nX21lc3NhZ2VzGAEgAygLMi'
+        'AuYWdlbnRhc3Npc3Rwcm90by5QZW5kaW5nTWVzc2FnZVIPcGVuZGluZ01lc3NhZ2VzEh8KC3Rv'
+        'dGFsX2NvdW50GAIgASgFUgp0b3RhbENvdW50');
 
 @$core.Deprecated('Use requestCancelledNotificationDescriptor instead')
 const RequestCancelledNotification$json = {
@@ -422,14 +562,44 @@ const RequestCancelledNotification$json = {
     {'1': 'request_id', '3': 1, '4': 1, '5': 9, '10': 'requestId'},
     {'1': 'reason', '3': 2, '4': 1, '5': 9, '10': 'reason'},
     {'1': 'message_type', '3': 3, '4': 1, '5': 9, '10': 'messageType'},
+    {'1': 'reason_code', '3': 4, '4': 1, '5': 9, '10': 'reasonCode'},
   ],
 };
 
 /// Descriptor for `RequestCancelledNotification`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List requestCancelledNotificationDescriptor = $convert.base64Decode(
-    'ChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEh0KCnJlcXVlc3RfaWQYASABKAlSCXJlcX'
-    'Vlc3RJZBIWCgZyZWFzb24YAiABKAlSBnJlYXNvbhIhCgxtZXNzYWdlX3R5cGUYAyABKAlSC21l'
-    'c3NhZ2VUeXBl');
+final $typed_data.Uint8List requestCancelledNotificationDescriptor =
+    $convert.base64Decode(
+        'ChxSZXF1ZXN0Q2FuY2VsbGVkTm90aWZpY2F0aW9uEh0KCnJlcXVlc3RfaWQYASABKAlSCXJlcX'
+        'Vlc3RJZBIWCgZyZWFzb24YAiABKAlSBnJlYXNvbhIhCgxtZXNzYWdlX3R5cGUYAyABKAlSC21l'
+        'c3NhZ2VUeXBlEh8KC3JlYXNvbl9jb2RlGAQgASgJUgpyZWFzb25Db2Rl');
+
+@$core.Deprecated('Use mcpHeartbeatRequestDescriptor instead')
+const McpHeartbeatRequest$json = {
+  '1': 'McpHeartbeatRequest',
+  '2': [
+    {'1': 'SessionId', '3': 1, '4': 1, '5': 9, '10': 'SessionId'},
+    {'1': 'UserToken', '3': 2, '4': 1, '5': 9, '10': 'UserToken'},
+    {'1': 'Timestamp', '3': 3, '4': 1, '5': 3, '10': 'Timestamp'},
+  ],
+};
+
+/// Descriptor for `McpHeartbeatRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List mcpHeartbeatRequestDescriptor = $convert.base64Decode(
+    'ChNNY3BIZWFydGJlYXRSZXF1ZXN0EhwKCVNlc3Npb25JZBgBIAEoCVIJU2Vzc2lvbklkEhwKCV'
+    'VzZXJUb2tlbhgCIAEoCVIJVXNlclRva2VuEhwKCVRpbWVzdGFtcBgDIAEoA1IJVGltZXN0YW1w');
+
+@$core.Deprecated('Use mcpHeartbeatResponseDescriptor instead')
+const McpHeartbeatResponse$json = {
+  '1': 'McpHeartbeatResponse',
+  '2': [
+    {'1': 'Success', '3': 1, '4': 1, '5': 8, '10': 'Success'},
+  ],
+};
+
+/// Descriptor for `McpHeartbeatResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List mcpHeartbeatResponseDescriptor =
+    $convert.base64Decode(
+        'ChRNY3BIZWFydGJlYXRSZXNwb25zZRIYCgdTdWNjZXNzGAEgASgIUgdTdWNjZXNz');
 
 @$core.Deprecated('Use onlineUserDescriptor instead')
 const OnlineUser$json = {
@@ -462,7 +632,14 @@ final $typed_data.Uint8List getOnlineUsersRequestDescriptor = $convert.base64Dec
 const GetOnlineUsersResponse$json = {
   '1': 'GetOnlineUsersResponse',
   '2': [
-    {'1': 'online_users', '3': 1, '4': 3, '5': 11, '6': '.agentassistproto.OnlineUser', '10': 'onlineUsers'},
+    {
+      '1': 'online_users',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.OnlineUser',
+      '10': 'onlineUsers'
+    },
     {'1': 'total_count', '3': 2, '4': 1, '5': 5, '10': 'totalCount'},
   ],
 };
@@ -480,11 +657,30 @@ const ChatMessage$json = {
     {'1': 'message_id', '3': 1, '4': 1, '5': 9, '10': 'messageId'},
     {'1': 'sender_client_id', '3': 2, '4': 1, '5': 9, '10': 'senderClientId'},
     {'1': 'sender_nickname', '3': 3, '4': 1, '5': 9, '10': 'senderNickname'},
-    {'1': 'receiver_client_id', '3': 4, '4': 1, '5': 9, '10': 'receiverClientId'},
-    {'1': 'receiver_nickname', '3': 5, '4': 1, '5': 9, '10': 'receiverNickname'},
+    {
+      '1': 'receiver_client_id',
+      '3': 4,
+      '4': 1,
+      '5': 9,
+      '10': 'receiverClientId'
+    },
+    {
+      '1': 'receiver_nickname',
+      '3': 5,
+      '4': 1,
+      '5': 9,
+      '10': 'receiverNickname'
+    },
     {'1': 'content', '3': 6, '4': 1, '5': 9, '10': 'content'},
     {'1': 'sent_at', '3': 7, '4': 1, '5': 3, '10': 'sentAt'},
-    {'1': 'forward_target', '3': 8, '4': 1, '5': 11, '6': '.agentassistproto.ForwardTarget', '10': 'forwardTarget'},
+    {
+      '1': 'forward_target',
+      '3': 8,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ForwardTarget',
+      '10': 'forwardTarget'
+    },
   ],
 };
 
@@ -502,7 +698,14 @@ final $typed_data.Uint8List chatMessageDescriptor = $convert.base64Decode(
 const ForwardTarget$json = {
   '1': 'ForwardTarget',
   '2': [
-    {'1': 'mode', '3': 1, '4': 1, '5': 14, '6': '.agentassistproto.ForwardTarget.Mode', '10': 'mode'},
+    {
+      '1': 'mode',
+      '3': 1,
+      '4': 1,
+      '5': 14,
+      '6': '.agentassistproto.ForwardTarget.Mode',
+      '10': 'mode'
+    },
     {'1': 'window_id', '3': 2, '4': 1, '5': 9, '10': 'windowId'},
   ],
   '4': [ForwardTarget_Mode$json],
@@ -543,9 +746,22 @@ final $typed_data.Uint8List forwardWindowItemDescriptor = $convert.base64Decode(
 const SendChatMessageRequest$json = {
   '1': 'SendChatMessageRequest',
   '2': [
-    {'1': 'receiver_client_id', '3': 1, '4': 1, '5': 9, '10': 'receiverClientId'},
+    {
+      '1': 'receiver_client_id',
+      '3': 1,
+      '4': 1,
+      '5': 9,
+      '10': 'receiverClientId'
+    },
     {'1': 'content', '3': 2, '4': 1, '5': 9, '10': 'content'},
-    {'1': 'forward_target', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.ForwardTarget', '10': 'forwardTarget'},
+    {
+      '1': 'forward_target',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ForwardTarget',
+      '10': 'forwardTarget'
+    },
   ],
 };
 
@@ -560,14 +776,22 @@ final $typed_data.Uint8List sendChatMessageRequestDescriptor = $convert.base64De
 const ChatMessageNotification$json = {
   '1': 'ChatMessageNotification',
   '2': [
-    {'1': 'chat_message', '3': 1, '4': 1, '5': 11, '6': '.agentassistproto.ChatMessage', '10': 'chatMessage'},
+    {
+      '1': 'chat_message',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ChatMessage',
+      '10': 'chatMessage'
+    },
   ],
 };
 
 /// Descriptor for `ChatMessageNotification`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List chatMessageNotificationDescriptor = $convert.base64Decode(
-    'ChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhJACgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudG'
-    'Fzc2lzdHByb3RvLkNoYXRNZXNzYWdlUgtjaGF0TWVzc2FnZQ==');
+final $typed_data.Uint8List chatMessageNotificationDescriptor =
+    $convert.base64Decode(
+        'ChdDaGF0TWVzc2FnZU5vdGlmaWNhdGlvbhJACgxjaGF0X21lc3NhZ2UYASABKAsyHS5hZ2VudG'
+        'Fzc2lzdHByb3RvLkNoYXRNZXNzYWdlUgtjaGF0TWVzc2FnZQ==');
 
 @$core.Deprecated('Use forwardStateQueryRequestDescriptor instead')
 const ForwardStateQueryRequest$json = {
@@ -575,7 +799,13 @@ const ForwardStateQueryRequest$json = {
   '2': [
     {'1': 'request_id', '3': 1, '4': 1, '5': 9, '10': 'requestId'},
     {'1': 'target_client_id', '3': 2, '4': 1, '5': 9, '10': 'targetClientId'},
-    {'1': 'requester_client_id', '3': 3, '4': 1, '5': 9, '10': 'requesterClientId'},
+    {
+      '1': 'requester_client_id',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '10': 'requesterClientId'
+    },
   ],
 };
 
@@ -591,9 +821,22 @@ const ForwardStateQueryResponse$json = {
   '2': [
     {'1': 'request_id', '3': 1, '4': 1, '5': 9, '10': 'requestId'},
     {'1': 'target_client_id', '3': 2, '4': 1, '5': 9, '10': 'targetClientId'},
-    {'1': 'responder_client_id', '3': 3, '4': 1, '5': 9, '10': 'responderClientId'},
+    {
+      '1': 'responder_client_id',
+      '3': 3,
+      '4': 1,
+      '5': 9,
+      '10': 'responderClientId'
+    },
     {'1': 'forward_enabled', '3': 4, '4': 1, '5': 8, '10': 'forwardEnabled'},
-    {'1': 'windows', '3': 5, '4': 3, '5': 11, '6': '.agentassistproto.ForwardWindowItem', '10': 'windows'},
+    {
+      '1': 'windows',
+      '3': 5,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.ForwardWindowItem',
+      '10': 'windows'
+    },
   ],
 };
 
@@ -611,16 +854,24 @@ const ForwardStateChangedNotification$json = {
   '2': [
     {'1': 'source_client_id', '3': 1, '4': 1, '5': 9, '10': 'sourceClientId'},
     {'1': 'forward_enabled', '3': 2, '4': 1, '5': 8, '10': 'forwardEnabled'},
-    {'1': 'windows', '3': 3, '4': 3, '5': 11, '6': '.agentassistproto.ForwardWindowItem', '10': 'windows'},
+    {
+      '1': 'windows',
+      '3': 3,
+      '4': 3,
+      '5': 11,
+      '6': '.agentassistproto.ForwardWindowItem',
+      '10': 'windows'
+    },
   ],
 };
 
 /// Descriptor for `ForwardStateChangedNotification`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List forwardStateChangedNotificationDescriptor = $convert.base64Decode(
-    'Ch9Gb3J3YXJkU3RhdGVDaGFuZ2VkTm90aWZpY2F0aW9uEigKEHNvdXJjZV9jbGllbnRfaWQYAS'
-    'ABKAlSDnNvdXJjZUNsaWVudElkEicKD2ZvcndhcmRfZW5hYmxlZBgCIAEoCFIOZm9yd2FyZEVu'
-    'YWJsZWQSPQoHd2luZG93cxgDIAMoCzIjLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFdpbmRvd0'
-    'l0ZW1SB3dpbmRvd3M=');
+final $typed_data.Uint8List forwardStateChangedNotificationDescriptor =
+    $convert.base64Decode(
+        'Ch9Gb3J3YXJkU3RhdGVDaGFuZ2VkTm90aWZpY2F0aW9uEigKEHNvdXJjZV9jbGllbnRfaWQYAS'
+        'ABKAlSDnNvdXJjZUNsaWVudElkEicKD2ZvcndhcmRfZW5hYmxlZBgCIAEoCFIOZm9yd2FyZEVu'
+        'YWJsZWQSPQoHd2luZG93cxgDIAMoCzIjLmFnZW50YXNzaXN0cHJvdG8uRm9yd2FyZFdpbmRvd0'
+        'l0ZW1SB3dpbmRvd3M=');
 
 @$core.Deprecated('Use forwardDeliveryErrorNotificationDescriptor instead')
 const ForwardDeliveryErrorNotification$json = {
@@ -634,11 +885,12 @@ const ForwardDeliveryErrorNotification$json = {
 };
 
 /// Descriptor for `ForwardDeliveryErrorNotification`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List forwardDeliveryErrorNotificationDescriptor = $convert.base64Decode(
-    'CiBGb3J3YXJkRGVsaXZlcnlFcnJvck5vdGlmaWNhdGlvbhIoChB0YXJnZXRfY2xpZW50X2lkGA'
-    'EgASgJUg50YXJnZXRDbGllbnRJZBIkCg5wZWVyX2NsaWVudF9pZBgCIAEoCVIMcGVlckNsaWVu'
-    'dElkEioKEWludmFsaWRfd2luZG93X2lkGAMgASgJUg9pbnZhbGlkV2luZG93SWQSFgoGcmVhc2'
-    '9uGAQgASgJUgZyZWFzb24=');
+final $typed_data.Uint8List forwardDeliveryErrorNotificationDescriptor =
+    $convert.base64Decode(
+        'CiBGb3J3YXJkRGVsaXZlcnlFcnJvck5vdGlmaWNhdGlvbhIoChB0YXJnZXRfY2xpZW50X2lkGA'
+        'EgASgJUg50YXJnZXRDbGllbnRJZBIkCg5wZWVyX2NsaWVudF9pZBgCIAEoCVIMcGVlckNsaWVu'
+        'dElkEioKEWludmFsaWRfd2luZG93X2lkGAMgASgJUg9pbnZhbGlkV2luZG93SWQSFgoGcmVhc2'
+        '9uGAQgASgJUgZyZWFzb24=');
 
 @$core.Deprecated('Use userLoginResponseDescriptor instead')
 const UserLoginResponse$json = {
@@ -659,42 +911,183 @@ final $typed_data.Uint8List userLoginResponseDescriptor = $convert.base64Decode(
 const UserConnectionStatusNotification$json = {
   '1': 'UserConnectionStatusNotification',
   '2': [
-    {'1': 'user', '3': 1, '4': 1, '5': 11, '6': '.agentassistproto.OnlineUser', '10': 'user'},
+    {
+      '1': 'user',
+      '3': 1,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.OnlineUser',
+      '10': 'user'
+    },
     {'1': 'status', '3': 2, '4': 1, '5': 9, '10': 'status'},
     {'1': 'timestamp', '3': 3, '4': 1, '5': 3, '10': 'timestamp'},
   ],
 };
 
 /// Descriptor for `UserConnectionStatusNotification`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List userConnectionStatusNotificationDescriptor = $convert.base64Decode(
-    'CiBVc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhIwCgR1c2VyGAEgASgLMhwuYWdlbn'
-    'Rhc3Npc3Rwcm90by5PbmxpbmVVc2VyUgR1c2VyEhYKBnN0YXR1cxgCIAEoCVIGc3RhdHVzEhwK'
-    'CXRpbWVzdGFtcBgDIAEoA1IJdGltZXN0YW1w');
+final $typed_data.Uint8List userConnectionStatusNotificationDescriptor =
+    $convert.base64Decode(
+        'CiBVc2VyQ29ubmVjdGlvblN0YXR1c05vdGlmaWNhdGlvbhIwCgR1c2VyGAEgASgLMhwuYWdlbn'
+        'Rhc3Npc3Rwcm90by5PbmxpbmVVc2VyUgR1c2VyEhYKBnN0YXR1cxgCIAEoCVIGc3RhdHVzEhwK'
+        'CXRpbWVzdGFtcBgDIAEoA1IJdGltZXN0YW1w');
 
 @$core.Deprecated('Use websocketMessageDescriptor instead')
 const WebsocketMessage$json = {
   '1': 'WebsocketMessage',
   '2': [
     {'1': 'Cmd', '3': 1, '4': 1, '5': 9, '10': 'Cmd'},
-    {'1': 'AskQuestionRequest', '3': 2, '4': 1, '5': 11, '6': '.agentassistproto.AskQuestionRequest', '10': 'AskQuestionRequest'},
-    {'1': 'WorkReportRequest', '3': 3, '4': 1, '5': 11, '6': '.agentassistproto.WorkReportRequest', '10': 'WorkReportRequest'},
-    {'1': 'AskQuestionResponse', '3': 4, '4': 1, '5': 11, '6': '.agentassistproto.AskQuestionResponse', '10': 'AskQuestionResponse'},
-    {'1': 'WorkReportResponse', '3': 5, '4': 1, '5': 11, '6': '.agentassistproto.WorkReportResponse', '10': 'WorkReportResponse'},
-    {'1': 'CheckMessageValidityRequest', '3': 13, '4': 1, '5': 11, '6': '.agentassistproto.CheckMessageValidityRequest', '10': 'CheckMessageValidityRequest'},
-    {'1': 'CheckMessageValidityResponse', '3': 14, '4': 1, '5': 11, '6': '.agentassistproto.CheckMessageValidityResponse', '10': 'CheckMessageValidityResponse'},
-    {'1': 'GetPendingMessagesRequest', '3': 15, '4': 1, '5': 11, '6': '.agentassistproto.GetPendingMessagesRequest', '10': 'GetPendingMessagesRequest'},
-    {'1': 'GetPendingMessagesResponse', '3': 16, '4': 1, '5': 11, '6': '.agentassistproto.GetPendingMessagesResponse', '10': 'GetPendingMessagesResponse'},
-    {'1': 'RequestCancelledNotification', '3': 17, '4': 1, '5': 11, '6': '.agentassistproto.RequestCancelledNotification', '10': 'RequestCancelledNotification'},
-    {'1': 'GetOnlineUsersRequest', '3': 19, '4': 1, '5': 11, '6': '.agentassistproto.GetOnlineUsersRequest', '10': 'GetOnlineUsersRequest'},
-    {'1': 'GetOnlineUsersResponse', '3': 20, '4': 1, '5': 11, '6': '.agentassistproto.GetOnlineUsersResponse', '10': 'GetOnlineUsersResponse'},
-    {'1': 'SendChatMessageRequest', '3': 21, '4': 1, '5': 11, '6': '.agentassistproto.SendChatMessageRequest', '10': 'SendChatMessageRequest'},
-    {'1': 'ChatMessageNotification', '3': 22, '4': 1, '5': 11, '6': '.agentassistproto.ChatMessageNotification', '10': 'ChatMessageNotification'},
-    {'1': 'UserLoginResponse', '3': 23, '4': 1, '5': 11, '6': '.agentassistproto.UserLoginResponse', '10': 'UserLoginResponse'},
-    {'1': 'UserConnectionStatusNotification', '3': 24, '4': 1, '5': 11, '6': '.agentassistproto.UserConnectionStatusNotification', '10': 'UserConnectionStatusNotification'},
-    {'1': 'ForwardStateQueryRequest', '3': 25, '4': 1, '5': 11, '6': '.agentassistproto.ForwardStateQueryRequest', '10': 'ForwardStateQueryRequest'},
-    {'1': 'ForwardStateQueryResponse', '3': 26, '4': 1, '5': 11, '6': '.agentassistproto.ForwardStateQueryResponse', '10': 'ForwardStateQueryResponse'},
-    {'1': 'ForwardStateChangedNotification', '3': 27, '4': 1, '5': 11, '6': '.agentassistproto.ForwardStateChangedNotification', '10': 'ForwardStateChangedNotification'},
-    {'1': 'ForwardDeliveryErrorNotification', '3': 28, '4': 1, '5': 11, '6': '.agentassistproto.ForwardDeliveryErrorNotification', '10': 'ForwardDeliveryErrorNotification'},
+    {
+      '1': 'AskQuestionRequest',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.AskQuestionRequest',
+      '10': 'AskQuestionRequest'
+    },
+    {
+      '1': 'WorkReportRequest',
+      '3': 3,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.WorkReportRequest',
+      '10': 'WorkReportRequest'
+    },
+    {
+      '1': 'AskQuestionResponse',
+      '3': 4,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.AskQuestionResponse',
+      '10': 'AskQuestionResponse'
+    },
+    {
+      '1': 'WorkReportResponse',
+      '3': 5,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.WorkReportResponse',
+      '10': 'WorkReportResponse'
+    },
+    {
+      '1': 'CheckMessageValidityRequest',
+      '3': 13,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.CheckMessageValidityRequest',
+      '10': 'CheckMessageValidityRequest'
+    },
+    {
+      '1': 'CheckMessageValidityResponse',
+      '3': 14,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.CheckMessageValidityResponse',
+      '10': 'CheckMessageValidityResponse'
+    },
+    {
+      '1': 'GetPendingMessagesRequest',
+      '3': 15,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.GetPendingMessagesRequest',
+      '10': 'GetPendingMessagesRequest'
+    },
+    {
+      '1': 'GetPendingMessagesResponse',
+      '3': 16,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.GetPendingMessagesResponse',
+      '10': 'GetPendingMessagesResponse'
+    },
+    {
+      '1': 'RequestCancelledNotification',
+      '3': 17,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.RequestCancelledNotification',
+      '10': 'RequestCancelledNotification'
+    },
+    {
+      '1': 'GetOnlineUsersRequest',
+      '3': 19,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.GetOnlineUsersRequest',
+      '10': 'GetOnlineUsersRequest'
+    },
+    {
+      '1': 'GetOnlineUsersResponse',
+      '3': 20,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.GetOnlineUsersResponse',
+      '10': 'GetOnlineUsersResponse'
+    },
+    {
+      '1': 'SendChatMessageRequest',
+      '3': 21,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.SendChatMessageRequest',
+      '10': 'SendChatMessageRequest'
+    },
+    {
+      '1': 'ChatMessageNotification',
+      '3': 22,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ChatMessageNotification',
+      '10': 'ChatMessageNotification'
+    },
+    {
+      '1': 'UserLoginResponse',
+      '3': 23,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.UserLoginResponse',
+      '10': 'UserLoginResponse'
+    },
+    {
+      '1': 'UserConnectionStatusNotification',
+      '3': 24,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.UserConnectionStatusNotification',
+      '10': 'UserConnectionStatusNotification'
+    },
+    {
+      '1': 'ForwardStateQueryRequest',
+      '3': 25,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ForwardStateQueryRequest',
+      '10': 'ForwardStateQueryRequest'
+    },
+    {
+      '1': 'ForwardStateQueryResponse',
+      '3': 26,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ForwardStateQueryResponse',
+      '10': 'ForwardStateQueryResponse'
+    },
+    {
+      '1': 'ForwardStateChangedNotification',
+      '3': 27,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ForwardStateChangedNotification',
+      '10': 'ForwardStateChangedNotification'
+    },
+    {
+      '1': 'ForwardDeliveryErrorNotification',
+      '3': 28,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ForwardDeliveryErrorNotification',
+      '10': 'ForwardDeliveryErrorNotification'
+    },
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
     {'1': 'Nickname', '3': 18, '4': 1, '5': 9, '10': 'Nickname'},
   ],
@@ -744,20 +1137,39 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',
   '2': [
-    {'1': 'AskQuestion', '2': '.agentassistproto.AskQuestionRequest', '3': '.agentassistproto.AskQuestionResponse'},
-    {'1': 'WorkReport', '2': '.agentassistproto.WorkReportRequest', '3': '.agentassistproto.WorkReportResponse'},
-    {'1': 'SendMcpClientInfo', '2': '.agentassistproto.McpClientInfoRequest', '3': '.agentassistproto.McpClientInfoResponse'},
+    {
+      '1': 'AskQuestion',
+      '2': '.agentassistproto.AskQuestionRequest',
+      '3': '.agentassistproto.AskQuestionResponse'
+    },
+    {
+      '1': 'WorkReport',
+      '2': '.agentassistproto.WorkReportRequest',
+      '3': '.agentassistproto.WorkReportResponse'
+    },
+    {
+      '1': 'SendMcpClientInfo',
+      '2': '.agentassistproto.McpClientInfoRequest',
+      '3': '.agentassistproto.McpClientInfoResponse'
+    },
+    {
+      '1': 'Heartbeat',
+      '2': '.agentassistproto.McpHeartbeatRequest',
+      '3': '.agentassistproto.McpHeartbeatResponse'
+    },
   ],
 };
 
 @$core.Deprecated('Use srvAgentAssistServiceDescriptor instead')
-const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SrvAgentAssistServiceBase$messageJson = {
+const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
+    SrvAgentAssistServiceBase$messageJson = {
   '.agentassistproto.AskQuestionRequest': AskQuestionRequest$json,
   '.agentassistproto.McpAskQuestionRequest': McpAskQuestionRequest$json,
   '.agentassistproto.Question': Question$json,
   '.agentassistproto.Option': Option$json,
   '.agentassistproto.AskQuestionResponse': AskQuestionResponse$json,
-  '.agentassistproto.AskQuestionResponse.MetaEntry': AskQuestionResponse_MetaEntry$json,
+  '.agentassistproto.AskQuestionResponse.MetaEntry':
+      AskQuestionResponse_MetaEntry$json,
   '.agentassistproto.McpResultContent': McpResultContent$json,
   '.agentassistproto.TextContent': TextContent$json,
   '.agentassistproto.ImageContent': ImageContent$json,
@@ -766,10 +1178,13 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>> SrvAgentAs
   '.agentassistproto.WorkReportRequest': WorkReportRequest$json,
   '.agentassistproto.McpWorkReportRequest': McpWorkReportRequest$json,
   '.agentassistproto.WorkReportResponse': WorkReportResponse$json,
-  '.agentassistproto.WorkReportResponse.MetaEntry': WorkReportResponse_MetaEntry$json,
+  '.agentassistproto.WorkReportResponse.MetaEntry':
+      WorkReportResponse_MetaEntry$json,
   '.agentassistproto.McpClientInfoRequest': McpClientInfoRequest$json,
   '.agentassistproto.McpClientInfoData': McpClientInfoData$json,
   '.agentassistproto.McpClientInfoResponse': McpClientInfoResponse$json,
+  '.agentassistproto.McpHeartbeatRequest': McpHeartbeatRequest$json,
+  '.agentassistproto.McpHeartbeatResponse': McpHeartbeatResponse$json,
 };
 
 /// Descriptor for `SrvAgentAssist`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -779,5 +1194,6 @@ final $typed_data.Uint8List srvAgentAssistServiceDescriptor = $convert.base64Dec
     'CldvcmtSZXBvcnQSIy5hZ2VudGFzc2lzdHByb3RvLldvcmtSZXBvcnRSZXF1ZXN0GiQuYWdlbn'
     'Rhc3Npc3Rwcm90by5Xb3JrUmVwb3J0UmVzcG9uc2USZAoRU2VuZE1jcENsaWVudEluZm8SJi5h'
     'Z2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9SZXF1ZXN0GicuYWdlbnRhc3Npc3Rwcm90by'
-    '5NY3BDbGllbnRJbmZvUmVzcG9uc2U=');
-
+    '5NY3BDbGllbnRJbmZvUmVzcG9uc2USWgoJSGVhcnRiZWF0EiUuYWdlbnRhc3Npc3Rwcm90by5N'
+    'Y3BIZWFydGJlYXRSZXF1ZXN0GiYuYWdlbnRhc3Npc3Rwcm90by5NY3BIZWFydGJlYXRSZXNwb2'
+    '5zZQ==');

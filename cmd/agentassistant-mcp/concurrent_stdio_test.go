@@ -63,7 +63,7 @@ func TestConcurrentStdioProcessesToolCallsConcurrently(t *testing.T) {
 	var stdout bytes.Buffer
 	errCh := make(chan error, 1)
 	go func() {
-		errCh <- listenConcurrentStdio(context.Background(), strings.NewReader(input), &stdout, mcpServer)
+		errCh <- listenConcurrentStdio(context.Background(), strings.NewReader(input), &stdout, mcpServer, nil)
 	}()
 
 	waitForToolStart(t, started)

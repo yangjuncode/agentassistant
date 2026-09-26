@@ -26,6 +26,9 @@ class ChatMessage {
   final String? agentName;
   final String? reasoningModelName;
   final List<Question>? rawQuestions;
+  // Cancellation details set when status becomes cancelled
+  final String? cancelReason;
+  final String? cancelReasonCode;
 
   ChatMessage({
     String? id,
@@ -49,6 +52,8 @@ class ChatMessage {
     this.agentName,
     this.reasoningModelName,
     this.rawQuestions,
+    this.cancelReason,
+    this.cancelReasonCode,
   })  : id = id ?? const Uuid().v4(),
         timestamp = timestamp ?? DateTime.now();
 
@@ -161,6 +166,8 @@ class ChatMessage {
     String? repliedByNickname,
     String? serverId,
     String? serverName,
+    String? cancelReason,
+    String? cancelReasonCode,
   }) {
     return ChatMessage(
       id: id,
@@ -184,6 +191,8 @@ class ChatMessage {
       mcpClientName: mcpClientName,
       agentName: agentName,
       reasoningModelName: reasoningModelName,
+      cancelReason: cancelReason ?? this.cancelReason,
+      cancelReasonCode: cancelReasonCode ?? this.cancelReasonCode,
     );
   }
 
@@ -211,6 +220,8 @@ class ChatMessage {
       'mcpClientName': mcpClientName,
       'agentName': agentName,
       'reasoningModelName': reasoningModelName,
+      'cancelReason': cancelReason,
+      'cancelReasonCode': cancelReasonCode,
     };
   }
 
@@ -245,6 +256,8 @@ class ChatMessage {
       mcpClientName: json['mcpClientName'],
       agentName: json['agentName'],
       reasoningModelName: json['reasoningModelName'],
+      cancelReason: json['cancelReason'],
+      cancelReasonCode: json['cancelReasonCode'],
     );
   }
 

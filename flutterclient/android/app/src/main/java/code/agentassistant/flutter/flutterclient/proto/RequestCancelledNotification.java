@@ -23,6 +23,7 @@ public  final class RequestCancelledNotification extends
     requestId_ = "";
     reason_ = "";
     messageType_ = "";
+    reasonCode_ = "";
   }
   public static final int REQUEST_ID_FIELD_NUMBER = 1;
   private java.lang.String requestId_;
@@ -222,6 +223,78 @@ public  final class RequestCancelledNotification extends
       com.google.protobuf.ByteString value) {
     checkByteStringIsUtf8(value);
     messageType_ = value.toStringUtf8();
+
+  }
+
+  public static final int REASON_CODE_FIELD_NUMBER = 4;
+  private java.lang.String reasonCode_;
+  /**
+   * <pre>
+   * machine-readable reason code, e.g. "timeout", "cancelled",
+   * "initiator_disconnected"
+   * </pre>
+   *
+   * <code>string reason_code = 4;</code>
+   * @return The reasonCode.
+   */
+  @java.lang.Override
+  public java.lang.String getReasonCode() {
+    return reasonCode_;
+  }
+  /**
+   * <pre>
+   * machine-readable reason code, e.g. "timeout", "cancelled",
+   * "initiator_disconnected"
+   * </pre>
+   *
+   * <code>string reason_code = 4;</code>
+   * @return The bytes for reasonCode.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+      getReasonCodeBytes() {
+    return com.google.protobuf.ByteString.copyFromUtf8(reasonCode_);
+  }
+  /**
+   * <pre>
+   * machine-readable reason code, e.g. "timeout", "cancelled",
+   * "initiator_disconnected"
+   * </pre>
+   *
+   * <code>string reason_code = 4;</code>
+   * @param value The reasonCode to set.
+   */
+  private void setReasonCode(
+      java.lang.String value) {
+    java.util.Objects.requireNonNull(value);
+
+    reasonCode_ = value;
+  }
+  /**
+   * <pre>
+   * machine-readable reason code, e.g. "timeout", "cancelled",
+   * "initiator_disconnected"
+   * </pre>
+   *
+   * <code>string reason_code = 4;</code>
+   */
+  private void clearReasonCode() {
+
+    reasonCode_ = getDefaultInstance().getReasonCode();
+  }
+  /**
+   * <pre>
+   * machine-readable reason code, e.g. "timeout", "cancelled",
+   * "initiator_disconnected"
+   * </pre>
+   *
+   * <code>string reason_code = 4;</code>
+   * @param value The bytes for reasonCode to set.
+   */
+  private void setReasonCodeBytes(
+      com.google.protobuf.ByteString value) {
+    checkByteStringIsUtf8(value);
+    reasonCode_ = value.toStringUtf8();
 
   }
 
@@ -534,6 +607,80 @@ public  final class RequestCancelledNotification extends
       return this;
     }
 
+    /**
+     * <pre>
+     * machine-readable reason code, e.g. "timeout", "cancelled",
+     * "initiator_disconnected"
+     * </pre>
+     *
+     * <code>string reason_code = 4;</code>
+     * @return The reasonCode.
+     */
+    @java.lang.Override
+    public java.lang.String getReasonCode() {
+      return instance.getReasonCode();
+    }
+    /**
+     * <pre>
+     * machine-readable reason code, e.g. "timeout", "cancelled",
+     * "initiator_disconnected"
+     * </pre>
+     *
+     * <code>string reason_code = 4;</code>
+     * @return The bytes for reasonCode.
+     */
+    @java.lang.Override
+    public com.google.protobuf.ByteString
+        getReasonCodeBytes() {
+      return instance.getReasonCodeBytes();
+    }
+    /**
+     * <pre>
+     * machine-readable reason code, e.g. "timeout", "cancelled",
+     * "initiator_disconnected"
+     * </pre>
+     *
+     * <code>string reason_code = 4;</code>
+     * @param value The reasonCode to set.
+     * @return This builder for chaining.
+     */
+    public Builder setReasonCode(
+        java.lang.String value) {
+      copyOnWrite();
+      instance.setReasonCode(value);
+      return this;
+    }
+    /**
+     * <pre>
+     * machine-readable reason code, e.g. "timeout", "cancelled",
+     * "initiator_disconnected"
+     * </pre>
+     *
+     * <code>string reason_code = 4;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearReasonCode() {
+      copyOnWrite();
+      instance.clearReasonCode();
+      return this;
+    }
+    /**
+     * <pre>
+     * machine-readable reason code, e.g. "timeout", "cancelled",
+     * "initiator_disconnected"
+     * </pre>
+     *
+     * <code>string reason_code = 4;</code>
+     * @param value The bytes for reasonCode to set.
+     * @return This builder for chaining.
+     */
+    public Builder setReasonCodeBytes(
+        com.google.protobuf.ByteString value) {
+      copyOnWrite();
+      instance.setReasonCodeBytes(value);
+      return this;
+    }
+
     // @@protoc_insertion_point(builder_scope:agentassistproto.RequestCancelledNotification)
   }
   @java.lang.Override
@@ -553,10 +700,11 @@ public  final class RequestCancelledNotification extends
             "requestId_",
             "reason_",
             "messageType_",
+            "reasonCode_",
           };
           java.lang.String info =
-              "\u0000\u0003\u0000\u0000\u0001\u0003\u0003\u0000\u0000\u0000\u0001\u0208\u0002\u0208" +
-              "\u0003\u0208";
+              "\u0000\u0004\u0000\u0000\u0001\u0004\u0004\u0000\u0000\u0000\u0001\u0208\u0002\u0208" +
+              "\u0003\u0208\u0004\u0208";
           return newMessageInfo(DEFAULT_INSTANCE, info, objects);
       }
       case GET_DEFAULT_INSTANCE: {

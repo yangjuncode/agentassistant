@@ -78,4 +78,24 @@ public interface WorkReportRequestOrBuilder extends
    * @return The timestamp.
    */
   long getTimestamp();
+
+  /**
+   * <pre>
+   * initiator (mcp process) session id, used for liveness tracking
+   * </pre>
+   *
+   * <code>string SessionId = 5;</code>
+   * @return The sessionId.
+   */
+  java.lang.String getSessionId();
+  /**
+   * <pre>
+   * initiator (mcp process) session id, used for liveness tracking
+   * </pre>
+   *
+   * <code>string SessionId = 5;</code>
+   * @return The bytes for sessionId.
+   */
+  com.google.protobuf.ByteString
+      getSessionIdBytes();
 }

@@ -9,11 +9,30 @@ import (
 	agentassistproto "github.com/yangjuncode/agentassistant/agentassistproto"
 )
 
+// Cancellation reason codes used in RequestCancelledNotification
+const (
+	CancelReasonTimeout               = "timeout"
+	CancelReasonCancelled             = "cancelled"
+	CancelReasonInitiatorDisconnected = "initiator_disconnected"
+)
+
+// Liveness tracking constants for MCP initiator sessions. An initiator (the
+// mcp process) heartbeats its session id periodically; pending requests whose
+// session has been silent for longer than mcpSessionExpireAfter are treated as
+// orphaned and cancelled.
+const (
+	mcpSessionExpireAfter   = 60 * time.Second
+	mcpSessionSweepInterval = 10 * time.Second
+	sessionActivityTTL      = 10 * time.Minute
+)
+
 // WebsocketRequest represents a request with response channel for internal use
 type WebsocketRequest struct {
 	Message      *agentassistproto.WebsocketMessage
 	ResponseChan chan *WebResponse
 	UserToken    string // Token of the user who should receive this message
+	CreatedAt    time.Time
+	SessionID    string // MCP initiator session id (empty for legacy clients)
 }
 
 // WebResponse represents a response from web users
@@ -112,6 +131,7 @@ func (c *WebClient) Send(msg *agentassistproto.WebsocketMessage) bool {
 type Broadcaster struct {
 	clients          map[string]*WebClient
 	pendingRequests  map[string]*WebsocketRequest // Map request ID to WebsocketRequest
+	sessionActivity  map[string]time.Time         // MCP session id -> last heartbeat time
 	register         chan *WebClient
 	unregister       chan *WebClient
 	broadcast        chan *WebsocketRequest
@@ -130,6 +150,7 @@ func NewBroadcaster() *Broadcaster {
 	b := &Broadcaster{
 		clients:          make(map[string]*WebClient),
 		pendingRequests:  make(map[string]*WebsocketRequest),
+		sessionActivity:  make(map[string]time.Time),
 		register:         make(chan *WebClient),
 		unregister:       make(chan *WebClient),
 		broadcast:        make(chan *WebsocketRequest),
@@ -138,6 +159,10 @@ func NewBroadcaster() *Broadcaster {
 
 	// Start the broadcaster goroutine
 	go b.run()
+
+	// Start the session sweeper that expires pending requests whose MCP
+	// initiator has stopped heartbeating
+	go b.runSessionSweeper()
 
 	return b
 }
@@ -253,8 +278,21 @@ func (b *Broadcaster) BroadcastToToken(message *agentassistproto.WebsocketMessag
 		Message:      message,
 		ResponseChan: responseChan,
 		UserToken:    userToken,
+		CreatedAt:    time.Now(),
+		SessionID:    sessionIDFromMessage(message),
 	}
 	b.broadcast <- request
+}
+
+// sessionIDFromMessage extracts the MCP initiator session id from a message
+func sessionIDFromMessage(message *agentassistproto.WebsocketMessage) string {
+	if message.AskQuestionRequest != nil {
+		return message.AskQuestionRequest.SessionId
+	}
+	if message.WorkReportRequest != nil {
+		return message.WorkReportRequest.SessionId
+	}
+	return ""
 }
 
 // BroadcastToAllExcept sends a message to all connected clients except the specified client
@@ -281,7 +319,7 @@ func (b *Broadcaster) BroadcastToAllExcept(message *agentassistproto.WebsocketMe
 }
 
 // CancelRequest cancels a pending request and notifies all clients
-func (b *Broadcaster) CancelRequest(requestID string, reason string, messageType string) {
+func (b *Broadcaster) CancelRequest(requestID string, reason string, messageType string, reasonCode string) {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -292,7 +330,7 @@ func (b *Broadcaster) CancelRequest(requestID string, reason string, messageType
 		return
 	}
 
-	log.Printf("Cancelling request %s with reason: %s", requestID, reason)
+	log.Printf("Cancelling request %s with reason: %s (code: %s)", requestID, reason, reasonCode)
 
 	// Remove the request from pending requests
 	delete(b.pendingRequests, requestID)
@@ -319,6 +357,7 @@ func (b *Broadcaster) CancelRequest(requestID string, reason string, messageType
 			RequestId:   requestID,
 			Reason:      reason,
 			MessageType: messageType,
+			ReasonCode:  reasonCode,
 		},
 	}
 
@@ -326,6 +365,75 @@ func (b *Broadcaster) CancelRequest(requestID string, reason string, messageType
 	b.mu.Unlock() // Unlock before broadcasting to avoid deadlock
 	b.BroadcastToAllExcept(cancelMessage, "")
 	b.mu.Lock() // Re-lock for defer unlock
+}
+
+// ReportSessionActivity records a heartbeat from an MCP initiator session
+func (b *Broadcaster) ReportSessionActivity(sessionID string) {
+	if sessionID == "" {
+		return
+	}
+	b.mu.Lock()
+	b.sessionActivity[sessionID] = time.Now()
+	b.mu.Unlock()
+}
+
+// runSessionSweeper periodically cancels pending requests whose MCP initiator
+// session has been silent for longer than mcpSessionExpireAfter
+func (b *Broadcaster) runSessionSweeper() {
+	ticker := time.NewTicker(mcpSessionSweepInterval)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		b.expireStaleSessionRequests()
+	}
+}
+
+// expireStaleSessionRequests cancels pending requests whose initiator session
+// has not been seen within the expiry window, and evicts old session records
+func (b *Broadcaster) expireStaleSessionRequests() {
+	now := time.Now()
+
+	type staleRequest struct {
+		id          string
+		messageType string
+	}
+	var stale []staleRequest
+
+	b.mu.RLock()
+	for requestID, request := range b.pendingRequests {
+		if request.SessionID == "" {
+			// Legacy initiators without session tracking keep old behavior
+			continue
+		}
+		lastActivity := request.CreatedAt
+		if t, ok := b.sessionActivity[request.SessionID]; ok && t.After(lastActivity) {
+			lastActivity = t
+		}
+		if now.Sub(lastActivity) > mcpSessionExpireAfter {
+			messageType := "AskQuestion"
+			if request.Message.WorkReportRequest != nil {
+				messageType = "WorkReport"
+			}
+			stale = append(stale, staleRequest{id: requestID, messageType: messageType})
+		}
+	}
+	b.mu.RUnlock()
+
+	for _, s := range stale {
+		log.Printf("Expiring request %s: initiator session silent for over %s", s.id, mcpSessionExpireAfter)
+		b.CancelRequest(s.id,
+			fmt.Sprintf("Initiator disconnected (no heartbeat for over %s)", mcpSessionExpireAfter),
+			s.messageType, CancelReasonInitiatorDisconnected)
+	}
+
+	// Evict long-dead session records to keep the map bounded
+	b.mu.Lock()
+	for sessionID, lastSeen := range b.sessionActivity {
+		if now.Sub(lastSeen) > sessionActivityTTL {
+			delete(b.sessionActivity, sessionID)
+		}
+	}
+	b.mu.Unlock()
 }
 
 // GetClientCount returns the number of connected clients
