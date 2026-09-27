@@ -29,6 +29,8 @@ class _ChatScreenState extends State<ChatScreen> {
   List<ChatMessage> _previousMessages = [];
   // 跟踪上一次的"仅显示待处理消息"过滤状态，用于检测过滤被自动关闭的情况
   bool _previousShowOnlyPending = false;
+  // 用户回复中时被抑制自动滚动的新待处理消息 id 集合（浮动提示的计数来源）
+  final Set<String> _suppressedNewMessageIds = {};
 
   @override
   void initState() {
@@ -242,6 +244,17 @@ class _ChatScreenState extends State<ChatScreen> {
       //     '🆕 New message IDs: ${newReplyableMessages.map((m) => m.id).toList()}');
     }
 
+    // 抑制集合里已不可回复的条目剔除（在别处被回复/取消掉了）
+    if (_suppressedNewMessageIds.isNotEmpty) {
+      final replyableIds =
+          currentReplyableMessages.map((m) => m.id).toSet();
+      final before = _suppressedNewMessageIds.length;
+      _suppressedNewMessageIds.removeWhere((id) => !replyableIds.contains(id));
+      if (_suppressedNewMessageIds.length != before) {
+        setState(() {});
+      }
+    }
+
     if (newReplyableMessages.isNotEmpty) {
       // Find the earliest new replyable message
       newReplyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
@@ -252,21 +265,46 @@ class _ChatScreenState extends State<ChatScreen> {
       // print(
       //     '🗝️ Key exists for message: ${_messageKeys.containsKey(earliestNewMessage.id)}');
 
-      // Always scroll to new replyable messages to ensure input is visible
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        // print(
-        //     '⏰ Post-frame callback triggered for message: ${earliestNewMessage.id}');
-        // Add a small delay to ensure the ListView has been built
-        Future.delayed(const Duration(milliseconds: 100), () {
-          // print(
-          //     '⏰ Delayed scroll triggered for message: ${earliestNewMessage.id}');
-          _scrollToMessage(earliestNewMessage.id);
+      // 用户正在回复（输入框聚焦或还有待发送的回复草稿）时不抢滚动，
+      // 改为浮动提示，由用户点击后再跳过去
+      final suppressScroll =
+          chatProvider.isInputFocused || chatProvider.hasActiveReplyDraft;
+      if (suppressScroll) {
+        setState(() {
+          _suppressedNewMessageIds.addAll(
+            newReplyableMessages.map((m) => m.id),
+          );
         });
-      });
+      } else {
+        // Always scroll to new replyable messages to ensure input is visible
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // print(
+          //     '⏰ Post-frame callback triggered for message: ${earliestNewMessage.id}');
+          // Add a small delay to ensure the ListView has been built
+          Future.delayed(const Duration(milliseconds: 100), () {
+            // print(
+            //     '⏰ Delayed scroll triggered for message: ${earliestNewMessage.id}');
+            _scrollToMessage(earliestNewMessage.id);
+          });
+        });
+      }
     }
 
     // Update previous messages
     _previousMessages = List.from(currentMessages);
+  }
+
+  /// 跳到抑制集合里最早的一条新待处理消息
+  void _jumpToSuppressedMessages() {
+    final chatProvider = context.read<ChatProvider>();
+    final targets = chatProvider.visibleMessages
+        .where((m) => _suppressedNewMessageIds.contains(m.id))
+        .toList()
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    setState(() => _suppressedNewMessageIds.clear());
+    if (targets.isNotEmpty) {
+      _scrollToMessage(targets.first.id);
+    }
   }
 
   /// Show settings screen
@@ -325,7 +363,29 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(width: 8),
           const ServerStatusIcon(),
-          const SizedBox(width: 8),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            padding: EdgeInsets.zero,
+            tooltip: l10n.moreActions,
+            onSelected: (value) {
+              switch (value) {
+                case 'clearHandled':
+                  _showClearHandledDialog();
+                case 'clearAll':
+                  _showClearAllDialog();
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'clearHandled',
+                child: Text(l10n.clearHandledMessages),
+              ),
+              PopupMenuItem(
+                value: 'clearAll',
+                child: Text(l10n.clearAllMessages),
+              ),
+            ],
+          ),
         ],
       ),
       body: Column(
@@ -436,22 +496,106 @@ class _ChatScreenState extends State<ChatScreen> {
       _checkForNewReplyableMessages(chatProvider.visibleMessages);
     });
 
-    return SelectionArea(
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.all(16),
-        itemCount: chatProvider.visibleMessages.length,
-        itemBuilder: (context, index) {
-          final message = chatProvider.visibleMessages[index];
+    return Stack(
+      children: [
+        SelectionArea(
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(16),
+            itemCount: chatProvider.visibleMessages.length,
+            itemBuilder: (context, index) {
+              final message = chatProvider.visibleMessages[index];
 
-          return Padding(
-            key: _messageKeys[message.id],
-            padding: const EdgeInsets.only(bottom: 8),
-            child: MessageBubble(
-              message: message,
+              return Padding(
+                key: _messageKeys[message.id],
+                padding: const EdgeInsets.only(bottom: 8),
+                child: MessageBubble(
+                  message: message,
+                ),
+              );
+            },
+          ),
+        ),
+        // 回复中来到的新待处理消息：不抢滚动，底部浮动提示
+        if (_suppressedNewMessageIds.isNotEmpty)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 8,
+            child: Center(
+              child: ElevatedButton.icon(
+                onPressed: _jumpToSuppressedMessages,
+                icon: const Icon(Icons.keyboard_arrow_down, size: 18),
+                label: Text(
+                  l10n.newPendingMessages(_suppressedNewMessageIds.length),
+                ),
+              ),
             ),
-          );
-        },
+          ),
+      ],
+    );
+  }
+
+  /// 清空已处理消息确认框
+  void _showClearHandledDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.clearHandledConfirmTitle),
+        content: Text(l10n.clearHandledConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.read<ChatProvider>().clearHandledMessages();
+              ScaffoldMessenger.of(this.context).showSnackBar(
+                SnackBar(content: Text(l10n.messagesCleared)),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.clear),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 清空全部消息确认框
+  void _showClearAllDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.clearMessagesConfirmTitle),
+        content: Text(l10n.clearMessagesConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.cancel),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.read<ChatProvider>().clearMessages();
+              ScaffoldMessenger.of(this.context).showSnackBar(
+                SnackBar(content: Text(l10n.messagesCleared)),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(l10n.clear),
+          ),
+        ],
       ),
     );
   }

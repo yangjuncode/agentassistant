@@ -68,6 +68,20 @@
   "clearMessagesDesc": "Delete all chat history",
   "clearMessagesConfirmTitle": "Clear Messages",
   "clearMessagesConfirmMessage": "Are you sure you want to clear all chat history? This action cannot be undone.",
+  "clearHandledMessages": "Clear handled",
+  "clearHandledMessagesDesc": "Remove replied, cancelled and expired messages",
+  "clearHandledConfirmTitle": "Clear handled",
+  "clearHandledConfirmMessage": "Clear all handled messages? Pending messages will be kept.",
+  "clearAllMessages": "Clear all",
+  "newPendingMessages": "{count} new pending",
+  "@newPendingMessages": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "moreActions": "More actions",
   "clear": "Clear",
   "messagesCleared": "Chat history cleared",
   "app": "App",

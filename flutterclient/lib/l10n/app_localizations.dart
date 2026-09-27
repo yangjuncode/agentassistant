@@ -329,6 +329,48 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to clear all chat history? This action cannot be undone.'**
   String get clearMessagesConfirmMessage;
 
+  /// No description provided for @clearHandledMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear handled'**
+  String get clearHandledMessages;
+
+  /// No description provided for @clearHandledMessagesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove replied, cancelled and expired messages'**
+  String get clearHandledMessagesDesc;
+
+  /// No description provided for @clearHandledConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear handled'**
+  String get clearHandledConfirmTitle;
+
+  /// No description provided for @clearHandledConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all handled messages? Pending messages will be kept.'**
+  String get clearHandledConfirmMessage;
+
+  /// No description provided for @clearAllMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear all'**
+  String get clearAllMessages;
+
+  /// No description provided for @newPendingMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} new pending'**
+  String newPendingMessages(int count);
+
+  /// No description provided for @moreActions.
+  ///
+  /// In en, this message translates to:
+  /// **'More actions'**
+  String get moreActions;
+
   /// No description provided for @clear.
   ///
   /// In en, this message translates to:

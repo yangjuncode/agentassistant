@@ -1674,8 +1674,39 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// Clear all messages
   void clearMessages() {
     _messages.clear();
+    _replyDrafts.clear();
     notifyListeners();
     _updatePendingState();
+  }
+
+  /// 清空已完结的消息（已回复/已取消/已过期等），保留待处理消息。
+  /// 列表只存在内存里，清掉的消息不会被 pending 拉取复活。
+  void clearHandledMessages() {
+    final removedIds = _messages
+        .where(
+          (m) => !(m.needsUserAction && m.status != MessageStatus.expired),
+        )
+        .map((m) => m.id)
+        .toSet();
+    if (removedIds.isEmpty) return;
+    _messages.removeWhere((m) => removedIds.contains(m.id));
+    // 顺带清掉这些消息上遗留的未发送草稿
+    _replyDrafts.removeWhere((id, _) => removedIds.contains(id));
+    notifyListeners();
+    _updatePendingState();
+  }
+
+  /// 是否有可回复消息上的未发送草稿：有则说明用户正在回复途中，
+  /// 新消息到达时不应抢走滚动位置
+  bool get hasActiveReplyDraft {
+    if (_replyDrafts.isEmpty) return false;
+    final replyableIds = _messages
+        .where((m) => m.needsUserAction && m.status != MessageStatus.expired)
+        .map((m) => m.id)
+        .toSet();
+    return _replyDrafts.entries.any(
+      (e) => e.value.trim().isNotEmpty && replyableIds.contains(e.key),
+    );
   }
 
   /// Find the earliest replyable message

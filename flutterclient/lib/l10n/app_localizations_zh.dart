@@ -134,6 +134,29 @@ class AppLocalizationsZh extends AppLocalizations {
   String get clearMessagesConfirmMessage => '确定要清除所有聊天记录吗？此操作无法撤销。';
 
   @override
+  String get clearHandledMessages => '清空已处理';
+
+  @override
+  String get clearHandledMessagesDesc => '删除已回复、已取消、已过期的消息';
+
+  @override
+  String get clearHandledConfirmTitle => '清空已处理';
+
+  @override
+  String get clearHandledConfirmMessage => '确定要清空所有已处理的消息吗？待处理的消息会保留。';
+
+  @override
+  String get clearAllMessages => '清空全部';
+
+  @override
+  String newPendingMessages(int count) {
+    return '$count 条新待处理消息';
+  }
+
+  @override
+  String get moreActions => '更多操作';
+
+  @override
   String get clear => '清除';
 
   @override

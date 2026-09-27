@@ -134,6 +134,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clearMessagesConfirmMessage => 'Are you sure you want to clear all chat history? This action cannot be undone.';
 
   @override
+  String get clearHandledMessages => 'Clear handled';
+
+  @override
+  String get clearHandledMessagesDesc => 'Remove replied, cancelled and expired messages';
+
+  @override
+  String get clearHandledConfirmTitle => 'Clear handled';
+
+  @override
+  String get clearHandledConfirmMessage => 'Clear all handled messages? Pending messages will be kept.';
+
+  @override
+  String get clearAllMessages => 'Clear all';
+
+  @override
+  String newPendingMessages(int count) {
+    return '$count new pending';
+  }
+
+  @override
+  String get moreActions => 'More actions';
+
+  @override
   String get clear => 'Clear';
 
   @override
