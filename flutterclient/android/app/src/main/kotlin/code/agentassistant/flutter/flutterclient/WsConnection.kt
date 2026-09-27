@@ -48,6 +48,7 @@ class WsConnection(
         .pingInterval(0, TimeUnit.MILLISECONDS) // 应用层心跳由我们自己发
         .build()
 
+    @Volatile
     private var webSocket: WebSocket? = null
     private var heartbeatJob: Job? = null
     private var reconnectJob: Job? = null
@@ -155,20 +156,38 @@ class WsConnection(
         listener.onStatus(serverId, "reconnecting")
         reconnectJob = scope.launch {
             delay(delayMs)
-            if (!manuallyDisconnected) {
+            if (!manuallyDisconnected && webSocket == null) {
                 listener.onStatus(serverId, "connecting")
                 openSocket()
             }
         }
     }
 
+    /**
+     * 回调里的 socket 是否为当前持有的一条。
+     * 旧 socket 的异步回调（onClosed/onFailure/onMessage）可能在新 socket
+     * 建立后才到达，必须按引用区分，否则会把新 socket 的引用清掉并多拉起
+     * 一条连接——孤儿 socket 仍收服务器推送，导致同一消息重复投递。
+     */
+    private fun isCurrentSocket(ws: WebSocket): Boolean = ws === this.webSocket
+
     private val socketListener = object : WebSocketListener() {
         override fun onOpen(webSocket: WebSocket, response: Response) {
+            if (!isCurrentSocket(webSocket)) {
+                webSocket.cancel()
+                return
+            }
             Log.i(TAG, "[$serverId] socket open, sending UserLogin")
             sendUserLogin()
         }
 
         override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
+            if (!isCurrentSocket(webSocket)) {
+                // 孤儿 socket 仍在收帧：说明服务器侧没踢它，主动掐掉
+                Log.w(TAG, "[$serverId] frame on stale socket, cancelling it")
+                webSocket.cancel()
+                return
+            }
             val data = bytes.toByteArray()
             // 登录响应要先于转发判断连接状态
             try {
@@ -196,6 +215,10 @@ class WsConnection(
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+            if (!isCurrentSocket(webSocket)) {
+                Log.d(TAG, "[$serverId] stale socket failure ignored: ${t.message}")
+                return
+            }
             Log.w(TAG, "[$serverId] socket failure: ${t.message}")
             this@WsConnection.webSocket = null
             loggedIn = false
@@ -206,6 +229,10 @@ class WsConnection(
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            if (!isCurrentSocket(webSocket)) {
+                Log.d(TAG, "[$serverId] stale socket closed ignored: $code $reason")
+                return
+            }
             Log.i(TAG, "[$serverId] socket closed: $code $reason")
             this@WsConnection.webSocket = null
             loggedIn = false

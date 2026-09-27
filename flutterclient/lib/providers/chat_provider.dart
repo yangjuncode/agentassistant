@@ -1043,12 +1043,50 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// 推送路径去重：同一 serverId|requestId 已存在则丢弃。
+  /// pending 拉取先于推送到达、或底层重连产生重复帧时，防止列表出现两条相同内容。
+  bool _hasMessageForRequest(String serverId, String requestId) {
+    if (requestId.isEmpty) return false;
+    final key = '$serverId|$requestId';
+    return _messages.any((m) => '${m.serverId ?? ""}|${m.requestId}' == key);
+  }
+
+  @visibleForTesting
+  void handleAskQuestionForTesting(
+    pb.AskQuestionRequest request, {
+    required String serverId,
+    required String serverName,
+  }) {
+    _handleAskQuestionMessage(
+      request,
+      serverId: serverId,
+      serverName: serverName,
+    );
+  }
+
+  @visibleForTesting
+  void handleWorkReportForTesting(
+    pb.WorkReportRequest request, {
+    required String serverId,
+    required String serverName,
+  }) {
+    _handleWorkReportMessage(
+      request,
+      serverId: serverId,
+      serverName: serverName,
+    );
+  }
+
   /// Handle ask question message
   void _handleAskQuestionMessage(
     pb.AskQuestionRequest request, {
     required String serverId,
     required String serverName,
   }) {
+    if (_hasMessageForRequest(serverId, request.iD)) {
+      _logger.d('Skipped duplicated AskQuestion push: ${request.iD}');
+      return;
+    }
     final chatMessage = ChatMessage.fromAskQuestionRequest(
       request,
       serverId: serverId,
@@ -1077,6 +1115,10 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     required String serverId,
     required String serverName,
   }) {
+    if (_hasMessageForRequest(serverId, request.iD)) {
+      _logger.d('Skipped duplicated WorkReport push: ${request.iD}');
+      return;
+    }
     final chatMessage = ChatMessage.fromWorkReportRequest(
       request,
       serverId: serverId,
