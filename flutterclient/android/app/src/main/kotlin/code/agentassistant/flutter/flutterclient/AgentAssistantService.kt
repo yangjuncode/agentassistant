@@ -34,6 +34,9 @@ class AgentAssistantService : Service() {
         private const val KEY_SERVERS = "servers"
         private const val MAX_BUFFERED_FRAMES = 500
 
+        /** 已完结请求的通知抑制窗口：覆盖一个心跳周期，防止在途 pending 回放重建通知 */
+        private const val HANDLED_SUPPRESS_MS = 120_000L
+
         /** 常驻通知「退出」按钮触发的 action：断开连接并结束整个进程 */
         const val ACTION_EXIT = "code.agentassistant.flutter.flutterclient.ACTION_EXIT"
 
@@ -62,6 +65,10 @@ class AgentAssistantService : Service() {
     private val statusMap = HashMap<String, String>()
     private val bufferLock = Any()
     private val frameBuffer = ArrayDeque<Pair<String, ByteArray>>()
+
+    /** requestKey（aq_/wr_ 前缀 + requestId）→ 完结时间戳 */
+    private val handledLock = Any()
+    private val handledRequests = HashMap<String, Long>()
 
     /** Dart 引擎是否附着（附着时帧直接转发，离线时缓冲） */
     @Volatile
@@ -239,7 +246,9 @@ class AgentAssistantService : Service() {
     /** Dart 侧构造好的 WebsocketMessage 原始字节，直接写入 socket */
     fun sendFrame(serverId: String, data: ByteArray): Boolean {
         val conn = connections[serverId] ?: return false
-        return conn.sendFrame(data)
+        val ok = conn.sendFrame(data)
+        if (ok) dismissNotificationForOutboundFrame(data)
+        return ok
     }
 
     fun updateNickname(nickname: String) {
@@ -290,9 +299,17 @@ class AgentAssistantService : Service() {
             } else {
                 bufferFrame(serverId, data)
             }
+            val message = try {
+                WebsocketMessage.parseFrom(data)
+            } catch (e: Exception) {
+                return
+            }
             // 引擎离线等同于不在前台：必须弹系统通知
             if (!AgentAssistantService.uiForeground || !clientAttached) {
-                notifyForFrame(serverId, data)
+                notifyForFrame(message)
+            } else {
+                // 前台不弹通知，但回复/取消类帧到达时仍要撤掉后台期间遗留的通知
+                dismissNotificationForTerminalFrame(message)
             }
         }
 
@@ -332,34 +349,107 @@ class AgentAssistantService : Service() {
     // 系统通知
     // ------------------------------------------------------------------
 
-    private fun notifyForFrame(serverId: String, data: ByteArray) {
-        val message = try {
-            WebsocketMessage.parseFrom(data)
-        } catch (e: Exception) {
-            return
-        }
+    private fun notifyForFrame(message: WebsocketMessage) {
         when (message.cmd) {
             "AskQuestion" -> notifyAskQuestion(message)
             "WorkReport" -> notifyWorkReport(message)
             "GetPendingMessages" -> notifyPendingMessages(message)
             "ChatMessageNotification" -> notifyChatMessage(message)
-            "AskQuestionReplyNotification" -> notifyGenericReply(
+            "AskQuestionReplyNotification" -> notifyHandledNotice(
                 requestId = message.askQuestionRequest.getID(),
                 channel = NotificationHelper.CHANNEL_QUESTIONS,
                 keyPrefix = "aq",
                 title = "问题已被回复",
             )
-            "WorkReportReplyNotification" -> notifyGenericReply(
+            "WorkReportReplyNotification" -> notifyHandledNotice(
                 requestId = message.workReportRequest.getID(),
                 channel = NotificationHelper.CHANNEL_REPORTS,
                 keyPrefix = "wr",
                 title = "汇报已被确认",
             )
+            "RequestCancelled" -> notifyRequestCancelledNotice(message)
+        }
+    }
+
+    /**
+     * 完结类帧（回复广播/取消广播）：撤销通知栏里对应的待处理通知。
+     * 只在 App 前台路径调用——后台时由 notifyForFrame 把同 id 通知
+     * 更新成自动消失的「已处理」提示。
+     */
+    private fun dismissNotificationForTerminalFrame(message: WebsocketMessage) {
+        when (message.cmd) {
+            "AskQuestionReplyNotification" -> {
+                val id = message.askQuestionRequest.getID()
+                if (id.isNotEmpty()) markRequestHandled("aq_$id")
+            }
+            "WorkReportReplyNotification" -> {
+                val id = message.workReportRequest.getID()
+                if (id.isNotEmpty()) markRequestHandled("wr_$id")
+            }
+            "RequestCancelled" -> {
+                val notification = message.requestCancelledNotification
+                if (notification.requestId.isEmpty()) return
+                when (notification.messageType) {
+                    "WorkReport" -> markRequestHandled("wr_${notification.requestId}")
+                    "AskQuestion" -> markRequestHandled("aq_${notification.requestId}")
+                    else -> {
+                        // 类型未知时两种前缀都撤，cancel 不存在的 id 无副作用
+                        markRequestHandled("aq_${notification.requestId}")
+                        markRequestHandled("wr_${notification.requestId}")
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 本机发出的回复帧：回复广播不会回送本机，发送成功后直接撤销对应通知。
+     */
+    private fun dismissNotificationForOutboundFrame(data: ByteArray) {
+        val message = try {
+            WebsocketMessage.parseFrom(data)
+        } catch (e: Exception) {
+            return
+        }
+        val id = when (message.cmd) {
+            "AskQuestionReply" -> message.askQuestionRequest.getID()
+            "WorkReportReply" -> message.workReportRequest.getID()
+            else -> return
+        }
+        if (id.isEmpty()) return
+        val prefix = if (message.cmd == "AskQuestionReply") "aq" else "wr"
+        markRequestHandled("${prefix}_$id")
+    }
+
+    /** 记录请求完结并撤销对应系统通知 */
+    private fun markRequestHandled(requestKey: String) {
+        recordHandled(requestKey)
+        NotificationHelper.cancelMessage(this, requestKey)
+    }
+
+    /** 只记录完结时间，不动通知（后台路径的瞬态提示用它抑制 pending 回放） */
+    private fun recordHandled(requestKey: String) {
+        synchronized(handledLock) {
+            handledRequests[requestKey] = System.currentTimeMillis()
+        }
+    }
+
+    /** 请求是否刚刚完结：是则跳过重发/回放出的待处理通知 */
+    private fun wasRecentlyHandled(requestKey: String): Boolean {
+        val now = System.currentTimeMillis()
+        synchronized(handledLock) {
+            val it = handledRequests.entries.iterator()
+            while (it.hasNext()) {
+                if (now - it.next().value > HANDLED_SUPPRESS_MS) it.remove()
+            }
+            return handledRequests.containsKey(requestKey)
         }
     }
 
     private fun notifyAskQuestion(message: WebsocketMessage) {
         val req = message.askQuestionRequest
+        val key = "aq_${req.getID()}"
+        if (wasRecentlyHandled(key)) return
         val questions = req.request.questionsList.joinToString("\n") { it.question }
             .ifEmpty { "新的问题" }
         NotificationHelper.notifyMessage(
@@ -367,18 +457,20 @@ class AgentAssistantService : Service() {
             NotificationHelper.CHANNEL_QUESTIONS,
             "新问题",
             questions,
-            NotificationHelper.messageNotificationId("aq_${req.getID()}"),
+            NotificationHelper.messageNotificationId(key),
         )
     }
 
     private fun notifyWorkReport(message: WebsocketMessage) {
         val req = message.workReportRequest
+        val key = "wr_${req.getID()}"
+        if (wasRecentlyHandled(key)) return
         NotificationHelper.notifyMessage(
             this,
             NotificationHelper.CHANNEL_REPORTS,
             "新工作汇报",
             req.request.summary.ifEmpty { "新的工作汇报" },
-            NotificationHelper.messageNotificationId("wr_${req.getID()}"),
+            NotificationHelper.messageNotificationId(key),
         )
     }
 
@@ -388,26 +480,32 @@ class AgentAssistantService : Service() {
             when (pending.messageType) {
                 "AskQuestion" -> if (pending.hasAskQuestionRequest()) {
                     val req = pending.askQuestionRequest
-                    val questions =
-                        req.request.questionsList.joinToString("\n") { it.question }
-                            .ifEmpty { "待处理的问题" }
-                    NotificationHelper.notifyMessage(
-                        this,
-                        NotificationHelper.CHANNEL_QUESTIONS,
-                        "待处理问题",
-                        questions,
-                        NotificationHelper.messageNotificationId("aq_${req.getID()}"),
-                    )
+                    val key = "aq_${req.getID()}"
+                    if (!wasRecentlyHandled(key)) {
+                        val questions =
+                            req.request.questionsList.joinToString("\n") { it.question }
+                                .ifEmpty { "待处理的问题" }
+                        NotificationHelper.notifyMessage(
+                            this,
+                            NotificationHelper.CHANNEL_QUESTIONS,
+                            "待处理问题",
+                            questions,
+                            NotificationHelper.messageNotificationId(key),
+                        )
+                    }
                 }
                 "WorkReport" -> if (pending.hasWorkReportRequest()) {
                     val req = pending.workReportRequest
-                    NotificationHelper.notifyMessage(
-                        this,
-                        NotificationHelper.CHANNEL_REPORTS,
-                        "待确认汇报",
-                        req.request.summary.ifEmpty { "待确认的工作汇报" },
-                        NotificationHelper.messageNotificationId("wr_${req.getID()}"),
-                    )
+                    val key = "wr_${req.getID()}"
+                    if (!wasRecentlyHandled(key)) {
+                        NotificationHelper.notifyMessage(
+                            this,
+                            NotificationHelper.CHANNEL_REPORTS,
+                            "待确认汇报",
+                            req.request.summary.ifEmpty { "待确认的工作汇报" },
+                            NotificationHelper.messageNotificationId(key),
+                        )
+                    }
                 }
             }
         }
@@ -426,19 +524,63 @@ class AgentAssistantService : Service() {
         )
     }
 
-    private fun notifyGenericReply(
+    /**
+     * 「已处理」瞬态提示：用同一 id 覆盖待处理通知（onlyAlertOnce 不重复响铃），
+     * 超时后自动消失，避免已完结的请求一直留在通知栏。
+     */
+    private fun notifyHandledNotice(
         requestId: String,
         channel: String,
         keyPrefix: String,
         title: String,
     ) {
         if (requestId.isEmpty()) return
+        recordHandled("${keyPrefix}_$requestId")
         NotificationHelper.notifyMessage(
             this,
             channel,
             title,
-            "该请求已由其他用户处理",
+            "该请求已处理，无需回复",
             NotificationHelper.messageNotificationId("${keyPrefix}_$requestId"),
+            timeoutAfterMs = NotificationHelper.HANDLED_NOTICE_TIMEOUT_MS,
+        )
+    }
+
+    /** 请求取消广播：同样转成自动消失的瞬态提示 */
+    private fun notifyRequestCancelledNotice(message: WebsocketMessage) {
+        val notification = message.requestCancelledNotification
+        if (notification.requestId.isEmpty()) return
+        val channel: String
+        val keyPrefix: String
+        val title: String
+        when (notification.messageType) {
+            "WorkReport" -> {
+                channel = NotificationHelper.CHANNEL_REPORTS
+                keyPrefix = "wr"
+                title = "汇报已取消"
+            }
+            "AskQuestion" -> {
+                channel = NotificationHelper.CHANNEL_QUESTIONS
+                keyPrefix = "aq"
+                title = "问题已取消"
+            }
+            else -> {
+                // 类型未知：先把两种前缀的通知都撤掉，提示走通用消息渠道
+                markRequestHandled("aq_${notification.requestId}")
+                markRequestHandled("wr_${notification.requestId}")
+                channel = NotificationHelper.CHANNEL_MESSAGES
+                keyPrefix = "rc"
+                title = "请求已取消"
+            }
+        }
+        recordHandled("${keyPrefix}_${notification.requestId}")
+        NotificationHelper.notifyMessage(
+            this,
+            channel,
+            title,
+            notification.reason.ifEmpty { "该请求已取消" },
+            NotificationHelper.messageNotificationId("${keyPrefix}_${notification.requestId}"),
+            timeoutAfterMs = NotificationHelper.HANDLED_NOTICE_TIMEOUT_MS,
         )
     }
 }

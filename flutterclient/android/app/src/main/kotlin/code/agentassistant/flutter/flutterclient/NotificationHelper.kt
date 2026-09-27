@@ -27,6 +27,12 @@ object NotificationHelper {
     const val SERVICE_NOTIFICATION_ID = 1000
     private const val MESSAGE_NOTIFICATION_BASE_ID = 2000
 
+    /** 每种通知类型占用的 id 区间大小：撤销时按前缀隔离，互不误伤 */
+    private const val TYPE_ID_STRIDE = 0x1000
+
+    /** 「已处理」瞬态提示的自动消失时长 */
+    const val HANDLED_NOTICE_TIMEOUT_MS = 60_000L
+
     fun ensureChannels(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val nm = context.getSystemService(NotificationManager::class.java) ?: return
@@ -175,7 +181,7 @@ object NotificationHelper {
             .build()
     }
 
-    /** 弹一条消息通知 */
+    /** 弹一条消息通知；timeoutAfterMs > 0 时超时自动消失 */
     fun notifyMessage(
         context: Context,
         channel: String,
@@ -183,6 +189,7 @@ object NotificationHelper {
         body: String,
         notificationId: Int,
         extras: Map<String, String> = emptyMap(),
+        timeoutAfterMs: Long = 0,
     ) {
         ensureChannels(context)
         val nm = context.getSystemService(NotificationManager::class.java) ?: return
@@ -202,13 +209,26 @@ object NotificationHelper {
             .setContentIntent(launchPendingIntent(context, extras))
             .setAutoCancel(true)
             .setOnlyAlertOnce(true) // 同 id 更新不再响铃（心跳重复带 pending 时防抖）
+            .apply { if (timeoutAfterMs > 0) setTimeoutAfter(timeoutAfterMs) }
             .setCategory(Notification.CATEGORY_MESSAGE)
             .build()
         nm.notify(notificationId, notification)
     }
 
+    /** 撤销指定 requestKey 对应的消息通知（不存在时无副作用） */
+    fun cancelMessage(context: Context, requestKey: String) {
+        val nm = context.getSystemService(NotificationManager::class.java) ?: return
+        nm.cancel(messageNotificationId(requestKey))
+    }
+
     /** 为每条消息生成稳定的通知 id（同一请求重复通知时替换） */
     fun messageNotificationId(requestKey: String): Int {
-        return MESSAGE_NOTIFICATION_BASE_ID + (requestKey.hashCode() and 0x0FFF)
+        // 按前缀分到不同 id 区间，撤销某一类时不会误伤其他类型的通知
+        val typeOffset = when {
+            requestKey.startsWith("wr_") -> TYPE_ID_STRIDE
+            requestKey.startsWith("chat_") -> 2 * TYPE_ID_STRIDE
+            else -> 0
+        }
+        return MESSAGE_NOTIFICATION_BASE_ID + typeOffset + (requestKey.hashCode() and 0x0FFF)
     }
 }
