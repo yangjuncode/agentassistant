@@ -39,6 +39,7 @@ class AppConfig {
   static const String nicknameStorageKey = 'user_nickname';
   static const String suffixTextStorageKey = 'suffix_text';
   static const String suffixTextEnabledStorageKey = 'suffix_text_enabled';
+  static const String focusModeStorageKey = 'focus_mode';
 
   // Default values
   static const String appName = 'Agent Assistant';

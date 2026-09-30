@@ -28,7 +28,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _hasInitialized = false;
   List<ChatMessage> _previousMessages = [];
   // 跟踪上一次的"仅显示待处理消息"过滤状态，用于检测过滤被自动关闭的情况
-  bool _previousShowOnlyPending = false;
+  bool _previousPendingFilterActive = false;
   // 用户回复中时被抑制自动滚动的新待处理消息 id 集合（浮动提示的计数来源）
   final Set<String> _suppressedNewMessageIds = {};
 
@@ -197,23 +197,23 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     final chatProvider = context.read<ChatProvider>();
-    final currentShowOnlyPending = chatProvider.showOnlyPendingMessages;
+    final pendingFilterActive = chatProvider.isPendingFilterActive;
 
     // 检测"仅显示待处理消息"过滤被自动关闭的情况：
     // 当用户回复了最后一条待处理消息后，过滤会被关闭，visibleMessages
     // 从"仅待处理"切换为"全部消息"，列表内容大幅变化会导致滚动位置重置到顶部。
     // 此时应该滚动到底部（最新消息处），保持焦点在最新内容上。
-    if (_previousShowOnlyPending && !currentShowOnlyPending) {
+    if (_previousPendingFilterActive && !pendingFilterActive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Future.delayed(const Duration(milliseconds: 100), () {
           _scrollToBottom();
         });
       });
-      _previousShowOnlyPending = currentShowOnlyPending;
+      _previousPendingFilterActive = pendingFilterActive;
       _previousMessages = List.from(currentMessages);
       return;
     }
-    _previousShowOnlyPending = currentShowOnlyPending;
+    _previousPendingFilterActive = pendingFilterActive;
 
     // print('🔍 Checking messages. Total: ${currentMessages.length}');
     // print('🗝️ Available message keys: ${_messageKeys.keys.toList()}');
@@ -246,8 +246,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // 抑制集合里已不可回复的条目剔除（在别处被回复/取消掉了）
     if (_suppressedNewMessageIds.isNotEmpty) {
-      final replyableIds =
-          currentReplyableMessages.map((m) => m.id).toSet();
+      final replyableIds = currentReplyableMessages.map((m) => m.id).toSet();
       final before = _suppressedNewMessageIds.length;
       _suppressedNewMessageIds.removeWhere((id) => !replyableIds.contains(id));
       if (_suppressedNewMessageIds.length != before) {
@@ -369,6 +368,8 @@ class _ChatScreenState extends State<ChatScreen> {
             tooltip: l10n.moreActions,
             onSelected: (value) {
               switch (value) {
+                case 'focusMode':
+                  chatProvider.setFocusMode(!chatProvider.focusMode);
                 case 'clearHandled':
                   _showClearHandledDialog();
                 case 'clearAll':
@@ -376,6 +377,12 @@ class _ChatScreenState extends State<ChatScreen> {
               }
             },
             itemBuilder: (context) => [
+              CheckedPopupMenuItem(
+                value: 'focusMode',
+                checked: chatProvider.focusMode,
+                child: Text(l10n.focusMode),
+              ),
+              const PopupMenuDivider(),
               PopupMenuItem(
                 value: 'clearHandled',
                 child: Text(l10n.clearHandledMessages),

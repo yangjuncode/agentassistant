@@ -73,6 +73,7 @@
   "clearHandledConfirmTitle": "Clear handled",
   "clearHandledConfirmMessage": "Clear all handled messages? Pending messages will be kept.",
   "clearAllMessages": "Clear all",
+  "focusMode": "Focus mode",
   "newPendingMessages": "{count} new pending",
   "@newPendingMessages": {
     "placeholders": {

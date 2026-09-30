@@ -95,6 +95,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   double _mcpWorkReportSoundVolume = 1.0;
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _showOnlyPendingMessages = false;
+  // 焦点模式：有待处理消息时只显示未回复的消息（移动端默认开，桌面端默认关）
+  bool _focusMode = false;
   bool _isInputFocused = false;
   bool _appResumed = true;
   Timer? _inputFocusDebounceTimer;
@@ -108,7 +110,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   // Getters
   List<ChatMessage> get messages => List.unmodifiable(_messages);
-  List<ChatMessage> get visibleMessages => _showOnlyPendingMessages
+  List<ChatMessage> get visibleMessages => isPendingFilterActive
       ? List.unmodifiable(
           _messages.where(
             (m) => m.needsUserAction && m.status != MessageStatus.expired,
@@ -164,6 +166,18 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       .toList();
 
   bool get showOnlyPendingMessages => _showOnlyPendingMessages;
+  bool get focusMode => _focusMode;
+
+  /// 是否存在尚未回复的待处理消息
+  bool get _hasPendingMessages => _messages.any(
+        (m) => m.needsUserAction && m.status != MessageStatus.expired,
+      );
+
+  /// 当前列表是否处于"仅显示待处理消息"过滤态：
+  /// 手动过滤开启，或焦点模式开启且存在未回复的待处理消息
+  bool get isPendingFilterActive =>
+      _showOnlyPendingMessages || (_focusMode && _hasPendingMessages);
+
   bool get isInputFocused => _isInputFocused;
   int get chatAutoSendInterval => _chatAutoSendInterval;
   String? get nickname => _nickname;
@@ -223,6 +237,18 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   void toggleShowOnlyPendingMessages() {
     _showOnlyPendingMessages = !_showOnlyPendingMessages;
     notifyListeners();
+  }
+
+  /// 设置焦点模式并持久化
+  Future<void> setFocusMode(bool value) async {
+    _focusMode = value;
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(AppConfig.focusModeStorageKey, value);
+    } catch (error) {
+      _logger.e('Failed to save focus mode: $error');
+    }
   }
 
   void setInputFocused(bool focused) {
@@ -1386,7 +1412,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final reasonCode = notification.reasonCode;
     final messageType = notification.messageType;
 
-    _logger.i('Request $requestId ($messageType) was cancelled: $reason ($reasonCode)');
+    _logger.i(
+        'Request $requestId ($messageType) was cancelled: $reason ($reasonCode)');
 
     // Find and update the existing message
     final messageIndex = _messages.indexWhere((m) => m.requestId == requestId);
@@ -1659,6 +1686,11 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   @visibleForTesting
   void addMessageForTesting(ChatMessage message) {
     _addMessage(message);
+  }
+
+  @visibleForTesting
+  void updateMessageForTesting(ChatMessage message) {
+    _updateMessage(message);
   }
 
   /// Update existing message
@@ -2474,6 +2506,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
           prefs.getBool('use_interactive_ask_question') ?? true;
       _suffixTextEnabled =
           prefs.getBool(AppConfig.suffixTextEnabledStorageKey) ?? true;
+      // 焦点模式默认值：移动端开启，桌面端关闭
+      _focusMode = prefs.getBool(AppConfig.focusModeStorageKey) ??
+          (Platform.isAndroid || Platform.isIOS);
       notifyListeners();
     } catch (error) {
       _logger.e('Failed to load chat settings: $error');

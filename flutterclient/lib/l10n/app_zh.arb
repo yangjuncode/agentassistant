@@ -53,6 +53,7 @@
   "clearHandledConfirmTitle": "清空已处理",
   "clearHandledConfirmMessage": "确定要清空所有已处理的消息吗？待处理的消息会保留。",
   "clearAllMessages": "清空全部",
+  "focusMode": "焦点模式",
   "newPendingMessages": "{count} 条新待处理消息",
   "moreActions": "更多操作",
   "app": "应用",
