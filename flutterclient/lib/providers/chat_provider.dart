@@ -173,6 +173,9 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         (m) => m.needsUserAction && m.status != MessageStatus.expired,
       );
 
+  /// 是否存在尚未回应的 question 或 work report
+  bool get hasUnansweredMessages => _hasPendingMessages;
+
   /// 当前列表是否处于"仅显示待处理消息"过滤态：
   /// 手动过滤开启，或焦点模式开启且存在未回复的待处理消息
   bool get isPendingFilterActive =>
@@ -1758,6 +1761,25 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
     _logger.i('Found earliest replyable message: ${earliest.id}');
     return earliest;
+  }
+
+  /// Find the latest replyable message
+  ChatMessage? findLatestReplyableMessage() {
+    final replyableMessages = _messages
+        .where((m) => m.needsUserAction && m.status != MessageStatus.expired)
+        .toList();
+
+    if (replyableMessages.isEmpty) {
+      _logger.d('No replyable messages found');
+      return null;
+    }
+
+    // Sort by timestamp to find the latest
+    replyableMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    final latest = replyableMessages.last;
+
+    _logger.i('Found latest replyable message: ${latest.id}');
+    return latest;
   }
 
   /// Save connection info

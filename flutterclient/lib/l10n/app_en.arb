@@ -82,6 +82,10 @@
       }
     }
   },
+  "toBottom": "To Bottom",
+  "@toBottom": {
+    "description": "Button to scroll to the latest unanswered message"
+  },
   "moreActions": "More actions",
   "clear": "Clear",
   "messagesCleared": "Chat history cleared",

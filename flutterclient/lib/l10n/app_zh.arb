@@ -55,6 +55,7 @@
   "clearAllMessages": "清空全部",
   "focusMode": "焦点模式",
   "newPendingMessages": "{count} 条新待处理消息",
+  "toBottom": "To Bottom",
   "moreActions": "更多操作",
   "app": "应用",
   "about": "关于",

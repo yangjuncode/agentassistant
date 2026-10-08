@@ -293,16 +293,17 @@ class _ChatScreenState extends State<ChatScreen> {
     _previousMessages = List.from(currentMessages);
   }
 
-  /// 跳到抑制集合里最早的一条新待处理消息
-  void _jumpToSuppressedMessages() {
+  /// 滚动到最后一条未回复的消息（question 或 work report）
+  Future<void> _scrollToLatestUnansweredMessage() async {
     final chatProvider = context.read<ChatProvider>();
-    final targets = chatProvider.visibleMessages
-        .where((m) => _suppressedNewMessageIds.contains(m.id))
-        .toList()
-      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    setState(() => _suppressedNewMessageIds.clear());
-    if (targets.isNotEmpty) {
-      _scrollToMessage(targets.first.id);
+    final target = chatProvider.findLatestReplyableMessage();
+    if (target != null) {
+      if (_suppressedNewMessageIds.isNotEmpty) {
+        setState(() => _suppressedNewMessageIds.clear());
+      }
+      await _scrollToMessage(target.id);
+    } else {
+      await _scrollToBottom();
     }
   }
 
@@ -503,43 +504,68 @@ class _ChatScreenState extends State<ChatScreen> {
       _checkForNewReplyableMessages(chatProvider.visibleMessages);
     });
 
-    return Stack(
-      children: [
-        SelectionArea(
-          child: ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.all(16),
-            itemCount: chatProvider.visibleMessages.length,
-            itemBuilder: (context, index) {
-              final message = chatProvider.visibleMessages[index];
+    final hasUnanswered = chatProvider.hasUnansweredMessages;
 
-              return Padding(
-                key: _messageKeys[message.id],
-                padding: const EdgeInsets.only(bottom: 8),
-                child: MessageBubble(
-                  message: message,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final totalWidth = constraints.maxWidth;
+        // 目标位置：前 1/4 处（25%）
+        // 在窄屏/手机上确保右边缘留出安全间距，绝不遮挡居中（50%）的 Reply 按钮
+        final targetCenterX = totalWidth * 0.25;
+        const estimatedHalfWidth = 60.0;
+        final maxLeft = (totalWidth * 0.5 - 60 - estimatedHalfWidth * 2)
+            .clamp(16.0, totalWidth);
+        final left = (targetCenterX - estimatedHalfWidth).clamp(16.0, maxLeft);
+
+        return Stack(
+          children: [
+            SelectionArea(
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.only(
+                  left: 16,
+                  right: 16,
+                  top: 16,
+                  bottom: hasUnanswered ? 72 : 16,
                 ),
-              );
-            },
-          ),
-        ),
-        // 回复中来到的新待处理消息：不抢滚动，底部浮动提示
-        if (_suppressedNewMessageIds.isNotEmpty)
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 8,
-            child: Center(
-              child: ElevatedButton.icon(
-                onPressed: _jumpToSuppressedMessages,
-                icon: const Icon(Icons.keyboard_arrow_down, size: 18),
-                label: Text(
-                  l10n.newPendingMessages(_suppressedNewMessageIds.length),
-                ),
+                itemCount: chatProvider.visibleMessages.length,
+                itemBuilder: (context, index) {
+                  final message = chatProvider.visibleMessages[index];
+
+                  return Padding(
+                    key: _messageKeys[message.id],
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: MessageBubble(
+                      message: message,
+                    ),
+                  );
+                },
               ),
             ),
-          ),
-      ],
+            // 如果当前还有未回复的 question 或 work report，在屏幕底部前 1/4 位置显示 to bottom 按钮
+            if (hasUnanswered)
+              Positioned(
+                left: left,
+                bottom: 12,
+                child: ElevatedButton.icon(
+                  onPressed: _scrollToLatestUnansweredMessage,
+                  icon: const Icon(Icons.arrow_downward, size: 18),
+                  label: Text(l10n.toBottom),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 4,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
