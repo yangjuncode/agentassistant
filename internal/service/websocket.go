@@ -12,6 +12,20 @@ import (
 	agentassistproto "github.com/yangjuncode/agentassistant/agentassistproto"
 )
 
+// WebSocket 读写时序参数。
+// 弱网（蜂窝/丢包）下 ping/pong 可能被 TCP 重传延迟数秒：
+// 读超时必须足够宽，且任何入站流量（应用消息、pong）都要能续期，
+// 否则一次丢包就会把整条连接掐掉。
+// 用变量而非常量：测试可以缩小数值做快速回归。
+var (
+	// 无任何入站流量时连接的最大存活时间
+	wsReadWait = 120 * time.Second
+	// 服务端 ping 间隔（客户端 pong 用来给读超时续期）
+	wsPingPeriod = 30 * time.Second
+	// 单次写操作超时
+	wsWriteWait = 10 * time.Second
+)
+
 // WebSocketHandler handles WebSocket connections for the web interface
 type WebSocketHandler struct {
 	broadcaster *Broadcaster
@@ -63,9 +77,9 @@ func (h *WebSocketHandler) HandleWebSocket(w http.ResponseWriter, r *http.Reques
 	}()
 
 	// Set up ping/pong to keep connection alive
-	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	conn.SetReadDeadline(time.Now().Add(wsReadWait))
 	conn.SetPongHandler(func(string) error {
-		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		conn.SetReadDeadline(time.Now().Add(wsReadWait))
 		return nil
 	})
 
@@ -78,7 +92,7 @@ func (h *WebSocketHandler) HandleWebSocket(w http.ResponseWriter, r *http.Reques
 
 // handleOutgoingMessages handles messages sent to the web client
 func (h *WebSocketHandler) handleOutgoingMessages(conn *websocket.Conn, client *WebClient) {
-	ticker := time.NewTicker(54 * time.Second)
+	ticker := time.NewTicker(wsPingPeriod)
 	defer ticker.Stop()
 
 	for {
@@ -91,7 +105,7 @@ func (h *WebSocketHandler) handleOutgoingMessages(conn *websocket.Conn, client *
 			}
 
 			// Send the protobuf WebsocketMessage directly to the client
-			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			conn.SetWriteDeadline(time.Now().Add(wsWriteWait))
 			mb, merr := proto.Marshal(message)
 			if merr != nil {
 				log.Printf("Failed to marshal message to client %s: %v", client.ID, merr)
@@ -104,7 +118,7 @@ func (h *WebSocketHandler) handleOutgoingMessages(conn *websocket.Conn, client *
 
 		case <-ticker.C:
 			// Send ping to keep connection alive
-			conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
+			conn.SetWriteDeadline(time.Now().Add(wsWriteWait))
 			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				log.Printf("Failed to send ping to client %s: %v", client.ID, err)
 				return
@@ -124,6 +138,10 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			}
 			break
 		}
+		// 任何入站消息都说明客户端活着：给读超时续期。
+		// 这样客户端的应用层心跳（GetPendingMessages 等）在 ping/pong
+		// 丢包时也能兜住连接。
+		conn.SetReadDeadline(time.Now().Add(wsReadWait))
 		if mtype != websocket.BinaryMessage {
 			continue
 		}
