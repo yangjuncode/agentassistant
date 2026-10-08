@@ -10,6 +10,9 @@ class AppConfig {
   static const int reconnectDelayMs = 1000;
   static const int connectionTimeoutMs = 10000;
   static const int heartbeatIntervalMs = 30000;
+  // WebSocket 协议层 ping 间隔：依赖 dart:io/OkHttp 的 pong 看门狗
+  // 快速识别半开连接（NAT 静默回收、弱网假在线）
+  static const int wsPingIntervalMs = 20000;
 
   // UI settings
   static const int maxMessageLength = 10000;

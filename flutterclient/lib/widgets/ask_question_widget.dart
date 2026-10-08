@@ -42,6 +42,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   final Map<int, double> _questionHeights = {};
 
   bool _isSubmitting = false;
+  ChatProvider? _chatProvider;
 
   // Autocomplete Overlay State
   OverlayEntry? _suggestOverlay;
@@ -59,10 +60,23 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   @override
   void initState() {
     super.initState();
+    // 恢复未提交的草稿（断连重连/widget 重建/进程重启后保住已选与已填）
+    final draft =
+        context.read<ChatProvider>().getAskQuestionDraft(widget.message);
     // Initialize controllers for each question
     final questions = widget.message.rawQuestions ?? [];
     for (int i = 0; i < questions.length; i++) {
-      _customInputs[i] = TextEditingController();
+      final savedInput = draft?.inputs[i];
+      _customInputs[i] = TextEditingController(text: savedInput ?? '');
+      if (draft != null) {
+        final savedSel = draft.selections[i];
+        if (savedSel != null && savedSel.isNotEmpty) {
+          _selections[i] = Set.of(savedSel);
+        }
+        if (draft.showInput[i] == true) {
+          _showCustomInput[i] = true;
+        }
+      }
       _focusNodes[i] = FocusNode();
       _layerLinks[i] = LayerLink();
       _inputKeys[i] = GlobalKey();
@@ -98,7 +112,27 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _chatProvider = context.read<ChatProvider>();
+  }
+
+  /// 把当前选项/输入同步到 provider 草稿（map 更新同步、落盘由 provider 防抖）。
+  /// dispose 时也能安全调用（不依赖 context）。
+  void _saveDraftNow() {
+    final provider = _chatProvider;
+    if (provider == null) return;
+    provider.saveAskQuestionDraft(
+      widget.message,
+      selections: _selections.map((k, v) => MapEntry(k, Set.of(v))),
+      inputs: _customInputs.map((k, c) => MapEntry(k, c.text)),
+      showInput: Map.of(_showCustomInput),
+    );
+  }
+
+  @override
   void dispose() {
+    _saveDraftNow();
     _suggestDebounce?.cancel();
     _removeSuggestOverlay();
     for (final controller in _customInputs.values) {
@@ -113,6 +147,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   // --- Autocomplete Logic Start ---
 
   void _onTextChanged(int index) {
+    _saveDraftNow();
     if (_suppressNextSuggestUpdate) {
       _suppressNextSuggestUpdate = false;
       return;
@@ -593,6 +628,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
       _selections[questionIndex] = currentSelections;
     });
 
+    _saveDraftNow();
     // 检查是否应该自动提交
     _checkAutoReply();
   }
@@ -641,6 +677,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     setState(() {
       _showCustomInput[index] = true;
     });
+    _saveDraftNow();
     // Delay to ensure the TextField is built before requesting focus
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNodes[index]?.requestFocus();
@@ -824,14 +861,16 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                         Positioned(
                           top: 0,
                           right: 0,
-                          child: _buildCustomInputIconButton(context, index, isCompact: true),
+                          child: _buildCustomInputIconButton(context, index,
+                              isCompact: true),
                         ),
                         // Bottom right button if content is tall
                         if ((_questionHeights[index] ?? 0) > 120)
                           Positioned(
                             bottom: 0,
                             right: 0,
-                            child: _buildCustomInputIconButton(context, index, isCompact: true),
+                            child: _buildCustomInputIconButton(context, index,
+                                isCompact: true),
                           ),
                       ],
                     ],
@@ -844,7 +883,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                       if (question.custom && !showCustom)
                         Padding(
                           padding: const EdgeInsets.only(left: 12),
-                          child: _buildCustomInputIconButton(context, index, isCompact: false),
+                          child: _buildCustomInputIconButton(context, index,
+                              isCompact: false),
                         ),
                     ],
                   );
@@ -960,7 +1000,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                       top: 0,
                                       right: 0,
                                       child: _buildCustomInputIconButton(
-                                          context, index, isCompact: true),
+                                          context, index,
+                                          isCompact: true),
                                     ),
                                 ],
                               );
@@ -973,7 +1014,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                     Padding(
                                       padding: const EdgeInsets.only(left: 8),
                                       child: _buildCustomInputIconButton(
-                                          context, index, isCompact: false),
+                                          context, index,
+                                          isCompact: false),
                                     ),
                                 ],
                               );
@@ -1059,6 +1101,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                                   _showCustomInput[index] = false;
                                   _customInputs[index]?.clear();
                                 });
+                                _saveDraftNow();
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(6),

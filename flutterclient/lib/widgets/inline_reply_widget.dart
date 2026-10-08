@@ -105,13 +105,13 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
         toolIndexProvider.touchContext(root, widget.message.mcpClientName);
       }
 
-      final draft = chatProvider.getDraft(widget.message.id);
+      final draft = chatProvider.getDraft(widget.message);
       if (draft != null && draft.isNotEmpty) {
         _controller.text = draft;
       }
       // Listen to changes and persist as draft (lightweight, no notify)
       _controller.addListener(() {
-        chatProvider.setDraft(widget.message.id, _controller.text);
+        chatProvider.setDraft(widget.message, _controller.text);
       });
 
       // Listen for @ autocomplete
@@ -644,7 +644,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       // Clear attachments after successful send
       _attachments.clear();
       // Clear saved draft after successful send
-      chatProvider.clearDraft(widget.message.id);
+      chatProvider.clearDraft(widget.message);
 
       // Auto-show online users bar if no more pending actions
       if (chatProvider.pendingQuestions.isEmpty &&

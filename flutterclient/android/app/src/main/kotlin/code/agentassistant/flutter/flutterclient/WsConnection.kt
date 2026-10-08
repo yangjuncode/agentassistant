@@ -39,13 +39,17 @@ class WsConnection(
 
     companion object {
         private const val TAG = "WsConnection"
+        private const val PING_INTERVAL_MS = 20_000L
         private const val HEARTBEAT_INTERVAL_MS = 30_000L
         private const val RECONNECT_BASE_MS = 1_000L
         private const val RECONNECT_MAX_MS = 60_000L
     }
 
     private val client = OkHttpClient.Builder()
-        .pingInterval(0, TimeUnit.MILLISECONDS) // 应用层心跳由我们自己发
+        // 协议层 ping + pong 看门狗：服务端（gorilla）会自动回 pong；
+        // 半开连接（NAT 静默超时、无 RST）能在约一个周期内被判死并重连，
+        // 而不是等 TCP 重传耗尽。应用层心跳（30s）仍然保留兜底。
+        .pingInterval(PING_INTERVAL_MS, TimeUnit.MILLISECONDS)
         .build()
 
     @Volatile

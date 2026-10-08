@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -45,6 +46,76 @@ class _ForwardSelection {
   const _ForwardSelection({required this.mode, this.windowId});
 }
 
+/// AskQuestion 的未提交草稿：各问题已选选项、自定义输入、自定义框是否展开。
+/// 以 '$serverId|$requestId' 为键存放于 ChatProvider，不随 widget
+/// 销毁/消息对象重建（pending 重拉产生新 message.id）而丢失；
+/// 同时持久化到 SharedPreferences，进程重启后也能恢复。
+class AskQuestionDraft {
+  final Map<int, Set<int>> selections;
+  final Map<int, String> inputs;
+  final Map<int, bool> showInput;
+
+  const AskQuestionDraft({
+    this.selections = const {},
+    this.inputs = const {},
+    this.showInput = const {},
+  });
+
+  bool get isEmpty =>
+      selections.values.every((s) => s.isEmpty) &&
+      inputs.values.every((t) => t.trim().isEmpty) &&
+      showInput.values.every((v) => !v);
+
+  Map<String, dynamic> toJson() => {
+        'sel': selections.map((k, v) => MapEntry('$k', v.toList())),
+        'in': inputs,
+        'show': showInput.map((k, v) => MapEntry('$k', v)),
+      };
+
+  factory AskQuestionDraft.fromJson(Map<String, dynamic> json) {
+    Map<int, Set<int>> parseSel(dynamic raw) {
+      final out = <int, Set<int>>{};
+      if (raw is Map) {
+        raw.forEach((k, v) {
+          final i = int.tryParse('$k');
+          if (i != null && v is List) {
+            out[i] = v.whereType<num>().map((e) => e.toInt()).toSet();
+          }
+        });
+      }
+      return out;
+    }
+
+    Map<int, String> parseInputs(dynamic raw) {
+      final out = <int, String>{};
+      if (raw is Map) {
+        raw.forEach((k, v) {
+          final i = int.tryParse('$k');
+          if (i != null && v is String) out[i] = v;
+        });
+      }
+      return out;
+    }
+
+    Map<int, bool> parseShow(dynamic raw) {
+      final out = <int, bool>{};
+      if (raw is Map) {
+        raw.forEach((k, v) {
+          final i = int.tryParse('$k');
+          if (i != null && v == true) out[i] = true;
+        });
+      }
+      return out;
+    }
+
+    return AskQuestionDraft(
+      selections: parseSel(json['sel']),
+      inputs: parseInputs(json['in']),
+      showInput: parseShow(json['show']),
+    );
+  }
+}
+
 /// Chat provider for managing chat state and WebSocket communication
 class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   static final Logger _logger = Logger(level: Level.nothing);
@@ -68,8 +139,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   final Map<String, _PeerForwardState> _peerForwardStates = {};
   final Map<String, _ForwardSelection> _forwardSelections = {};
   final Map<String, String> _forwardQueryRequestToSession = {};
-  // Per-message reply/confirm drafts to persist inline editor content
+  // Per-message reply/confirm drafts to persist inline editor content.
+  // 键为 '$serverId|$requestId'（见 draftKeyOf）：ChatMessage.id 是随机
+  // UUID，pending 重拉会生成新 id，只有 requestId 才能跨重建对上。
   final Map<String, String> _replyDrafts = {};
+  // AskQuestion 的结构化草稿（选项 + 自定义输入），同按请求键存放
+  final Map<String, AskQuestionDraft> _askQuestionDrafts = {};
+  static const String _pendingDraftsStorageKey = 'pending_drafts_v1';
   // In-memory history of reply/confirm texts (newest first)
   final List<String> _replyHistory = [];
   // Direct chat message error tracking
@@ -311,6 +387,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       unawaited(AndroidWsBridge.setUiForeground(_appResumed));
     }
     Future.microtask(() async {
+      await _loadDrafts(); // 恢复未发送草稿（重连/重启后消息回来可还原输入）
       await _loadNickname(); // Load nickname first
       await _loadSuffixText(); // Load suffix text
       await _loadServerConfigs();
@@ -747,18 +824,119 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     TrayService().setConnected(anyConnected);
   }
 
+  /// 草稿键：'$serverId|$requestId'，跨消息对象重建保持稳定
+  static String draftKeyOf(ChatMessage message) =>
+      '${message.serverId ?? ""}|${message.requestId}';
+
   /// Get a saved draft for a message
-  String? getDraft(String messageId) => _replyDrafts[messageId];
+  String? getDraft(ChatMessage message) => _replyDrafts[draftKeyOf(message)];
 
   /// Set/update draft for a message
-  void setDraft(String messageId, String text) {
-    _replyDrafts[messageId] = text;
+  void setDraft(ChatMessage message, String text) {
+    _replyDrafts[draftKeyOf(message)] = text;
+    _scheduleDraftPersist();
     // Intentionally avoid notifyListeners to prevent rebuild on each keystroke
   }
 
   /// Clear draft for a message
-  void clearDraft(String messageId) {
-    _replyDrafts.remove(messageId);
+  void clearDraft(ChatMessage message) {
+    _replyDrafts.remove(draftKeyOf(message));
+    _scheduleDraftPersist();
+  }
+
+  /// AskQuestion 草稿读取
+  AskQuestionDraft? getAskQuestionDraft(ChatMessage message) =>
+      _askQuestionDrafts[draftKeyOf(message)];
+
+  /// 保存 AskQuestion 草稿（增量合并；不触发 notifyListeners）
+  void saveAskQuestionDraft(
+    ChatMessage message, {
+    Map<int, Set<int>>? selections,
+    Map<int, String>? inputs,
+    Map<int, bool>? showInput,
+  }) {
+    final key = draftKeyOf(message);
+    final existing = _askQuestionDrafts[key] ?? const AskQuestionDraft();
+    final draft = AskQuestionDraft(
+      selections: selections ?? existing.selections,
+      inputs: inputs ?? existing.inputs,
+      showInput: showInput ?? existing.showInput,
+    );
+    if (draft.isEmpty) {
+      _askQuestionDrafts.remove(key);
+    } else {
+      _askQuestionDrafts[key] = draft;
+    }
+    _scheduleDraftPersist();
+  }
+
+  /// 清除某条消息的全部草稿（回复文本 + AskQuestion 结构草稿）
+  void _clearDraftsForMessage(ChatMessage message) {
+    final key = draftKeyOf(message);
+    _replyDrafts.remove(key);
+    _askQuestionDrafts.remove(key);
+    _scheduleDraftPersist();
+  }
+
+  /// 丢弃该服务器名下已没有对应消息对象的草稿
+  /// （重启/离线期间请求被取消等场景，防止脏草稿累积）
+  void _pruneDraftsForServer(String serverId) {
+    final liveKeys = _messages.map(draftKeyOf).toSet();
+    final prefix = '$serverId|';
+    final before = _replyDrafts.length + _askQuestionDrafts.length;
+    _replyDrafts
+        .removeWhere((k, _) => k.startsWith(prefix) && !liveKeys.contains(k));
+    _askQuestionDrafts
+        .removeWhere((k, _) => k.startsWith(prefix) && !liveKeys.contains(k));
+    if (_replyDrafts.length + _askQuestionDrafts.length != before) {
+      _scheduleDraftPersist();
+    }
+  }
+
+  /// 草稿写 SharedPreferences（数据量小，直接 fire-and-forget 异步写，
+  /// 不用 Timer 防抖以免留下悬挂定时器）
+  void _scheduleDraftPersist() {
+    unawaited(_persistDraftsNow());
+  }
+
+  Future<void> _persistDraftsNow() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final payload = jsonEncode({
+        'reply': _replyDrafts,
+        'ask': _askQuestionDrafts.map((k, v) => MapEntry(k, v.toJson())),
+      });
+      await prefs.setString(_pendingDraftsStorageKey, payload);
+    } catch (e) {
+      _logger.w('Failed to persist drafts: $e');
+    }
+  }
+
+  Future<void> _loadDrafts() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_pendingDraftsStorageKey);
+      if (raw == null || raw.isEmpty) return;
+      final json = jsonDecode(raw);
+      if (json is! Map<String, dynamic>) return;
+      final reply = json['reply'];
+      if (reply is Map) {
+        reply.forEach((k, v) {
+          if (k is String && v is String) _replyDrafts[k] = v;
+        });
+      }
+      final ask = json['ask'];
+      if (ask is Map) {
+        ask.forEach((k, v) {
+          if (k is String && v is Map) {
+            _askQuestionDrafts[k] =
+                AskQuestionDraft.fromJson(Map<String, dynamic>.from(v));
+          }
+        });
+      }
+    } catch (e) {
+      _logger.w('Failed to load pending drafts: $e');
+    }
   }
 
   /// Add an entry to reply history (deduplicate, newest first, cap to 50)
@@ -1300,6 +1478,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
           repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
+        _clearDraftsForMessage(existingMessage);
         notifyListeners();
         _updatePendingState();
         _logger.i(
@@ -1379,6 +1558,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
           repliedByNickname: repliedByNickname,
         );
         _messages[messageIndex] = updatedMessage;
+        _clearDraftsForMessage(existingMessage);
         notifyListeners();
         _updatePendingState();
         _logger.i(
@@ -1428,6 +1608,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
         cancelReasonCode: reasonCode.isNotEmpty ? reasonCode : null,
       );
       _messages[messageIndex] = updatedMessage;
+      _clearDraftsForMessage(existingMessage);
 
       _logger.d('Updated message $requestId status to cancelled');
       notifyListeners();
@@ -1503,6 +1684,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _logger.i(
       'Successfully loaded $addedCount new pending messages. Total: ${_messages.length}',
     );
+    // pending 列表是该服务器请求的权威视图：借此丢弃已无对应消息的草稿
+    _pruneDraftsForServer(serverId);
     notifyListeners();
     _updatePendingState();
   }
@@ -1577,7 +1760,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
       _logger.i('Question reply sent: $messageId');
       // Clear draft after successful send
-      _replyDrafts.remove(messageId);
+      _clearDraftsForMessage(message);
     } catch (error) {
       _logger.e('Failed to reply to question: $error');
       _connectionError = 'Reply failed: $error';
@@ -1664,7 +1847,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
 
       _logger.i('Task confirmed: $messageId');
       // Clear draft after successful confirm
-      _replyDrafts.remove(messageId);
+      _clearDraftsForMessage(message);
     } catch (error) {
       _logger.e('Failed to confirm task: $error');
       _connectionError = 'Confirm failed: $error';
@@ -1710,6 +1893,8 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   void clearMessages() {
     _messages.clear();
     _replyDrafts.clear();
+    _askQuestionDrafts.clear();
+    _scheduleDraftPersist();
     notifyListeners();
     _updatePendingState();
   }
@@ -1717,16 +1902,19 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// 清空已完结的消息（已回复/已取消/已过期等），保留待处理消息。
   /// 列表只存在内存里，清掉的消息不会被 pending 拉取复活。
   void clearHandledMessages() {
-    final removedIds = _messages
+    final removed = _messages
         .where(
           (m) => !(m.needsUserAction && m.status != MessageStatus.expired),
         )
-        .map((m) => m.id)
-        .toSet();
-    if (removedIds.isEmpty) return;
+        .toList();
+    if (removed.isEmpty) return;
+    final removedIds = removed.map((m) => m.id).toSet();
+    final removedKeys = removed.map(draftKeyOf).toSet();
     _messages.removeWhere((m) => removedIds.contains(m.id));
     // 顺带清掉这些消息上遗留的未发送草稿
-    _replyDrafts.removeWhere((id, _) => removedIds.contains(id));
+    _replyDrafts.removeWhere((key, _) => removedKeys.contains(key));
+    _askQuestionDrafts.removeWhere((key, _) => removedKeys.contains(key));
+    _scheduleDraftPersist();
     notifyListeners();
     _updatePendingState();
   }
@@ -1735,12 +1923,12 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   /// 新消息到达时不应抢走滚动位置
   bool get hasActiveReplyDraft {
     if (_replyDrafts.isEmpty) return false;
-    final replyableIds = _messages
+    final replyableKeys = _messages
         .where((m) => m.needsUserAction && m.status != MessageStatus.expired)
-        .map((m) => m.id)
+        .map(draftKeyOf)
         .toSet();
     return _replyDrafts.entries.any(
-      (e) => e.value.trim().isNotEmpty && replyableIds.contains(e.key),
+      (e) => e.value.trim().isNotEmpty && replyableKeys.contains(e.key),
     );
   }
 
@@ -2650,6 +2838,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    unawaited(_persistDraftsNow());
     for (final sub in _messageSubscriptions.values) {
       sub.cancel();
     }

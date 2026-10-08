@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:logger/logger.dart';
 
@@ -60,7 +61,13 @@ class WebSocketService extends WsTransport {
     try {
       _logger.i('Connecting to WebSocket: $url');
 
-      _channel = WebSocketChannel.connect(Uri.parse(url));
+      // 走 IOWebSocketChannel 开启协议层 ping：dart:io WebSocket 在
+      // ping 后一个间隔内未收到 pong 即判死并关闭连接（goingAway），
+      // 与 Android 端 OkHttp 看门狗一致，弱网下快速暴露半开链路。
+      _channel = IOWebSocketChannel.connect(
+        Uri.parse(url),
+        pingInterval: const Duration(milliseconds: AppConfig.wsPingIntervalMs),
+      );
 
       // Listen to messages
       _subscription = _channel!.stream.listen(
