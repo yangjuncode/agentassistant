@@ -1017,86 +1017,95 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      // Quick reply buttons
-                      Row(
-                        children: [
-                          OutlinedButton.icon(
-                            onPressed: _isSubmitting
-                                ? null
-                                : () => _handleSubmit('OK'),
-                            icon: const Icon(Icons.check, size: 16),
-                            label: const Text('OK'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.green,
-                              side: BorderSide(
-                                  color: Colors.green.withValues(alpha: 0.5)),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                            ),
+                      // Quick reply buttons (scrollable when width is tight)
+                      Expanded(
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              OutlinedButton.icon(
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () => _handleSubmit('OK'),
+                                icon: const Icon(Icons.check, size: 16),
+                                label: const Text('OK'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.green,
+                                  side: BorderSide(
+                                      color:
+                                          Colors.green.withValues(alpha: 0.5)),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () => _handleSubmit('Yes'),
+                                icon: const Icon(Icons.thumb_up, size: 16),
+                                label: const Text('Yes'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.teal,
+                                  side: BorderSide(
+                                      color:
+                                          Colors.teal.withValues(alpha: 0.5)),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () => _handleSubmit('Continue'),
+                                icon: const Icon(Icons.arrow_forward, size: 16),
+                                label: const Text('Continue'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.blue,
+                                  side: BorderSide(
+                                      color:
+                                          Colors.blue.withValues(alpha: 0.5)),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () => _handleSubmit(
+                                        'git commit current work, task is finished, standby.'),
+                                icon: const Icon(Icons.commit, size: 16),
+                                label: const Text('git commit'),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.orange,
+                                  side: BorderSide(
+                                      color:
+                                          Colors.orange.withValues(alpha: 0.5)),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              OutlinedButton.icon(
+                                onPressed: _isSubmitting
+                                    ? null
+                                    : () => _handleSubmit("ok, let's do it"),
+                                icon: const Icon(Icons.play_arrow, size: 16),
+                                label: const Text("OK, let's do it"),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: Colors.deepPurple,
+                                  side: BorderSide(
+                                      color: Colors.deepPurple
+                                          .withValues(alpha: 0.5)),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: _isSubmitting
-                                ? null
-                                : () => _handleSubmit('Yes'),
-                            icon: const Icon(Icons.thumb_up, size: 16),
-                            label: const Text('Yes'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.teal,
-                              side: BorderSide(
-                                  color: Colors.teal.withValues(alpha: 0.5)),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: _isSubmitting
-                                ? null
-                                : () => _handleSubmit('Continue'),
-                            icon: const Icon(Icons.arrow_forward, size: 16),
-                            label: const Text('Continue'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.blue,
-                              side: BorderSide(
-                                  color: Colors.blue.withValues(alpha: 0.5)),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: _isSubmitting
-                                ? null
-                                : () => _handleSubmit(
-                                    'git commit current work, task is finished, standby.'),
-                            icon: const Icon(Icons.commit, size: 16),
-                            label: const Text('git commit'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.orange,
-                              side: BorderSide(
-                                  color: Colors.orange.withValues(alpha: 0.5)),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: _isSubmitting
-                                ? null
-                                : () => _handleSubmit("ok, let's do it"),
-                            icon: const Icon(Icons.play_arrow, size: 16),
-                            label: const Text("OK, let's do it"),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: Colors.deepPurple,
-                              side: BorderSide(
-                                  color:
-                                      Colors.deepPurple.withValues(alpha: 0.5)),
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 12, vertical: 8),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
 
                       // Send button

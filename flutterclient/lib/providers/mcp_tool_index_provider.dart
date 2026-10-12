@@ -52,6 +52,8 @@ class McpToolIndexProvider extends ChangeNotifier {
   String _slashCommandCompletionText = defaultSlashCommandCompletionText;
   String _slashSkillCompletionText = defaultSlashSkillCompletionText;
 
+  bool _disposed = false;
+
   McpToolIndexProvider() {
     _loadSettings();
     _cleanupTimer = Timer.periodic(const Duration(minutes: 10), (_) {
@@ -61,6 +63,7 @@ class McpToolIndexProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _disposed = true;
     _cleanupTimer?.cancel();
     super.dispose();
   }
@@ -261,7 +264,7 @@ class McpToolIndexProvider extends ChangeNotifier {
         _slashSkillCompletionText = skillText;
       }
     } catch (_) {}
-    notifyListeners();
+    if (!_disposed) notifyListeners();
   }
 }
 

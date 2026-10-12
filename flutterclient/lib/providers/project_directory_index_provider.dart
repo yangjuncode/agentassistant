@@ -58,6 +58,8 @@ cmake-build-release/
   bool _useGitIgnore = true;
   String _customIgnorePatterns = defaultIgnorePatterns;
 
+  bool _disposed = false;
+
   ProjectDirectoryIndexProvider() {
     _loadSettings();
     _cleanupTimer = Timer.periodic(const Duration(minutes: 10), (_) {
@@ -85,6 +87,7 @@ cmake-build-release/
 
   @override
   void dispose() {
+    _disposed = true;
     _cleanupTimer?.cancel();
     for (final cache in _caches.values) {
       cache.dispose();
@@ -253,7 +256,7 @@ cmake-build-release/
       _customIgnorePatterns = defaultIgnorePatterns;
     }
 
-    notifyListeners();
+    if (!_disposed) notifyListeners();
   }
 
   Future<void> _ensureIndexed(_RootCache cache, {bool force = false}) async {

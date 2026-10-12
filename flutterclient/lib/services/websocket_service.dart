@@ -49,6 +49,9 @@ class WebSocketService extends WsTransport {
 
     // Reset login wait state
     _loginCompleter = Completer<void>();
+    // 建连失败提前返回时该 future 可能无人 await，但 _failLoginIfPending
+    // 仍会 completeError；预挂一个 catchError 标记已处理，await 处照常收到错误。
+    _loginCompleter!.future.catchError((_) {});
     _loginTimeoutTimer?.cancel();
     _loginTimeoutTimer = Timer(const Duration(seconds: 5), () {
       if (_loginCompleter != null && !_loginCompleter!.isCompleted) {
@@ -75,6 +78,10 @@ class WebSocketService extends WsTransport {
         onError: _handleError,
         onDone: _handleDisconnection,
       );
+
+      // 等待底层 socket 建连完成；失败时 ready 会带错，在这里抛出由
+      // catch 统一走错误路径，避免 ready 的错误成为未处理异步异常。
+      await _channel!.ready;
 
       // Send login message
       await sendUserLogin();
