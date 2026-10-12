@@ -800,98 +800,93 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (question.header.isNotEmpty ||
-            question.question.isNotEmpty ||
-            question.custom)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Builder(
-              builder: (context) {
-                final headerMarkdown = _SizeReportingWidget(
-                  onSizeChanged: (size) {
-                    if (!mounted) return;
-                    if (_questionHeights[index] != size.height) {
-                      setState(() {
-                        _questionHeights[index] = size.height;
-                      });
-                    }
-                  },
-                  child: MarkdownBody(
-                    data: [
-                      if (question.header.isNotEmpty)
-                        '**${question.header.trim()}**',
-                      if (question.question.isNotEmpty)
-                        question.question.trim(),
-                    ].join(' '),
-                    selectable: false,
-                    styleSheet: MarkdownStyleSheet.fromTheme(
-                      Theme.of(context),
-                    ).copyWith(
-                      strong: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
-                      p: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(fontWeight: FontWeight.w500),
-                      code: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            fontFamily: 'monospace',
-                            backgroundColor: Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                          ),
-                      codeblockDecoration: BoxDecoration(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Builder(
+            builder: (context) {
+              final headerMarkdown = _SizeReportingWidget(
+                onSizeChanged: (size) {
+                  if (!mounted) return;
+                  if (_questionHeights[index] != size.height) {
+                    setState(() {
+                      _questionHeights[index] = size.height;
+                    });
+                  }
+                },
+                child: MarkdownBody(
+                  data: [
+                    if (question.header.isNotEmpty)
+                      '**${question.header.trim()}**',
+                    if (question.question.isNotEmpty) question.question.trim(),
+                  ].join(' '),
+                  selectable: false,
+                  styleSheet: MarkdownStyleSheet.fromTheme(
+                    Theme.of(context),
+                  ).copyWith(
+                    strong: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.primary,
+                        ),
+                    p: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w500),
+                    code: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontFamily: 'monospace',
+                          backgroundColor: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                        ),
+                    codeblockDecoration: BoxDecoration(
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(4),
                     ),
                   ),
-                );
+                ),
+              );
 
-                if (isCompact) {
-                  return Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      headerMarkdown,
-                      if (question.custom && !showCustom) ...[
-                        // Top right button
+              if (isCompact) {
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    headerMarkdown,
+                    if (!showCustom) ...[
+                      // Top right button
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: _buildCustomInputIconButton(context, index,
+                            isCompact: true),
+                      ),
+                      // Bottom right button if content is tall
+                      if ((_questionHeights[index] ?? 0) > 120)
                         Positioned(
-                          top: 0,
+                          bottom: 0,
                           right: 0,
                           child: _buildCustomInputIconButton(context, index,
                               isCompact: true),
                         ),
-                        // Bottom right button if content is tall
-                        if ((_questionHeights[index] ?? 0) > 120)
-                          Positioned(
-                            bottom: 0,
-                            right: 0,
-                            child: _buildCustomInputIconButton(context, index,
-                                isCompact: true),
-                          ),
-                      ],
                     ],
-                  );
-                } else {
-                  return Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: headerMarkdown),
-                      if (question.custom && !showCustom)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 12),
-                          child: _buildCustomInputIconButton(context, index,
-                              isCompact: false),
-                        ),
-                    ],
-                  );
-                }
-              },
-            ),
+                  ],
+                );
+              } else {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: headerMarkdown),
+                    if (!showCustom)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 12),
+                        child: _buildCustomInputIconButton(context, index,
+                            isCompact: false),
+                      ),
+                  ],
+                );
+              }
+            },
           ),
+        ),
 
         // Options
         if (question.options.isNotEmpty)

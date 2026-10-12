@@ -281,7 +281,7 @@ class ChatMessage {
       ..question = json['question'] ?? ''
       ..header = json['header'] ?? ''
       ..multiple = json['multiple'] ?? false
-      ..custom = json['custom'] ?? false;
+      ..custom = json['custom'] ?? true;
 
     if (json['options'] != null) {
       q.options.addAll(
