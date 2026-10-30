@@ -1,10 +1,12 @@
 # Agent Assistant
 
-Agent Assistant is a system that allows AI agents to interact with human users through a web interface. It consists of three main components:
+Agent Assistant is a system that allows AI agents to interact with human users through a client interface. It consists of three main components:
 
-1. **agentassistant-srv**: The main server that handles RPC requests and serves the web interface
+1. **agentassistant-srv**: The main server that handles RPC requests
 2. **agentassistant-mcp**: An MCP (Model Context Protocol) server that provides tools for AI agents
-3. **Web Interface**: A modern React-based web application for user interaction
+3. **Clients**:
+   - **Flutter Client** (primary, actively maintained): A cross-platform Flutter application for user interaction, located in `flutterclient/`
+   - **Web Interface** (legacy, minimally maintained): A React-based web application in `web/`, still functional but used less and maintained less
 
 ## Architecture
 
@@ -15,14 +17,15 @@ agentassistant-mcp
     ↓ (Connect-Go RPC)
 agentassistant-srv
     ↓ (WebSocket)
-Web Interface (User)
+Flutter Client / Web Interface (User)
 ```
 
 ## Features
 
 - **MCP Integration**: Provides `ask_question` and `work_report` tools for AI agents
-- **Real-time Communication**: WebSocket-based communication between server and web interface
-- **Modern Web UI**: React-based interface with Shadcn/ui components
+- **Real-time Communication**: WebSocket-based communication between server and clients
+- **Flutter Client**: Cross-platform client (Linux, Android, etc.) with an IM-style chat UI, auto-reconnect, and multimedia message support — the primary client under active development
+- **Web Interface**: React-based interface with Shadcn/ui components — usable but in maintenance mode
 - **Token-based Authentication**: Simple token-based authentication system
 - **Cross-platform**: Works on Linux, macOS, and Windows
 
@@ -45,8 +48,8 @@ go build -o agentassistant-mcp ./cmd/agentassistant-mcp
 ```
 
 The server will start on port 8080 and serve:
-- Web interface at `http://localhost:8080`
-- WebSocket endpoint at `ws://localhost:8080/ws`
+- Web interface (legacy client) at `http://localhost:8080`
+- WebSocket endpoint at `ws://localhost:8080/ws` (used by both the Flutter client and the web interface)
 - RPC endpoints for Connect-Go
 
 ### 3. Configure and Start MCP Server
@@ -63,7 +66,23 @@ Start the MCP server:
 ./agentassistant-mcp
 ```
 
-### 4. Access the Web Interface
+### 4. Connect a Client
+
+**Flutter client (recommended)**
+
+Build and run the Flutter client from `flutterclient/` (see its README for details):
+
+```bash
+# Build Linux desktop release (output copied to bin/)
+./build-flutterclient.sh linux
+
+# Or build Android APK
+./build-flutterclient.sh apk
+```
+
+Launch the app and log in with the server address and token.
+
+**Web interface (legacy, less maintained)**
 
 Open your browser and go to:
 ```
@@ -72,7 +91,34 @@ http://localhost:8080?token=test-token
 
 ## Development
 
+### Building the Flutter Client
+
+The primary client is a Flutter application located in the `flutterclient/` directory.
+
+```bash
+# Linux desktop
+./build-flutterclient.sh linux
+
+# Android APK
+./build-flutterclient.sh apk
+
+# Add --clean to run `flutter clean && flutter pub get` first
+./build-flutterclient.sh linux --clean
+```
+
+For development inside `flutterclient/`:
+
+```bash
+cd flutterclient
+flutter pub get
+flutter run            # choose your target device
+```
+
+See `flutterclient/README.md` and `flutterclient/BUILD.md` for more details.
+
 ### Building the Web Interface
+
+> Note: the web interface is usable but is currently used less and receives less maintenance than the Flutter client.
 
 The web interface is a React application located in the `web/` directory.
 
@@ -124,7 +170,7 @@ MCP Server:
 ### MCP Tools
 
 #### ask_question
-Ask a question to the user through the web interface.
+Ask a question to the user through the connected client.
 
 **Parameters:**
 - `project_directory` (string): Current project directory
