@@ -46,6 +46,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
 
   // Autocomplete Overlay State
   OverlayEntry? _suggestOverlay;
+  int? _overlayInputIndex; // Which question input the overlay is anchored to
+  bool _suggestLoading = false; // Index still building; show progress row
   Timer? _suggestDebounce;
   List<_InlineSuggestion> _suggestions = const [];
   int _selectedSuggestionIndex = 0;
@@ -53,6 +55,9 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   bool _suppressNextSuggestUpdate = false;
   int? _activeInputIndex; // The index of the question currently being edited
   bool _ignoreFocusLossOnce = false;
+
+  ProjectDirectoryIndexProvider? _pathIndexProvider;
+  McpToolIndexProvider? _toolIndexProvider;
 
   static const double _suggestOverlayGap = 8;
   static const double _suggestOverlayMaxHeight = 240;
@@ -109,12 +114,35 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
         }
       });
     }
+
+    // Warm up the indexes early so @ / suggestions are ready quickly
+    // (mirrors InlineReplyWidget.initState).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final root = widget.message.projectDirectory;
+      if (root != null && root.isNotEmpty) {
+        context.read<ProjectDirectoryIndexProvider>().touchRoot(root);
+        context
+            .read<McpToolIndexProvider>()
+            .touchContext(root, widget.message.mcpClientName);
+      }
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _chatProvider = context.read<ChatProvider>();
+    final pathProvider = context.read<ProjectDirectoryIndexProvider>();
+    if (!identical(pathProvider, _pathIndexProvider)) {
+      _pathIndexProvider?.removeListener(_onIndexChanged);
+      _pathIndexProvider = pathProvider..addListener(_onIndexChanged);
+    }
+    final toolProvider = context.read<McpToolIndexProvider>();
+    if (!identical(toolProvider, _toolIndexProvider)) {
+      _toolIndexProvider?.removeListener(_onIndexChanged);
+      _toolIndexProvider = toolProvider..addListener(_onIndexChanged);
+    }
   }
 
   /// 把当前选项/输入同步到 provider 草稿（map 更新同步、落盘由 provider 防抖）。
@@ -134,6 +162,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   void dispose() {
     _saveDraftNow();
     _suggestDebounce?.cancel();
+    _pathIndexProvider?.removeListener(_onIndexChanged);
+    _toolIndexProvider?.removeListener(_onIndexChanged);
     _removeSuggestOverlay();
     for (final controller in _customInputs.values) {
       controller.dispose();
@@ -145,6 +175,19 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   }
 
   // --- Autocomplete Logic Start ---
+
+  /// Re-evaluate suggestions when an index finishes building or the cache
+  /// changes. Without this, typing @ while the index is still being built
+  /// leaves the suggestion list empty until the user types another key.
+  void _onIndexChanged() {
+    final index = _activeInputIndex;
+    if (index == null || _activeTokenIndex == null) return;
+    _suggestDebounce?.cancel();
+    _suggestDebounce = Timer(const Duration(milliseconds: 50), () {
+      if (!mounted) return;
+      _updateSuggestions(index);
+    });
+  }
 
   void _onTextChanged(int index) {
     _saveDraftNow();
@@ -225,10 +268,12 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
     _activeTokenIndex = info.atIndex;
     final query = info.query;
 
+    bool building;
     if (mode == _SuggestMode.path) {
       provider.touchRoot(root);
       final results = provider.search(root, query, limit: 20);
       _suggestions = results.map(_InlineSuggestion.path).toList();
+      building = provider.isIndexBuilding(root);
     } else {
       final toolProvider = context.read<McpToolIndexProvider>();
       toolProvider.touchContext(root, widget.message.mcpClientName);
@@ -239,13 +284,18 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
         limit: 20,
       );
       _suggestions = results.map(_InlineSuggestion.tool).toList();
+      building = toolProvider.isIndexBuilding(
+        root,
+        widget.message.mcpClientName,
+      );
     }
 
     if (_selectedSuggestionIndex >= _suggestions.length) {
       _selectedSuggestionIndex = 0;
     }
 
-    if (_suggestions.isEmpty) {
+    _suggestLoading = building && _suggestions.isEmpty;
+    if (_suggestions.isEmpty && !_suggestLoading) {
       _removeSuggestOverlay();
       return;
     }
@@ -277,9 +327,17 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
 
   void _ensureSuggestOverlay(int index) {
     if (_suggestOverlay != null) {
-      _suggestOverlay!.markNeedsBuild();
-      return;
+      if (_overlayInputIndex == index) {
+        _suggestOverlay!.markNeedsBuild();
+        return;
+      }
+      // The builder below captures `index`; recreate the overlay so it
+      // anchors to (and applies into) the currently focused input.
+      final loading = _suggestLoading;
+      _removeSuggestOverlay();
+      _suggestLoading = loading;
     }
+    _overlayInputIndex = index;
     _suggestOverlay = OverlayEntry(
       builder: (context) {
         final placement = _computeSuggestOverlayPlacement(context, index);
@@ -308,82 +366,107 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                         maxWidth: 520,
                         maxHeight: placement.maxHeight,
                       ),
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: _suggestions.length,
-                        itemBuilder: (context, idx) {
-                          final s = _suggestions[idx];
-                          final selected = idx == _selectedSuggestionIndex;
-                          return InkWell(
-                            canRequestFocus: false,
-                            mouseCursor: SystemMouseCursors.click,
-                            onHover: (hovering) {
-                              if (!hovering) return;
-                              if (_selectedSuggestionIndex == idx) return;
-                              _selectedSuggestionIndex = idx;
-                              _suggestOverlay?.markNeedsBuild();
-                            },
-                            onTapDown: (_) {
-                              _ignoreFocusLossOnce = true;
-                              if (_focusNodes[index] != null &&
-                                  !_focusNodes[index]!.hasFocus) {
-                                _focusNodes[index]!.requestFocus();
-                              }
-                              _applySuggestion(index, idx);
-                            },
-                            onTapCancel: () {
-                              _ignoreFocusLossOnce = false;
-                            },
-                            child: Container(
-                              color: selected
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: 0.12)
-                                  : null,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
+                      child: _suggestLoading
+                          ? const Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (s.icon != null) ...[
-                                    Icon(
-                                      s.icon,
-                                      size: 16,
-                                      color: selected
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
+                                  SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
                                     ),
-                                    const SizedBox(width: 6),
-                                  ],
-                                  Expanded(
-                                    child: Text(
-                                      s.displayText,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: 'monospace',
-                                        fontSize: 13,
-                                        height: 1.15,
-                                        color: selected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : null,
-                                      ),
-                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Indexing files…',
+                                    style: TextStyle(fontSize: 13),
                                   ),
                                 ],
                               ),
+                            )
+                          : ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: _suggestions.length,
+                              itemBuilder: (context, idx) {
+                                final s = _suggestions[idx];
+                                final selected =
+                                    idx == _selectedSuggestionIndex;
+                                return InkWell(
+                                  canRequestFocus: false,
+                                  mouseCursor: SystemMouseCursors.click,
+                                  onHover: (hovering) {
+                                    if (!hovering) return;
+                                    if (_selectedSuggestionIndex == idx) return;
+                                    _selectedSuggestionIndex = idx;
+                                    _suggestOverlay?.markNeedsBuild();
+                                  },
+                                  onTapDown: (_) {
+                                    _ignoreFocusLossOnce = true;
+                                    if (_focusNodes[index] != null &&
+                                        !_focusNodes[index]!.hasFocus) {
+                                      _focusNodes[index]!.requestFocus();
+                                    }
+                                    _applySuggestion(index, idx);
+                                  },
+                                  onTapCancel: () {
+                                    _ignoreFocusLossOnce = false;
+                                  },
+                                  child: Container(
+                                    color: selected
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.12)
+                                        : null,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        if (s.icon != null) ...[
+                                          Icon(
+                                            s.icon,
+                                            size: 16,
+                                            color: selected
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                          ),
+                                          const SizedBox(width: 6),
+                                        ],
+                                        Expanded(
+                                          child: Text(
+                                            s.displayText,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontFamily: 'monospace',
+                                              fontSize: 13,
+                                              height: 1.15,
+                                              color: selected
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                  : null,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
                     ),
                   ),
                 ),
@@ -400,6 +483,8 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   void _removeSuggestOverlay() {
     _suggestOverlay?.remove();
     _suggestOverlay = null;
+    _overlayInputIndex = null;
+    _suggestLoading = false;
   }
 
   _SuggestOverlayPlacement _computeSuggestOverlayPlacement(

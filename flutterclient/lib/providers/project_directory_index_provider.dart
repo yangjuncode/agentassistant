@@ -436,7 +436,7 @@ class _RootCache {
     required this.onInvalidate,
   });
 
-  bool get isReady => builtAt != null && entries.isNotEmpty;
+  bool get isReady => builtAt != null;
 
   void dispose() {
     _watchSub?.cancel();

@@ -42,12 +42,16 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   final LayerLink _layerLink = LayerLink();
   final GlobalKey _inputFieldKey = GlobalKey();
   OverlayEntry? _suggestOverlay;
+  bool _suggestLoading = false; // Index still building; show progress row
   Timer? _suggestDebounce;
   List<_InlineSuggestion> _suggestions = const [];
   int _selectedSuggestionIndex = 0;
   int? _activeTokenIndex;
   bool _suppressNextSuggestUpdate = false;
   bool _ignoreFocusLossOnce = false;
+
+  ProjectDirectoryIndexProvider? _pathIndexProvider;
+  McpToolIndexProvider? _toolIndexProvider;
 
   static const double _suggestOverlayGap = 8;
   static const double _suggestOverlayMaxHeight = 240;
@@ -138,6 +142,16 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _chatProvider = context.read<ChatProvider>();
+    final pathProvider = context.read<ProjectDirectoryIndexProvider>();
+    if (!identical(pathProvider, _pathIndexProvider)) {
+      _pathIndexProvider?.removeListener(_onIndexChanged);
+      _pathIndexProvider = pathProvider..addListener(_onIndexChanged);
+    }
+    final toolProvider = context.read<McpToolIndexProvider>();
+    if (!identical(toolProvider, _toolIndexProvider)) {
+      _toolIndexProvider?.removeListener(_onIndexChanged);
+      _toolIndexProvider = toolProvider..addListener(_onIndexChanged);
+    }
   }
 
   @override
@@ -154,10 +168,24 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
       }
     }
     _suggestDebounce?.cancel();
+    _pathIndexProvider?.removeListener(_onIndexChanged);
+    _toolIndexProvider?.removeListener(_onIndexChanged);
     _removeSuggestOverlay();
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  /// Re-evaluate suggestions when an index finishes building or the cache
+  /// changes. Without this, typing @ while the index is still being built
+  /// leaves the suggestion list empty until the user types another key.
+  void _onIndexChanged() {
+    if (_activeTokenIndex == null) return;
+    _suggestDebounce?.cancel();
+    _suggestDebounce = Timer(const Duration(milliseconds: 50), () {
+      if (!mounted) return;
+      _updateSuggestions();
+    });
   }
 
   void _onTextChanged() {
@@ -232,10 +260,12 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     _activeTokenIndex = info.atIndex;
     final query = info.query;
 
+    bool building;
     if (mode == _SuggestMode.path) {
       provider.touchRoot(root);
       final results = provider.search(root, query, limit: 20);
       _suggestions = results.map(_InlineSuggestion.path).toList();
+      building = provider.isIndexBuilding(root);
     } else {
       final toolProvider = context.read<McpToolIndexProvider>();
       toolProvider.touchContext(root, widget.message.mcpClientName);
@@ -246,13 +276,18 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
         limit: 20,
       );
       _suggestions = results.map(_InlineSuggestion.tool).toList();
+      building = toolProvider.isIndexBuilding(
+        root,
+        widget.message.mcpClientName,
+      );
     }
 
     if (_selectedSuggestionIndex >= _suggestions.length) {
       _selectedSuggestionIndex = 0;
     }
 
-    if (_suggestions.isEmpty) {
+    _suggestLoading = building && _suggestions.isEmpty;
+    if (_suggestions.isEmpty && !_suggestLoading) {
       _removeSuggestOverlay();
       return;
     }
@@ -317,81 +352,107 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
                         maxWidth: 520,
                         maxHeight: placement.maxHeight,
                       ),
-                      child: ListView.builder(
-                        padding: EdgeInsets.zero,
-                        itemCount: _suggestions.length,
-                        itemBuilder: (context, index) {
-                          final s = _suggestions[index];
-                          final selected = index == _selectedSuggestionIndex;
-                          return InkWell(
-                            canRequestFocus: false,
-                            mouseCursor: SystemMouseCursors.click,
-                            onHover: (hovering) {
-                              if (!hovering) return;
-                              if (_selectedSuggestionIndex == index) return;
-                              _selectedSuggestionIndex = index;
-                              _suggestOverlay?.markNeedsBuild();
-                            },
-                            onTapDown: (_) {
-                              _ignoreFocusLossOnce = true;
-                              if (!_focusNode.hasFocus) {
-                                _focusNode.requestFocus();
-                              }
-                              _applySuggestion(index);
-                            },
-                            onTapCancel: () {
-                              _ignoreFocusLossOnce = false;
-                            },
-                            child: Container(
-                              color: selected
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: 0.12)
-                                  : null,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
+                      child: _suggestLoading
+                          ? const Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  if (s.icon != null) ...[
-                                    Icon(
-                                      s.icon,
-                                      size: 16,
-                                      color: selected
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .primary
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
+                                  SizedBox(
+                                    width: 14,
+                                    height: 14,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
                                     ),
-                                    const SizedBox(width: 6),
-                                  ],
-                                  Expanded(
-                                    child: Text(
-                                      s.displayText,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: 'monospace',
-                                        fontSize: 13,
-                                        height: 1.15,
-                                        color: selected
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .primary
-                                            : null,
-                                      ),
-                                    ),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Indexing files…',
+                                    style: TextStyle(fontSize: 13),
                                   ),
                                 ],
                               ),
+                            )
+                          : ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: _suggestions.length,
+                              itemBuilder: (context, index) {
+                                final s = _suggestions[index];
+                                final selected =
+                                    index == _selectedSuggestionIndex;
+                                return InkWell(
+                                  canRequestFocus: false,
+                                  mouseCursor: SystemMouseCursors.click,
+                                  onHover: (hovering) {
+                                    if (!hovering) return;
+                                    if (_selectedSuggestionIndex == index)
+                                      return;
+                                    _selectedSuggestionIndex = index;
+                                    _suggestOverlay?.markNeedsBuild();
+                                  },
+                                  onTapDown: (_) {
+                                    _ignoreFocusLossOnce = true;
+                                    if (!_focusNode.hasFocus) {
+                                      _focusNode.requestFocus();
+                                    }
+                                    _applySuggestion(index);
+                                  },
+                                  onTapCancel: () {
+                                    _ignoreFocusLossOnce = false;
+                                  },
+                                  child: Container(
+                                    color: selected
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(alpha: 0.12)
+                                        : null,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        if (s.icon != null) ...[
+                                          Icon(
+                                            s.icon,
+                                            size: 16,
+                                            color: selected
+                                                ? Theme.of(context)
+                                                    .colorScheme
+                                                    .primary
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                          ),
+                                          const SizedBox(width: 6),
+                                        ],
+                                        Expanded(
+                                          child: Text(
+                                            s.displayText,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              fontFamily: 'monospace',
+                                              fontSize: 13,
+                                              height: 1.15,
+                                              color: selected
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                  : null,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                          );
-                        },
-                      ),
                     ),
                   ),
                 ),
@@ -408,6 +469,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
   void _removeSuggestOverlay() {
     _suggestOverlay?.remove();
     _suggestOverlay = null;
+    _suggestLoading = false;
   }
 
   void _applySuggestion(int index) {

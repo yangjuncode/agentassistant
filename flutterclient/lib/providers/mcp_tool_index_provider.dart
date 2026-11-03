@@ -115,6 +115,13 @@ class McpToolIndexProvider extends ChangeNotifier {
     return Directory(root).existsSync();
   }
 
+  bool isIndexBuilding(String root, String? mcpClientName) {
+    final config = _resolveConfigForRoot(root, mcpClientName);
+    final key = _cacheKey(root, config.clientNameKey);
+    final cache = _caches[key];
+    return cache?.isBuilding ?? false;
+  }
+
   void touchContext(String root, String? mcpClientName) {
     if (!rootExists(root)) return;
 
