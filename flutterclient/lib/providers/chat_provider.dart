@@ -145,6 +145,14 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   final Map<String, String> _replyDrafts = {};
   // AskQuestion 的结构化草稿（选项 + 自定义输入），同按请求键存放
   final Map<String, AskQuestionDraft> _askQuestionDrafts = {};
+  // Throttle map for ResetTimeout requests. Keyed the same way as drafts
+  // ('$serverId|$requestId') so that the draft pruning paths clean it up too.
+  final Map<String, DateTime> _lastResetTimeoutSent = {};
+  static const Duration _resetTimeoutThrottle = Duration(seconds: 1);
+  // Even "forced" activity (option clicks, file picks) is throttled to this
+  // floor, otherwise a user clicking through several options fires a frame per
+  // click for no benefit: one restart per 200ms is plenty.
+  static const Duration _resetTimeoutForceFloor = Duration(milliseconds: 200);
   static const String _pendingDraftsStorageKey = 'pending_drafts_v1';
   // In-memory history of reply/confirm texts (newest first)
   final List<String> _replyHistory = [];
@@ -835,12 +843,14 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   void setDraft(ChatMessage message, String text) {
     _replyDrafts[draftKeyOf(message)] = text;
     _scheduleDraftPersist();
+    touchUserActivity(message);
     // Intentionally avoid notifyListeners to prevent rebuild on each keystroke
   }
 
   /// Clear draft for a message
   void clearDraft(ChatMessage message) {
     _replyDrafts.remove(draftKeyOf(message));
+    _lastResetTimeoutSent.remove(draftKeyOf(message));
     _scheduleDraftPersist();
   }
 
@@ -868,6 +878,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       _askQuestionDrafts[key] = draft;
     }
     _scheduleDraftPersist();
+    touchUserActivity(message);
   }
 
   /// 清除某条消息的全部草稿（回复文本 + AskQuestion 结构草稿）
@@ -875,7 +886,41 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     final key = draftKeyOf(message);
     _replyDrafts.remove(key);
     _askQuestionDrafts.remove(key);
+    _lastResetTimeoutSent.remove(key);
     _scheduleDraftPersist();
+  }
+
+  /// Notify server that user is active on this message (editing/typing/clicking
+  /// options), asking it to restart this request's inactivity timeout.
+  ///
+  /// [force] bypasses the 1s keystroke throttle but keeps a small floor, so a
+  /// burst of clicks still collapses into one frame.
+  void touchUserActivity(ChatMessage message, {bool force = false}) {
+    if (message.status != MessageStatus.pending) return;
+
+    // Without a server id we cannot tell which connection owns this request;
+    // guessing "any connected transport" would target the wrong server in a
+    // multi-server setup, so do nothing instead.
+    final serverId = message.serverId;
+    if (serverId == null || serverId.isEmpty) return;
+
+    final transport = _services[serverId];
+    if (transport == null || !transport.isConnected) return;
+
+    final key = draftKeyOf(message);
+    final now = DateTime.now();
+    final lastSent = _lastResetTimeoutSent[key];
+    if (lastSent != null) {
+      final elapsed = now.difference(lastSent);
+      final minInterval =
+          force ? _resetTimeoutForceFloor : _resetTimeoutThrottle;
+      if (elapsed < minInterval) return;
+    }
+
+    _lastResetTimeoutSent[key] = now;
+    unawaited(transport.sendResetTimeout(message.requestId).catchError((err) {
+      _logger.w('Failed to send ResetTimeout for ${message.requestId}: $err');
+    }));
   }
 
   /// 丢弃该服务器名下已没有对应消息对象的草稿
@@ -883,12 +928,21 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
   void _pruneDraftsForServer(String serverId) {
     final liveKeys = _messages.map(draftKeyOf).toSet();
     final prefix = '$serverId|';
-    final before = _replyDrafts.length + _askQuestionDrafts.length;
+    final before = _replyDrafts.length +
+        _askQuestionDrafts.length +
+        _lastResetTimeoutSent.length;
     _replyDrafts
         .removeWhere((k, _) => k.startsWith(prefix) && !liveKeys.contains(k));
     _askQuestionDrafts
         .removeWhere((k, _) => k.startsWith(prefix) && !liveKeys.contains(k));
-    if (_replyDrafts.length + _askQuestionDrafts.length != before) {
+    // Throttle bookkeeping is keyed identically, so it must be pruned along
+    // with the drafts or it grows for the whole lifetime of the session.
+    _lastResetTimeoutSent
+        .removeWhere((k, _) => k.startsWith(prefix) && !liveKeys.contains(k));
+    if (_replyDrafts.length +
+            _askQuestionDrafts.length +
+            _lastResetTimeoutSent.length !=
+        before) {
       _scheduleDraftPersist();
     }
   }
@@ -1244,6 +1298,13 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
           serverId: serverId,
           serverName: serverName,
         );
+        break;
+      case WebSocketCommands.resetTimeoutResponse:
+        // The server only replies when a reset had no effect, i.e. the request
+        // is no longer pending (already replied, cancelled or expired).
+        // Successful resets are silent, so this path stays quiet by design;
+        // it is handled explicitly to avoid an "unknown command" warning.
+        _handleResetTimeoutResponse(message, serverId: serverId);
         break;
       default:
         _logger.w('Unknown message command: ${message.cmd}');
@@ -1879,6 +1940,25 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _updateMessage(message);
   }
 
+  /// Registers [transport] under [serverId] so tests can drive the paths that
+  /// depend on a live connection (e.g. ResetTimeout sending).
+  @visibleForTesting
+  void registerTransportForTesting(String serverId, WsTransport transport) {
+    _services[serverId] = transport;
+  }
+
+  /// Number of tracked ResetTimeout throttle entries; used to assert that the
+  /// bookkeeping does not leak.
+  @visibleForTesting
+  int get resetTimeoutThrottleEntryCount => _lastResetTimeoutSent.length;
+
+  /// Exposes the pending-list pruning so tests can assert it also drops the
+  /// ResetTimeout throttle bookkeeping.
+  @visibleForTesting
+  void pruneDraftsForServerForTesting(String serverId) {
+    _pruneDraftsForServer(serverId);
+  }
+
   /// Update existing message
   void _updateMessage(ChatMessage updatedMessage) {
     final index = _messages.indexWhere((m) => m.id == updatedMessage.id);
@@ -1894,6 +1974,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     _messages.clear();
     _replyDrafts.clear();
     _askQuestionDrafts.clear();
+    _lastResetTimeoutSent.clear();
     _scheduleDraftPersist();
     notifyListeners();
     _updatePendingState();
@@ -1914,6 +1995,7 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
     // 顺带清掉这些消息上遗留的未发送草稿
     _replyDrafts.removeWhere((key, _) => removedKeys.contains(key));
     _askQuestionDrafts.removeWhere((key, _) => removedKeys.contains(key));
+    _lastResetTimeoutSent.removeWhere((key, _) => removedKeys.contains(key));
     _scheduleDraftPersist();
     notifyListeners();
     _updatePendingState();
@@ -2318,6 +2400,29 @@ class ChatProvider extends ChangeNotifier with WidgetsBindingObserver {
       windowId: null,
     );
     notifyListeners();
+  }
+
+  /// Handle a ResetTimeoutResponse, which the server sends only when a reset
+  /// had no effect: the request is no longer pending on the server side
+  /// (already answered, cancelled or expired). Successful resets are silent.
+  ///
+  /// We only drop the throttle bookkeeping: the pending-list refresh that
+  /// follows the corresponding cancellation notification reconciles the message
+  /// state, so reacting harder here would fight that path.
+  void _handleResetTimeoutResponse(
+    pb.WebsocketMessage message, {
+    required String serverId,
+  }) {
+    final response = message.resetTimeoutResponse;
+    if (response.success) {
+      // Defensive: a success frame is not expected, nothing to do.
+      return;
+    }
+    _logger.d(
+      'ResetTimeout rejected by $serverId for request ${response.requestId}: '
+      'request is no longer pending',
+    );
+    _lastResetTimeoutSent.remove('$serverId|${response.requestId}');
   }
 
   /// Handle chat message notification

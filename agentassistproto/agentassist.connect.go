@@ -44,6 +44,9 @@ const (
 	// SrvAgentAssistHeartbeatProcedure is the fully-qualified name of the SrvAgentAssist's Heartbeat
 	// RPC.
 	SrvAgentAssistHeartbeatProcedure = "/agentassistproto.SrvAgentAssist/Heartbeat"
+	// SrvAgentAssistGetRequestStatusProcedure is the fully-qualified name of the SrvAgentAssist's
+	// GetRequestStatus RPC.
+	SrvAgentAssistGetRequestStatusProcedure = "/agentassistproto.SrvAgentAssist/GetRequestStatus"
 )
 
 // SrvAgentAssistClient is a client for the agentassistproto.SrvAgentAssist service.
@@ -52,6 +55,11 @@ type SrvAgentAssistClient interface {
 	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
 	SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error)
 	Heartbeat(context.Context, *connect.Request[McpHeartbeatRequest]) (*connect.Response[McpHeartbeatResponse], error)
+	// GetRequestStatus lets an MCP initiator act as a watchdog over its own
+	// in-flight request: the server owns the inactivity timeout, so the initiator
+	// polls this instead of imposing a wall clock that would end the wait while
+	// the user is still working.
+	GetRequestStatus(context.Context, *connect.Request[RequestStatusRequest]) (*connect.Response[RequestStatusResponse], error)
 }
 
 // NewSrvAgentAssistClient constructs a client for the agentassistproto.SrvAgentAssist service. By
@@ -89,6 +97,12 @@ func NewSrvAgentAssistClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(srvAgentAssistMethods.ByName("Heartbeat")),
 			connect.WithClientOptions(opts...),
 		),
+		getRequestStatus: connect.NewClient[RequestStatusRequest, RequestStatusResponse](
+			httpClient,
+			baseURL+SrvAgentAssistGetRequestStatusProcedure,
+			connect.WithSchema(srvAgentAssistMethods.ByName("GetRequestStatus")),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -98,6 +112,7 @@ type srvAgentAssistClient struct {
 	workReport        *connect.Client[WorkReportRequest, WorkReportResponse]
 	sendMcpClientInfo *connect.Client[McpClientInfoRequest, McpClientInfoResponse]
 	heartbeat         *connect.Client[McpHeartbeatRequest, McpHeartbeatResponse]
+	getRequestStatus  *connect.Client[RequestStatusRequest, RequestStatusResponse]
 }
 
 // AskQuestion calls agentassistproto.SrvAgentAssist.AskQuestion.
@@ -120,12 +135,22 @@ func (c *srvAgentAssistClient) Heartbeat(ctx context.Context, req *connect.Reque
 	return c.heartbeat.CallUnary(ctx, req)
 }
 
+// GetRequestStatus calls agentassistproto.SrvAgentAssist.GetRequestStatus.
+func (c *srvAgentAssistClient) GetRequestStatus(ctx context.Context, req *connect.Request[RequestStatusRequest]) (*connect.Response[RequestStatusResponse], error) {
+	return c.getRequestStatus.CallUnary(ctx, req)
+}
+
 // SrvAgentAssistHandler is an implementation of the agentassistproto.SrvAgentAssist service.
 type SrvAgentAssistHandler interface {
 	AskQuestion(context.Context, *connect.Request[AskQuestionRequest]) (*connect.Response[AskQuestionResponse], error)
 	WorkReport(context.Context, *connect.Request[WorkReportRequest]) (*connect.Response[WorkReportResponse], error)
 	SendMcpClientInfo(context.Context, *connect.Request[McpClientInfoRequest]) (*connect.Response[McpClientInfoResponse], error)
 	Heartbeat(context.Context, *connect.Request[McpHeartbeatRequest]) (*connect.Response[McpHeartbeatResponse], error)
+	// GetRequestStatus lets an MCP initiator act as a watchdog over its own
+	// in-flight request: the server owns the inactivity timeout, so the initiator
+	// polls this instead of imposing a wall clock that would end the wait while
+	// the user is still working.
+	GetRequestStatus(context.Context, *connect.Request[RequestStatusRequest]) (*connect.Response[RequestStatusResponse], error)
 }
 
 // NewSrvAgentAssistHandler builds an HTTP handler from the service implementation. It returns the
@@ -159,6 +184,12 @@ func NewSrvAgentAssistHandler(svc SrvAgentAssistHandler, opts ...connect.Handler
 		connect.WithSchema(srvAgentAssistMethods.ByName("Heartbeat")),
 		connect.WithHandlerOptions(opts...),
 	)
+	srvAgentAssistGetRequestStatusHandler := connect.NewUnaryHandler(
+		SrvAgentAssistGetRequestStatusProcedure,
+		svc.GetRequestStatus,
+		connect.WithSchema(srvAgentAssistMethods.ByName("GetRequestStatus")),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/agentassistproto.SrvAgentAssist/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case SrvAgentAssistAskQuestionProcedure:
@@ -169,6 +200,8 @@ func NewSrvAgentAssistHandler(svc SrvAgentAssistHandler, opts ...connect.Handler
 			srvAgentAssistSendMcpClientInfoHandler.ServeHTTP(w, r)
 		case SrvAgentAssistHeartbeatProcedure:
 			srvAgentAssistHeartbeatHandler.ServeHTTP(w, r)
+		case SrvAgentAssistGetRequestStatusProcedure:
+			srvAgentAssistGetRequestStatusHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -192,4 +225,8 @@ func (UnimplementedSrvAgentAssistHandler) SendMcpClientInfo(context.Context, *co
 
 func (UnimplementedSrvAgentAssistHandler) Heartbeat(context.Context, *connect.Request[McpHeartbeatRequest]) (*connect.Response[McpHeartbeatResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.Heartbeat is not implemented"))
+}
+
+func (UnimplementedSrvAgentAssistHandler) GetRequestStatus(context.Context, *connect.Request[RequestStatusRequest]) (*connect.Response[RequestStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("agentassistproto.SrvAgentAssist.GetRequestStatus is not implemented"))
 }

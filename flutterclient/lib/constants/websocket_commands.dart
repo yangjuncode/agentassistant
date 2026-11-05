@@ -21,6 +21,8 @@ class WebSocketCommands {
   static const String forwardStateQueryResponse = 'ForwardStateQueryResponse';
   static const String forwardStateChanged = 'ForwardStateChanged';
   static const String forwardDeliveryError = 'ForwardDeliveryError';
+  static const String resetTimeout = 'ResetTimeout';
+  static const String resetTimeoutResponse = 'ResetTimeoutResponse';
 }
 
 /// Content type constants for McpResultContent

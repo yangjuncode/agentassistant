@@ -36,6 +36,10 @@ type Config struct {
 	AgentAssistantServerToken string `toml:"agentassistant_server_token"`
 	WorkReportTimeout         int    `toml:"work_report_timeout"`
 	WorkReportTimeoutSeconds  int    `toml:"work_report_timeout_seconds"`
+	// RequestWatchPollInterval is how often the watchdog asks the server
+	// whether the in-flight request is still pending, in seconds. 0 disables
+	// the watchdog; a negative value means "leave the default alone".
+	RequestWatchPollInterval int `toml:"request_watch_poll_interval"`
 }
 
 const defaultWorkReportTimeout = 300 // 5 minutes (in seconds)
@@ -207,6 +211,12 @@ func main() {
 		} else {
 			config.WorkReportTimeout = defaultWorkReportTimeout
 		}
+	}
+
+	// Apply the watchdog poll interval only when explicitly configured, so the
+	// default above stays in charge otherwise. 0 disables the watchdog.
+	if config.RequestWatchPollInterval != 0 {
+		requestWatchPollInterval = time.Duration(config.RequestWatchPollInterval) * time.Second
 	}
 
 	// Initialize RPC client
@@ -431,13 +441,14 @@ func askQuestionHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.
 		},
 	}
 
-	// Call the AskQuestion RPC with timeout (give server small grace period
-	// before client-side cutoff). Using the handler context lets shutdown
-	// abort the in-flight RPC so the server can release the pending request.
-	rpcCtx, rpcCancel := context.WithTimeout(ctx, time.Duration(input.Timeout+5)*time.Second)
-	defer rpcCancel()
-
-	resp, err := client.AskQuestion(rpcCtx, connect.NewRequest(req))
+	// Call the AskQuestion RPC. The server owns the inactivity timeout and
+	// restarts it while the user is active, so we must not impose our own
+	// deadline here — that would cut off a user who is still working. A
+	// watchdog polls the server while we wait instead, so a wedged connection
+	// surfaces as an error within a minute or two rather than hanging forever.
+	resp, err := callWithWatchdog(ctx, req.ID, func(rpcCtx context.Context) (*connect.Response[agentassistproto.AskQuestionResponse], error) {
+		return client.AskQuestion(rpcCtx, connect.NewRequest(req))
+	})
 	if err != nil {
 		return mcp.NewToolResultError(fmt.Sprintf("RPC call failed: %v", err)), nil
 	}
@@ -491,21 +502,24 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 		},
 	}
 
-	// Call the WorkReport RPC with timeout (give server small grace period before client-side cutoff)
-	rpcCtx, rpcCancel := context.WithTimeout(ctx, time.Duration(timeout+5)*time.Second)
-	defer rpcCancel()
-
-	resp, err := client.WorkReport(rpcCtx, connect.NewRequest(req))
+	// Call the WorkReport RPC. As with ask_question, the server owns the
+	// inactivity timeout; the watchdog only guards against a wedged connection.
+	resp, err := callWithWatchdog(ctx, req.ID, func(rpcCtx context.Context) (*connect.Response[agentassistproto.WorkReportResponse], error) {
+		return client.WorkReport(rpcCtx, connect.NewRequest(req))
+	})
 	if err != nil {
-		if isTimeoutError(err, rpcCtx, ctx) {
-			log.Printf("WorkReport call timed out after %d seconds, returning ok", timeout)
+		// A work report is a notification, not a question: whenever it ends
+		// without a confirmation (expired, or the MCP host's own deadline hit)
+		// the agent should just carry on instead of failing.
+		if errors.Is(err, errRequestGone) || isDeadlineExceeded(err, ctx) {
+			log.Printf("WorkReport request %s ended without confirmation, returning ok", req.ID)
 			return mcp.NewToolResultText("ok"), nil
 		}
 		return mcp.NewToolResultError(fmt.Sprintf("RPC call failed: %v", err)), nil
 	}
 
 	if isTimeoutResponse(resp.Msg) {
-		log.Printf("WorkReport request timed out after %d seconds, returning ok", timeout)
+		log.Printf("WorkReport request %s ended without confirmation, returning ok", req.ID)
 		return mcp.NewToolResultText("ok"), nil
 	}
 
@@ -513,18 +527,18 @@ func workReportHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	return convertToMCPResult(resp.Msg), nil
 }
 
-func isTimeoutError(err error, rpcCtx context.Context, parentCtx context.Context) bool {
+// isDeadlineExceeded reports whether err is a deadline expiry, either from the
+// RPC itself or from the context the tool handler was given (MCP hosts impose
+// their own tool timeouts).
+func isDeadlineExceeded(err error, parentCtx context.Context) bool {
 	if err == nil {
 		return false
 	}
 	if errors.Is(err, context.DeadlineExceeded) ||
-		connect.CodeOf(err) == connect.CodeDeadlineExceeded ||
-		(rpcCtx != nil && errors.Is(rpcCtx.Err(), context.DeadlineExceeded)) ||
-		(parentCtx != nil && errors.Is(parentCtx.Err(), context.DeadlineExceeded)) {
+		connect.CodeOf(err) == connect.CodeDeadlineExceeded {
 		return true
 	}
-	errStr := strings.ToLower(err.Error())
-	return strings.Contains(errStr, "deadline exceeded") || strings.Contains(errStr, "timed out") || strings.Contains(errStr, "timeout")
+	return parentCtx != nil && errors.Is(parentCtx.Err(), context.DeadlineExceeded)
 }
 
 func isTimeoutResponse(resp *agentassistproto.WorkReportResponse) bool {
@@ -532,10 +546,13 @@ func isTimeoutResponse(resp *agentassistproto.WorkReportResponse) bool {
 		return false
 	}
 	if resp.Meta != nil {
-		if resp.Meta["error"] == "timeout" {
+		// "expired" means the absolute lifetime cap hit; both cases mean the
+		// user never confirmed, which is fine for a notification.
+		if resp.Meta["error"] == "timeout" || resp.Meta["error"] == "expired" {
 			return true
 		}
-		if strings.Contains(strings.ToLower(resp.Meta["message"]), "timed out") || strings.Contains(strings.ToLower(resp.Meta["message"]), "timeout") {
+		message := strings.ToLower(resp.Meta["message"])
+		if strings.Contains(message, "timed out") || strings.Contains(message, "expired") {
 			return true
 		}
 	}

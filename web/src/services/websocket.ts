@@ -189,6 +189,22 @@ export class WebSocketService {
     this.sendMessage(message);
   }
 
+  /**
+   * Ask the server to restart the inactivity timeout of a pending request
+   * because the user is actively working on it.
+   *
+   * The server owns the timeout, so without this the request would expire
+   * mid-typing. Successful resets are silent; a ResetTimeoutResponse only
+   * arrives when the request is no longer pending.
+   */
+  sendResetTimeout(requestId: string): void {
+    const message = create(WebsocketMessageSchema, {
+      Cmd: WebSocketCommands.RESET_TIMEOUT,
+      ResetTimeoutRequest: { RequestId: requestId }
+    });
+    this.sendMessage(message);
+  }
+
   getOnlineUsers(): void {
     const message = create(WebsocketMessageSchema, {
       Cmd: WebSocketCommands.GET_ONLINE_USERS,

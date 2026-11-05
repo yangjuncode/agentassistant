@@ -601,6 +601,59 @@ final $typed_data.Uint8List mcpHeartbeatResponseDescriptor =
     $convert.base64Decode(
         'ChRNY3BIZWFydGJlYXRSZXNwb25zZRIYCgdTdWNjZXNzGAEgASgIUgdTdWNjZXNz');
 
+@$core.Deprecated('Use resetTimeoutRequestDescriptor instead')
+const ResetTimeoutRequest$json = {
+  '1': 'ResetTimeoutRequest',
+  '2': [
+    {'1': 'RequestId', '3': 1, '4': 1, '5': 9, '10': 'RequestId'},
+  ],
+};
+
+/// Descriptor for `ResetTimeoutRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List resetTimeoutRequestDescriptor =
+    $convert.base64Decode(
+        'ChNSZXNldFRpbWVvdXRSZXF1ZXN0EhwKCVJlcXVlc3RJZBgBIAEoCVIJUmVxdWVzdElk');
+
+@$core.Deprecated('Use resetTimeoutResponseDescriptor instead')
+const ResetTimeoutResponse$json = {
+  '1': 'ResetTimeoutResponse',
+  '2': [
+    {'1': 'RequestId', '3': 1, '4': 1, '5': 9, '10': 'RequestId'},
+    {'1': 'Success', '3': 2, '4': 1, '5': 8, '10': 'Success'},
+  ],
+};
+
+/// Descriptor for `ResetTimeoutResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List resetTimeoutResponseDescriptor = $convert.base64Decode(
+    'ChRSZXNldFRpbWVvdXRSZXNwb25zZRIcCglSZXF1ZXN0SWQYASABKAlSCVJlcXVlc3RJZBIYCg'
+    'dTdWNjZXNzGAIgASgIUgdTdWNjZXNz');
+
+@$core.Deprecated('Use requestStatusRequestDescriptor instead')
+const RequestStatusRequest$json = {
+  '1': 'RequestStatusRequest',
+  '2': [
+    {'1': 'RequestId', '3': 1, '4': 1, '5': 9, '10': 'RequestId'},
+  ],
+};
+
+/// Descriptor for `RequestStatusRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List requestStatusRequestDescriptor = $convert.base64Decode(
+    'ChRSZXF1ZXN0U3RhdHVzUmVxdWVzdBIcCglSZXF1ZXN0SWQYASABKAlSCVJlcXVlc3RJZA==');
+
+@$core.Deprecated('Use requestStatusResponseDescriptor instead')
+const RequestStatusResponse$json = {
+  '1': 'RequestStatusResponse',
+  '2': [
+    {'1': 'RequestId', '3': 1, '4': 1, '5': 9, '10': 'RequestId'},
+    {'1': 'Pending', '3': 2, '4': 1, '5': 8, '10': 'Pending'},
+  ],
+};
+
+/// Descriptor for `RequestStatusResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List requestStatusResponseDescriptor = $convert.base64Decode(
+    'ChVSZXF1ZXN0U3RhdHVzUmVzcG9uc2USHAoJUmVxdWVzdElkGAEgASgJUglSZXF1ZXN0SWQSGA'
+    'oHUGVuZGluZxgCIAEoCFIHUGVuZGluZw==');
+
 @$core.Deprecated('Use onlineUserDescriptor instead')
 const OnlineUser$json = {
   '1': 'OnlineUser',
@@ -1088,6 +1141,22 @@ const WebsocketMessage$json = {
       '6': '.agentassistproto.ForwardDeliveryErrorNotification',
       '10': 'ForwardDeliveryErrorNotification'
     },
+    {
+      '1': 'ResetTimeoutRequest',
+      '3': 29,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ResetTimeoutRequest',
+      '10': 'ResetTimeoutRequest'
+    },
+    {
+      '1': 'ResetTimeoutResponse',
+      '3': 30,
+      '4': 1,
+      '5': 11,
+      '6': '.agentassistproto.ResetTimeoutResponse',
+      '10': 'ResetTimeoutResponse'
+    },
     {'1': 'StrParam', '3': 12, '4': 1, '5': 9, '10': 'StrParam'},
     {'1': 'Nickname', '3': 18, '4': 1, '5': 9, '10': 'Nickname'},
   ],
@@ -1131,8 +1200,11 @@ final $typed_data.Uint8List websocketMessageDescriptor = $convert.base64Decode(
     'FuZ2VkTm90aWZpY2F0aW9uUh9Gb3J3YXJkU3RhdGVDaGFuZ2VkTm90aWZpY2F0aW9uEn4KIEZv'
     'cndhcmREZWxpdmVyeUVycm9yTm90aWZpY2F0aW9uGBwgASgLMjIuYWdlbnRhc3Npc3Rwcm90by'
     '5Gb3J3YXJkRGVsaXZlcnlFcnJvck5vdGlmaWNhdGlvblIgRm9yd2FyZERlbGl2ZXJ5RXJyb3JO'
-    'b3RpZmljYXRpb24SGgoIU3RyUGFyYW0YDCABKAlSCFN0clBhcmFtEhoKCE5pY2tuYW1lGBIgAS'
-    'gJUghOaWNrbmFtZQ==');
+    'b3RpZmljYXRpb24SVwoTUmVzZXRUaW1lb3V0UmVxdWVzdBgdIAEoCzIlLmFnZW50YXNzaXN0cH'
+    'JvdG8uUmVzZXRUaW1lb3V0UmVxdWVzdFITUmVzZXRUaW1lb3V0UmVxdWVzdBJaChRSZXNldFRp'
+    'bWVvdXRSZXNwb25zZRgeIAEoCzImLmFnZW50YXNzaXN0cHJvdG8uUmVzZXRUaW1lb3V0UmVzcG'
+    '9uc2VSFFJlc2V0VGltZW91dFJlc3BvbnNlEhoKCFN0clBhcmFtGAwgASgJUghTdHJQYXJhbRIa'
+    'CghOaWNrbmFtZRgSIAEoCVIITmlja25hbWU=');
 
 const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
   '1': 'SrvAgentAssist',
@@ -1156,6 +1228,11 @@ const $core.Map<$core.String, $core.dynamic> SrvAgentAssistServiceBase$json = {
       '1': 'Heartbeat',
       '2': '.agentassistproto.McpHeartbeatRequest',
       '3': '.agentassistproto.McpHeartbeatResponse'
+    },
+    {
+      '1': 'GetRequestStatus',
+      '2': '.agentassistproto.RequestStatusRequest',
+      '3': '.agentassistproto.RequestStatusResponse'
     },
   ],
 };
@@ -1185,6 +1262,8 @@ const $core.Map<$core.String, $core.Map<$core.String, $core.dynamic>>
   '.agentassistproto.McpClientInfoResponse': McpClientInfoResponse$json,
   '.agentassistproto.McpHeartbeatRequest': McpHeartbeatRequest$json,
   '.agentassistproto.McpHeartbeatResponse': McpHeartbeatResponse$json,
+  '.agentassistproto.RequestStatusRequest': RequestStatusRequest$json,
+  '.agentassistproto.RequestStatusResponse': RequestStatusResponse$json,
 };
 
 /// Descriptor for `SrvAgentAssist`. Decode as a `google.protobuf.ServiceDescriptorProto`.
@@ -1196,4 +1275,5 @@ final $typed_data.Uint8List srvAgentAssistServiceDescriptor = $convert.base64Dec
     'Z2VudGFzc2lzdHByb3RvLk1jcENsaWVudEluZm9SZXF1ZXN0GicuYWdlbnRhc3Npc3Rwcm90by'
     '5NY3BDbGllbnRJbmZvUmVzcG9uc2USWgoJSGVhcnRiZWF0EiUuYWdlbnRhc3Npc3Rwcm90by5N'
     'Y3BIZWFydGJlYXRSZXF1ZXN0GiYuYWdlbnRhc3Npc3Rwcm90by5NY3BIZWFydGJlYXRSZXNwb2'
-    '5zZQ==');
+    '5zZRJjChBHZXRSZXF1ZXN0U3RhdHVzEiYuYWdlbnRhc3Npc3Rwcm90by5SZXF1ZXN0U3RhdHVz'
+    'UmVxdWVzdBonLmFnZW50YXNzaXN0cHJvdG8uUmVxdWVzdFN0YXR1c1Jlc3BvbnNl');

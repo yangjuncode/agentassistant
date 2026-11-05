@@ -93,6 +93,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
       _focusNodes[i]!.addListener(() {
         if (_focusNodes[i]!.hasFocus) {
           _activeInputIndex = i;
+          _chatProvider?.touchUserActivity(widget.message);
           // Touch context when focused
           final root = widget.message.projectDirectory;
           if (root != null && root.isNotEmpty) {
@@ -529,6 +530,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
 
   void _applySuggestion(int index, int suggestionIndex) {
     if (suggestionIndex < 0 || suggestionIndex >= _suggestions.length) return;
+    _chatProvider?.touchUserActivity(widget.message, force: true);
     _ignoreFocusLossOnce = false;
     final tokenIndex = _activeTokenIndex;
     if (tokenIndex == null) return;
@@ -698,6 +700,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   }
 
   void _toggleSelection(int questionIndex, int optionIndex, bool multiple) {
+    _chatProvider?.touchUserActivity(widget.message, force: true);
     setState(() {
       final currentSelections = _selections[questionIndex] ?? {};
       if (multiple) {
@@ -759,6 +762,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
   }
 
   void _showAndFocusInput(int index) {
+    _chatProvider?.touchUserActivity(widget.message, force: true);
     setState(() {
       _showCustomInput[index] = true;
     });
@@ -1177,6 +1181,7 @@ class _AskQuestionWidgetState extends State<AskQuestionWidget> {
                             child: InkWell(
                               borderRadius: BorderRadius.circular(8),
                               onTap: () {
+                                _chatProvider?.touchUserActivity(widget.message, force: true);
                                 setState(() {
                                   _showCustomInput[index] = false;
                                   _customInputs[index]?.clear();

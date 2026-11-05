@@ -7,5 +7,12 @@ agentassistant_server_port = 8080
 # 令牌
 agentassistant_server_token = "test"
 
-# work_report 超时时间（秒），默认 300 秒（5 分钟），最多5分钟就超时，超时返回 ok
+# work_report 无用户活动超时时间（秒），默认 300 秒（5 分钟）。
+# 用户在界面上操作时客户端会发送 ResetTimeout，服务器把计时器重新计满；
+# 因此这个值只约束「用户完全不动」的情况。超时后工具返回 ok。
 work_report_timeout = 300
+
+# 等待回复期间向服务器确认请求状态的轮询间隔（秒），默认 60 秒。
+# 超时由服务器掌握，MCP 侧只做看门狗：连续 3 次轮询失败、或服务器已不再
+# 持有该请求时才放弃等待，避免连接假死导致工具调用无限挂起。设为 0 关闭。
+# request_watch_poll_interval = 60

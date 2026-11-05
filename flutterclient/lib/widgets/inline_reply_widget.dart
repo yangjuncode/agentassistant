@@ -125,7 +125,9 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
     _focusNode.addListener(() {
       if (mounted) {
         context.read<ChatProvider>().setInputFocused(_focusNode.hasFocus);
-        if (!_focusNode.hasFocus) {
+        if (_focusNode.hasFocus) {
+          context.read<ChatProvider>().touchUserActivity(widget.message);
+        } else {
           if (_ignoreFocusLossOnce) {
             _ignoreFocusLossOnce = false;
             return;
@@ -638,6 +640,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   /// Handle file drop using desktop_drop
   Future<void> _handleDrop(DropDoneDetails details) async {
+    _chatProvider?.touchUserActivity(widget.message, force: true);
     for (final file in details.files) {
       final attachment = await AttachmentService.loadFromFile(file.path);
       if (attachment != null && mounted) {
@@ -650,6 +653,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   /// Pick files using file picker
   Future<void> _pickFiles() async {
+    _chatProvider?.touchUserActivity(widget.message, force: true);
     final attachments = await AttachmentService.pickFiles();
     if (attachments.isNotEmpty && mounted) {
       setState(() {
@@ -660,6 +664,7 @@ class _InlineReplyWidgetState extends State<InlineReplyWidget> {
 
   /// Remove attachment at index
   void _removeAttachment(int index) {
+    _chatProvider?.touchUserActivity(widget.message, force: true);
     setState(() {
       _attachments.removeAt(index);
     });

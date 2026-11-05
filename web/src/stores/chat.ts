@@ -59,6 +59,14 @@ export const useChatStore = defineStore('chat', () => {
   const protoChatMessages = ref<Map<string, ProtoChatMessage[]>>(new Map());
   const activeChatUser = ref<string | null>(null);
   const currentClientId = ref<string | null>(null);
+  // Per-request throttle for ResetTimeout frames. The server restarts the
+  // inactivity timer on activity, but one frame per keystroke would be
+  // wasteful, so collapse them.
+  const lastResetTimeoutSent = new Map<string, number>();
+  const RESET_TIMEOUT_THROTTLE_MS = 1000;
+  // Even forced activity (clicks, quick replies) keeps a small floor so a burst
+  // collapses into a single frame.
+  const RESET_TIMEOUT_FORCE_FLOOR_MS = 200;
 
   // Computed
   const sortedMessages = computed(() => {
@@ -165,6 +173,16 @@ export const useChatStore = defineStore('chat', () => {
       case WebSocketCommands.USER_CONNECTION_STATUS_NOTIFICATION:
         handleUserConnectionStatusNotification(message);
         break;
+      case WebSocketCommands.RESET_TIMEOUT_RESPONSE:
+        // Silent by design: the server only replies when a reset had no effect.
+        handleResetTimeoutResponse(message);
+        break;
+      case WebSocketCommands.FORWARD_STATE_QUERY:
+      case WebSocketCommands.FORWARD_STATE_QUERY_RESPONSE:
+      case WebSocketCommands.FORWARD_STATE_CHANGED:
+      case WebSocketCommands.FORWARD_DELIVERY_ERROR:
+        // Forwarding is a Flutter-desktop feature; the web client ignores it.
+        break;
       default:
         console.log('Unknown message command:', message.Cmd);
     }
@@ -261,6 +279,7 @@ export const useChatStore = defineStore('chat', () => {
     } else if (!existingMessage) {
       console.warn(`Message with request ID ${requestId} not found for reply notification`);
     }
+    forgetResetTimeoutFor(requestId);
   }
 
   function handleWorkReportReplyNotification(message: WebsocketMessage) {
@@ -295,6 +314,7 @@ export const useChatStore = defineStore('chat', () => {
     } else if (!existingMessage) {
       console.warn(`Message with request ID ${requestId} not found for work report notification`);
     }
+    forgetResetTimeoutFor(requestId);
   }
 
   function handleRequestCancelled(message: WebsocketMessage) {
@@ -316,6 +336,7 @@ export const useChatStore = defineStore('chat', () => {
       existingMessage.isAnswered = true;
       existingMessage.isCancelled = true;
     }
+    forgetResetTimeoutFor(requestId);
 
     // Add cancellation notification message
     const notificationMessage: ChatMessage = {
@@ -370,6 +391,7 @@ export const useChatStore = defineStore('chat', () => {
     questionMessage.replyText = replyText;
     questionMessage.repliedAt = new Date();
     questionMessage.repliedByCurrentUser = true;
+    forgetResetTimeoutFor(questionId);
     NotificationService.replySent();
   }
 
@@ -411,11 +433,13 @@ export const useChatStore = defineStore('chat', () => {
     taskMessage.replyText = confirmationText;
     taskMessage.repliedAt = new Date();
     taskMessage.repliedByCurrentUser = true;
+    forgetResetTimeoutFor(taskId);
     NotificationService.confirmationSent();
   }
 
   function clearMessages() {
     messages.value = [];
+    lastResetTimeoutSent.clear();
   }
 
   function setConnectionError(error: string | null) {
@@ -574,6 +598,51 @@ export const useChatStore = defineStore('chat', () => {
     }
   }
 
+  /**
+   * Tell the server the user is active on a pending request so it restarts the
+   * inactivity timeout instead of expiring the request while they type.
+   *
+   * [force] bypasses the 1s keystroke throttle but keeps a small floor, so a
+   * burst of clicks still collapses into one frame.
+   */
+  function touchUserActivity(requestId: string, options: { force?: boolean } = {}) {
+    if (!requestId) return;
+
+    const message = messages.value.find(msg => msg.id === requestId);
+    if (!message || message.isAnswered || message.isCancelled) return;
+
+    const force = options.force === true;
+    const now = Date.now();
+    const lastSent = lastResetTimeoutSent.get(requestId);
+    if (lastSent !== undefined) {
+      const minInterval = force ? RESET_TIMEOUT_FORCE_FLOOR_MS : RESET_TIMEOUT_THROTTLE_MS;
+      if (now - lastSent < minInterval) return;
+    }
+
+    const service = wsService.value;
+    if (!service || !service.isConnected()) return;
+
+    lastResetTimeoutSent.set(requestId, now);
+    service.sendResetTimeout(requestId);
+  }
+
+  /** Drop throttle bookkeeping for requests we no longer wait on. */
+  function forgetResetTimeoutFor(requestId: string) {
+    lastResetTimeoutSent.delete(requestId);
+  }
+
+  /**
+   * Handle a ResetTimeoutResponse. The server only replies when the reset had
+   * no effect, i.e. the request is no longer pending on its side.
+   */
+  function handleResetTimeoutResponse(message: WebsocketMessage) {
+    const response = message.ResetTimeoutResponse;
+    if (!response || response.Success) return;
+    // The cancellation/reply notification that accompanies this reconciles the
+    // message state, so only the throttle entry needs dropping here.
+    lastResetTimeoutSent.delete(response.RequestId);
+  }
+
   return {
     // State
     messages: sortedMessages,
@@ -602,6 +671,9 @@ export const useChatStore = defineStore('chat', () => {
     requestOnlineUsers,
     sendChatMessage,
     setActiveChatUser,
-    getChatMessages
+    getChatMessages,
+    touchUserActivity,
+    forgetResetTimeoutFor,
+    handleResetTimeoutResponse
   };
 });

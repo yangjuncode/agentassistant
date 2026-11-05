@@ -15,6 +15,7 @@ type mockAgentAssistClient struct {
 	workReportFunc        func(context.Context, *connect.Request[agentassistproto.WorkReportRequest]) (*connect.Response[agentassistproto.WorkReportResponse], error)
 	sendMcpClientInfoFunc func(context.Context, *connect.Request[agentassistproto.McpClientInfoRequest]) (*connect.Response[agentassistproto.McpClientInfoResponse], error)
 	heartbeatFunc         func(context.Context, *connect.Request[agentassistproto.McpHeartbeatRequest]) (*connect.Response[agentassistproto.McpHeartbeatResponse], error)
+	getRequestStatusFunc  func(context.Context, *connect.Request[agentassistproto.RequestStatusRequest]) (*connect.Response[agentassistproto.RequestStatusResponse], error)
 }
 
 func (m *mockAgentAssistClient) AskQuestion(ctx context.Context, req *connect.Request[agentassistproto.AskQuestionRequest]) (*connect.Response[agentassistproto.AskQuestionResponse], error) {
@@ -41,6 +42,13 @@ func (m *mockAgentAssistClient) SendMcpClientInfo(ctx context.Context, req *conn
 func (m *mockAgentAssistClient) Heartbeat(ctx context.Context, req *connect.Request[agentassistproto.McpHeartbeatRequest]) (*connect.Response[agentassistproto.McpHeartbeatResponse], error) {
 	if m.heartbeatFunc != nil {
 		return m.heartbeatFunc(ctx, req)
+	}
+	return nil, errors.New("unimplemented")
+}
+
+func (m *mockAgentAssistClient) GetRequestStatus(ctx context.Context, req *connect.Request[agentassistproto.RequestStatusRequest]) (*connect.Response[agentassistproto.RequestStatusResponse], error) {
+	if m.getRequestStatusFunc != nil {
+		return m.getRequestStatusFunc(ctx, req)
 	}
 	return nil, errors.New("unimplemented")
 }
@@ -286,5 +294,92 @@ func TestWorkReportHandler_NonTimeoutError(t *testing.T) {
 	}
 	if !res.IsError {
 		t.Fatalf("res.IsError = false, want true for non-timeout error")
+	}
+}
+
+func TestWorkReportHandler_ExpiredResponseReturnsOk(t *testing.T) {
+	origClient := client
+	origConfig := config
+	defer func() {
+		client = origClient
+		config = origConfig
+	}()
+
+	client = &mockAgentAssistClient{
+		workReportFunc: func(ctx context.Context, req *connect.Request[agentassistproto.WorkReportRequest]) (*connect.Response[agentassistproto.WorkReportResponse], error) {
+			return &connect.Response[agentassistproto.WorkReportResponse]{
+				Msg: &agentassistproto.WorkReportResponse{
+					ID:      req.Msg.ID,
+					IsError: true,
+					Meta: map[string]string{
+						"error":   "expired",
+						"message": "Request expired: maximum lifetime exceeded",
+					},
+				},
+			}, nil
+		},
+	}
+
+	res, err := workReportHandler(context.Background(), makeCallToolRequest("work_report", map[string]any{
+		"project_directory": "/tmp/test",
+		"summary":           "Done task",
+	}))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if res.IsError {
+		t.Fatal("an expired work report must still return ok")
+	}
+}
+
+func TestWorkReportHandler_RequestGoneReturnsOk(t *testing.T) {
+	origClient := client
+	origConfig := config
+	defer func() {
+		client = origClient
+		config = origConfig
+	}()
+
+	client = &mockAgentAssistClient{
+		workReportFunc: func(ctx context.Context, req *connect.Request[agentassistproto.WorkReportRequest]) (*connect.Response[agentassistproto.WorkReportResponse], error) {
+			return nil, errRequestGone
+		},
+	}
+
+	res, err := workReportHandler(context.Background(), makeCallToolRequest("work_report", map[string]any{
+		"project_directory": "/tmp/test",
+		"summary":           "Done task",
+	}))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if res.IsError {
+		t.Fatal("a work report the server no longer tracks must still return ok")
+	}
+}
+
+func TestAskQuestionHandler_RequestGoneIsAnError(t *testing.T) {
+	origClient := client
+	origConfig := config
+	defer func() {
+		client = origClient
+		config = origConfig
+	}()
+
+	client = &mockAgentAssistClient{
+		askQuestionFunc: func(ctx context.Context, req *connect.Request[agentassistproto.AskQuestionRequest]) (*connect.Response[agentassistproto.AskQuestionResponse], error) {
+			return nil, errRequestGone
+		},
+	}
+
+	res, err := askQuestionHandler(context.Background(), makeCallToolRequest("ask_question", map[string]any{
+		"project_directory": "/tmp/test",
+		"questions":         []any{map[string]any{"question": "Continue?"}},
+	}))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !res.IsError {
+		t.Fatal("an unanswered question must surface as an error")
 	}
 }

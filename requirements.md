@@ -51,11 +51,11 @@ Agent Assistant 是一个基于 MCP (Model Context Protocol) 协议的 AI 助手
 **SrvAgentAssist** 服务提供以下 RPC 方法：
 
 1. **AskQuestion**：AI agent 向用户提问并等待反馈
-   - 请求参数：项目目录、问题内容、超时时间（默认600秒）
+   - 请求参数：项目目录、问题内容、无用户活动超时（默认600秒，有用户活动即重置）
    - 响应：错误状态、元数据、多种类型的内容列表
 
 2. **WorkReport**：AI agent 完成任务并请求用户确认（工作报告）
-   - 请求参数：项目目录、任务摘要、超时时间（默认600秒）
+   - 请求参数：项目目录、任务摘要、无用户活动超时（默认300秒，有用户活动即重置）
    - 响应：错误状态、元数据、多种类型的内容列表
 
 ### 2.4 数据流
@@ -75,7 +75,7 @@ flowchart LR
 ### 3.1 询问流程 (ask_question)
 
 1. **请求发起**：AI agent 通过 MCP 协议调用 `ask_question` 工具
-   - 参数：项目目录 (project_directory)、问题内容 (question)、超时时间 (timeout，默认600秒)
+   - 参数：项目目录 (project_directory)、问题内容 (question)、无用户活动超时 (timeout，默认600秒)
 2. **请求转发**：`agentassistant-mcp` 通过 `AskQuestion` RPC 将请求转发至 `agentassistant-srv` 服务
 3. **消息广播**：`agentassistant-srv` 将问题广播给所有在线的 Web 用户
 4. **用户响应**：Web 用户界面展示问题内容，等待用户输入反馈
@@ -86,7 +86,7 @@ flowchart LR
 ### 3.2 任务完成流程 (work_report)
 
 1. **任务完成通知**：AI agent 通过 MCP 协议调用 `work_report` 工具
-   - 参数：项目目录 (project_directory)、任务摘要 (summary)、超时时间 (timeout，默认600秒)
+   - 参数：项目目录 (project_directory)、任务摘要 (summary)、无用户活动超时 (timeout，默认300秒)
 2. **请求转发**：`agentassistant-mcp` 通过 `WorkReport` RPC 将请求转发至 `agentassistant-srv` 服务
 3. **消息广播**：`agentassistant-srv` 将任务完成信息广播给所有在线的 Web 用户
 4. **用户确认**：Web 用户界面展示任务摘要，等待用户确认或提供额外反馈
@@ -107,7 +107,7 @@ Agent Assistant 提供两个主要的 MCP 工具：
 
 - `project_directory` (必需)：当前项目目录路径
 - `question` (必需)：要向用户提出的问题
-- `timeout` (可选)：超时时间（秒），默认为 600 秒
+- `timeout` (可选)：无用户活动超时（秒），默认为 600 秒。用户在界面上操作时客户端发送 `ResetTimeout`，服务器把计时器重新计满；另有 2 小时绝对生存期上限
 
 **返回：**
 
@@ -121,7 +121,7 @@ Agent Assistant 提供两个主要的 MCP 工具：
 
 - `project_directory` (必需)：当前项目目录路径
 - `summary` (必需)：任务完成摘要
-- `timeout` (可选)：超时时间（秒），默认为 600 秒
+- `timeout` (可选)：无用户活动超时（秒），默认为 300 秒，重置语义与 ask_question 相同
 
 **返回：**
 

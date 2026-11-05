@@ -12,7 +12,13 @@ export const WebSocketCommands = {
   GET_ONLINE_USERS: 'GetOnlineUsers',
   SEND_CHAT_MESSAGE: 'SendChatMessage',
   CHAT_MESSAGE_NOTIFICATION: 'ChatMessageNotification',
-  USER_CONNECTION_STATUS_NOTIFICATION: 'UserConnectionStatusNotification'
+  USER_CONNECTION_STATUS_NOTIFICATION: 'UserConnectionStatusNotification',
+  RESET_TIMEOUT: 'ResetTimeout',
+  RESET_TIMEOUT_RESPONSE: 'ResetTimeoutResponse',
+  FORWARD_STATE_QUERY: 'ForwardStateQuery',
+  FORWARD_STATE_QUERY_RESPONSE: 'ForwardStateQueryResponse',
+  FORWARD_STATE_CHANGED: 'ForwardStateChanged',
+  FORWARD_DELIVERY_ERROR: 'ForwardDeliveryError'
 } as const;
 
 export type WebSocketCommand = typeof WebSocketCommands[keyof typeof WebSocketCommands];

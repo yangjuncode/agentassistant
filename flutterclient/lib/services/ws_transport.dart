@@ -322,6 +322,20 @@ abstract class WsTransport {
     await sendFrame(message);
   }
 
+  /// Ask the server to restart the inactivity timeout of [requestId] because
+  /// the user is actively working on it.
+  ///
+  /// Only the structured field is sent: the server treats `StrParam` as a
+  /// legacy fallback, so filling both would just bloat every frame.
+  Future<void> sendResetTimeout(String requestId) async {
+    final message = WebsocketMessage()
+      ..cmd = WebSocketCommands.resetTimeout
+      ..resetTimeoutRequest = (ResetTimeoutRequest()..requestId = requestId);
+
+    await sendFrame(message);
+    _logger.d('Sent ResetTimeout request for $requestId');
+  }
+
   /// Check message validity
   Future<Map<String, bool>> checkMessageValidity(
       List<String> requestIds) async {

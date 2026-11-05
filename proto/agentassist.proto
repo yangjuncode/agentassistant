@@ -76,7 +76,8 @@ message McpAskQuestionRequest {
   string ProjectDirectory = 1;
   // ai agent's question
   string Question = 2 [ deprecated = true ];
-  // timeout in seconds, default is 600s
+  // inactivity timeout in seconds, default is 600s. The timer restarts
+  // whenever the user is active on this request (see ResetTimeoutRequest).
   int32 Timeout = 3;
   // the AI agent/client name that is calling this tool (e.g., Antigravity,
   // Cascade)
@@ -115,7 +116,8 @@ message McpWorkReportRequest {
   string ProjectDirectory = 1;
   // ai agent's work report summary
   string Summary = 2;
-  // timeout in seconds, default is 600s
+  // inactivity timeout in seconds, default is 600s. The timer restarts
+  // whenever the user is active on this request (see ResetTimeoutRequest).
   int32 Timeout = 3;
   // the AI agent/client name that is calling this tool (e.g., Antigravity,
   // Cascade)
@@ -199,7 +201,7 @@ message PendingMessage {
   WorkReportRequest work_report_request = 3;
   // timestamp when the message was created
   int64 created_at = 4;
-  // timeout in seconds
+  // inactivity timeout in seconds
   int32 timeout = 5;
 }
 
@@ -239,6 +241,47 @@ message McpHeartbeatRequest {
 }
 
 message McpHeartbeatResponse { bool Success = 1; }
+
+// ResetTimeoutRequest represents a request from a client to reset the
+// inactivity timeout of a pending request because the user is actively
+// typing/editing, so the server should not expire the request while they work.
+//
+// Semantics: the inactivity timer is restarted with the FULL timeout of the
+// request (not the remaining one), i.e. the pending request gets another
+// `Timeout` seconds of inactivity budget. The server still enforces an
+// absolute lifetime ceiling, so repeated resets cannot keep a request alive
+// forever.
+message ResetTimeoutRequest {
+  // request id whose inactivity timeout should be restarted
+  string RequestId = 1;
+}
+
+// ResetTimeoutResponse reports a failed reset attempt. The server only sends
+// this when the timer could NOT be reset (unknown/expired request id, or the
+// client does not own the request); successful resets are silent so that
+// typing does not generate a downstream frame per keystroke.
+message ResetTimeoutResponse {
+  // request id that the client asked to reset
+  string RequestId = 1;
+  // whether the request was found, owned by this client, and still pending
+  bool Success = 2;
+}
+
+// RequestStatusRequest asks the server whether a request is still pending.
+// MCP initiators use it as a liveness watchdog: the server owns the inactivity
+// timeout, so the MCP side polls instead of imposing its own wall clock.
+message RequestStatusRequest {
+  // request id to query
+  string RequestId = 1;
+}
+
+// RequestStatusResponse reports whether a request is still pending.
+message RequestStatusResponse {
+  // request id that was queried
+  string RequestId = 1;
+  // true while the server still waits for a reply to this request
+  bool Pending = 2;
+}
 
 // OnlineUser represents an online user with the same token
 message OnlineUser {
@@ -411,6 +454,9 @@ message WebsocketMessage {
   // ForwardStateQueryResponse: response for ForwardStateQuery
   // ForwardStateChanged: notify peers that forward state changed
   // ForwardDeliveryError: notify sender that selected target window is invalid
+  // ResetTimeout: reset inactivity timeout of a pending request (client
+  //   activity); the server replies with ResetTimeoutResponse only on failure
+  // ResetTimeoutResponse: sent only when a ResetTimeout could not be applied
   string Cmd = 1;
 
   // ask question
@@ -470,6 +516,12 @@ message WebsocketMessage {
   // forward delivery error notification
   ForwardDeliveryErrorNotification ForwardDeliveryErrorNotification = 28;
 
+  // reset timeout request
+  ResetTimeoutRequest ResetTimeoutRequest = 29;
+
+  // reset timeout response
+  ResetTimeoutResponse ResetTimeoutResponse = 30;
+
   // str param
   string StrParam = 12;
 
@@ -482,6 +534,11 @@ service SrvAgentAssist {
   rpc WorkReport(WorkReportRequest) returns (WorkReportResponse);
   rpc SendMcpClientInfo(McpClientInfoRequest) returns (McpClientInfoResponse);
   rpc Heartbeat(McpHeartbeatRequest) returns (McpHeartbeatResponse);
+  // GetRequestStatus lets an MCP initiator act as a watchdog over its own
+  // in-flight request: the server owns the inactivity timeout, so the initiator
+  // polls this instead of imposing a wall clock that would end the wait while
+  // the user is still working.
+  rpc GetRequestStatus(RequestStatusRequest) returns (RequestStatusResponse);
 }
 
 // WebsocketMessage defines the message structure for WebSocket communication

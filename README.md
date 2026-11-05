@@ -175,7 +175,11 @@ Ask a question to the user through the connected client.
 **Parameters:**
 - `project_directory` (string): Current project directory
 - `question` (string): Question to ask the user
-- `timeout` (number): Timeout in seconds (default: 600)
+- `timeout` (number): Inactivity timeout in seconds (default: 600). The server
+  restarts this window whenever the user is active on the request (typing,
+  clicking options), so a user who is answering is never cut off mid-reply.
+  Without any activity the request expires after `timeout` seconds; an absolute
+  lifetime cap (2h) prevents a request from being kept alive forever.
 
 #### work_report
 Notify the user that a task has been completed and send a work report.
@@ -183,13 +187,23 @@ Notify the user that a task has been completed and send a work report.
 **Parameters:**
 - `project_directory` (string): Current project directory
 - `summary` (string): Summary of the completed task / work report
-- `timeout` (number): Timeout in seconds (default: 600)
+- `timeout` (number): Inactivity timeout in seconds (default: 300), with the
+  same reset-on-activity semantics as `ask_question`.
 
 ### RPC Services
 
 #### SrvAgentAssist
 - `AskQuestion(AskQuestionRequest) returns (AskQuestionResponse)`
 - `WorkReport(WorkReportRequest) returns (WorkReportResponse)`
+- `SendMcpClientInfo(McpClientInfoRequest) returns (McpClientInfoResponse)`
+- `Heartbeat(McpHeartbeatRequest) returns (McpHeartbeatResponse)`
+- `GetRequestStatus(RequestStatusRequest) returns (RequestStatusResponse)`
+
+`GetRequestStatus` lets the MCP process act as a watchdog over its in-flight
+request. The timeout is owned by the server, so instead of imposing its own wall
+clock (which would cut off an active user) the MCP process polls once a minute
+and stops waiting if the server no longer knows the request, or if the
+connection is wedged.
 
 ## MCP Agent Assistant Interaction Rules
 

@@ -780,7 +780,8 @@ class McpAskQuestionRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearQuestion() => $_clearField(2);
 
-  /// timeout in seconds, default is 600s
+  /// inactivity timeout in seconds, default is 600s. The timer restarts
+  /// whenever the user is active on this request (see ResetTimeoutRequest).
   @$pb.TagNumber(3)
   $core.int get timeout => $_getIZ(2);
   @$pb.TagNumber(3)
@@ -1115,7 +1116,8 @@ class McpWorkReportRequest extends $pb.GeneratedMessage {
   @$pb.TagNumber(2)
   void clearSummary() => $_clearField(2);
 
-  /// timeout in seconds, default is 600s
+  /// inactivity timeout in seconds, default is 600s. The timer restarts
+  /// whenever the user is active on this request (see ResetTimeoutRequest).
   @$pb.TagNumber(3)
   $core.int get timeout => $_getIZ(2);
   @$pb.TagNumber(3)
@@ -1904,7 +1906,7 @@ class PendingMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(4)
   void clearCreatedAt() => $_clearField(4);
 
-  /// timeout in seconds
+  /// inactivity timeout in seconds
   @$pb.TagNumber(5)
   $core.int get timeout => $_getIZ(4);
   @$pb.TagNumber(5)
@@ -2234,6 +2236,285 @@ class McpHeartbeatResponse extends $pb.GeneratedMessage {
   $core.bool hasSuccess() => $_has(0);
   @$pb.TagNumber(1)
   void clearSuccess() => $_clearField(1);
+}
+
+/// ResetTimeoutRequest represents a request from a client to reset the
+/// inactivity timeout of a pending request because the user is actively
+/// typing/editing, so the server should not expire the request while they work.
+///
+/// Semantics: the inactivity timer is restarted with the FULL timeout of the
+/// request (not the remaining one), i.e. the pending request gets another
+/// `Timeout` seconds of inactivity budget. The server still enforces an
+/// absolute lifetime ceiling, so repeated resets cannot keep a request alive
+/// forever.
+class ResetTimeoutRequest extends $pb.GeneratedMessage {
+  factory ResetTimeoutRequest({
+    $core.String? requestId,
+  }) {
+    final result = create();
+    if (requestId != null) result.requestId = requestId;
+    return result;
+  }
+
+  ResetTimeoutRequest._();
+
+  factory ResetTimeoutRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ResetTimeoutRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ResetTimeoutRequest',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'RequestId', protoName: 'RequestId')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ResetTimeoutRequest clone() => ResetTimeoutRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ResetTimeoutRequest copyWith(void Function(ResetTimeoutRequest) updates) =>
+      super.copyWith((message) => updates(message as ResetTimeoutRequest))
+          as ResetTimeoutRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ResetTimeoutRequest create() => ResetTimeoutRequest._();
+  @$core.override
+  ResetTimeoutRequest createEmptyInstance() => create();
+  static $pb.PbList<ResetTimeoutRequest> createRepeated() =>
+      $pb.PbList<ResetTimeoutRequest>();
+  @$core.pragma('dart2js:noInline')
+  static ResetTimeoutRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ResetTimeoutRequest>(create);
+  static ResetTimeoutRequest? _defaultInstance;
+
+  /// request id whose inactivity timeout should be restarted
+  @$pb.TagNumber(1)
+  $core.String get requestId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set requestId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasRequestId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRequestId() => $_clearField(1);
+}
+
+/// ResetTimeoutResponse reports a failed reset attempt. The server only sends
+/// this when the timer could NOT be reset (unknown/expired request id, or the
+/// client does not own the request); successful resets are silent so that
+/// typing does not generate a downstream frame per keystroke.
+class ResetTimeoutResponse extends $pb.GeneratedMessage {
+  factory ResetTimeoutResponse({
+    $core.String? requestId,
+    $core.bool? success,
+  }) {
+    final result = create();
+    if (requestId != null) result.requestId = requestId;
+    if (success != null) result.success = success;
+    return result;
+  }
+
+  ResetTimeoutResponse._();
+
+  factory ResetTimeoutResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory ResetTimeoutResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'ResetTimeoutResponse',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'RequestId', protoName: 'RequestId')
+    ..aOB(2, _omitFieldNames ? '' : 'Success', protoName: 'Success')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ResetTimeoutResponse clone() =>
+      ResetTimeoutResponse()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  ResetTimeoutResponse copyWith(void Function(ResetTimeoutResponse) updates) =>
+      super.copyWith((message) => updates(message as ResetTimeoutResponse))
+          as ResetTimeoutResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static ResetTimeoutResponse create() => ResetTimeoutResponse._();
+  @$core.override
+  ResetTimeoutResponse createEmptyInstance() => create();
+  static $pb.PbList<ResetTimeoutResponse> createRepeated() =>
+      $pb.PbList<ResetTimeoutResponse>();
+  @$core.pragma('dart2js:noInline')
+  static ResetTimeoutResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<ResetTimeoutResponse>(create);
+  static ResetTimeoutResponse? _defaultInstance;
+
+  /// request id that the client asked to reset
+  @$pb.TagNumber(1)
+  $core.String get requestId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set requestId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasRequestId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRequestId() => $_clearField(1);
+
+  /// whether the request was found, owned by this client, and still pending
+  @$pb.TagNumber(2)
+  $core.bool get success => $_getBF(1);
+  @$pb.TagNumber(2)
+  set success($core.bool value) => $_setBool(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasSuccess() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearSuccess() => $_clearField(2);
+}
+
+/// RequestStatusRequest asks the server whether a request is still pending.
+/// MCP initiators use it as a liveness watchdog: the server owns the inactivity
+/// timeout, so the MCP side polls instead of imposing its own wall clock.
+class RequestStatusRequest extends $pb.GeneratedMessage {
+  factory RequestStatusRequest({
+    $core.String? requestId,
+  }) {
+    final result = create();
+    if (requestId != null) result.requestId = requestId;
+    return result;
+  }
+
+  RequestStatusRequest._();
+
+  factory RequestStatusRequest.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory RequestStatusRequest.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RequestStatusRequest',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'RequestId', protoName: 'RequestId')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RequestStatusRequest clone() =>
+      RequestStatusRequest()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RequestStatusRequest copyWith(void Function(RequestStatusRequest) updates) =>
+      super.copyWith((message) => updates(message as RequestStatusRequest))
+          as RequestStatusRequest;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RequestStatusRequest create() => RequestStatusRequest._();
+  @$core.override
+  RequestStatusRequest createEmptyInstance() => create();
+  static $pb.PbList<RequestStatusRequest> createRepeated() =>
+      $pb.PbList<RequestStatusRequest>();
+  @$core.pragma('dart2js:noInline')
+  static RequestStatusRequest getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RequestStatusRequest>(create);
+  static RequestStatusRequest? _defaultInstance;
+
+  /// request id to query
+  @$pb.TagNumber(1)
+  $core.String get requestId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set requestId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasRequestId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRequestId() => $_clearField(1);
+}
+
+/// RequestStatusResponse reports whether a request is still pending.
+class RequestStatusResponse extends $pb.GeneratedMessage {
+  factory RequestStatusResponse({
+    $core.String? requestId,
+    $core.bool? pending,
+  }) {
+    final result = create();
+    if (requestId != null) result.requestId = requestId;
+    if (pending != null) result.pending = pending;
+    return result;
+  }
+
+  RequestStatusResponse._();
+
+  factory RequestStatusResponse.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory RequestStatusResponse.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'RequestStatusResponse',
+      package:
+          const $pb.PackageName(_omitMessageNames ? '' : 'agentassistproto'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'RequestId', protoName: 'RequestId')
+    ..aOB(2, _omitFieldNames ? '' : 'Pending', protoName: 'Pending')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RequestStatusResponse clone() =>
+      RequestStatusResponse()..mergeFromMessage(this);
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  RequestStatusResponse copyWith(
+          void Function(RequestStatusResponse) updates) =>
+      super.copyWith((message) => updates(message as RequestStatusResponse))
+          as RequestStatusResponse;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static RequestStatusResponse create() => RequestStatusResponse._();
+  @$core.override
+  RequestStatusResponse createEmptyInstance() => create();
+  static $pb.PbList<RequestStatusResponse> createRepeated() =>
+      $pb.PbList<RequestStatusResponse>();
+  @$core.pragma('dart2js:noInline')
+  static RequestStatusResponse getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<RequestStatusResponse>(create);
+  static RequestStatusResponse? _defaultInstance;
+
+  /// request id that was queried
+  @$pb.TagNumber(1)
+  $core.String get requestId => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set requestId($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasRequestId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearRequestId() => $_clearField(1);
+
+  /// true while the server still waits for a reply to this request
+  @$pb.TagNumber(2)
+  $core.bool get pending => $_getBF(1);
+  @$pb.TagNumber(2)
+  set pending($core.bool value) => $_setBool(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasPending() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearPending() => $_clearField(2);
 }
 
 /// OnlineUser represents an online user with the same token
@@ -3495,6 +3776,8 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     ForwardStateQueryResponse? forwardStateQueryResponse,
     ForwardStateChangedNotification? forwardStateChangedNotification,
     ForwardDeliveryErrorNotification? forwardDeliveryErrorNotification,
+    ResetTimeoutRequest? resetTimeoutRequest,
+    ResetTimeoutResponse? resetTimeoutResponse,
   }) {
     final result = create();
     if (cmd != null) result.cmd = cmd;
@@ -3538,6 +3821,10 @@ class WebsocketMessage extends $pb.GeneratedMessage {
     if (forwardDeliveryErrorNotification != null)
       result.forwardDeliveryErrorNotification =
           forwardDeliveryErrorNotification;
+    if (resetTimeoutRequest != null)
+      result.resetTimeoutRequest = resetTimeoutRequest;
+    if (resetTimeoutResponse != null)
+      result.resetTimeoutResponse = resetTimeoutResponse;
     return result;
   }
 
@@ -3625,6 +3912,13 @@ class WebsocketMessage extends $pb.GeneratedMessage {
         28, _omitFieldNames ? '' : 'ForwardDeliveryErrorNotification',
         protoName: 'ForwardDeliveryErrorNotification',
         subBuilder: ForwardDeliveryErrorNotification.create)
+    ..aOM<ResetTimeoutRequest>(29, _omitFieldNames ? '' : 'ResetTimeoutRequest',
+        protoName: 'ResetTimeoutRequest',
+        subBuilder: ResetTimeoutRequest.create)
+    ..aOM<ResetTimeoutResponse>(
+        30, _omitFieldNames ? '' : 'ResetTimeoutResponse',
+        protoName: 'ResetTimeoutResponse',
+        subBuilder: ResetTimeoutResponse.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -3666,6 +3960,9 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   /// ForwardStateQueryResponse: response for ForwardStateQuery
   /// ForwardStateChanged: notify peers that forward state changed
   /// ForwardDeliveryError: notify sender that selected target window is invalid
+  /// ResetTimeout: reset inactivity timeout of a pending request (client
+  ///   activity); the server replies with ResetTimeoutResponse only on failure
+  /// ResetTimeoutResponse: sent only when a ResetTimeout could not be applied
   @$pb.TagNumber(1)
   $core.String get cmd => $_getSZ(0);
   @$pb.TagNumber(1)
@@ -3947,6 +4244,30 @@ class WebsocketMessage extends $pb.GeneratedMessage {
   @$pb.TagNumber(28)
   ForwardDeliveryErrorNotification ensureForwardDeliveryErrorNotification() =>
       $_ensure(21);
+
+  /// reset timeout request
+  @$pb.TagNumber(29)
+  ResetTimeoutRequest get resetTimeoutRequest => $_getN(22);
+  @$pb.TagNumber(29)
+  set resetTimeoutRequest(ResetTimeoutRequest value) => $_setField(29, value);
+  @$pb.TagNumber(29)
+  $core.bool hasResetTimeoutRequest() => $_has(22);
+  @$pb.TagNumber(29)
+  void clearResetTimeoutRequest() => $_clearField(29);
+  @$pb.TagNumber(29)
+  ResetTimeoutRequest ensureResetTimeoutRequest() => $_ensure(22);
+
+  /// reset timeout response
+  @$pb.TagNumber(30)
+  ResetTimeoutResponse get resetTimeoutResponse => $_getN(23);
+  @$pb.TagNumber(30)
+  set resetTimeoutResponse(ResetTimeoutResponse value) => $_setField(30, value);
+  @$pb.TagNumber(30)
+  $core.bool hasResetTimeoutResponse() => $_has(23);
+  @$pb.TagNumber(30)
+  void clearResetTimeoutResponse() => $_clearField(30);
+  @$pb.TagNumber(30)
+  ResetTimeoutResponse ensureResetTimeoutResponse() => $_ensure(23);
 }
 
 class SrvAgentAssistApi {
@@ -3970,6 +4291,15 @@ class SrvAgentAssistApi {
           $pb.ClientContext? ctx, McpHeartbeatRequest request) =>
       _client.invoke<McpHeartbeatResponse>(
           ctx, 'SrvAgentAssist', 'Heartbeat', request, McpHeartbeatResponse());
+
+  /// GetRequestStatus lets an MCP initiator act as a watchdog over its own
+  /// in-flight request: the server owns the inactivity timeout, so the initiator
+  /// polls this instead of imposing a wall clock that would end the wait while
+  /// the user is still working.
+  $async.Future<RequestStatusResponse> getRequestStatus(
+          $pb.ClientContext? ctx, RequestStatusRequest request) =>
+      _client.invoke<RequestStatusResponse>(ctx, 'SrvAgentAssist',
+          'GetRequestStatus', request, RequestStatusResponse());
 }
 
 const $core.bool _omitFieldNames =

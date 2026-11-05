@@ -53,6 +53,8 @@
             rows="3"
             class="q-mb-sm"
             @keydown.ctrl.enter="submitReply"
+            @update:model-value="onInputActivity"
+            @focus="onForceActivity"
           />
           <div class="row justify-between items-center">
             <!-- Quick reply buttons -->
@@ -158,6 +160,8 @@
             outlined
             class="q-mb-sm"
             placeholder="任务已确认"
+            @update:model-value="onInputActivity"
+            @focus="onForceActivity"
           />
           <div class="row justify-between items-center">
             <!-- Quick confirm buttons -->
@@ -243,6 +247,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useChatStore } from '../../stores/chat';
 import type { ChatMessage } from '../../stores/chat';
 
 interface Props {
@@ -256,9 +261,29 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emit = defineEmits<Emits>();
+const chatStore = useChatStore();
 
 const replyText = ref('');
 const confirmText = ref('任务已确认');
+
+/**
+ * Report user activity to the server so it restarts this request's inactivity
+ * timeout. Without this, a long reply typed into this box would let the request
+ * expire mid-typing.
+ */
+function touchActivity(options: { force?: boolean } = {}) {
+  chatStore.touchUserActivity(props.message.id, options);
+}
+
+/** v-model updates: keystroke-rate, so keep the normal throttle. */
+function onInputActivity() {
+  touchActivity();
+}
+
+/** Focus and button clicks: bypass the keystroke throttle (with a small floor). */
+function onForceActivity() {
+  touchActivity({ force: true });
+}
 
 function submitReply() {
   if (replyText.value.trim()) {
@@ -268,16 +293,19 @@ function submitReply() {
 }
 
 function submitQuickReply(quickText: string) {
+  onForceActivity();
   emit('reply', props.message.id, quickText);
   // Don't clear the text field for quick replies, user might want to add more
 }
 
 function submitConfirm() {
+  onForceActivity();
   emit('confirm', props.message.id, confirmText.value.trim() || undefined);
   confirmText.value = '任务已确认';
 }
 
 function submitQuickConfirm(quickText: string) {
+  onForceActivity();
   emit('confirm', props.message.id, quickText);
 }
 

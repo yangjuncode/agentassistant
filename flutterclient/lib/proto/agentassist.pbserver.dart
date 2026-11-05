@@ -29,6 +29,8 @@ abstract class SrvAgentAssistServiceBase extends $pb.GeneratedService {
       $pb.ServerContext ctx, $0.McpClientInfoRequest request);
   $async.Future<$0.McpHeartbeatResponse> heartbeat(
       $pb.ServerContext ctx, $0.McpHeartbeatRequest request);
+  $async.Future<$0.RequestStatusResponse> getRequestStatus(
+      $pb.ServerContext ctx, $0.RequestStatusRequest request);
 
   $pb.GeneratedMessage createRequest($core.String methodName) {
     switch (methodName) {
@@ -40,6 +42,8 @@ abstract class SrvAgentAssistServiceBase extends $pb.GeneratedService {
         return $0.McpClientInfoRequest();
       case 'Heartbeat':
         return $0.McpHeartbeatRequest();
+      case 'GetRequestStatus':
+        return $0.RequestStatusRequest();
       default:
         throw $core.ArgumentError('Unknown method: $methodName');
     }
@@ -56,6 +60,8 @@ abstract class SrvAgentAssistServiceBase extends $pb.GeneratedService {
         return sendMcpClientInfo(ctx, request as $0.McpClientInfoRequest);
       case 'Heartbeat':
         return heartbeat(ctx, request as $0.McpHeartbeatRequest);
+      case 'GetRequestStatus':
+        return getRequestStatus(ctx, request as $0.RequestStatusRequest);
       default:
         throw $core.ArgumentError('Unknown method: $methodName');
     }

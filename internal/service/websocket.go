@@ -215,6 +215,8 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 			h.handleForwardStateChanged(client, &message)
 		case "ForwardDeliveryError":
 			h.handleForwardDeliveryError(client, &message)
+		case "ResetTimeout":
+			h.handleResetTimeout(client, &message)
 
 		case "RequestCancelled":
 			// This is a notification message, clients don't send this to server
@@ -222,6 +224,50 @@ func (h *WebSocketHandler) handleIncomingMessages(conn *websocket.Conn, client *
 		default:
 			log.Printf("Unknown message command from client %s: %s", client.ID, message.Cmd)
 		}
+	}
+}
+
+// handleResetTimeout restarts the inactivity timeout of a pending request
+// because the user is actively working on it.
+//
+// The success path is intentionally silent: an active user generates one reset
+// per throttle tick, and replying to each one would double the downstream
+// traffic for no benefit. Only failures are reported, so a client can tell that
+// its request is gone (expired/cancelled/replied, or owned by another token).
+func (h *WebSocketHandler) handleResetTimeout(client *WebClient, message *agentassistproto.WebsocketMessage) {
+	var requestID string
+	if message.ResetTimeoutRequest != nil {
+		requestID = message.ResetTimeoutRequest.RequestId
+	}
+	// Legacy field kept as a fallback for clients that only send StrParam.
+	if requestID == "" {
+		requestID = message.StrParam
+	}
+
+	if requestID == "" {
+		log.Printf("Received ResetTimeout from client %s with empty request ID", client.ID)
+		h.sendResetTimeoutFailure(client, requestID)
+		return
+	}
+
+	if h.broadcaster.ResetRequestTimeout(requestID, client.GetToken()) {
+		return
+	}
+
+	h.sendResetTimeoutFailure(client, requestID)
+}
+
+// sendResetTimeoutFailure tells the client that its ResetTimeout had no effect.
+func (h *WebSocketHandler) sendResetTimeoutFailure(client *WebClient, requestID string) {
+	response := &agentassistproto.WebsocketMessage{
+		Cmd: "ResetTimeoutResponse",
+		ResetTimeoutResponse: &agentassistproto.ResetTimeoutResponse{
+			RequestId: requestID,
+			Success:   false,
+		},
+	}
+	if !client.Send(response) {
+		log.Printf("Failed to send ResetTimeoutResponse to client %s", client.ID)
 	}
 }
 

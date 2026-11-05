@@ -26,13 +26,20 @@ const (
 	sessionActivityTTL      = 10 * time.Minute
 )
 
+// resetTimeoutChanBuffer is deliberately 1: one queued signal already means
+// "restart the timer", so coalescing further activity into it is lossless.
+const resetTimeoutChanBuffer = 1
+
 // WebsocketRequest represents a request with response channel for internal use
 type WebsocketRequest struct {
 	Message      *agentassistproto.WebsocketMessage
 	ResponseChan chan *WebResponse
-	UserToken    string // Token of the user who should receive this message
-	CreatedAt    time.Time
-	SessionID    string // MCP initiator session id (empty for legacy clients)
+	// ResetTimeoutChan is signaled when client activity occurs, asking the
+	// waiting RPC to restart its inactivity timeout.
+	ResetTimeoutChan chan struct{}
+	UserToken        string // Token of the user who should receive this message
+	CreatedAt        time.Time
+	SessionID        string // MCP initiator session id (empty for legacy clients)
 }
 
 // WebResponse represents a response from web users
@@ -272,16 +279,60 @@ func (b *Broadcaster) UnregisterClient(client *WebClient) {
 	b.unregister <- client
 }
 
-// BroadcastToToken sends a request to web clients with a specific token
-func (b *Broadcaster) BroadcastToToken(message *agentassistproto.WebsocketMessage, userToken string, responseChan chan *WebResponse) {
+// BroadcastToToken sends a request to web clients with a specific token and
+// returns a channel that is signaled when the user is active on the request.
+//
+// Note: the returned channel is created before the request is handed to the
+// broadcaster loop, so a ResetTimeout arriving in the tiny window before the
+// loop stores it in pendingRequests (and before the RPC selects on the
+// channel) reports success=false even though the request does exist. That
+// window is harmless: it only loses one timer restart, and the next user
+// keystroke restarts it again.
+func (b *Broadcaster) BroadcastToToken(message *agentassistproto.WebsocketMessage, userToken string, responseChan chan *WebResponse) chan struct{} {
+	resetChan := make(chan struct{}, resetTimeoutChanBuffer)
 	request := &WebsocketRequest{
-		Message:      message,
-		ResponseChan: responseChan,
-		UserToken:    userToken,
-		CreatedAt:    time.Now(),
-		SessionID:    sessionIDFromMessage(message),
+		Message:          message,
+		ResponseChan:     responseChan,
+		ResetTimeoutChan: resetChan,
+		UserToken:        userToken,
+		CreatedAt:        time.Now(),
+		SessionID:        sessionIDFromMessage(message),
 	}
 	b.broadcast <- request
+	return resetChan
+}
+
+// ResetRequestTimeout asks the pending request identified by requestID to
+// restart its inactivity timeout. userToken is the token of the client asking
+// for the reset: it must match the request owner, otherwise any client of the
+// same server could keep someone else's request alive by guessing/watching its
+// id. An empty userToken (legacy/unauthenticated clients) is accepted only for
+// requests that were themselves created without a token.
+//
+// Returns true when the request exists, is still pending, and the caller is
+// allowed to reset it. A full channel also returns true: it means a reset is
+// already queued, which has the same effect as this one.
+func (b *Broadcaster) ResetRequestTimeout(requestID, userToken string) bool {
+	b.mu.RLock()
+	req, exists := b.pendingRequests[requestID]
+	b.mu.RUnlock()
+
+	if !exists || req == nil || req.ResetTimeoutChan == nil {
+		log.Printf("ResetTimeout ignored: request %s is not pending", requestID)
+		return false
+	}
+	if req.UserToken != userToken {
+		log.Printf("ResetTimeout rejected: client token does not match owner of request %s", requestID)
+		return false
+	}
+
+	select {
+	case req.ResetTimeoutChan <- struct{}{}:
+		return true
+	default:
+		// Buffer is full: a reset is already pending, which is equivalent.
+		return true
+	}
 }
 
 // sessionIDFromMessage extracts the MCP initiator session id from a message
@@ -642,6 +693,17 @@ func (b *Broadcaster) BroadcastUserConnectionStatus(user *WebClient, status stri
 // generateChatMessageID generates a unique chat message ID
 func generateChatMessageID() string {
 	return fmt.Sprintf("chat_%d_%s", time.Now().UnixNano(), randomString(6))
+}
+
+// IsRequestPending reports whether the server is still waiting for a reply to
+// requestID. MCP initiators poll this as a watchdog over their in-flight RPC:
+// the server owns the inactivity timeout, so the initiator never needs its own
+// wall clock and can never cut off a user who is still working.
+func (b *Broadcaster) IsRequestPending(requestID string) bool {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	_, exists := b.pendingRequests[requestID]
+	return exists
 }
 
 // CheckMessageValidity checks if the given request IDs are still valid (pending)

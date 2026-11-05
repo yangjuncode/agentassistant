@@ -10,6 +10,106 @@ import (
 	"github.com/yangjuncode/agentassistant/agentassistproto"
 )
 
+const (
+	// defaultAskQuestionTimeout is used when the caller does not specify one
+	defaultAskQuestionTimeout = 600
+	// defaultWorkReportTimeout is used when the caller does not specify one
+	defaultWorkReportTimeout = 300
+)
+
+// Tunables expressed as package variables so tests can shrink them instead of
+// sleeping for seconds.
+var (
+	// requestTimeoutUnit multiplies the timeout carried in the request to get
+	// the inactivity window. Production uses seconds; tests shrink it so that
+	// "timeout=4" means 400ms rather than 4s.
+	requestTimeoutUnit = time.Second
+
+	// requestAbsoluteLifetime caps how long a pending request may live, counted
+	// from its creation, even if the user keeps resetting the inactivity timer.
+	// Without this ceiling a client that (buggily or maliciously) keeps sending
+	// activity would pin a request - and its goroutine and pending-entry - for
+	// ever. Resets extend the inactivity timer, never this deadline.
+	requestAbsoluteLifetime = 2 * time.Hour
+)
+
+// waitFailure describes why a pending request stopped waiting.
+type waitFailure struct {
+	// ErrorCode is the value put in the response Meta["error"].
+	ErrorCode string
+	// Message is the human-readable reason.
+	Message string
+}
+
+// pendingRequest bundles everything needed to wait for one reply.
+type pendingRequest struct {
+	id           string
+	messageType  string // "AskQuestion" or "WorkReport"
+	timeout      int    // inactivity timeout, in requestTimeoutUnit units
+	responseChan chan *WebResponse
+	resetChan    chan struct{}
+}
+
+// awaitPendingReply blocks until the user replies, the inactivity timer fires,
+// the absolute lifetime is exceeded, or ctx is cancelled.
+//
+// Returns (response, nil) on a reply and (nil, failure) otherwise. The failure
+// has already been propagated to web clients via CancelRequest.
+func (s *AgentAssistService) awaitPendingReply(ctx context.Context, p pendingRequest) (*WebResponse, *waitFailure) {
+	inactivity := time.Duration(p.timeout) * requestTimeoutUnit
+	timeoutMessage := fmt.Sprintf("Request timed out after %d seconds of inactivity", p.timeout)
+
+	timer := time.NewTimer(inactivity)
+	defer timer.Stop()
+
+	deadline := time.NewTimer(requestAbsoluteLifetime)
+	defer deadline.Stop()
+
+	for {
+		select {
+		case response := <-p.responseChan:
+			return response, nil
+
+		case <-p.resetChan:
+			// The user is working on this request: restart the inactivity
+			// window with the FULL timeout (not the remaining part), and leave
+			// the absolute deadline untouched.
+			log.Printf("%s request %s: user activity, restarting inactivity timer (%ds)",
+				p.messageType, p.id, p.timeout)
+			if !timer.Stop() {
+				// Drain a value that already fired so Reset starts cleanly.
+				select {
+				case <-timer.C:
+				default:
+				}
+			}
+			timer.Reset(inactivity)
+
+		case <-timer.C:
+			log.Printf("%s request %s timed out after %d seconds of inactivity",
+				p.messageType, p.id, p.timeout)
+			s.broadcaster.CancelRequest(p.id, timeoutMessage, p.messageType, CancelReasonTimeout)
+			return nil, &waitFailure{ErrorCode: "timeout", Message: timeoutMessage}
+
+		case <-deadline.C:
+			// Activity kept the request alive, but a request must not live for
+			// ever: bound the total lifetime.
+			message := fmt.Sprintf("Request expired: maximum lifetime of %s exceeded despite user activity",
+				requestAbsoluteLifetime)
+			log.Printf("%s request %s hit the absolute lifetime cap (%s)",
+				p.messageType, p.id, requestAbsoluteLifetime)
+			s.broadcaster.CancelRequest(p.id, message, p.messageType, CancelReasonTimeout)
+			return nil, &waitFailure{ErrorCode: "expired", Message: message}
+
+		case <-ctx.Done():
+			// The RPC caller went away (MCP process exited or gave up).
+			log.Printf("%s request %s was cancelled: caller disconnected", p.messageType, p.id)
+			s.broadcaster.CancelRequest(p.id, "Request was cancelled", p.messageType, CancelReasonInitiatorDisconnected)
+			return nil, &waitFailure{ErrorCode: "cancelled", Message: "Request was cancelled"}
+		}
+	}
+}
+
 // AgentAssistService implements the SrvAgentAssist service
 type AgentAssistService struct {
 	agentassistproto.UnimplementedSrvAgentAssistHandler
@@ -71,14 +171,10 @@ func (s *AgentAssistService) AskQuestion(
 		req.Msg.Request.ProjectDirectory, len(req.Msg.Request.Questions), req.Msg.Request.Timeout)
 
 	// Set default timeout if not provided
-	timeout := req.Msg.Request.Timeout
+	timeout := int(req.Msg.Request.Timeout)
 	if timeout <= 0 {
-		timeout = 600 // Default 600 seconds
+		timeout = defaultAskQuestionTimeout
 	}
-
-	// Create a context with timeout
-	timeoutCtx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
-	defer cancel()
 
 	// Create WebsocketMessage for web users
 	requestID := req.Msg.ID
@@ -94,82 +190,49 @@ func (s *AgentAssistService) AskQuestion(
 	// Create response channel
 	responseChan := make(chan *WebResponse, 1)
 
-	// Broadcast to web users with token filtering
-	s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
+	// Broadcast to web users with token filtering and get reset channel
+	resetChan := s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
 
-	// Wait for response, timeout, or cancellation
-	select {
-	case response := <-responseChan:
-		if response.IsError {
-			return &connect.Response[agentassistproto.AskQuestionResponse]{
-				Msg: &agentassistproto.AskQuestionResponse{
-					ID:       requestID,
-					IsError:  true,
-					Meta:     response.Meta,
-					Contents: nil,
-				},
-			}, nil
-		}
-
-		return &connect.Response[agentassistproto.AskQuestionResponse]{
-			Msg: &agentassistproto.AskQuestionResponse{
-				ID:       requestID,
-				IsError:  false,
-				Meta:     response.Meta,
-				Contents: response.Contents,
-			},
-		}, nil
-
-	case <-timeoutCtx.Done():
-		if timeoutCtx.Err() == context.DeadlineExceeded {
-			log.Printf("AskQuestion request timed out after %d seconds", timeout)
-			// Cancel the request in broadcaster and notify clients
-			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "AskQuestion", CancelReasonTimeout)
-			return &connect.Response[agentassistproto.AskQuestionResponse]{
-				Msg: &agentassistproto.AskQuestionResponse{
-					ID:      requestID,
-					IsError: true,
-					Meta: map[string]string{
-						"error":   "timeout",
-						"message": fmt.Sprintf("Request timed out after %d seconds", timeout),
-					},
-					Contents: nil,
-				},
-			}, nil
-		}
-		// Context was cancelled (not timeout) — the RPC caller went away
-		log.Printf("AskQuestion request was cancelled: %s", requestID)
-		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "AskQuestion", CancelReasonInitiatorDisconnected)
+	response, failure := s.awaitPendingReply(ctx, pendingRequest{
+		id:           requestID,
+		messageType:  "AskQuestion",
+		timeout:      timeout,
+		responseChan: responseChan,
+		resetChan:    resetChan,
+	})
+	if failure != nil {
 		return &connect.Response[agentassistproto.AskQuestionResponse]{
 			Msg: &agentassistproto.AskQuestionResponse{
 				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{
-					"error":   "cancelled",
-					"message": "Request was cancelled by client",
-				},
-				Contents: nil,
-			},
-		}, nil
-
-	case <-ctx.Done():
-		// Original context was cancelled — the RPC caller went away
-		log.Printf("AskQuestion request was cancelled by original context: %s", requestID)
-		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "AskQuestion", CancelReasonInitiatorDisconnected)
-		return &connect.Response[agentassistproto.AskQuestionResponse]{
-			Msg: &agentassistproto.AskQuestionResponse{
-				ID:      requestID,
-				IsError: true,
-				Meta: map[string]string{
-					"error":   "cancelled",
-					"message": "Request was cancelled",
+					"error":   failure.ErrorCode,
+					"message": failure.Message,
 				},
 				Contents: nil,
 			},
 		}, nil
 	}
+
+	if response.IsError {
+		return &connect.Response[agentassistproto.AskQuestionResponse]{
+			Msg: &agentassistproto.AskQuestionResponse{
+				ID:       requestID,
+				IsError:  true,
+				Meta:     response.Meta,
+				Contents: nil,
+			},
+		}, nil
+	}
+
+	return &connect.Response[agentassistproto.AskQuestionResponse]{
+		Msg: &agentassistproto.AskQuestionResponse{
+			ID:       requestID,
+			IsError:  false,
+			Meta:     response.Meta,
+			Contents: response.Contents,
+		},
+	}, nil
 }
 
 // WorkReport implements the WorkReport RPC method
@@ -196,14 +259,10 @@ func (s *AgentAssistService) WorkReport(
 		req.Msg.Request.ProjectDirectory, req.Msg.Request.Summary, req.Msg.Request.Timeout)
 
 	// Set default timeout if not provided
-	timeout := req.Msg.Request.Timeout
+	timeout := int(req.Msg.Request.Timeout)
 	if timeout <= 0 {
-		timeout = 300 // Default 300 seconds (5 minutes)
+		timeout = defaultWorkReportTimeout
 	}
-
-	// Create a context with timeout
-	timeoutCtx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Second)
-	defer cancel()
 
 	// Create WebsocketMessage for web users
 	requestID := req.Msg.ID
@@ -219,82 +278,49 @@ func (s *AgentAssistService) WorkReport(
 	// Create response channel
 	responseChan := make(chan *WebResponse, 1)
 
-	// Broadcast to web users with token filtering
-	s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
+	// Broadcast to web users with token filtering and get reset channel
+	resetChan := s.broadcaster.BroadcastToToken(websocketMessage, req.Msg.UserToken, responseChan)
 
-	// Wait for response, timeout, or cancellation
-	select {
-	case response := <-responseChan:
-		if response.IsError {
-			return &connect.Response[agentassistproto.WorkReportResponse]{
-				Msg: &agentassistproto.WorkReportResponse{
-					ID:       requestID,
-					IsError:  true,
-					Meta:     response.Meta,
-					Contents: nil,
-				},
-			}, nil
-		}
-
-		return &connect.Response[agentassistproto.WorkReportResponse]{
-			Msg: &agentassistproto.WorkReportResponse{
-				ID:       requestID,
-				IsError:  false,
-				Meta:     response.Meta,
-				Contents: response.Contents,
-			},
-		}, nil
-
-	case <-timeoutCtx.Done():
-		if timeoutCtx.Err() == context.DeadlineExceeded {
-			log.Printf("WorkReport request timed out after %d seconds", timeout)
-			// Cancel the request in broadcaster and notify clients
-			s.broadcaster.CancelRequest(requestID, fmt.Sprintf("Request timed out after %d seconds", timeout), "WorkReport", CancelReasonTimeout)
-			return &connect.Response[agentassistproto.WorkReportResponse]{
-				Msg: &agentassistproto.WorkReportResponse{
-					ID:      requestID,
-					IsError: true,
-					Meta: map[string]string{
-						"error":   "timeout",
-						"message": fmt.Sprintf("Request timed out after %d seconds", timeout),
-					},
-					Contents: nil,
-				},
-			}, nil
-		}
-		// Context was cancelled (not timeout) — the RPC caller went away
-		log.Printf("WorkReport request was cancelled: %s", requestID)
-		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled by client", "WorkReport", CancelReasonInitiatorDisconnected)
+	response, failure := s.awaitPendingReply(ctx, pendingRequest{
+		id:           requestID,
+		messageType:  "WorkReport",
+		timeout:      timeout,
+		responseChan: responseChan,
+		resetChan:    resetChan,
+	})
+	if failure != nil {
 		return &connect.Response[agentassistproto.WorkReportResponse]{
 			Msg: &agentassistproto.WorkReportResponse{
 				ID:      requestID,
 				IsError: true,
 				Meta: map[string]string{
-					"error":   "cancelled",
-					"message": "Request was cancelled by client",
-				},
-				Contents: nil,
-			},
-		}, nil
-
-	case <-ctx.Done():
-		// Original context was cancelled — the RPC caller went away
-		log.Printf("WorkReport request was cancelled by original context: %s", requestID)
-		// Cancel the request in broadcaster and notify clients
-		s.broadcaster.CancelRequest(requestID, "Request was cancelled", "WorkReport", CancelReasonInitiatorDisconnected)
-		return &connect.Response[agentassistproto.WorkReportResponse]{
-			Msg: &agentassistproto.WorkReportResponse{
-				ID:      requestID,
-				IsError: true,
-				Meta: map[string]string{
-					"error":   "cancelled",
-					"message": "Request was cancelled",
+					"error":   failure.ErrorCode,
+					"message": failure.Message,
 				},
 				Contents: nil,
 			},
 		}, nil
 	}
+
+	if response.IsError {
+		return &connect.Response[agentassistproto.WorkReportResponse]{
+			Msg: &agentassistproto.WorkReportResponse{
+				ID:       requestID,
+				IsError:  true,
+				Meta:     response.Meta,
+				Contents: nil,
+			},
+		}, nil
+	}
+
+	return &connect.Response[agentassistproto.WorkReportResponse]{
+		Msg: &agentassistproto.WorkReportResponse{
+			ID:       requestID,
+			IsError:  false,
+			Meta:     response.Meta,
+			Contents: response.Contents,
+		},
+	}, nil
 }
 
 // Heartbeat implements the Heartbeat RPC method. MCP initiator processes call
@@ -312,6 +338,29 @@ func (s *AgentAssistService) Heartbeat(
 
 	s.broadcaster.ReportSessionActivity(sessionID)
 	return connect.NewResponse(&agentassistproto.McpHeartbeatResponse{Success: true}), nil
+}
+
+// GetRequestStatus implements the GetRequestStatus RPC method. An MCP initiator
+// polls this while it waits for a reply so that a wedged connection cannot leave
+// the tool call hanging: if the server no longer knows the request, the caller
+// stops waiting and reports a clean error instead of blocking forever.
+func (s *AgentAssistService) GetRequestStatus(
+	ctx context.Context,
+	req *connect.Request[agentassistproto.RequestStatusRequest],
+) (*connect.Response[agentassistproto.RequestStatusResponse], error) {
+	requestID := req.Msg.RequestId
+	if requestID == "" {
+		return connect.NewResponse(&agentassistproto.RequestStatusResponse{
+			RequestId: "",
+			Pending:   false,
+		}), nil
+	}
+
+	pending := s.broadcaster.IsRequestPending(requestID)
+	return connect.NewResponse(&agentassistproto.RequestStatusResponse{
+		RequestId: requestID,
+		Pending:   pending,
+	}), nil
 }
 
 // GetBroadcaster returns the broadcaster instance for web interface integration
